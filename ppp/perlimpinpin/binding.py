@@ -272,9 +272,13 @@ class Binding(object):
 
   def process_input(self, timeout=0):
     """Read and process incoming data from all file objects"""
-    for fd,ev in self._epoll.poll(timeout):
+    l = self._epoll.poll(timeout)
+    if len(l) == 0:
+      return False
+    for fd,ev in l:
       if ev == select.EPOLLIN:
         self._process_input(self._fd2file[fd])
+    return True
 
   def _process_input(self, f):
     """Read and process data from a single file object"""
