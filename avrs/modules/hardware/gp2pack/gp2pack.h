@@ -81,13 +81,24 @@ typedef struct
 
 }gp2pack;
 
-/** \brief Initialize module */
-void gp2pack_init(gp2pack*,uint8_t,uint8_t);
+/** \brief Initialize module
+  * \param nsr ADC pin number for short range GP2
+  * \param nlr ADC pin number for long range GP2
+  */
+void gp2pack_init(gp2pack*,uint8_t nsr,uint8_t nlr);
 
-/** \brief Set up AB parameters for short range and long range */
+/** \brief Set up AB parameters for short range and long range 
+  * \param asr A parameter for short range GP2
+  * \param bsr B parameter for short range GP2
+  * \param alr A parameter for short range GP2
+  * \param blr B parameter for short range GP2
+  */
 void gp2pack_setAB(gp2pack*, double asr, double bsr, double alr, double blr);
 
-/** \brief Set up threshold values for short range and long range */
+/** \brief Set up threshold values for short range and long range 
+  * \param tsr Short range threshold value
+  * \param tlr Long range threshold value
+  */
 void gp2pack_setThreshold(gp2pack*, double tsr, double tlr);
 
 /** \brief Update module */
@@ -99,9 +110,12 @@ double gp2pack_getDistance(gp2pack*);
 
 /** \brief Module calibration 
   * \todo Threshold calibration still not performed by this function
+  * \param gp2 pointer to a gp2pack instance
+  * \param print_debug pointer to stdlib printf, to display information while calibrating
+  * \param recv_debug pointer to aversive/uart uartX_recv, to ask user for input while calibrating
   **/
-void gp2pack_calibration( gp2pack*,
-                          int(*print)(const char*,...),
-                          int(*recv)(void));
+void gp2pack_calibration( gp2pack* gp2,
+                          int(*print_debug)(const char*,...),
+                          int(*recv_debug)(void));
 
 #endif/*GP2PACK_H*/
