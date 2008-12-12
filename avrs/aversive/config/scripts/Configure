@@ -1,0 +1,421 @@
+#! /bin/sh
+#
+# This script is used to configure an Aversive project. It is mainly
+# coming from the Linux Kernel Configure script. Thanks to the authors.
+#
+
+
+
+# Make sure we're really running bash.
+#
+# I would really have preferred to write this script in a language with
+# better string handling, but alas, bash is the only scripting language
+# that I can be reasonable sure everybody has on their linux machine.
+#
+[ -z "$BASH" ] && { echo "Configure requires bash" 1>&2; exit 1; }
+
+# Disable filename globbing once and for all.
+# Enable function cacheing.
+set -f -h
+
+#
+# Dummy functions for use with a config.in modified for menuconf
+#
+function mainmenu_option () {
+	:
+}
+function mainmenu_name () {
+	:
+}
+function endmenu () {
+	:
+}
+
+#
+# help prints the corresponding help text from ${HELP_FILE} to stdout
+#
+#       help variable
+#
+function help () {
+  if [ -f ${HELP_FILE} ]
+  then
+     #first escape regexp special characters in the argument:
+     var=$(echo "$1"|sed 's/[][\/.^$*]/\\&/g')
+     #now pick out the right help text:
+     text=$(sed -n "/^$var[ 	]*\$/,\${
+			/^$var[ 	]*\$/c\\
+${var}:\\
+
+			/^#/b
+			/^[^ 	]/q
+			p
+		    }" ${HELP_FILE})
+     if [ -z "$text" ]
+     then
+	  echo; echo "  Sorry, no help available for this option yet.";echo
+     else
+	  (echo; echo "$text") | ${PAGER:-more}
+     fi
+  else
+     echo;
+     echo "  Can't access the file ${HELP_FILE} which"
+     echo "  should contain the help texts."
+     echo
+  fi
+}
+
+
+#
+# readln reads a line into $ans.
+#
+#	readln prompt default oldval
+#
+function readln () {
+	if [ "$DEFAULT" = "-d" ]; then
+		echo "$1"
+		ans=$2
+	else
+		echo -n "$1"
+		[ -z "$3" ] && echo -n "(NEW) "
+		IFS='@' read ans || exit 1
+		[ -z "$ans" ] && ans=$2
+	fi
+}
+
+#
+# comment does some pretty-printing
+#
+#	comment 'xxx'
+# 
+function comment () {
+	echo "*"; echo "* $1" ; echo "*"
+	(echo "" ; echo "#"; echo "# $1" ; echo "#") >>$CONFIG
+	(echo "" ; echo "/*"; echo " * $1" ; echo " */") >>$CONFIG_H
+}
+
+#
+# define_bool sets the value of a boolean argument
+#
+#	define_bool define value
+#
+
+function define_bool () {
+	case "$2" in
+	 "y")
+		echo "$1=y" >>$CONFIG
+		echo "#define $1 1" >>$CONFIG_H
+		;;
+
+	 "n")
+		echo "# $1 is not set" >>$CONFIG
+		echo "#undef  $1" >>$CONFIG_H
+		;;
+	esac
+	eval "$1=$2"
+}
+
+#
+# bool processes a boolean argument
+#
+#	bool question define
+#
+function bool () {
+	old=$(eval echo "\${$2}")
+	def=${old:-'n'}
+	case "$def" in
+	 "y" | "m") defprompt="Y/n/?"
+	      def="y"
+	      ;;
+	 "n") defprompt="N/y/?"
+	      ;;
+	esac
+	while :; do
+	  readln "$1 ($2) [$defprompt] " "$def" "$old"
+	  case "$ans" in
+	    [yY] | [yY]es ) define_bool "$2" "y"
+			    break;;
+	    [nN] | [nN]o )  define_bool "$2" "n"
+			    break;;
+	    * )             help "$2"
+			    ;;
+	  esac
+	done
+}
+
+function dep_bool () {
+	ques=$1
+	var=$2
+	shift 2
+	while [ $# -gt 0 ]; do
+	  case "$1" in
+	    n)
+	      define_bool "$var" "n"
+	      return
+	      ;;
+	  esac
+	  shift
+	done
+
+	bool "$ques" "$var"
+}
+
+
+#
+# define_int sets the value of a integer argument
+#
+#	define_int define value
+#
+function define_int () {
+	echo "$1=$2" >>$CONFIG
+	echo "#define $1 ($2)" >>$CONFIG_H
+	eval "$1=$2"
+}
+
+#
+# int processes an integer argument with optional limits
+#
+#	int question define default [min max]
+#
+function int () {
+	old=$(eval echo "\${$2}")
+	def=${old:-$3}
+	if [ $# -gt 3 ]; then
+	  min=$4
+	else
+	  min=-1000000000    # !!
+	fi
+	if [ $# -gt 4 ]; then
+	  max=$5
+	else
+	  max=1000000000     # !!
+	fi
+	while :; do
+	  readln "$1 ($2) [$def] " "$def" "$old"
+	  echo [$ans]
+	  if expr \( \( $ans + 0 \) \>= $min \) \& \( $ans \<= $max \) >/dev/null 2>&1 ; then
+            define_int "$2" "$ans"
+	    break
+          else
+	    help "$2"
+          fi
+	done
+}
+
+#
+# define_hex sets the value of a hexadecimal argument
+#
+#	define_hex define value
+#
+function define_hex () {
+	echo "$1=$2" >>$CONFIG
+	echo "#define $1 0x${2#*[x,X]}" >>$CONFIG_H
+	eval "$1=$2"
+}
+
+#
+# hex processes an hexadecimal argument
+#
+#	hex question define default
+#
+function hex () {
+	old=$(eval echo "\${$2}")
+	def=${old:-$3}
+	def=${def#*[x,X]}
+	while :; do
+	  readln "$1 ($2) [$def] " "$def" "$old"
+	  ans=${ans#*[x,X]}
+	  if expr "$ans" : '[0-9a-fA-F][0-9a-fA-F]*$' > /dev/null; then
+	    define_hex "$2" "$ans"
+	    break
+	  else
+	    help "$2"
+	  fi
+	done
+}
+
+#
+# define_string sets the value of a string argument
+#
+#	define_string define value
+#
+function define_string () {
+	echo "$1=\"$2\"" >>$CONFIG
+	echo "#define $1 \"$2\"" >>$CONFIG_H
+	eval "$1=\"$2\""
+}
+
+#
+# string processes a string argument
+#
+#	string question define default
+#
+function string () {
+	old=$(eval echo "\${$2}")
+	def=${old:-$3}
+	while :; do
+          if [ "$old" = "?" ]; then
+             readln "$1 ($2) [$def] " "$def" ""
+          else
+	     readln "$1 ($2) [$def] " "$def" "$old"
+          fi
+	  if [ "$ans" = "?" ]; then
+	    help "$2"
+	  else
+	    break
+	  fi
+	done
+	define_string "$2" "$ans"
+}
+#
+# choice processes a choice list (1-out-of-n)
+#
+#	choice question choice-list default
+#
+# The choice list has a syntax of:
+#	NAME WHITESPACE VALUE { WHITESPACE NAME WHITESPACE VALUE }
+# The user may enter any unique prefix of one of the NAMEs and
+# choice will define VALUE as if it were a boolean option.
+# VALUE must be in all uppercase.  Normally, VALUE is of the
+# form CONFIG_<something>.  Thus, if the user selects <something>,
+# the CPP symbol CONFIG_<something> will be defined and the
+# shell variable CONFIG_<something> will be set to "y".
+#
+function choice () {
+	question="$1"
+	choices="$2"
+	old=
+	def=$3
+
+	# determine default answer:
+	names=""
+	set -- $choices
+	firstvar=$2
+	while [ -n "$2" ]; do
+		if [ -n "$names" ]; then
+			names="$names, $1"
+		else
+			names="$1"
+		fi
+		if [ "$(eval echo \"\${$2}\")" = "y" ]; then
+			old=$1
+			def=$1
+		fi
+		shift; shift
+	done
+
+	val=""
+	while [ -z "$val" ]; do
+		ambg=n
+		readln "$question ($names) [$def] " "$def" "$old"
+		ans=$(echo $ans | tr a-z A-Z)
+		set -- $choices
+		while [ -n "$1" ]; do
+			name=$(echo $1 | tr a-z A-Z)
+			case "$name" in
+				"$ans"* | */"$ans"* )
+					case "$name" in
+						"$ans" | */"$ans"/* | \
+						"$ans"/* | */"$ans" )
+							val="$2"
+							break # exact match
+						;;
+					esac
+					if [ -n "$val" ]; then
+						echo;echo \
+		"  Sorry, \"$ans\" is ambiguous; please enter a longer string."
+						echo
+						val=""
+						ambg=y
+						break
+					else
+						val="$2"
+					fi;;
+			esac
+			shift; shift
+		done
+		if [ "$val" = "" -a "$ambg" = "n" ]; then
+			help "$firstvar"
+		fi
+	done
+	set -- $choices
+	while [ -n "$2" ]; do
+		if [ "$2" = "$val" ]; then
+			echo "  defined $val"
+			define_bool "$2" "y"
+		else
+			define_bool "$2" "n"
+		fi
+		shift; shift
+	done
+}
+
+CONFIG=.tmpconfig
+CONFIG_H=.tmpconfig.h
+trap "rm -f $CONFIG $CONFIG_H ; exit 1" 1 2
+if [ -z "$HELP_FILE" ]
+then
+	HELP_FILE="Documentation/Configure.help"
+fi
+
+#
+# Make sure we start out with a clean slate.
+#
+echo "#" > $CONFIG
+echo "# Automatically generated make config: don't edit" >> $CONFIG
+echo "#" >> $CONFIG
+
+echo "/*" > $CONFIG_H
+echo " * Automatically generated C config: don't edit" >> $CONFIG_H
+echo " */" >> $CONFIG_H
+echo "#define AUTOCONF_INCLUDED" >> $CONFIG_H
+
+DEFAULT=""
+if [ "$1" = "-d" ] ; then
+	DEFAULT="-d"
+	shift
+fi
+
+CONFIG_IN=./config.in
+if [ "$1" != "" ] ; then
+	CONFIG_IN=$1
+fi
+
+DEFAULTS=$AVERSIVE_DIR/config/.config
+if [ -f .config ]; then
+  DEFAULTS=.config
+fi
+
+if [ -f $DEFAULTS ]; then
+  echo "#"
+  echo "# Using defaults found in" $DEFAULTS
+  echo "#"
+  . $DEFAULTS
+  sed -e 's/# \(CONFIG_[^ ]*\) is not.*/\1=n/' <$DEFAULTS >.config-is-not.$$
+  . .config-is-not.$$
+  rm .config-is-not.$$
+else
+  echo "#"
+  echo "# No defaults found"
+  echo "#"
+fi
+
+. $CONFIG_IN
+
+rm -f .config.old
+if [ -f .config ]; then
+	mv .config .config.old
+fi
+mv .tmpconfig .config
+if [ -w "`dirname ${AUTOCONF_FILE:=include/linux/autoconf.h}`" ]; then
+	mv .tmpconfig.h ${AUTOCONF_FILE:-include/linux/autoconf.h}
+fi
+
+$AVERSIVE_DIR/config/generate_aversive_config .config .aversive_conf
+
+echo
+echo "*** End of Aversive project configuration."
+echo "*** Next, you should run 'make clean, then make'."
+echo
+
+
+exit 0

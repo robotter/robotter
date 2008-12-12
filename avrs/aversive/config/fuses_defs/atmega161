@@ -1,0 +1,6 @@
+0 5 lfuse BOOTRST 1 Boot Reset Vector Enabled
+1 4 lfuse SPIEN 0 Serial program downloading (SPI) enabled
+2 3 lfuse SUT 1 Start-up time
+3 2 lfuse CKSEL2 0 Select Clock Source
+4 1 lfuse CKSEL1 1 Select Clock Source
+5 0 lfuse CKSEL0 0 Select Clock Source

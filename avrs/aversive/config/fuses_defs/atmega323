@@ -1,0 +1,13 @@
+0 7 lfuse BODLEVEL 1 Brown out detector trigger level
+1 6 lfuse BODEN 1 Brown out detector enable
+2 3 lfuse CKSEL3 0 Select Clock Source
+3 2 lfuse CKSEL2 0 Select Clock Source
+4 1 lfuse CKSEL1 0 Select Clock Source
+5 0 lfuse CKSEL0 1 Select Clock Source
+6 7 hfuse OCDEN 1 Enable OCD
+7 6 hfuse JTAGEN 0 Enable JTAG
+8 5 hfuse SPIEN 0 Enable Serial programming and Data Downloading
+9 3 hfuse EESAVE 1 EEPROM memory is preserved through chip erase
+10 2 hfuse BOOTSZ1 0 Select Boot Size
+11 1 hfuse BOOTSZ0 0 Select Boot Size
+12 0 hfuse BOOTRST 1 Select Reset Vector

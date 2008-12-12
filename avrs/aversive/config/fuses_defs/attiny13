@@ -1,0 +1,13 @@
+0 7 lfuse SPIEN 0 SPI programming enable
+1 6 lfuse EESAVE 1 Keep EEprom contents during chip erase
+2 5 lfuse WDTON 1 Watch dog timer always on
+3 4 lfuse CKDIV8 0 Start up with system clock divided by 8
+4 3 lfuse SUT1 1 Select start-up time
+5 2 lfuse SUT0 0 Select start-up time
+6 1 lfuse CKSEL1 1 Select Clock Source
+7 0 lfuse CKSEL0 0 Select Clock Source
+8 4 hfuse SELFPRGEN 1 Self Programming Enable
+9 3 hfuse DWEN 1 DebugWire Enable
+10 2 hfuse BODLEVEL1 1 Enable BOD and select level
+11 1 hfuse BODLEVEL0 1 Enable BOD and select level
+12 0 hfuse RSTDISBL 1 Disable external reset

@@ -1,0 +1,7 @@
+These scripts are used to generate aversive_ATxxxxx in aversive/include
+directory. If you feel strong enough to try them... ok ;) But keep
+in mind that's they are quick'n'dirty scripts, and not written to work
+on every machine. They make some assemptions about the atmel website
+for documentation downloading... so they could fail tomorrow.
+
+The script expects an 'xml' dir.

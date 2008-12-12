@@ -1,0 +1,91 @@
+function for configuring uart :
+
+
+int8_t uartX_init( )
+  equivalent to uartX_set(NULL)
+
+
+int8_t uartX_get (struct uart_params * conf ) 
+  return values : 
+    0 if ok
+    < 0 if error
+
+this func fills the value of the structure with current values.
+
+
+int8_t uartX_set( struct uart_params conf );
+  return values :
+    0 if ok
+    < 0 if error
+
+apply the conf. If conf==NULL, apply the default conf (static)
+
+
+int8_t uart_enable(struct uart_param)
+int8_t uart_disable(struct uart_param)
+
+int8_t uart_tx_enable(struct uart_param)
+int8_t uart_tx_disable(struct uart_param)
+
+int8_t uart_rx_enable(struct uart_param)
+int8_t uart_rx_disable(struct uart_param)
+
+int8_t uart_dont_loose_data(struct uart_param)
+int8_t uart_can_loose_data(struct uart_param)
+
+int8_t uart_use_double_speed(struct uart_param)
+int8_t uart_use_simple_speed(struct uart_param)
+
+int8_t uart_parity_none(struct uart_param)
+int8_t uart_parity_odd(struct uart_param)
+int8_t uart_parity_even(struct uart_param)
+
+int8_t uart_stop_bits(struct uart_param, uint8_t nbits)
+
+int8_t uart_baudrate(struct uart_param, uint32_t baudrate)
+
+
+struct uart_param {
+   unsigned char enabled : 1,
+		 tx_enabled : 1,
+                 rx_enabled : 1,
+                 dont_loose_data : 1,
+                 use_double_speed : 1,
+                 partity : 2,
+                 stop_bit : 1;
+   uint8_t nbits;
+   uint32_t baudrate;
+}
+
+
+
+Configuration example :
+
+** change one parameter only :
+
+uart1_set_baudrate(uint32_t baudrate)
+{
+  struct uart_param u;
+
+  if (uart1_get(&u) < 0) {
+    printf ("error");
+    goto error;
+  }
+
+  if (uart1_baudrate(u, baudrate) < 0) {
+    printf ("error");
+    goto error;
+  }
+
+  if (uart1_set(u) < 0) {
+    printf ("error");
+    goto error;
+  }
+
+  return 0;
+
+error:
+  return 1;
+}
+
+

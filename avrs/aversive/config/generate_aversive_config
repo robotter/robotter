@@ -1,0 +1,201 @@
+#!/bin/sh
+
+#
+# usage generate_aversive_config config_file dst_module_file
+#
+
+# 
+# order is important !! High level modules first (defines link order)
+#
+MODULES_LIST="CONFIG_MODULE_BRUSHLESS_3PHASE_DIGITAL_HALL,/devices/brushless_motors/brushless_3phase_digital_hall
+              CONFIG_MODULE_BRUSHLESS_3PHASE_DIGITAL_HALL_DOUBLE,/devices/brushless_motors/brushless_3phase_digital_hall_double
+              CONFIG_MODULE_UART,comm/uart
+              CONFIG_MODULE_I2C,comm/i2c
+              CONFIG_MODULE_MF2_CLIENT,comm/mf2_client
+              CONFIG_MODULE_MF2_SERVER,comm/mf2_server
+              CONFIG_MODULE_PWM,hardware/pwm
+              CONFIG_MODULE_ADC,hardware/adc
+              CONFIG_MODULE_MENU,ihm/menu
+              CONFIG_MODULE_PARSE,ihm/parse
+              CONFIG_MODULE_RDLINE,ihm/rdline
+              CONFIG_MODULE_VT100,ihm/vt100
+              CONFIG_MODULE_LCD,devices/ihm/lcd
+              CONFIG_MODULE_MULTISERVO,devices/servo/multiservo
+              CONFIG_MODULE_ENCODERS_MICROB,devices/encoders/encoders_microb
+              CONFIG_MODULE_ENCODERS_EIRBOT,devices/encoders/encoders_eirbot
+              CONFIG_MODULE_TRAJECTORY_MANAGER,devices/robot/trajectory_manager
+              CONFIG_MODULE_BLOCKING_DETECTION_MANAGER,devices/robot/blocking_detection_manager
+              CONFIG_MODULE_OBSTACLE_AVOIDANCE,devices/robot/obstacle_avoidance
+              CONFIG_MODULE_ROBOT_SYSTEM,devices/robot/robot_system
+              CONFIG_MODULE_POSITION_MANAGER,devices/robot/position_manager
+              CONFIG_MODULE_PID,devices/control_system/filters/pid
+              CONFIG_MODULE_RAMP,devices/control_system/filters/ramp
+              CONFIG_MODULE_QUADRAMP,devices/control_system/filters/quadramp
+              CONFIG_MODULE_QUADRAMP_DERIVATE,devices/control_system/filters/quadramp_derivate
+              CONFIG_MODULE_BIQUAD,devices/control_system/filters/biquad
+              CONFIG_MODULE_CONTROL_SYSTEM_MANAGER,devices/control_system/control_system_manager
+              CONFIG_MODULE_TIME,base/time
+              CONFIG_MODULE_SCHEDULER,base/scheduler
+              CONFIG_MODULE_AES,crypto/aes
+              CONFIG_MODULE_MD5,crypto/md5
+              CONFIG_MODULE_RC4,crypto/rc4
+              CONFIG_MODULE_HAMMING,encoding/hamming
+              CONFIG_MODULE_TIMER,hardware/timer
+              CONFIG_MODULE_BASE64,encoding/base64
+              CONFIG_MODULE_CIRBUF,base/cirbuf
+              CONFIG_MODULE_DIAGNOSTIC,debug/diagnostic
+              CONFIG_MODULE_ERROR,debug/error
+              CONFIG_MODULE_FIXED_POINT,base/math/fixed_point
+              CONFIG_MODULE_VECT2,base/math/vect2"
+
+echo
+echo Generating aversive configuration files
+
+# does the .config file exists ?
+if [ ! -f $1 ]; then
+    echo "No such file <$1>"
+    exit 1
+fi
+
+echo "# Aversive configuration" > $2
+
+####
+##### MCU, compilation options, output format
+####
+
+echo -n "MCU = " >> $2
+echo `grep "CONFIG_MCU_.*=y" $1 | sed s,CONFIG_MCU_,, | sed s,=y,, | tr "[A-Z]" "[a-z]"` >> $2
+
+echo -n "OPT = " >> $2
+echo `grep "CONFIG_OPTM_.*=y" $1 | sed s,CONFIG_OPTM_,, | sed s,=y,, | tr "[A-Z]" "[a-z]"` >> $2
+
+if grep "CONFIG_FORMAT_IHEX=y" $1 > /dev/null 2> /dev/null
+    then
+    echo "FORMAT = ihex" >> $2
+    echo "FORMAT_EXTENSION = hex" >> $2
+fi
+
+if grep "CONFIG_FORMAT_SREC=y" $1 > /dev/null 2> /dev/null
+    then
+    echo "FORMAT = srec" >> $2
+    echo "FORMAT_EXTENSION = srec" >> $2
+fi
+
+if grep "CONFIG_FORMAT_BINARY=y" $1 > /dev/null 2> /dev/null
+    then
+    echo "FORMAT = binary" >> $2
+    echo "FORMAT_EXTENSION = bin" >> $2
+fi
+
+####
+##### Math lib and printf
+####
+
+if grep "CONFIG_MATH_LIB=y" $1 > /dev/null 2> /dev/null
+    then
+    echo "MATH_LIB = -lm" >> $2
+else
+    echo "MATH_LIB = " >> $2
+fi
+
+if grep "CONFIG_MINIMAL_PRINTF=y" $1 > /dev/null 2> /dev/null
+    then
+    echo "PRINTF_LDFLAGS = -Wl,-u,vfprintf -lprintf_min" >> $2
+fi
+
+if grep "CONFIG_STANDARD_PRINTF=y" $1 > /dev/null 2> /dev/null
+    then
+    echo "PRINTF_LDFLAGS = " >> $2
+fi
+
+if grep "CONFIG_ADVANCED_PRINTF=y" $1 > /dev/null 2> /dev/null
+    then
+    echo "PRINTF_LDFLAGS = -Wl,-u,vfprintf -lprintf_flt" >> $2
+fi
+
+if grep "CONFIG_FDEVOPEN_COMPAT=y" $1 > /dev/null 2> /dev/null
+    then
+    echo "CFLAGS += -D__STDIO_FDEVOPEN_COMPAT_12" >> $2
+fi
+
+
+
+####
+##### Programmer
+####
+
+if grep "CONFIG_AVRDUDE=y" $1 > /dev/null 2> /dev/null
+    then
+    echo "PROGRAMMER = avrdude" >> $2
+fi
+
+echo -n "AVRDUDE_PROGRAMMER = " >> $2
+echo `grep "CONFIG_AVRDUDE_PROG_.*=y" $1 | sed s,CONFIG_AVRDUDE_PROG_,, | sed s,=y,, | tr [A-Z_] [a-z\-]` >> $2
+
+echo -n "AVRDUDE_PORT = " >> $2
+echo `grep "CONFIG_AVRDUDE_PORT" $1 | sed s,CONFIG_AVRDUDE_PORT=,,` >> $2
+
+
+if grep "CONFIG_AVARICE=y" $1 > /dev/null 2> /dev/null
+    then
+    echo "PROGRAMMER = avarice" >> $2
+    if ! grep "CONFIG_FORMAT_BINARY=y" $1 > /dev/null 2> /dev/null
+	then
+	echo "WARNING: With avarice, output format should be binary"
+    fi
+fi
+
+if grep "CONFIG_AVARICE_PROG_MKI=y" $1 > /dev/null 2> /dev/null
+    then
+    echo "AVARICE_PROGRAMMER = mkI" >> $2
+fi
+
+if grep "CONFIG_AVARICE_PROG_MKII=y" $1 > /dev/null 2> /dev/null
+    then
+    echo "AVARICE_PROGRAMMER = mkII" >> $2
+fi
+
+echo -n "AVARICE_PORT = " >> $2
+echo `grep "CONFIG_AVARICE_PORT" $1 | sed s,CONFIG_AVARICE_PORT=,,` >> $2
+
+echo -n "AVARICE_DEBUG_PORT = " >> $2
+echo `grep "CONFIG_AVARICE_DEBUG_PORT" $1 | sed s,CONFIG_AVARICE_DEBUG_PORT=,,` >> $2
+
+
+####
+##### Generation of the module list
+####
+echo -n "MODULES =" >> $2
+
+for i in $MODULES_LIST
+do
+  config=`echo $i | cut -d ',' -f1-1`
+  path=`echo $i | cut -d ',' -f2-2`
+  
+
+  if grep $config=y $1 2>/dev/null >/dev/null
+      then
+      echo -n " "$path >> $2
+  fi
+
+  if grep -q "${config}_CREATE_CONFIG=y" $1; then
+      CONF_FILE=`basename $path`_config.h
+      if [ -f $CONF_FILE ]
+	  then
+	  echo Cannot create default conf file $CONF_FILE, file exists
+      else
+	  if [ ! -f $AVERSIVE_DIR/modules/$path/config/$CONF_FILE ]; then
+	      echo Cannot create default conf file $CONF_FILE, no config sample in $AVERSIVE_DIR/modules/$path/config/$CONF_FILE
+	  else
+	      echo Creating default conf file $CONF_FILE .
+	      cp $AVERSIVE_DIR/modules/$path/config/$CONF_FILE .
+	  fi
+      fi
+  fi
+done
+echo >> $2
+
+
+
+
+echo >> $2

@@ -1,0 +1,172 @@
+Configuration statique :
+
+UART_MCU_QUARTZ
+
+UARTx_TX_ENABLED
+UARTx_RX_ENABLED
+
+UARTx_DONT_LOOSE_DATA 
+
+UARTx_TX_FIFO_SIZE uint8_t
+UARTx_RX_FIFO_SIZE uint8_t
+
+
+UARTx_DEFAULT_BAUDRATE uint32_t
+
+UARTx_DEFAULT_9BITS/UARTx_DEFAULT_8BITS/UARTx_DEFAULT_7BITS/UARTx_DEFAULT_6BITS/UARTx_DEFAULT_5BITS
+
+UARTx_DEFAULT_NO_PARITY/UARTx_DEFAULT_PARITY_ODD/UARTx_DEFAULT_PARITY_EVEN
+
+UARTx_DEFAULT_1_STOP_BIT/UARTx_DEFAULT_2_STOP_BIT
+
+
+
+------------------------------------------------------
+
+Configuration dynamique :
+
+
+
+Modification et lecture de la vitesse de transmission. Le set retourne
+0 en cas de succès, ou un code d'erreur si la vitesse ne peut être
+atteinte. 
+
+uint8_t uart_set_baudrate(uint32_t)
+uint32_t uart_get_baudrate()
+
+
+
+Modification de la parité. Elle est exécutée en hard sur les USART
+mais elle devra être effectuée en soft sur les uart (9e
+bit). set_parity retourne 0 en cas de succès.
+
+uint8_t uart_set_parity(NO_PARITY/PARITY_ODD/PARITY_EVEN)
+uint8_t uart_get_parity()
+
+
+
+Modification du nombre de bits de stop. Executé en hard sur les USART,
+il doit être effectué en soft sinon. Il est à savoir qu'il n'est pas
+possible avec un uart d'avoir plus d'une de ces options :9bits,
+2bits_stop, parité, car tout est géré avec le 9e bit. Il est par
+contre envisageable d'avoir une combinaison : 7bits + parité + 2 bits
+stop. En même temps, les AVR avec uart sont de plus en plus rare, il
+n'est peut-etre pas nécessaire de s'embeter avec ça.
+
+uint8_t uart_set_1_stop_bit()
+uint8_t uart_set_2_stop_bit()
+uint8_t uart_get_stop_bit()
+
+
+Ajoute une fonction appelée sur un évènement tx ou rx. Si on l'appelle
+avec un pointeur nul, aucune fonction n'est appelée. data_size est un
+uint8_t ou un uint16_t, selon la taille des données.
+
+uint8_t uart_register_tx_event(void (*f)(data_size))
+uint8_t uart_register_rx_event(void (*f)(data_size))
+
+------------------------------------------------------------------
+
+Initialisation :
+
+Voici un apperçu des caractéristiques de quelques AVR:
+
+at90s2313 et at90s8515 :
+uart
+8 bits
+9bits ou parité ou stop supplémentaire
+UCR (uart control register) et USR (status)
+
+pareil
+
+at90int16_t3 :
+pareil, mais avec en plus double speed
+et comm multiprocesseur
+UCSRA et UCSRB
+
+
+atm32 et atm8515 :
+usart
+URSEL pour acceder à UBRRH ou UCSRC
+5 6 7 8 9 bits
+parité et bits stop natifs
+opérations synchrones
+
+
+atm128 :
+pareil, mais en double, et sans le URSEL
+
+
+
+
+Résultat des courses, pour la fonction d'init, il faut séparer
+intelligemment.
+
+D'abord, définissons des caractéristiques pour chaque processeur :
+
+AT90s2313:
+UART_SIMPLE
+UART_UCR_USR
+
+
+ATmega163:
+UART_SIMPLE
+UART_UCSR (implique U2X ?)
+UART_U2X 
+
+
+ATM32:
+UART_USART (a priori, implique 56789 bits,parité et stop natifs + u2x) 
+UART_URSEL
+
+
+ATM128:
+UART_USART
+UART_DOUBLE 
+
+
+Dans l'init, on a donc :
+
+init générique : ports, fifos
+
+#if defined(UART_SIMPLE) && defined(UART_UCR_USR)
+uart_init_simple_ucr_usr()
+#elif defined(UART_SIMPLE) && defined(UART_UCSR)
+uart_init_simple_ucsr()
+#elif !defined(UART_DOUBLE)
+uart_init_usart()
+#else
+uart_init_double_usart()
+#endif
+
+
+
+
+puis dans chaque fonction d'init, on a :
+
+#if defined(UART_TX_ENABLED) && defined(UART_RX_ENABLED)
+  config interruptions
+
+  config selon 5/6/7/8/9 bits + parité + stop
+
+  U2X si nécessaire
+
+  init baudrate
+
+
+
+
+Concernant la parité, et les bits de stop : 
+- Il faudra implémenter des fonctions sur les uC ne disposant pas de
+ces options en natif. Pour l'instant, il me semble que ce n'est pas
+hyper important : d'une part c'est peu utilisé, d'autre part, il faut
+pouvoir être averti (en réception) qu'il y a eu une erreur (que ce
+soit une erreur de parité, overrun ou frame error d'ailleurs). Je
+pense qu'il serait bien de fournir des fonctions du genre :
+
+uint8_t uart_udr_get() // lit le registre udr, bêtement <=> toto=UDR
+uint8_t uart_udr_get_check_errors(&errors) // lit le registre udr, et
+				       place un indicateur d'erreurs
+				       dans error. 
+				      
+Voilà, il ne reste plus qu'à coder, le gros du boulot est fait.

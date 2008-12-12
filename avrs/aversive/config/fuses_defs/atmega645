@@ -1,0 +1,19 @@
+0 7 lfuse CLKDIV8 0 Divide clock by 8
+1 6 lfuse CKOUT 1 Oscillator options
+2 5 lfuse SUT1 0 Select start-up time
+3 4 lfuse SUT0 0 Select start-up time
+4 3 lfuse CKSEL3 0 Select Clock Source
+5 2 lfuse CKSEL2 0 Select Clock Source
+6 1 lfuse CKSEL1 0 Select Clock Source
+7 0 lfuse CKSEL0 1 Select Clock Source
+8 7 hfuse OCDEN 1 Enable OCD
+9 6 hfuse JTAGEN 0 Enable JTAG
+10 5 hfuse SPIEN 0 Enable Serial programming and Data Downloading
+11 4 hfuse WDTON 1 Watchdog timer always on
+12 3 hfuse EESAVE 1 EEPROM memory is preserved through chip erase
+13 2 hfuse BOOTSZ1 0 Select Boot Size
+14 1 hfuse BOOTSZ0 0 Select Boot Size
+15 0 hfuse BOOTRST 1 Select Reset Vector
+16 2 efuse BODLEVEL1 1 Brown-out Detector trigger level
+17 1 efuse BODLEVEL0 1 Brown-out Detector trigger level
+18 0 efuse RSTDISBL 1 External Reset Disable

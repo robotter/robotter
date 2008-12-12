@@ -1,0 +1,13 @@
+0 7 lfuse PLLCK 1 Use PLL for internal clock
+1 6 lfuse CKOPT 1 Oscillator options
+2 5 lfuse SUT1 1 Select start-up time
+3 4 lfuse SUT0 1 Select start-up time
+4 3 lfuse CKSEL3 1 Select Clock Source
+5 2 lfuse CKSEL2 0 Select Clock Source
+6 1 lfuse CKSEL1 0 Select Clock Source
+7 0 lfuse CKSEL0 1 Select Clock Source
+8 4 hfuse RSTDISBL 1 Select if PB/ is I/O pin or RESET pin
+9 3 hfuse SPIEN 0 Enable Serial Program and Data Downloading
+10 2 hfuse EESAVE 1 EEPROM memory is preserved through the Chip Erase
+11 1 hfuse BODLEVEL 1 Brown out detector trigger level
+12 0 hfuse BODEN 1 Brown out detector enable

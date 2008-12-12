@@ -1,0 +1,6 @@
+0 5 fuse SPIEN 0 Enable Serial programming and Data Downloading (ignored)
+1 7 fuse BODLEVEL 1 Brown out detector trigger level
+2 6 fuse BODEN 1 Brown out detector enable
+3 2 fuse CKSEL2 0 Select Clock Source
+4 1 fuse CKSEL1 1 Select Clock Source
+5 0 fuse CKSEL0 0 Select Clock Source

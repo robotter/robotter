@@ -1,0 +1,8 @@
+0 7 lfuse BODLEVEL 1 Brown out detector trigger level
+1 6 lfuse BODEN 1 Brown out detector enable
+2 5 lfuse SUT1 0 Select start-up time
+3 4 lfuse SUT0 0 Select start-up time
+4 3 lfuse CKSEL3 0 Select Clock Source
+5 2 lfuse CKSEL2 0 Select Clock Source
+6 1 lfuse CKSEL1 0 Select Clock Source
+7 0 lfuse CKSEL0 1 Select Clock Source

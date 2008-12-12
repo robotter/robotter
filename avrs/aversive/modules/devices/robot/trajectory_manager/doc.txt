@@ -1,0 +1,148 @@
+Le module ne fonctionne qu'avec un asserv composes des modules 
+control_system_manager, position_manager, quadramp, robot_system.
+Il utilise le module vect2.
+
+
+QUESTIONS (et reponses) QUI RESTENT
+
+- cm ou mm ?
+- quand on donne l'ordre d'aller a un point tres proche du robot, mais
+  different en angle, ca fait des gros pivots. Solution ?
+- pour le trajectory_nearly_finished(), doit-on utiliser une fenetre, ou
+  etre en fonction de la rampe ? Pour la rampe, la distance en pas c'est
+  Vmax.Vmax / 2.Adec
+- bien preciser les unites dans les noms des variables, ca rend le
+  code plus clair (par exemple les angles en deg ou rad, les distances
+  en cm ou mm...)
+- l'angle target.angle de la structure est entre 0 et 2 pi ?
+- pour le 'nearly finished' dans le cas d'une trajectoire sans evenement,
+  comment gerer ?
+- quid du position manager, qui retourne un angle entre -pi et pi, et ca, 
+  c'est chiant.
+- dans position manager, il manque les unites dans les noms de var
+- l'evenement trajectory est supprime lorsque l'on s'approche du point, du
+  coup on n'est plus asservi sur le point x,y a partir d'une certaine
+  distance
+- la vitesse pourrait etre specifiee en cm/s et deg/s
+
+INIT DU MODULE
+
+ void trajectory_init(struct trajectory * traj);
+
+Initialisation de la structure. Met tout a zero, et le scheduler_task
+a -1.
+
+
+ void trajectory_set_cs(struct trajectory * traj, struct cs * cs_d, struct cs * cs_a);
+
+Associe les structures d'asservissement a la structure traj.
+
+ void trajectory_set_robot_params(struct trajectory * traj, struct robot_system * rs, 
+ 								 struct robot_position * pos);
+
+Associe les structures robot_system et position a la structure traj.
+
+
+ void trajectory_set_windows(struct trajectory * traj, double d_win, double a_win)
+
+Definit la fenetre de fin de trajectoire, en angle comme en distance
+
+
+ void trajectory_set_speed( struct trajectory * traj, int16_t speed_d, int16_t speed_a);
+
+Definit la vitesse lineaire et angulaire max 
+
+
+STRUCTURE DE DONNEES
+
+struct trajectory {
+	enum trajectory_state state; /*<< describe the type of target, and if we reached the target */
+
+	union {
+		vect2_cart vect; /**<< target, if it is a vector */
+		double angle;    /**<< target, if it is an angle */
+	} target;
+
+	double d_win; 	   /**<< distance window (for END_NEAR) */
+	double a_win_rad;  /**<< angle window (for END_NEAR) */
+  
+	uint16_t d_speed;  /**<< distance speed consign */
+	uint16_t a_speed;  /**<< angle speed consign */
+
+	struct robot_position * position; /**<< associated robot_position */
+	struct robot_system * robot;      /**<< associated robot_system */
+	struct cs * csm_angle;    /**<< associated control system (angle) */
+	struct cs * csm_distance; /**<< associated control system (distance) */
+  
+	int8_t scheduler_task;    /**<< id of current task (-1 if no running task) */
+};
+
+
+FONCTIONS ET MACROS STATIQUES
+
+- modulo_pi(a) : retourne a entre -pi et pi
+- modulo_2pi(a) : retourne a entre 0 et 2.pi
+- modulo_180(a) : retourne a entre -180 et 180
+- modulo_360(a) : retourne a entre 0 et 360
+(on considere que le a d'origine n'est pas a plus d'un 
+ tour [2.pi ou 360] de son intervalle)
+
+- is_in_dist_window(t) : vrai si on a dans la fenetre de dist
+- is_in_angle_window(t) : vrai si on a dans la fenetre d'angle
+
+- schedule_traj_event(t) : ajoute l'evenement de gestion de traj
+- delete_traj_event(t) : le supprime
+
+
+GOTO XY
+
+Donnees d'entree, fournies par l'utilisateur du module
+- vitesse lineaire max et vitesse angulaire max
+- le point de destination du robot (relatif ou absolu)
+- fenetre de fin de trajectoire (distance, precise a l'init)
+- marche avant, arriere, ou le plus court des deux.
+
+Donnees d'entree
+- la position du robot
+- les parametres du quadramp
+
+Evenements retournes
+  Les fonctions ne re retournent rien, on sait lorsque l'on arrive en
+  appelant:
+  - trajectory_finished() : le robot est arrive a destination, la
+    consigne d'asservissement en position correspond alors a la
+    consigne de position filtree (apres quadramp). Le robot est sense
+    etre a l'arret, ou presque.
+  - trajectory_in_window() : le robot est entre dans la fenetre
+    d'arrivee, de distance ou d'angle.
+  - trajectory_in_deceleration() : le robot est arrive assez pres du
+    point, juste avant la rampe de deceleration. Permet d'enchainer
+    des trajectoires sans ralentir. Si ca ne va pas avec la rampe de
+    deceleration, alors il faut au moins quelque chose qui depende de
+    la vitesse
+
+Infos sur l'algo
+- La consigne de vitesse passee a l'asservissement depend de l'angle 
+  du robot pour aller vers le point suivant
+- La consigne de position en distance est la distance vers le point
+- La consigne de position en angle est l'angle vers le point
+
+ void trajectory_goto_xy_abs( struct trajectory * traj, double x, double y );
+ void trajectory_goto_xy_rel( struct trajectory * traj, double x, double y );
+ void trajectory_goto_da_rel( struct trajectory * traj, double d, double a_deg );
+
+
+
+
+TRAJS SIMPLE (pas d'event)
+ void trajectory_d_a_rel ( struct trajectory * traj, double d, double a );
+ void trajectory_d_rel( struct trajectory * traj, double d, double a );
+ void trajectory_a_rel( struct trajectory * traj, double d, double a );
+ void trajectory_a_abs( struct trajectory * traj, double a );
+ void trajectory_turnto_xy_abs( struct trajectory* traj, double tx, double ty );
+ void trajectory_only_d( struct trajectory * traj, double d );
+ void trajectory_only_a( struct trajectory * traj, double a );
+ void trajectory_stop( struct trajectory * traj );
+ void trajectory_hardstop( struct trajectory * traj );
+
+

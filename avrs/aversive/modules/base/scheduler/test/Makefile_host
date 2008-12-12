@@ -1,0 +1,21 @@
+# Target file name (without extension).
+TARGET = main
+
+# Optimization level, can be [0, 1, 2, 3, s]. 0 turns off optimization.
+# (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
+OPT = 0
+
+# repertoire des modules
+MODULE_DIR = ../../..
+
+# Makefile principal
+MAIN_MAKEFILE = ../../../../Makefile_hostproject
+
+# nom des modules utilis{\'e}s, du plus haut niveau vers le plus bas (pb
+# de r{\'e}f{\'e}rences non r{\'e}solues sinon)
+MODULES = time/scheduler utils
+
+# List C source files here. (C dependencies are automatically generated.)
+SRC = $(TARGET).c
+
+include $(MAIN_MAKEFILE)

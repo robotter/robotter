@@ -1,0 +1,9 @@
+0 7 lfuse WDTON 1 Watchdog Timer Always On
+1 6 lfuse EESAVE 1 EEPROM memory is preserved through chip erase
+2 5 lfuse BOOTSZ1 0 Select boot size
+3 4 lfuse BOOTSZ0 0 Select boot size
+4 3 lfuse BOOTRST 1 Select reset vector
+5 2 lfuse SUT1 1 Select start-up time
+6 1 lfuse SUT0 0 Select start-up time
+7 1 hfuse OCDEN 1 Enable OCD
+8 0 hfuse JTAGEN 0 Enable JTAG

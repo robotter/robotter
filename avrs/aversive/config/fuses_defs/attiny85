@@ -1,0 +1,17 @@
+0 0 lfuse CKSEL0 0 Select Clock source
+1 1 lfuse CKSEL1 1 Select Clock source
+2 2 lfuse CKSEL2 0 Select Clock source
+3 3 lfuse CKSEL3 1 Select Clock source
+4 4 lfuse SUT0 0 Select start-up time
+5 5 lfuse SUT1 1 Select start-up time
+6 6 lfuse CKOUT 1 Clock Output Enable
+7 7 lfuse CKDIV8 0 Divide clock by 8
+8 0 hfuse BODLEVEL0 1 Brown-out Detector trigger level
+9 1 hfuse BODLEVEL1 1 Brown-out Detector trigger level
+10 2 hfuse BODLEVEL2 1 Brown-out Detector trigger level
+11 3 hfuse EESAVE 1 EEPROM memory is preserved through the Chip Erase
+12 4 hfuse WDTON 1 Watchdog Timer always on
+13 5 hfuse SPIEN 0 Enable Serial Program and Data Downloading
+14 6 hfuse DWEN 1 DebugWIRE Enable
+15 7 hfuse RSTDISBL 1 External Reset disable
+16 0 efuse SELFPRGEN 1 Self-Programming Enable

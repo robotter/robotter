@@ -1,0 +1,29 @@
+
+# Could not use shell variables in awk. :(
+source $AVERSIVE_DIR/config/config.in
+
+
+# RobOtter specific part
+
+mainmenu_option next_comment
+comment 'RobOtter modules'
+
+comment 'RobOtter modules'
+
+#
+
+bool 'gp2pack' CONFIG_MODULE_GP2PACK_ROBOTTER
+
+dep_bool '  |-- Create Default gp2pack config' CONFIG_MODULE_GP2PACK_ROBOTTER_CREATE_CONFIG \
+	$CONFIG_MODULE_GP2PACK_ROBOTTER
+
+#
+
+bool 'i2c (ROBOTTER)' CONFIG_MODULE_I2C_ROBOTTER
+
+dep_bool '  |-- Create Default i2c config' CONFIG_MODULE_I2C_ROBOTTER_CREATE_CONFIG \
+	$CONFIG_MODULE_I2C_ROBOTTER
+
+endmenu
+
+

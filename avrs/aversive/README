@@ -1,0 +1,81 @@
+== AVERSIVE  ==
+
+Authors (see AUTHORS file for details) : 
+- Christophe RIEHL
+- Olivier MATZ
+
+(Droids-Corporation, Microb Technology, Eirbot)
+
+=== Introduction
+
+This is a development framework for AVR. You need avr-gcc to run
+it. The goal of this project is to provide modules to make development
+on avr easier.
+
+Untar the archive (or checkout it from the CVS), run ./configure, it
+will generate several Makefiles (if you skip this step, the main
+Makefile will automatiquely do it for you). You can edit these files
+to customize some settings. You can now type make to compile all tests
+programs of the framework. If you want to create a new project, there
+are some examples.
+
+This is a development version, there are certainly a lot of
+bugs. Don't hesitate to tell us if you find one.
+->      avr-list@droids-corp.org
+
+You can also have a look to our bugzilla :
+->      http://bugzilla.droids-corp.org
+
+There's a page about this project :
+->	http://wiki.droids-corp.org/mediawiki/index.php/Aversive
+
+=== The aversive source tree
+
+config                  -> files related to aversive configuration
+  config/fuses_defs     -> fuse names and help
+  config/gen_headers    -> dirty scripts for generating some .h
+  config/scripts        -> project configuration scripts (imported 
+				from linux-2.4 kernel)
+
+include                 -> generic Aversive include files, that are
+				not related to a module
+
+mk                      -> Aversive Makefiles (project, module, and
+				templates) 
+
+modules                 -> modules directory. A "module" is a small
+				library that provide a specific
+				functionnality
+  modules/base          -> common modules, frequently used
+  modules/comm          -> communication modules (uart, spi, i2c, ...)
+  modules/crypto        -> modules for cryptographic operations
+  modules/debug         -> helper modules for debugging
+  modules/devices       -> modules related to a device that is not
+				part of an Atmel AVR (lcd, motors, ...)
+  modules/encoding      -> buffer conversion (base64, hamming)
+  modules/hardware      -> generic interfaces module for specific AVR
+				hardware (timers, ADC, ...)
+  modules/ihm           -> Human-machine interface modules (menu, and
+				probably a future CLI)
+
+projects                -> Project examples (to be enhanced)
+  projects/example1
+  projects/example2
+
+
+=== Using Aversive
+
+You need avr-gcc/avr-libc to use Aversive. 
+
+Once you have untared the archive (or checkouted it from the CVS), you
+can run 'make' to compile all tests programs.
+
+---
+
+If you want to compile a test program:
+
+cd projects/example1
+make menuconfig 
+make
+
+

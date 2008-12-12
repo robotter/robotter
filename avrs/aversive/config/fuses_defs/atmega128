@@ -1,0 +1,18 @@
+0 7 lfuse BODLEVEL 1 Brown out detector trigger level
+1 6 lfuse BODEN 1 Brown out detector enable
+2 5 lfuse SUT1 0 Select start-up time
+3 4 lfuse SUT0 0 Select start-up time
+4 3 lfuse CKSEL3 0 Select Clock Source
+5 2 lfuse CKSEL2 0 Select Clock Source
+6 1 lfuse CKSEL1 0 Select Clock Source
+7 0 lfuse CKSEL0 1 Select Clock Source
+8 7 hfuse OCDEN 1 Enable OCD
+9 6 hfuse JTAGEN 0 Enable JTAG
+10 5 hfuse SPIEN 0 Enable Serial programming and Data Downloading
+11 4 hfuse CKOPT 1 Oscillator Options
+12 3 hfuse EESAVE 1 EEPROM memory is preserved through chip erase
+13 2 hfuse BOOTSZ1 0 Select Boot Size
+14 1 hfuse BOOTSZ0 0 Select Boot Size
+15 0 hfuse BOOTRST 1 Select Reset Vector
+16 1 efuse M103C 0 ATmega103 compatibility mode
+17 0 efuse WDTON 1 Watchdog timer always on

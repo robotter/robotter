@@ -1,0 +1,10 @@
+-include .config
+
+TARGET = # VALUE, name of the module #
+
+# List C source files here. (C dependencies are automatically generated.)
+SRC =
+
+###########################################
+
+include $(AVERSIVE_DIR)/mk/aversive_module.mk

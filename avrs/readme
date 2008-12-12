@@ -1,0 +1,21 @@
+Fichiers à mettre à jour lors d'une maj aversive :
+
+|
++- mk
+|+- robotter_module.mk (copie à l'indentique depuis aversive/mk/aversive_module.mk)
+|
++- aversive
+ +- config
+  +- scripts
+   +- Menuconfig
+    > Aux lignes ~500, remplacer :
+      > else if ($1 == "source") {
+      >   parser($2,menu) 
+    > par :
+      > else if ($1 == "source") {
+      >
+      >   fshell="eval echo " $2
+      >   fshell | getline fname
+      >   close(fshell)
+      >	  parser(fname,menu)
+
