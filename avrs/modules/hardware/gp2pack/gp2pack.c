@@ -124,7 +124,7 @@ void gp2pack_update( gp2pack* gp2 )
   // right after the (GP2PACK_MEAN_VALUES-1)th value the lock is released
   if(gp2->lock)
   {
-    if (gp2->it == GP2PACK_MEAN_VALUES - 1)
+    if(gp2->it == GP2PACK_MEAN_VALUES - 1)
       gp2->lock = 0;
     else
       return;
