@@ -31,7 +31,7 @@
 -- +------------------------------------------------------------------------+
 -- | 1.00 | 16/11/08 | RBL  | Creation                                      |
 -- +------------------------------------------------------------------------+
--- |      |          |      |                                               |
+-- | 1.05 | 18/01/09 | RBL  | Modification of the H's output size           |
 -- +------------------------------------------------------------------------+
 -- |      |          |      |                                               |
 -- +------------------------------------------------------------------------+
@@ -51,7 +51,7 @@ entity threshold is
         clk_i          : in  std_ulogic;
         -- input to be tested
         Y_i            : in  std_logic_vector(7 downto 0);
-        H_i            : in  std_logic_vector(8 downto 0);
+        H_i            : in  std_logic_vector(7 downto 0);
 
         -- threshold modifier (modify bloc RAM inside)
         valid_i        : in  std_ulogic; -- write RAM if active
@@ -194,7 +194,7 @@ begin
 	 
 	 
    -- H memory signals
-	 H_ADDR_A_s <= "0"&H_i;
+	 H_ADDR_A_s <= "00"&H_i;
     H_ADDR_B_s <= "0"&adress_i(8 downto 0);
     H_enable_B_s <=not(adress_i(9)) and valid_i;
 

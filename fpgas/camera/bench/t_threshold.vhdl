@@ -31,7 +31,7 @@
 -- +------------------------------------------------------------------------+
 -- | 1.00 | 16/11/08 | RBL  | Creation                                      |
 -- +------------------------------------------------------------------------+
--- |      |          |      |                                               |
+-- | 1.05 | 18/01/09 | RBL  | Modification of the H's output size           |
 -- +------------------------------------------------------------------------+
 -- |      |          |      |                                               |
 -- +------------------------------------------------------------------------+
@@ -59,7 +59,7 @@ ARCHITECTURE behavior_1 OF t_threshold IS
         clk_i          : in  std_ulogic;
         -- input to be tested
         Y_i            : in  std_logic_vector(7 downto 0);
-        H_i            : in  std_logic_vector(8 downto 0);
+        H_i            : in  std_logic_vector(7 downto 0);
 
         -- threshold modifier (modify bloc RAM inside)
         valid_i        : in  std_ulogic; -- write RAM if active
@@ -75,7 +75,7 @@ ARCHITECTURE behavior_1 OF t_threshold IS
     -- signals for connection
     signal clk_s : std_logic;
     signal Y_s : std_logic_vector(7 downto 0);
-    signal H_s : std_logic_vector(8 downto 0);
+    signal H_s : std_logic_vector(7 downto 0);
 
     signal valid_s  : std_ulogic;
     signal value_s  : std_logic_vector(15 downto 0);
@@ -116,7 +116,7 @@ BEGIN
       -- successful however the read value is unknown until the next CLKA
       -- cycle
       Y_s<="11111111";
-      H_s<="111111111";
+      H_s<="11111111";
       -- writting in the H buffer
       valid_s<='0';
       value_s<="1111111111111111";
@@ -152,16 +152,16 @@ BEGIN
       value_s<="0000000000000000";
       adress_s<="0000000000";
       Y_s<="00000000";
-      H_s<="000000000";
+      H_s<="00000000";
       wait for 2*periode_c;
       Y_s<="00000000";
-      H_s<="000000001";
+      H_s<="00000001";
       wait for 2*periode_c;
       Y_s<="00000001";
-      H_s<="000000001";
+      H_s<="00000001";
       wait for 2*periode_c;
       Y_s<="00000001";
-      H_s<="000000000";
+      H_s<="00000000";
       wait for 10*periode_c;
     end process main_p;
 

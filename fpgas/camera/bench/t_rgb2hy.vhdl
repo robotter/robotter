@@ -30,7 +30,7 @@
 -- +------------------------------------------------------------------------+
 -- | 1.00 | 17/03/08 | RBL  | Creation                                      |
 -- +------------------------------------------------------------------------+
--- |      |          |      |                                               |
+-- | 1.05 | 18/01/09 | RBL  | Modification of the H's output size           |
 -- +------------------------------------------------------------------------+
 -- |      |          |      |                                               |
 -- +------------------------------------------------------------------------+
@@ -60,7 +60,7 @@ ARCHITECTURE behavior_1 OF t_rgb2hy_vhd IS
       G_i   : IN  unsigned (7 downto 0);
       B_i   : IN  unsigned (7 downto 0);          
       Y_o   : OUT unsigned (7 downto 0);
-      H_o   : OUT unsigned (8 downto 0)
+      H_o   : OUT unsigned (7 downto 0)
       );
     END COMPONENT;
 
@@ -68,7 +68,7 @@ ARCHITECTURE behavior_1 OF t_rgb2hy_vhd IS
     signal clk_s : std_logic;
     signal R_s,G_s,B_s   : unsigned (7 downto 0);
     signal Y_s : unsigned (7 downto 0);
-    signal H_s : unsigned (8 downto 0);
+    signal H_s : unsigned (7 downto 0);
 
     -- timing constant
     constant periode_c : time := 10 ns;     -- 100 MHz

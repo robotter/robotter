@@ -31,7 +31,7 @@
 -- +------------------------------------------------------------------------+
 -- | 1.00 | 17/03/08 | RBL  | Creation                                      |
 -- +------------------------------------------------------------------------+
--- |      |          |      |                                               |
+-- | 1.05 | 18/01/09 | RBL  | Modification of the H's output size           |
 -- +------------------------------------------------------------------------+
 -- |      |          |      |                                               |
 -- +------------------------------------------------------------------------+
@@ -55,7 +55,7 @@ entity rgb2hy is
         B_i            : in  unsigned (7 downto 0);
         -- new color space outputs
         Y_o            : out unsigned (7 downto 0);
-        H_o            : out unsigned (8 downto 0)
+        H_o            : out unsigned (7 downto 0)
     );
 end rgb2hy;
 
@@ -129,6 +129,16 @@ begin
  -- 60x(g-b)/(max-min)+360    if max=r et g<b
  -- 60x(b-r)/(max-min)+120    if max=g
  -- 60x(r-g)/(max-min)+240    if max=b
+ -- after modification:
+ -- in order the change the bus width 
+ -- before modification: H in [0; 360[
+ -- after the affine correction modification: H in [0; 256[
+ -- H =
+ -- 0 if min=max
+ -- 42.67x(g-b)/(max-min)        if max=r et g>=b
+ -- 42.67x(g-b)/(max-min)+256    if max=r et g<b
+ -- 42.67x(b-r)/(max-min)+85.33  if max=g
+ -- 42.67x(r-g)/(max-min)+170.67 if max=b
 
     -- type convertion
     R_int_s<=to_integer(R_i);
@@ -154,22 +164,23 @@ begin
           B_int_s-R_int_s when (G_int_s>=R_int_s and G_int_s>=B_int_s) else
           R_int_s-G_int_s;
 
-    -- the offset={0,120,140,360} (see H definition)
+    -- the offset={0,85,171,256} (see H definition)
     offset_s<=
      0 when (R_int_s>=G_int_s and R_int_s>=B_int_s and G_int_s>=B_int_s) else
-     360 when (R_int_s>=G_int_s and R_int_s>=B_int_s) else
-     120 when (G_int_s>=R_int_s and G_int_s>=B_int_s) else
-     240;
+     256 when (R_int_s>=G_int_s and R_int_s>=B_int_s) else
+     85  when (G_int_s>=R_int_s and G_int_s>=B_int_s) else
+     171;
 
     -- the entry of the bloc RAM
     RAM_in_s<="00"&std_logic_vector(to_unsigned(diff_min_max_s,8));
 	 -- effective computation of H (see H definition)
     H_large_s<=signed("0"&RAM_out_s)*to_signed(diff_nominat_s,9);
     H_bias_s<=H_large_s(25 downto 9)+to_signed(offset_s,17);
-    H_o<=unsigned(H_bias_s(8 downto 0));
+    H_o<=unsigned(H_bias_s(7 downto 0));
 	 
 
 -- the output of this bloc RAM is (60/RAM_in)*2^10
+-- modification of the formulae: (42/RAM_in)*2^10
 
     -- RAMB16_S18: Virtex-II/II-Pro, Spartan-3 1k x 16 + 2 Parity bits Single-Port RAM
     RAMB16_S18_inst : RAMB16_S18
@@ -177,22 +188,22 @@ begin
       INIT => X"00000", --  Value of output RAM registers at startup
       SRVAL => X"00000", --  Ouput value upon SSR assertion
       WRITE_MODE => "WRITE_FIRST", --  WRITE_FIRST, READ_FIRST or NO_CHANGE
-      INIT_00 => X"100011241276140015d118001aaa1e002249280030003c0050007800f0000000",
-      INIT_01 => X"07bd08000846089208e3093b09990a000a6f0ae80b6d0c000ca10d550e1e0f00",
-      INIT_02 => X"051b053705550574059405b605da060006270650067c06aa06db070f07450780",
-      INIT_03 => X"03cf03de03ef04000411042304350449045d04710487049d04b404cc04e50500",
-      INIT_04 => X"03090313031d03280333033e034903550361036d037a0387039503a203b103c0",
-      INIT_05 => X"0286028d0294029b02a302aa02b202ba02c202ca02d202db02e402ed02f60300",
-      INIT_06 => X"0229022e02330238023e02430249024e0254025a02600266026c027202790280",
-      INIT_07 => X"01e301e701eb01ef01f301f701fb020002040208020d02110216021a021f0224",
-      INIT_08 => X"01ad01b001b301b601ba01bd01c001c301c701ca01cd01d101d501d801dc01e0",
-      INIT_09 => X"0182018401870189018c018e0191019401960199019c019f01a101a401a701aa",
-      INIT_0A => X"015f01610163016501670169016b016d016f0172017401760178017b017d0180",
-      INIT_0B => X"01410143014501460148014a014c014d014f01510153015501570159015b015d",
-      INIT_0C => X"0128012a012b012d012e0130013101330134013601370139013b013c013e0140",
-      INIT_0D => X"011301140116011701180119011b011c011d011f012001210123012401250127",
-      INIT_0E => X"010101020103010401050106010701080109010b010c010d010e010f01110112",
-      INIT_0F => X"00f000f100f200f300f400f500f600f700f800f900fa00fb00fc00fd00fe0100",
+      INIT_00 => X"0001AAAA555538E32AAA22221C711861155512F611110F830E380D200C300B60",
+      INIT_01 => X"0AAA0A0A097B08FB0888082007C1076B071C06D306900652061805E205B00581",
+      INIT_02 => X"0555052B050504E004BD049C047D046004440429041003F803E003CA03B503A1",
+      INIT_03 => X"038E037B03690358034803380329031A030C02FE02F102E402D802CC02C002B5",
+      INIT_04 => X"02AA02A00295028C0282027902700267025E0256024E0246023E023702300229",
+      INIT_05 => X"0222021B0214020E0208020201FC01F601F001EA01E501E001DA01D501D001CB",
+      INIT_06 => X"01C701C201BD01B901B401B001AC01A801A401A0019C019801940190018D0189",
+      INIT_07 => X"01860182017F017B017801750172016F016C0169016601630160015D015A0158",
+      INIT_08 => X"015501520150014D014A0148014601430141013E013C013A0138013501330131",
+      INIT_09 => X"012F012D012B01290127012501230121011F011D011B01190118011601140112",
+      INIT_0A => X"0111010F010D010C010A01080107010501040102010100FF00FE00FC00FB00F9",
+      INIT_0B => X"00F800F600F500F400F200F100F000EE00ED00EC00EA00E900E800E700E500E4",
+      INIT_0C => X"00E300E200E100E000DE00DD00DC00DB00DA00D900D800D700D600D500D400D3",
+      INIT_0D => X"00D200D100D000CF00CE00CD00CC00CB00CA00C900C800C700C600C500C400C3",
+      INIT_0E => X"00C300C200C100C000BF00BE00BD00BD00BC00BB00BA00B900B900B800B700B6",
+      INIT_0F => X"00B600B500B400B300B300B200B100B000B000AF00AE00AE00AD00AC00AC00AB",
       INIT_10 => X"0000000000000000000000000000000000000000000000000000000000000000",
       INIT_11 => X"0000000000000000000000000000000000000000000000000000000000000000",
       INIT_12 => X"0000000000000000000000000000000000000000000000000000000000000000",
