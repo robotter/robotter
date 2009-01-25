@@ -1,87 +1,85 @@
--------------------------------------------------------------------------------
--- Title      : test bench du fichier spi_slave.vhd
--- Project    : 
--------------------------------------------------------------------------------
--- File       : spi_slave_tb.vhd
--- Author     :   <Paul@PITHIVIER>
--- Company    : 
--- Created    : 2008-08-06
--- Last update: 2008-08-07
--- Platform   : 
--- Standard   : VHDL'87
--------------------------------------------------------------------------------
--- Description: 
--------------------------------------------------------------------------------
--- Copyright (c) 2008 
--------------------------------------------------------------------------------
--- Revisions  :
--- Date        Version  Author  Description
--- 2008-08-06  1.0      Paul	Created
--------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+-- This program is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; either version 2, or (at your option)
+-- any later version.
+-- 
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+-- 
+-- You should have received a copy of the GNU General Public License
+-- along with this program; if not, write to the Free Software
+-----------------------------------------------------------------------------
 
+-----------------------------------------------------------------------------
+--! @file
+--! @brief spi_slave testbench
+--! @author Lamygale
+-----------------------------------------------------------------------------
 
-
--------------------------------------------------------------------------------
--- package necessaire au test bench
--------------------------------------------------------------------------------
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
+
 PACKAGE fction_spi IS
 
-  PROCEDURE envoi_spi(
-    CONSTANT c_periode_clk : IN time;     -- periode de l'horloge
-    CONSTANT s_data_to_send : IN std_logic_vector(7 DOWNTO 0);  -- donnee a envoyer sur la spi
-    SIGNAL sck : OUT std_ulogic;          -- clock de la spi
-    SIGNAL mosi : OUT std_ulogic);         -- donnees de la spi
+  PROCEDURE send_spi (
+    CONSTANT clk_period_c   : IN time;
+    CONSTANT data_to_send_c : IN std_logic_vector(7 DOWNTO 0);
+    SIGNAL sck_s  : OUT std_logic;
+    SIGNAL mosi_s : OUT std_logic
+  );
 
-  
-  PROCEDURE envoi_1_bit (
-    CONSTANT c_periode_clk : IN time;  -- periode de l'horloge
-    CONSTANT bit_to_send : IN std_ulogic;
-    SIGNAL sck : OUT std_ulogic;          -- clock de la spi
-    SIGNAL mosi : OUT std_ulogic);         -- donnees de la spi
+  PROCEDURE send_1_bit (
+    CONSTANT clk_period_c  : IN time;
+    CONSTANT bit_to_send_c : IN std_logic;
+    SIGNAL sck_s  : OUT std_logic;
+    SIGNAL mosi_s : OUT std_logic
+  );
 
-END fction_spi;
+END PACKAGE fction_spi;
 
 PACKAGE BODY fction_spi IS
 
-  
+  PROCEDURE send_spi (
+    CONSTANT clk_period_c   : IN time;
+    CONSTANT data_to_send_c : IN std_logic_vector(7 DOWNTO 0);
+    SIGNAL sck_s  : OUT std_logic;
+    SIGNAL mosi_s : OUT std_logic
+  ) IS
+    VARIABLE cpt_envoi_v : natural RANGE 7 DOWNTO 0;
 
-  PROCEDURE envoi_spi (
-    CONSTANT c_periode_clk : IN time;     -- periode de l'horloge
-    CONSTANT s_data_to_send : IN std_logic_vector(7 DOWNTO 0);  -- donnee a envoyer sur la spi
-    SIGNAL sck : OUT std_ulogic;          -- clock de la spi
-    SIGNAL mosi : OUT std_ulogic         -- donnees de la spi
-    ) IS
-    VARIABLE v_cpt_envoi : natural RANGE 7 DOWNTO 0;
-BEGIN
-  envoi_octet: FOR v_cpt_envoi IN 7 DOWNTO 0 LOOP
-    envoi_1_bit(c_periode_clk, s_data_to_send(v_cpt_envoi),sck, mosi);
-  END LOOP envoi_octet;
+  BEGIN
 
-END envoi_spi;
+    send_byte : FOR cpt_envoi_v IN 7 DOWNTO 0 LOOP
+      send_1_bit(clk_period_c, data_to_send_c(cpt_envoi_v), sck_s, mosi_s);
+    END LOOP send_byte;
+
+  END PROCEDURE send_spi;
 
 
-PROCEDURE envoi_1_bit (
-  CONSTANT c_periode_clk : IN time;  -- periode de l'horloge
-  CONSTANT bit_to_send : IN std_ulogic;
-  SIGNAL sck : OUT std_ulogic;          -- clock de la spi
-  SIGNAL mosi : OUT std_ulogic)IS        -- donnees de la spi
-BEGIN
+  PROCEDURE send_1_bit (
+    CONSTANT clk_period_c  : IN time;
+    CONSTANT bit_to_send_c : IN std_logic;
+    SIGNAL sck_s  : OUT std_logic;
+    SIGNAL mosi_s : OUT std_logic
+  ) IS
 
-  mosi <= bit_to_send;
-  sck <= '0';
-  WAIT FOR c_periode_clk/2;
-  sck <= '1';
-  WAIT FOR c_periode_clk/2;
+  BEGIN
 
-END envoi_1_bit;
+    mosi_s <= bit_to_send_c;
+    sck_s <= '0';
+    WAIT FOR clk_period_c/2;
+    sck_s <= '1';
+    WAIT FOR clk_period_c/2;
 
-END fction_spi;
+  END PROCEDURE send_1_bit;
 
+END PACKAGE BODY fction_spi;
 
 
 LIBRARY ieee;
@@ -89,128 +87,119 @@ USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 USE work.fction_spi.ALL;
 
+
 ENTITY spi_slave_tb IS
-  GENERIC(
-    CONSTANT c_periode_clk_spi : IN time := 1 us;
-    CONSTANT c_periode_clk : IN time := 37 ns
-    );
+  GENERIC (
+    CONSTANT clk_spi_period_c : IN time := 1 us;
+    CONSTANT clk_period_c     : IN time := 37 ns
+  );
   PORT (
-    data_out           : OUT  std_logic_vector(7 DOWNTO 0)  -- donnees recues par le peripherique
-    );
+    --! data received by the peripheric
+    data_out : OUT  std_logic_vector(7 DOWNTO 0)
+  );
 END spi_slave_tb;
 
 ARCHITECTURE robotter OF spi_slave_tb IS
 
-
   COMPONENT spi_slave IS
-    
+
     PORT (
-      reset              : IN  std_ulogic;
-      clk                : IN  std_ulogic;
-      data_out           : OUT std_logic_vector(7 DOWNTO 0);  -- registre contenant les données recues par la spi
-      tranfert_done      : OUT std_ulogic;   -- flag indiquant qu'une nouvelle
-                                             -- donnée a été recue et est
-                                             -- disponible sur data_out
-      tranfert_done_read : IN  std_ulogic;
+      reset_ni        : IN  std_logic;
+      clk_i           : IN  std_logic;
+      --! register for data received by SPI
+      data_out_o      : OUT std_logic_vector(7 DOWNTO 0);
+      --! a new data has been received and is available on data_out_o
+      transfer_done_o : OUT std_logic;
+      transfer_ack_i  : IN  std_logic;
 
-      ------ pins de la spi ------
-      MOSI               : IN std_ulogic;    -- master out slave in : ligne de donnée de la spi
-      CS                 : IN std_ulogic;    -- Chip Select : ligne de donnee de
-                                             -- la spi
-      SCK                : IN std_ulogic     -- horloge de la spi
-
-      );  -- flag indiquant que la donnée recue par le périphérique a été lue
+      --! SPI pins
+      mosi_i          : IN std_logic; --! Master Out Slave In (SPI)
+      cs_i            : IN std_logic; --! Chip Select (SPI)
+      sck_i           : IN std_logic  --! SPI clock
+    );
 
   END COMPONENT;
 
-  
 
-  SIGNAL s_clk : std_ulogic := '0';
-  SIGNAL  s_reset : std_ulogic;
-  SIGNAL s_data_out : std_logic_vector(7 DOWNTO 0);
-  SIGNAL s_tranfert_done, s_tranfert_done_read : std_ulogic;
-  SIGNAL s_MOSI, s_CS, s_SCK : std_ulogic;  -- lignes spi
+  SIGNAL clk_s           : std_logic := '0';
+  SIGNAL reset_ns        : std_logic;
+  SIGNAL data_out_s      : std_logic_vector(7 DOWNTO 0);
+  SIGNAL transfer_done_s : std_logic;
+  SIGNAL transfer_ack_s  : std_logic;
+  SIGNAL mosi_s          : std_logic;
+  SIGNAL cs_s            : std_logic;
+  SIGNAL sck_s           : std_logic;
 
-  
 BEGIN  -- robotter
 
-  entity_testee : spi_slave
+  tested_entity : spi_slave
     PORT MAP (
-      reset=> s_reset,
-      clk  => s_clk,
-      data_out => data_out,
-      tranfert_done => s_tranfert_done,
-      tranfert_done_read => s_tranfert_done_read,
-      MOSI => s_MOSI,
-      sck => s_SCK,
-      CS => s_CS);
+      reset_ni        => reset_ns,
+      clk_i           => clk_s,
+      data_out_o      => data_out_s,
+      transfer_done_o => transfer_done_s,
+      transfer_ack_i  => transfer_ack_s,
+      mosi_i          => mosi_s,
+      cs_i            => cs_s,
+      sck_i           => sck_s
+    );
 
 
-  horloge: PROCESS
-  BEGIN  -- PROCESS horloge
+  clock_p : PROCESS
+  BEGIN
+    clk_s <= not(clk_s);
+    WAIT FOR clk_period_c/2;
+  END PROCESS clock_p;
 
-    s_clk <= not(s_clk);
-    WAIT FOR c_periode_clk/2;
-  END PROCESS horloge;
-
-  reset : PROCESS
-  BEGIN  -- PROCESS
-    s_reset <= '1';
+  reset_p : PROCESS
+  BEGIN
+    reset_ns <= '1';
     WAIT FOR 6 us;
-    s_reset <= '0';
+    reset_ns <= '0';
     WAIT FOR 1 us;
-    s_reset <= '1';
+    reset_ns <= '1';
     WAIT FOR 1 ms;
-    s_reset <= '0';
+    reset_ns <= '0';
     WAIT FOR 1 us;
-    s_reset <= '1';
-  END PROCESS;
+    reset_ns <= '1';
+  END PROCESS reset_p;
 
 
-  -- purpose: gestion de data_out et des transfert_done
-  -- type   : combinational
-  -- inputs : 
-  -- outputs: 
-  PROCESS
+  --! data_out and ack processing
+  transfer_p : PROCESS
   BEGIN  -- PROCESS
-      wait until rising_edge(s_clk);
-    IF s_tranfert_done = '1'  THEN
-      data_out <= s_data_out;
-      s_tranfert_done_read <= '1';
+    WAIT UNTIL rising_edge(clk_s);
+    IF transfer_done_s = '1' THEN
+      data_out_s <= data_out_s;
+      transfer_ack_s <= '1';
     ELSE    
-      s_tranfert_done_read <= '0';
+      transfer_ack_s <= '0';
     END IF;
 
-  END PROCESS;
+  END PROCESS transfer_p;
 
 
-  -- purpose: envoi des donnees sur le bus spi
-  -- type   : sequential
-  -- inputs : 
-  -- outputs: 
-  envoi_data: PROCESS 
-  BEGIN  -- PROCESS envoi_data
-    s_CS <= '1';
+  --! Send data on SPI bus
+  send_data_p : PROCESS 
+  BEGIN  -- PROCESS send_data_p
+    cs_s <= '1';
     WAIT FOR 10 us;
-    s_CS <= '0';
-    envoi_spi(c_periode_clk_spi, X"A5", s_SCK, s_MOSI);
-    envoi_spi(c_periode_clk_spi, X"55", s_SCK, s_MOSI);
-    envoi_spi(c_periode_clk_spi, X"19", s_SCK, s_MOSI);
-    envoi_spi(c_periode_clk_spi, X"EF", s_SCK, s_MOSI);
-    envoi_spi(c_periode_clk_spi, X"00", s_SCK, s_MOSI);
-    envoi_spi(c_periode_clk_spi, X"FF", s_SCK, s_MOSI);
-    s_CS <= '1';
+    cs_s <= '0';
+    send_spi(clk_spi_period_c, X"A5", sck_s, mosi_s);
+    send_spi(clk_spi_period_c, X"55", sck_s, mosi_s);
+    send_spi(clk_spi_period_c, X"19", sck_s, mosi_s);
+    send_spi(clk_spi_period_c, X"EF", sck_s, mosi_s);
+    send_spi(clk_spi_period_c, X"00", sck_s, mosi_s);
+    send_spi(clk_spi_period_c, X"FF", sck_s, mosi_s);
+    cs_s <= '1';
     WAIT FOR 10 us;
-    envoi_spi(c_periode_clk_spi, X"99", s_SCK, s_MOSI);
-    envoi_spi(c_periode_clk_spi, X"43", s_SCK, s_MOSI);
-    envoi_spi(c_periode_clk_spi, X"55", s_SCK, s_MOSI);
-    envoi_spi(c_periode_clk_spi, X"11", s_SCK, s_MOSI);
-    envoi_spi(c_periode_clk_spi, X"AA", s_SCK, s_MOSI);
-    s_CS <= '1';
-  END PROCESS envoi_data;
-  
-  
-  
-END robotter;
+    send_spi(clk_spi_period_c, X"99", sck_s, mosi_s);
+    send_spi(clk_spi_period_c, X"43", sck_s, mosi_s);
+    send_spi(clk_spi_period_c, X"55", sck_s, mosi_s);
+    send_spi(clk_spi_period_c, X"11", sck_s, mosi_s);
+    send_spi(clk_spi_period_c, X"AA", sck_s, mosi_s);
+    cs_s <= '1';
+  END PROCESS send_data_p;
 
+END ARCHITECTURE robotter;
 
