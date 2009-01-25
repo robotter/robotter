@@ -84,7 +84,7 @@ architecture multi_pixel_mean_1 of multi_pixel_mean is
 	 
 	 -- the position of the element in the RAM
     signal write_element_pos_s: unsigned (10 downto 0);
-	 signal write_element_pos_bit_vec_s: std_logic_vector(10 downto 0); -- for the RAM
+	 signal write_element_pos_bit_vec_s: std_logic_vector(10 downto 0);
 	 
 	 -- the signal to say that the pixel must be written un RAM
 	 signal valid_ram_pos_s: std_ulogic;
@@ -102,26 +102,33 @@ architecture multi_pixel_mean_1 of multi_pixel_mean is
     CONSTANT ELEM_POS_BL: unsigned := "00000000010"; -- bottom left (n-2)
     CONSTANT ELEM_POS_BC: unsigned := "00000000001"; -- bottom center (n-1)
     CONSTANT ELEM_POS_BR: unsigned := "00000000000"; -- bottom right (n-0)
---
---    -- elem
---	 signal ram_pos_s: unsigned (10 downto 0);
---	 
---    -- position of the reference point
---    signal pos_ref: unsigned(11 downto 0);
---	 
---
---	 
---	 -- signal to determine if the state machine is in an active state
---	 signal est_actif: std_ulogic;
---
---	 -- 
---    type sweep_pixel is (init, pix_tl, pix_tc, pix_tr, pix_cl, pix_cc, pix_cr, 
---      pix_bl, pix_bc, pix_br, w_state);
---    signal current_pixel, next_pixel: sweep_pixel;
+
+	 -- relative position of the pixel to sum
+    signal offset_value_s: unsigned(10 downto 0);
+
+	 -- signal to determine if the state machine is in an active state
+	 signal st_mach_actif_s: std_ulogic;
+	 
+	 -- adress to read in RAMs
+	 signal in_ram_pos_s: std_logic_vector(10 downto 0);
+
+	 -- definition of the state machine elements
+    type sweep_pix is (init, pix_tl, pix_tc, pix_tr, pix_cl, pix_cc, pix_cr, 
+      pix_bl, pix_bc, pix_br, w_state);
+    signal current_pixel_s, next_pixel_s: sweep_pix;
+	 
+	 -- RAM output
+	 signal Y_element_s: std_logic_vector(7 downto 0);
+	 signal H_element_s: std_logic_vector(7 downto 0); 
+	 
+	 -- outputs for the sum
+	 signal Y_accumulator_s: unsigned(11 downto 0);
+	 signal H_accumulator_s: unsigned(11 downto 0);
 	
 begin
-
+	 ---------------------------------------------------------
 	 -- first part: writting the incoming elements in both RAM
+	 ---------------------------------------------------------
 	 
 	 -- position to write in the RAM
     incomming_RAM_position_p: process
@@ -130,105 +137,130 @@ begin
 		if reset_i='1' or camera_rst_i='1' then
          write_element_pos_s<="00000000000";
 		elsif last_clk_camera_s='0' and camera_clk_i='1' then
-		-- on rising edge of the low speed signal clk
-         write_element_pos_s<=(write_element_pos_s+1) mod "11111001000";
+         write_element_pos_s<=write_element_pos_s+1;
 			valid_ram_pos_s<='1';
 		else
 			valid_ram_pos_s<='0';
       end if;
 		last_clk_camera_s<=camera_clk_i;
     end process incomming_RAM_position_p;
+	 write_element_pos_bit_vec_s<=std_logic_vector(write_element_pos_s);
 	 
-	 
+	 ---------------------------------------------------------
 	 -- second part: reading and averaging the stored data
---	 
---    -- switch to next state or reset handle
---    next_state_process: process
---    begin
---    wait until rising_edge(clk_i);
---	 if reset_i='1' or camera_rst_i='1' then
---        current_pixel<=init;
---    else
---        current_pixel<=next_pixel;
---    end if;
---    end process next_state_process;
---	 
---	 test_o<=ram_pos_s;
---	 
---	 	 -- position in RAM
---    ram_position_p: process
---    begin
---		wait until rising_edge(clk_i);
---		if reset_i='1' or camera_rst_i='1' then
---         ram_pos_s<="00000000000";
---		elsif last_clk_camera_i='0' and camera_clk_i='1' then
---		-- on rising edge of the low speed signal clk
---         ram_pos_s<=(ram_pos_s+1) mod "11111001000";
---			valid_ram_pos_s<='1';
---		else
---			valid_ram_pos_s<='0';
---      end if;
---		last_clk_camera_i<=camera_clk_i;
---    end process ram_position_p;
---    -- sweep all the stored pixel
---    p_sweep_pixel: process
---	 begin
---		wait until rising_edge(clk_i);
---		case current_pixel is
---			  when init   => actual_position<="11111111111";
---								  est_actif<='0';
---								  if camera_clk_i='1' then
---										next_pixel<=pix_tl;
---								  end if;
---
---			  when pix_tl => actual_position<=ELEM_POS_TL;
---								  est_actif<='1';
---								  next_pixel<=pix_tc;
---
---			  when pix_tc => actual_position<=ELEM_POS_TC;
---								  est_actif<='1';
---								  next_pixel<=pix_tr;
---
---			  when pix_tr => actual_position<=ELEM_POS_TR;
---								  est_actif<='1';
---								  next_pixel<=pix_cl;
---
---			  when pix_cl => actual_position<=ELEM_POS_CL;
---								  est_actif<='1';
---								  next_pixel<=pix_cc;
---
---			  when pix_cc => actual_position<=ELEM_POS_CC;
---								  est_actif<='1';
---								  next_pixel<=pix_cr;
---
---			  when pix_cr => actual_position<=ELEM_POS_CR;
---								  est_actif<='1';
---								  next_pixel<=pix_bl;
---
---			  when pix_bl => actual_position<=ELEM_POS_BL;
---								  est_actif<='1';
---								  next_pixel<=pix_bc;
---
---			  when pix_bc => actual_position<=ELEM_POS_BC;
---								  est_actif<='1';
---								  next_pixel<=pix_br;
---
---			  when pix_br => actual_position<=ELEM_POS_BR;
---								  est_actif<='1';
---								  next_pixel<=w_state;
---
---			  when w_state=> actual_position<="11111111111";
---								  est_actif<='0';
---								  if camera_clk_i='0' then
---										next_pixel<=init;
---								  end if;
---		 end case;
---	 end process p_sweep_pixel;
---	 
---
---	 
---	 -- read position
---	 pos_loc_s<=(ram_pos_s+actual_position) mod "11111001000";
+	 ---------------------------------------------------------
+	 
+    -- switch to next state or reset handle
+    next_state_process_p: process
+    begin
+    wait until rising_edge(clk_i);
+	 if reset_i='1' or camera_rst_i='1' then
+        current_pixel_s<=init;
+    else
+        current_pixel_s<=next_pixel_s;
+    end if;
+    end process next_state_process_p;
+	 
+	 
+    -- sweep all the stored pixel (output: the offset for the
+	 -- analysed pixel)
+    sweep_pixel_p: process
+	 begin
+		wait until rising_edge(clk_i);
+		case current_pixel_s is
+			  when init   => offset_value_s<="11111111111";
+								  st_mach_actif_s<='0';
+								  if camera_clk_i='1' then
+										next_pixel_s<=pix_tl;
+								  end if;
+
+			  when pix_tl => offset_value_s<=ELEM_POS_TL;
+								  st_mach_actif_s<='1';
+								  next_pixel_s<=pix_tc;
+
+			  when pix_tc => offset_value_s<=ELEM_POS_TC;
+								  st_mach_actif_s<='1';
+								  next_pixel_s<=pix_tr;
+
+			  when pix_tr => offset_value_s<=ELEM_POS_TR;
+								  st_mach_actif_s<='1';
+								  next_pixel_s<=pix_cl;
+
+			  when pix_cl => offset_value_s<=ELEM_POS_CL;
+								  st_mach_actif_s<='1';
+								  next_pixel_s<=pix_cc;
+
+			  when pix_cc => offset_value_s<=ELEM_POS_CC;
+								  st_mach_actif_s<='1';
+								  next_pixel_s<=pix_cr;
+
+			  when pix_cr => offset_value_s<=ELEM_POS_CR;
+								  st_mach_actif_s<='1';
+								  next_pixel_s<=pix_bl;
+
+			  when pix_bl => offset_value_s<=ELEM_POS_BL;
+								  st_mach_actif_s<='1';
+								  next_pixel_s<=pix_bc;
+
+			  when pix_bc => offset_value_s<=ELEM_POS_BC;
+								  st_mach_actif_s<='1';
+								  next_pixel_s<=pix_br;
+
+			  when pix_br => offset_value_s<=ELEM_POS_BR;
+								  st_mach_actif_s<='1';
+								  next_pixel_s<=w_state;
+
+			  when w_state=> offset_value_s<="11111111111";
+								  st_mach_actif_s<='0';
+								  if camera_clk_i='0' then
+										next_pixel_s<=init;
+								  end if;
+		 end case;
+	 end process sweep_pixel_p;
+	 	 
+	 -- read position
+	 in_ram_pos_s<=std_logic_vector(write_element_pos_s-offset_value_s);
+	 
+	 -- sum for Y
+	 y_sum_process_p: process
+    begin
+		wait until rising_edge(clk_i);
+		if st_mach_actif_s='0' then
+			Y_accumulator_s<="000000000000";
+		else
+			Y_accumulator_s<=Y_accumulator_s+unsigned(Y_element_s);
+		end if;
+	 end process y_sum_process_p;
+	 
+	 -- latch it in the right time in the output (Y)
+	 Y_output_latch_p: process
+    begin
+		wait until rising_edge(clk_i);
+		if current_pixel_s=w_state then
+			mean_Y_o<=Y_accumulator_s(11 downto 3);
+		end if;
+	end process Y_output_latch_p;
+	
+	
+	 -- sum for H
+	 h_sum_process_p: process
+    begin
+		wait until rising_edge(clk_i);
+		if st_mach_actif_s='0' then
+			H_accumulator_s<="000000000000";
+		else
+			H_accumulator_s<=H_accumulator_s+unsigned(H_element_s);
+		end if;
+	 end process h_sum_process_p;
+	 
+	 -- latch it in the right time in the output (H)
+	 H_output_latch_p: process
+    begin
+		wait until rising_edge(clk_i);
+		if current_pixel_s=w_state then
+			mean_H_o<=H_accumulator_s(11 downto 3);
+		end if;
+	end process H_output_latch_p;
 	
 	 -- 2 RAM dual access
 	 
@@ -324,9 +356,9 @@ begin
       WEA   => '0',                            -- Write Enable Input
 		
 		-- PORT B: modification
-      DOB   => open,                           -- 8-bit Data Output
+      DOB   => Y_element_s,                    -- 8-bit Data Output
       DOPB  => open,                           -- 1-bit parity Output
-      ADDRB => write_element_pos_bit_vec_s,    -- 10-bit Address Input
+      ADDRB => in_ram_pos_s,                   -- 10-bit Address Input
       CLKB  => clk_i,                          -- Clock
       DIB   => "00000000",                     -- 8-bit Data Input
       DIPB  => "0",                            -- 1-bit parity Input
@@ -428,9 +460,9 @@ begin
       WEA   => '0',                            -- Write Enable Input
 		
 		-- PORT B: modification
-      DOB   => open,                           -- 8-bit Data Output
+      DOB   => H_element_s,                    -- 8-bit Data Output
       DOPB  => open,                           -- 1-bit parity Output
-      ADDRB => write_element_pos_bit_vec_s,    -- 10-bit Address Input
+      ADDRB => in_ram_pos_s,                   -- 10-bit Address Input
       CLKB  => clk_i,                          -- Clock
       DIB   => "00000000",                     -- 8-bit Data Input
       DIPB  => "0",                            -- 1-bit parity Input
