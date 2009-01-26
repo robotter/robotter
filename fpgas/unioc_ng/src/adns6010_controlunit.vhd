@@ -147,7 +147,7 @@ spi: process(reset_ni, clk_i)
 
 	variable spi_pstart_v : std_logic;
 
-	variable spi_state_v : natural := 4;
+	variable spi_state_v : natural range 0 to 4 := 4;
 
 begin
 	
@@ -232,10 +232,10 @@ end process;
 -- Main state machine handling data sent over SPI
 controlunit: process(reset_ni, clk_i)
 
-	variable timer_v : natural := 0;
-	variable current_adns_v : natural := 1;
+  variable timer_v : natural := 0;
+  variable current_adns_v : natural range 1 to 4 := 1;
 
-	variable controlunit_state_v : natural := 0;
+  variable controlunit_state_v : natural range 0 to 13 := 0;
 
   variable sumdeltax_v : std_logic_vector(31 downto 0);
   variable sumdeltay_v : std_logic_vector(31 downto 0);
