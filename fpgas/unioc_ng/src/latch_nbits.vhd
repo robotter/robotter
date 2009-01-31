@@ -36,17 +36,20 @@ use ieee.numeric_std.all;
 ENTITY latch_nbits IS
   
   GENERIC (
-    bus_width_c : natural RANGE 0 TO 127 := 32);  -- width of the bus latched
+    CONSTANT data_width_c : natural RANGE 0 TO 127 := 32;  -- width of the data bus latched
+		CONSTANT squal_width_c : natural := 8								 -- width of the squal bus latched
+		); 
+		
 
   PORT (
     clk_i            : IN  std_ulogic;
     reset_ni         : IN  std_ulogic;
-    deltax_i         : IN  std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data to be latched
-    deltay_i         : IN  std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data to be latched
-    squal_i          : IN  std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data to be latched
-    deltax_latched_o : OUT std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data latched
-    deltay_latched_o : OUT std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data latched
-    squal_latched_o  : OUT std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data latched
+    deltax_i         : IN  std_logic_vector(data_width_c-1 DOWNTO 0);  -- data to be latched
+    deltay_i         : IN  std_logic_vector(data_width_c-1 DOWNTO 0);  -- data to be latched
+    squal_i          : IN  std_logic_vector(squal_width_c-1 DOWNTO 0);  -- data to be latched
+    deltax_latched_o : OUT std_logic_vector(data_width_c-1 DOWNTO 0);  -- data latched
+    deltay_latched_o : OUT std_logic_vector(data_width_c-1 DOWNTO 0);  -- data latched
+    squal_latched_o  : OUT std_logic_vector(squal_width_c-1 DOWNTO 0);  -- data latched
     latch_data_i     : IN  std_ulogic);  -- latches data_i while it is active (i.e. '1')
 END latch_nbits;
 
@@ -69,7 +72,7 @@ ARCHITECTURE latch_n_bits_1 OF latch_nbits IS
         last_latch_data_v := latch_data_i;
             
       END IF;
-    END PROCESS latch;
+    END PROCESS latch_deltax;
 
 
     latch_deltay: PROCESS (clk_i)
@@ -86,7 +89,7 @@ ARCHITECTURE latch_n_bits_1 OF latch_nbits IS
         last_latch_data_v := latch_data_i;
             
       END IF;
-    END PROCESS latch;
+    END PROCESS latch_deltay;
 
 
 
@@ -104,7 +107,7 @@ ARCHITECTURE latch_n_bits_1 OF latch_nbits IS
         last_latch_data_v := latch_data_i;
             
       END IF;
-    END PROCESS latch;
+    END PROCESS latch_squal;
 
 
   END latch_n_bits_1;

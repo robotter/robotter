@@ -29,15 +29,16 @@ ENTITY latch_nbits_tb IS
   GENERIC(
     CONSTANT c_periode_maj_data : IN time := 200 ns;
     CONSTANT c_periode_clk : IN time := 37 ns;
-		CONSTANT bus_width_c : natural RANGE 0 TO 127 := 32
+		CONSTANT data_width_c : natural RANGE 0 TO 127 := 32;
+		CONSTANT squal_width_c : natural := 8
     );
   PORT (
-    deltax_o         : OUT std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data to be latched
-    deltay_o         : OUT std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data to be latched
-    squal_o          : OUT std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data to be latched
-    deltax_latched_o : OUT std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data latched
-    deltay_latched_o : OUT std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data latched
-    squal_latched_o  : OUT std_logic_vector(bus_width_c-1 DOWNTO 0)  -- data latched
+    deltax_o         : OUT std_logic_vector(data_width_c-1 DOWNTO 0);  -- data to be latched
+    deltay_o         : OUT std_logic_vector(data_width_c-1 DOWNTO 0);  -- data to be latched
+    squal_o          : OUT std_logic_vector(squal_width_c-1 DOWNTO 0);  -- data to be latched
+    deltax_latched_o : OUT std_logic_vector(data_width_c-1 DOWNTO 0);  -- data latched
+    deltay_latched_o : OUT std_logic_vector(data_width_c-1 DOWNTO 0);  -- data latched
+    squal_latched_o  : OUT std_logic_vector(squal_width_c-1 DOWNTO 0)  -- data latched
     );
 END latch_nbits_tb;
 
@@ -47,17 +48,18 @@ ARCHITECTURE robotter OF latch_nbits_tb IS
   COMPONENT latch_nbits IS
   
   GENERIC (
-    CONSTANT bus_width_c : natural RANGE 0 TO 127 := 32);  -- width of the bus latched
-
+    CONSTANT data_width_c : natural RANGE 0 TO 127 := 32;  -- width of the data bus latched
+		CONSTANT squal_width_c : natural := 8								 -- width of the squal bus latched
+		);
   PORT (
     clk_i            : IN  std_ulogic;
     reset_ni         : IN  std_ulogic;
-    deltax_i         : IN  std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data to be latched
-    deltay_i         : IN  std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data to be latched
-    squal_i          : IN  std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data to be latched
-    deltax_latched_o : OUT std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data latched
-    deltay_latched_o : OUT std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data latched
-    squal_latched_o  : OUT std_logic_vector(bus_width_c-1 DOWNTO 0);  -- data latched
+    deltax_i         : IN  std_logic_vector(data_width_c-1 DOWNTO 0);  -- data to be latched
+    deltay_i         : IN  std_logic_vector(data_width_c-1 DOWNTO 0);  -- data to be latched
+    squal_i          : IN  std_logic_vector(squal_width_c-1 DOWNTO 0);  -- data to be latched
+    deltax_latched_o : OUT std_logic_vector(data_width_c-1 DOWNTO 0);  -- data latched
+    deltay_latched_o : OUT std_logic_vector(data_width_c-1 DOWNTO 0);  -- data latched
+    squal_latched_o  : OUT std_logic_vector(squal_width_c-1 DOWNTO 0);  -- data latched
     latch_data_i     : IN  std_ulogic);  -- latches squal_i detlay_i deltax_i while it is active (i.e. '1')
 END COMPONENT;
 
@@ -66,16 +68,18 @@ END COMPONENT;
 
   SIGNAL clk_s : std_ulogic := '0';
   SIGNAL reset_ns: std_ulogic;
-  SIGNAL deltax_s: std_logic_vector(bus_width_c-1 DOWNTO 0) := (OTHERS => '0');  -- data to be latched
-  SIGNAL deltay_s: std_logic_vector(bus_width_c-1 DOWNTO 0) := (OTHERS => '0');  -- data to be latched
-  SIGNAL squal_s : std_logic_vector(bus_width_c-1 DOWNTO 0) := (OTHERS => '0');  -- data to be latched
+  SIGNAL deltax_s: std_logic_vector(data_width_c-1 DOWNTO 0) := (OTHERS => '0');  -- data to be latched
+  SIGNAL deltay_s: std_logic_vector(data_width_c-1 DOWNTO 0) := (OTHERS => '0');  -- data to be latched
+  SIGNAL squal_s : std_logic_vector(squal_width_c-1 DOWNTO 0) := (OTHERS => '0');  -- data to be latched
 	SIGNAL latch_data_s : std_ulogic := '0';
   
 BEGIN  -- robotter
 
   entity_testee : latch_nbits
 	GENERIC MAP(
-    bus_width_c => bus_width_c)  -- width of the bus latched
+    data_width_c => data_width_c,
+		squal_width_c => squal_width_c
+		)  -- width of the bus latched
 
   PORT MAP(
     clk_i    =>clk_s,
