@@ -119,7 +119,7 @@ BEGIN  -- robotter
 		latch_data_s <= '0';
     WAIT FOR 1.67 us;
     latch_data_s <= '1';
-		WAIT FOR 2us;
+		WAIT FOR 2 us;
   END PROCESS;
 
 
