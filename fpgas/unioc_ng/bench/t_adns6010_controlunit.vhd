@@ -75,7 +75,10 @@ architecture t_adns6010_controlunit_1 of t_adns6010_controlunit is
       -- third encoder values
       adns3_deltax_o : out std_logic_vector (31 downto 0);
       adns3_deltay_o : out std_logic_vector (31 downto 0);
-      adns3_squal_o  : out std_logic_vector (7 downto 0)
+      adns3_squal_o  : out std_logic_vector (7 downto 0);
+
+      -- fault
+      fault_o : out std_logic_vector (7 downto 0)
     );
   end component;
 
@@ -113,9 +116,14 @@ architecture t_adns6010_controlunit_1 of t_adns6010_controlunit is
   signal adns3_deltay_s : std_logic_vector (31 downto 0);
   signal adns3_squal_s  : std_logic_vector (7 downto 0); 
 
+  -- fault
+  signal fault_s : std_logic_vector (7 downto 0);
+
   ---------------------------------------------
   -- Simulation stuff
   signal endofsimulation_s : boolean := false;
+
+  signal loutre_s : std_logic;
 
 begin
 
@@ -138,7 +146,8 @@ begin
     adns2_squal_o => adns2_squal_s,
     adns3_deltax_o => adns3_deltax_s,
     adns3_deltay_o => adns3_deltay_s,
-    adns3_squal_o => adns3_squal_s
+    adns3_squal_o => adns3_squal_s,
+    fault_o => fault_s
     );    
 
 	------------------------------------------------------------
@@ -154,7 +163,6 @@ begin
     wait for 20 ns;
   end process; -- clk_generator
 
-
   main : process
   begin
     
@@ -166,71 +174,74 @@ begin
     reset_s <= '0';
     wait for 20 ns;
     reset_s <= '1';
-    
-    ----------------------------------
+ 
+  for i in 1 to 10 loop
+    -- ADDRESS
+    wait until spi_senddata_s = '1';
+    wait for 40 ns;
+    spi_busy_s <= '1';
 
-    for i in 0 to 7 loop
+    spi_dataout_s <= x"00";
 
-      -- ADDRESS
-      wait until spi_senddata_s = '1';
-      wait for 40 ns;
-      spi_busy_s <= '1';
+    wait until spi_senddata_s = '0';
+    wait for 3.2 us;
+    spi_busy_s <= '0';
 
-      spi_dataout_s <= x"00";
 
-      wait until spi_senddata_s = '0';
-      wait for 3.2 us;
-      spi_busy_s <= '0';
-
-      ----------------
-      -- MOTION
-      wait until spi_senddata_s = '1';
-      wait for 40 ns;
-      spi_busy_s <= '1';
-
+    ----------------
+    -- MOTION
+    wait until spi_senddata_s = '1';
+    wait for 40 ns;
+    spi_busy_s <= '1';
+  
+    if i < 5 then
+      spi_dataout_s <= x"82";
+    else
       spi_dataout_s <= x"80";
+    end if;
 
-      wait until spi_senddata_s = '0';
-      wait for 3.2 us;
-      spi_busy_s <= '0';
+    wait until spi_senddata_s = '0';
+    wait for 3.2 us;
+    spi_busy_s <= '0';
 
-      ----------------
-      -- DELTAX
-      wait until spi_senddata_s = '1';
-      wait for 40 ns;
-      spi_busy_s <= '1';
+    ----------------
+    -- DELTAX
+    wait until spi_senddata_s = '1';
+    wait for 40 ns;
+    spi_busy_s <= '1';
 
-      spi_dataout_s <= x"1F";
+    spi_dataout_s <= x"1F";
 
-      wait until spi_senddata_s = '0';
-      wait for 3.2 us;
-      spi_busy_s <= '0';
+    wait until spi_senddata_s = '0';
+    wait for 3.2 us;
+    spi_busy_s <= '0';
 
-      ----------------
-      -- DELTAY
-      wait until spi_senddata_s = '1';
-      wait for 40 ns;
-      spi_busy_s <= '1';
+    ----------------
+    -- DELTAY
+    wait until spi_senddata_s = '1';
+    wait for 40 ns;
+    spi_busy_s <= '1';
 
-      spi_dataout_s <= x"2F";
+    spi_dataout_s <= x"FF";
 
-      wait until spi_senddata_s = '0';
-      wait for 3.2 us;
-      spi_busy_s <= '0';
+    wait until spi_senddata_s = '0';
+    wait for 3.2 us;
+    spi_busy_s <= '0';
 
-      ----------------
-      -- SQUAL
-      wait until spi_senddata_s = '1';
-      wait for 40 ns;
-      spi_busy_s <= '1';
+    ----------------
+    -- SQUAL
+    wait until spi_senddata_s = '1';
+    wait for 40 ns;
+    spi_busy_s <= '1';
 
-      spi_dataout_s <= x"3F";
+    spi_dataout_s <= x"3F";
 
-      wait until spi_senddata_s = '0';
-      wait for 3.2 us;
-      spi_busy_s <= '0';
+    wait until spi_senddata_s = '0';
+    wait for 3.2 us;
+    spi_busy_s <= '0';
 
-    end loop;
+  end loop;
+
     ----------------------------------
   
     endofsimulation_s <= true;

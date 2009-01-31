@@ -47,6 +47,13 @@ generic (
 
 	-- motion bit in motion register
 	k_bit_motion_register_motion : natural := 7;
+  
+  -- fault bit in motion register
+  k_bit_fault_register_motion : natural := 1;
+
+  --
+  -- Motion register / fault offset in fault output
+  k_fault_offset : natural := 0;
 
 	---------- TIMINGS in ns ------------------------------------------------
 	-- timing ratio
@@ -62,7 +69,6 @@ generic (
 	---------- PHYSICAL PARAMETERS ------------------------------------------
 	-- number of ADNS6010 chips
 	k_adns_number : natural := 3
-
 );
 
 port 
@@ -100,7 +106,16 @@ port
 	-- third encoder values
 	adns3_deltax_o : out std_logic_vector (31 downto 0);
 	adns3_deltay_o : out std_logic_vector (31 downto 0);
-	adns3_squal_o  : out std_logic_vector (7 downto 0)
+	adns3_squal_o  : out std_logic_vector (7 downto 0);
+
+  -----------------------------------------------------------
+  -- fault
+  -- 7 :              3 : 
+  -- 6 :              2 : ADNS #3 Fault
+  -- 5 :              1 : ADNS #2 Fault
+  -- 4 :              0 : ADNS #1 Fault
+  fault_o : out std_logic_vector (7 downto 0)
+
 );
 end entity;
 
@@ -143,7 +158,7 @@ adns3_squal_o <= adns3_squal_s;
 ----------------------------------------------------------
 -- Spi 
 -- Handle SPI communication with SPI interface
-spi: process(reset_ni, clk_i)
+spi: process(reset_ni, clk_i, enable_i)
 
 	variable spi_pstart_v : std_logic;
 
@@ -151,7 +166,7 @@ spi: process(reset_ni, clk_i)
 
 begin
 	
-	if reset_ni = '0' then
+	if reset_ni = '0' or enable_i = '0' then
 
 		spi_senddata_o <= '0';
 		spi_datain_o   <= x"00";
@@ -211,8 +226,8 @@ begin
 
 				if spi_busy_i = '0' then
 					spi_datareceived_s <= spi_dataout_i;
-					spi_state_v := spi_state_v + 1;
 					spi_done_s <= '1';
+					spi_state_v := spi_state_v + 1;
 				end if;
 
 			-- state#4
@@ -230,7 +245,7 @@ end process;
 ---------------------------------------------------------
 -- Control Unit 
 -- Main state machine handling data sent over SPI
-controlunit: process(reset_ni, clk_i)
+controlunit: process(reset_ni, clk_i, enable_i)
 
   variable timer_v : natural := 0;
   variable current_adns_v : natural range 1 to 4 := 1;
@@ -245,15 +260,15 @@ controlunit: process(reset_ni, clk_i)
   variable squal_v : std_logic_vector(7 downto 0);
 
 begin
-
-
-	if reset_ni = '0' then
+  
+  -- fpga reset or enable go low
+	if reset_ni = '0' or enable_i = '0' then
 
 		spi_start_s <= '0';
 
-		current_adns_v := 1;
-
 		adns_cs_o <= "00";
+
+    fault_o <= x"00";
 
 		adns1_deltax_s <= x"00000000";
 		adns1_deltay_s <= x"00000000";
@@ -268,15 +283,19 @@ begin
 		adns3_squal_s  <= x"00";
 
 		spi_datatosend_s <= x"00";
+    
+    -- reset machine state
+		current_adns_v := 1;
+		controlunit_state_v := 0;
 
 	else		
 		if rising_edge( clk_i ) then
-
+      
 			-- state #0
 			-- set CS high for current ADNS6010
 			if controlunit_state_v = 0 then
 
-				-- set
+				-- pull CS high for current ADNS
 				adns_cs_o <= std_logic_vector( to_unsigned(current_adns_v,2) );
 				
 				-- reset timer
@@ -294,7 +313,6 @@ begin
 
 				-- check if we wait enough
 				if timer_v >= ((k_timing_ncs_sck/k_fpga_clock_period)*k_timing_ratio) then
-					-- go next state
 					controlunit_state_v := controlunit_state_v + 1;
 				end if;					
 
@@ -307,6 +325,7 @@ begin
 				spi_start_s <= '1';
 				
 				controlunit_state_v := controlunit_state_v + 1;
+
 			-- state #3
 			-- wait for data to be sent 
 			elsif controlunit_state_v = 3 then
@@ -344,11 +363,20 @@ begin
 					spi_start_s <= '0';
 					
 					-- first byte is Motion register
+
+          -- set fault to 1 if occured
+          if spi_datareceived_s(k_bit_fault_register_motion) = '1' then
+            -- current_adns_v is ranged 1 to 3
+            fault_o(k_fault_offset + current_adns_v - 1) <= '1';
+          end if;
+
 					-- check if motion occured since last report
 					if spi_datareceived_s(k_bit_motion_register_motion) = '1' then
 					  ----------------------------------------------------------------------
             -- motion occured
-					  ----------------------------------------------------------------------		
+				    ----------------------------------------------------------------------
+            -- continue to next state
+
             controlunit_state_v := controlunit_state_v + 1;
 
 					else
@@ -408,7 +436,7 @@ begin
 				controlunit_state_v := controlunit_state_v + 1;
 	
 			-- state #10
-			-- read Delta_X byte
+			-- read Delta_Y byte
 			elsif controlunit_state_v = 10 then
 
 				if spi_done_s = '1' then
@@ -427,7 +455,7 @@ begin
 				controlunit_state_v := controlunit_state_v + 1;
 	
 			-- state #12
-			-- read Delta_X byte
+			-- read SQUAL byte
 			elsif controlunit_state_v = 12 then
 
 				if spi_done_s = '1' then
@@ -437,16 +465,17 @@ begin
 				end if;
 
 			-- state #13
-			-- sum deltas, latch squal and go next ADNS
-			elsif controlunit_state_v = 13 then
+			-- sum deltas, update squal and go next ADNS
+			else
         
+        -- get current motion values
         if current_adns_v = 1 then
           sumdeltax_v := adns1_deltax_s;
           sumdeltay_v := adns1_deltay_s;
         elsif current_adns_v = 2 then
           sumdeltax_v := adns2_deltax_s;
           sumdeltay_v := adns2_deltay_s;
-        elsif current_adns_v = 3 then
+        else
           sumdeltax_v := adns3_deltax_s;
           sumdeltay_v := adns3_deltay_s;
         end if;
@@ -457,6 +486,7 @@ begin
         sumdeltay_v := 
           std_logic_vector(signed(sumdeltay_v) + signed(deltay_v));       
 
+        -- update motion values
         if current_adns_v = 1 then
           adns1_deltax_s <= sumdeltax_v;
           adns1_deltay_s <= sumdeltay_v;
@@ -465,7 +495,7 @@ begin
           adns2_deltax_s <= sumdeltax_v;
           adns2_deltay_s <= sumdeltay_v;
           adns2_squal_s  <= squal_v;
-        elsif current_adns_v = 3 then
+        else
           adns3_deltax_s <= sumdeltax_v;
           adns3_deltay_s <= sumdeltay_v;
           adns3_squal_s  <= squal_v;
@@ -493,7 +523,6 @@ begin
 				-- go back to first state
 				controlunit_state_v := 0;
 
-     
 			end if; -- controlunit_state_v
 			-----------------------------------------
 
