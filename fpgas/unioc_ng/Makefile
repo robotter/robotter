@@ -7,7 +7,7 @@ GHDL_FLAGS = --work=$(WORK) --workdir=$(BUILD_DIR)
 SIMU_FLAGS = --assert-level=failure
 
 # Module names (not filenames)
-OBJS = adns6010_spi adns6010_controlunit
+OBJS = adns6010_spi adns6010_controlunit adns6010_latch_nbits.vhd adns6010_wishbone_interface.vhd
 BENCHS = $(addprefix t_, $(OBJS))
 
 # VHDL source files
