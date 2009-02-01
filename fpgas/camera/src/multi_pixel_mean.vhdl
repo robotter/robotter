@@ -50,6 +50,9 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 library UNISIM;
 use UNISIM.VComponents.all;
+library XilinxCoreLib;
+use XilinxCoreLib.all;
+
 
 -----------------------------------------------------------------------
 entity multi_pixel_mean is
@@ -267,10 +270,13 @@ begin
     -- RAMB16_S9_S9: Spartan-3 2k x 8 + 1 unused Parity bits Dual-Port RAM
     RAMB16_Y_inst : RAMB16_S9_S9
 	 generic map (
-      INIT_A => X"00000000", --  Value of output RAM registers at startup
-      INIT_B => X"00000000", --  Value of output RAM registers at startup
-		SRVAL_A => X"00000000", --  Ouput value upon SSR assertion
-      SRVAL_B => X"00000000", --  Ouput value upon SSR assertion
+      INIT_A => "000000000", --  Value of output RAM registers at startup
+      INIT_B => "000000000", --  Value of output RAM registers at startup
+		SRVAL_A => "000000000", --  Ouput value upon SSR assertion
+      SRVAL_B => "000000000", --  Ouput value upon SSR assertion
+		WRITE_MODE_A => "WRITE_FIRST", --  WRITE_FIRST, READ_FIRST or NO_CHANGE
+		WRITE_MODE_B => "WRITE_FIRST", --  WRITE_FIRST, READ_FIRST or NO_CHANGE
+      SIM_COLLISION_CHECK => "NONE", -- "NONE", "WARNING", "GENERATE_X_ONLY", "ALL" 
       INIT_00 => X"0000000000000000000000000000000000000000000000000000000000000000",
       INIT_01 => X"0000000000000000000000000000000000000000000000000000000000000000",
       INIT_02 => X"0000000000000000000000000000000000000000000000000000000000000000",
@@ -371,10 +377,13 @@ begin
     -- RAMB16_S9_S9: Spartan-3 2k x 8 + 1 Parity bits Dual-Port RAM
     RAMB16_H_inst : RAMB16_S9_S9
 	 generic map (
-      INIT_A => X"00000000", --  Value of output RAM registers at startup
-      INIT_B => X"00000000", --  Value of output RAM registers at startup
-		SRVAL_A => X"00000000", --  Ouput value upon SSR assertion
-      SRVAL_B => X"00000000", --  Ouput value upon SSR assertion
+      INIT_A => "000000000", --  Value of output RAM registers at startup
+      INIT_B => "000000000", --  Value of output RAM registers at startup
+		SRVAL_A => "000000000", --  Ouput value upon SSR assertion
+      SRVAL_B => "000000000", --  Ouput value upon SSR assertion
+		WRITE_MODE_A => "WRITE_FIRST", --  WRITE_FIRST, READ_FIRST or NO_CHANGE
+		WRITE_MODE_B => "WRITE_FIRST", --  WRITE_FIRST, READ_FIRST or NO_CHANGE
+		SIM_COLLISION_CHECK => "NONE", -- "NONE", "WARNING", "GENERATE_X_ONLY", "ALL" 
       INIT_00 => X"0000000000000000000000000000000000000000000000000000000000000000",
       INIT_01 => X"0000000000000000000000000000000000000000000000000000000000000000",
       INIT_02 => X"0000000000000000000000000000000000000000000000000000000000000000",
