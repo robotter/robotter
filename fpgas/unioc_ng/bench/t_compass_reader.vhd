@@ -36,7 +36,7 @@ architecture t_compass_reader_1 of t_compass_reader is
   signal clk_s   : std_logic;
   signal reset_s : std_logic;
   signal pwm_s   : std_logic;
-  signal angle_s : std_logic_vector(15 downto 0);
+  signal angle_s : natural range 0 to 3599;
 
   component compass_reader is
     generic (
@@ -94,7 +94,7 @@ begin
     test_angle( 420, pwm_s);
     test_angle(  42, pwm_s);
     test_angle(   0, pwm_s);
-    test_angle(3359, pwm_s);
+    test_angle(3599, pwm_s);
 
     wait for 5 ms;
     report "end of tests" severity note;

@@ -41,20 +41,19 @@ end entity compass_reader;
 
 
 --! Angle is computed by counting clock ticks.
---! First ticks (1ms) are skipped. Then, angle is increased every 0.01ms.
+--! First ticks (1ms) are skipped by subtracting 10.0 to the final value.
+--!
+--! @note Angle value count starts at 1 because it is more effective to
+--! to subtract 100 than 99.
 architecture compass_reader_1 of compass_reader is
 
-  --! type for skipped ticks count
-  subtype skip_ticks_cnt is natural range 0 to clk_freq_c-1;
-  --! type for angle value ticks count
-  subtype angle_ticks_cnt is natural range 0 to clk_freq_c/100-1;
+  --! number of ticks per angle unit value
+  constant angle_period_c : natural := clk_freq_c/100;
 
-  --! first impulse ticks to skip (1 ms), down counted
-  signal skip_ticks_s   : skip_ticks_cnt;
   --! angle value ticks (0.1 deg every 0.01 ms), down counted
-  signal angle_ticks_s  : angle_ticks_cnt;
-  --! current counted angle value
-  signal angle_val_s    : natural range 0 to 3599;
+  signal angle_ticks_s  : natural range 0 to angle_period_c-1;
+  --! current counted angle value, including skipped 10.0 deg
+  signal angle_val_s    : natural range 0 to 3699;
 
 begin
 
@@ -65,7 +64,6 @@ begin
   begin
 
     if reset_i = '1' then
-      skip_ticks_s  <= 0;
       angle_ticks_s <= 0;
       angle_val_s   <= 0;
       angle_o       <= 0;
@@ -75,23 +73,23 @@ begin
 
       if last_pwm_v = '0' and pwm_i = '1' then
         -- PWM rising edge: reset counts
-        skip_ticks_s  <= skip_ticks_cnt'high;
-        angle_ticks_s <= angle_ticks_cnt'high;
-        angle_val_s   <= 0;
+        angle_ticks_s <= angle_period_c-1;
+        angle_val_s   <= 1;
 
       elsif last_pwm_v = '1' and pwm_i = '0' then
         -- PWM falling edge: new angle value is ready
-        angle_o <= angle_val_s;
+        if angle_val_s < 100 then
+          angle_o <= 0;
+        else
+          angle_o <= angle_val_s - 100;
+        end if;
 
       elsif pwm_i = '1' then
         -- impulse
-        if skip_ticks_s /= 0 then
-          -- skipped ticks
-          skip_ticks_s <= skip_ticks_s - 1;
-        elsif angle_ticks_s = 0 then
+        if angle_ticks_s = 0 then
           -- increase angle value, reset tick count
           angle_val_s <= angle_val_s + 1;
-          angle_ticks_s <= angle_ticks_cnt'high;
+          angle_ticks_s <= angle_period_c-1;
         else
           -- increase angle ticks
           angle_ticks_s <= angle_ticks_s - 1;
