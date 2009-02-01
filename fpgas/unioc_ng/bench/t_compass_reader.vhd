@@ -31,7 +31,7 @@ architecture t_compass_reader_1 of t_compass_reader is
 
   signal endofsimulation_s : boolean := false;
 
-  constant fpga_period_c : time := 1 us; -- FPGA period
+  constant fpga_period_c : time := 200 ns; -- FPGA period
 
   signal clk_s   : std_logic;
   signal reset_s : std_logic;
@@ -40,7 +40,7 @@ architecture t_compass_reader_1 of t_compass_reader is
 
   component compass_reader is
     generic (
-      clk_freq_c : natural := 1 ms / fpga_period_c
+      clk_freq_c : natural := 50000
     );
     port (
       clk_i   : in  std_logic;
@@ -52,8 +52,8 @@ architecture t_compass_reader_1 of t_compass_reader is
   for compass_reader_0 : compass_reader use entity work.compass_reader;
 
   --! Test returned value for a given angle
-  procedure test_angle(
-    constant a_ref_i  : in  natural range 0 to 3599;
+  procedure test_angle (
+    constant a_ref_i : in  natural range 0 to 3599;
     signal   pwm_o   : out std_logic
   ) is
   begin
@@ -73,6 +73,9 @@ architecture t_compass_reader_1 of t_compass_reader is
 begin
 
   compass_reader_0 : compass_reader
+  generic map (
+    clk_freq_c => 1 ms / fpga_period_c
+  )
   port map (
     clk_i   => clk_s,
     reset_i => reset_s,

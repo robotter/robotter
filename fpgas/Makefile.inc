@@ -14,9 +14,11 @@ SIMU_FLAGS ?= --assert-level=failure
 # Module names (not filenames)
 OBJS ?= 
 BENCHS ?= 
+# Extra source files (eg. packages)
+SRC_EXTRA ?=
 
 # VHDL source files
-SRC ?= $(addsuffix .vhd,$(addprefix src/,$(OBJS)) $(addprefix bench/,$(BENCHS)))
+SRC ?= $(addsuffix .vhd,$(addprefix src/,$(OBJS)) $(addprefix bench/,$(BENCHS))) $(SRC_EXTRA)
 
 
 # ISE configuration ($XILINX must be set)
@@ -125,6 +127,11 @@ $(ISE_DIR)/%.ngc: $(BUILD_DIR)/ise/%.prj
 			-p $(ISE_PART) $(ISE_OPTS) \n\
 		" | $(ISE_VARS) xst -ofn $(ISE_DIR)/$*.log
 	@rm -fr xlnx_auto_0_xdb xlnx_auto_0.ise
+
+else
+
+ise-%:
+	@echo "Set \$$XILINX to use ISE rules" && [ ]
 
 endif
 

@@ -63,21 +63,23 @@ begin
 
     if wbs_rst_i = '1' then
       wbs_dat_o <= (others => '0');
+      wbs_ack_o <= '0';
 
     elsif rising_edge(wbs_clk_i) then
-      if wbs_stb_i = '1' and wbs_we_i = '1' then
+      if wbs_stb_i = '1' and wbs_we_i = '0' then
         case wbs_adr_i is
           when "00"   => wbs_dat_o <= angle_reg_s(7 downto 0);
-          when "01"   => wbs_dat_o <= "000" & angle_reg_s(11 downto 7);
+          when "01"   => wbs_dat_o <= "0000" & angle_reg_s(11 downto 8);
           when others => wbs_dat_o <= std_logic_vector(to_unsigned(id_c, 8));
         end case;
+        wbs_ack_o <= '1';
+      else
+        wbs_ack_o <= '0';
       end if;
 
     end if;
 
   end process write_angle_p;
-
-  wbs_ack_o <= wbs_stb_i;
 
 end architecture compass_wbs_1;
 
