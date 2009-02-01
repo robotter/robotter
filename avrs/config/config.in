@@ -11,6 +11,12 @@ comment 'RobOtter modules'
 comment 'RobOtter modules'
 
 #
+bool 'adns6010' CONFIG_MODULE_ADNS6010_ROBOTTER
+
+dep_bool '  |-- Create Default ADNS6010 config' CONFIG_MODULE_ADNS6010_ROBOTTER_CREATE_CONFIG \
+	$CONFIG_MODULE_ADNS6010_ROBOTTER
+
+#
 
 bool 'gp2pack' CONFIG_MODULE_GP2PACK_ROBOTTER
 
