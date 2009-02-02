@@ -33,7 +33,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-ENTITY latch_nbits IS
+ENTITY adns6010_latch_nbits IS
   
   GENERIC (
     CONSTANT data_width_c : natural RANGE 0 TO 127 := 32;  -- width of the data bus latched
@@ -51,9 +51,9 @@ ENTITY latch_nbits IS
     deltay_latched_o : OUT std_logic_vector(data_width_c-1 DOWNTO 0);  -- data latched
     squal_latched_o  : OUT std_logic_vector(squal_width_c-1 DOWNTO 0);  -- data latched
     latch_data_i     : IN  std_ulogic);  -- latches data_i while it is active (i.e. '1')
-END latch_nbits;
+END adns6010_latch_nbits;
 
-ARCHITECTURE latch_n_bits_1 OF latch_nbits IS
+ARCHITECTURE adns6010_latch_n_bits_1 OF adns6010_latch_nbits IS
 
   BEGIN  -- latch_n_bits_1
     
@@ -110,4 +110,4 @@ ARCHITECTURE latch_n_bits_1 OF latch_nbits IS
     END PROCESS latch_squal;
 
 
-  END latch_n_bits_1;
+  END adns6010_latch_n_bits_1;

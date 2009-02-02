@@ -23,9 +23,8 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
-USE work.fction_spi.ALL;
 
-ENTITY latch_nbits_tb IS
+ENTITY t_adns6010_latch_nbits IS
   GENERIC(
     CONSTANT c_periode_maj_data : IN time := 200 ns;
     CONSTANT c_periode_clk : IN time := 37 ns;
@@ -40,12 +39,12 @@ ENTITY latch_nbits_tb IS
     deltay_latched_o : OUT std_logic_vector(data_width_c-1 DOWNTO 0);  -- data latched
     squal_latched_o  : OUT std_logic_vector(squal_width_c-1 DOWNTO 0)  -- data latched
     );
-END latch_nbits_tb;
+END t_adns6010_latch_nbits;
 
-ARCHITECTURE robotter OF latch_nbits_tb IS
+ARCHITECTURE t_adns6010_latch_nbits_1 OF t_adns6010_latch_nbits IS
 
 
-  COMPONENT latch_nbits IS
+  COMPONENT adns6010_latch_nbits IS
   
   GENERIC (
     CONSTANT data_width_c : natural RANGE 0 TO 127 := 32;  -- width of the data bus latched
@@ -73,9 +72,9 @@ END COMPONENT;
   SIGNAL squal_s : std_logic_vector(squal_width_c-1 DOWNTO 0) := (OTHERS => '0');  -- data to be latched
 	SIGNAL latch_data_s : std_ulogic := '0';
   
-BEGIN  -- robotter
+BEGIN  -- t_adns6010_latch_nbits_1
 
-  entity_testee : latch_nbits
+  entity_testee : adns6010_latch_nbits
 	GENERIC MAP(
     data_width_c => data_width_c,
 		squal_width_c => squal_width_c
@@ -143,7 +142,7 @@ BEGIN  -- robotter
   squal_o <= squal_s;
   
   
-END robotter;
+END t_adns6010_latch_nbits_1;
 
 
 
