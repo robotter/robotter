@@ -53,17 +53,17 @@ architecture t_compass_reader_1 of t_compass_reader is
 
   --! Test returned value for a given angle
   procedure test_angle (
-    constant a_ref_i : in  natural range 0 to 3599;
+    constant a_ref_c : in  natural range 0 to 3599;
     signal   pwm_o   : out std_logic
   ) is
   begin
 
     pwm_o <= '1';
-    wait for (a_ref_i+100)*10 us;
+    wait for (a_ref_c+100)*10 us;
     pwm_o <= '0';
     wait for 1 ms;
-    assert angle_s = a_ref_i
-      report "angle value: expected "&natural'image(a_ref_i)
+    assert angle_s = a_ref_c
+      report "angle value: expected "&natural'image(a_ref_c)
         &", got "&natural'image(angle_s)
         severity error;
 

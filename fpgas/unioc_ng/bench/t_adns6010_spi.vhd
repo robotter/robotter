@@ -116,7 +116,7 @@ begin
 
 
   miso1_p : process
-    constant byte_v : std_logic_vector(7 downto 0) := "01100011";
+    constant byte_c : std_logic_vector(7 downto 0) := "01100011";
     variable tmp_v  : std_logic_vector(7 downto 0);
     variable bit_cnt_v  : natural range 0 to 7;
   begin

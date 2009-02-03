@@ -68,7 +68,7 @@ architecture t_compass_top_1 of t_compass_top is
 
   --! Test returned value for a given angle
   procedure test_angle (
-    constant a_ref_i  : in  natural range 0 to 3599;
+    constant a_ref_c  : in  natural range 0 to 3599;
     signal   pwm_o    : out std_logic;
     signal   clk_i    : in  std_logic;
     signal   wb_adr_o : out std_logic_vector(1 downto 0);
@@ -82,11 +82,11 @@ architecture t_compass_top_1 of t_compass_top is
     variable a_reg_v : std_logic_vector(15 downto 0);
   begin
 
-    a_ref_v := std_logic_vector(to_unsigned(a_ref_i, 16));
+    a_ref_v := std_logic_vector(to_unsigned(a_ref_c, 16));
 
     -- Generate PWM impulse
     pwm_o <= '1';
-    wait for (a_ref_i+100)*10 us;
+    wait for (a_ref_c+100)*10 us;
     pwm_o <= '0';
     wait for 1 ms;
 
