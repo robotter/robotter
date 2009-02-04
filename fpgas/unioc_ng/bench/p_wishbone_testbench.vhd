@@ -75,13 +75,17 @@ PACKAGE BODY p_wishbone_testbench IS
   IS
   BEGIN
     WAIT UNTIL rising_edge(wb_clk_si);
-    wb_adr_so <= adress;
     wb_we_so <= '0';
+    wb_adr_so <= adress;
     wb_cyc_so <= '1';
     wb_std_so <= '1';
-    WAIT UNTIL rising_edge(wb_clk_si);
+    WAIT UNTIL rising_edge(wb_clk_si) and wb_ack_si = '1';
+    -- HACK / JD 
+    -- 10 ns pour attendre la stabilisation sur le bus de data
+    wait for 10 ns;
     data_read_o <= wb_dat_si;
     wb_std_so <= '0';
+    wb_cyc_so <= '0';
      
   END wb_read;
 
@@ -104,8 +108,12 @@ PACKAGE BODY p_wishbone_testbench IS
     wb_dat_so <= data_written;
     wb_cyc_so <= '1';
     wb_std_so <= '1';
-    WAIT UNTIL rising_edge(wb_clk_si);
+    WAIT UNTIL rising_edge(wb_clk_si) and wb_ack_si = '1';
+    -- HACK / JD 
+    -- 10 ns pour attendre la stabilisation sur le bus de data
+    wait for 10 ns;
     wb_std_so <= '0';
+    wb_cyc_so <= '0';
   END wb_write;
 
 END p_wishbone_testbench;
