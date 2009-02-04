@@ -99,14 +99,22 @@ begin
     reset_ns    <= '0';
     cs_s        <= "01";
     data_in_s   <= (others => 'Z');
-    send_data_s <= '0'; 
-    wait for 1 us;
-    reset_ns <= '1';
-    wait for 1 us;
 
-    data_in_s   <= "00110101";
-    send_data_s <= '1'; 
-    wait for 20 us;
+    wait for 2 us;
+
+    reset_ns <= '1';
+    
+    wait for 200 ns;
+    for i in 0 to 3 loop
+
+      send_data_s <= '0'; 
+      wait for 100 ns;
+
+      data_in_s   <= x"80";
+      send_data_s <= '1'; 
+      wait until busy_s = '0';
+
+    end loop;
 
     report "end of tests" severity note;
     endofsimulation_s <= true;
@@ -116,7 +124,7 @@ begin
 
 
   miso1_p : process
-    constant byte_c : std_logic_vector(7 downto 0) := "01100011";
+    constant byte_c : std_logic_vector(7 downto 0) := x"80";
     variable tmp_v  : std_logic_vector(7 downto 0);
     variable bit_cnt_v  : natural range 0 to 7;
   begin
@@ -133,7 +141,7 @@ begin
     elsif sck_s = '0' and sck_s'last_value = '1' then
       -- MISO outputs on falling edges
       if bit_cnt_v = 0 then
-        tmp_v := byte_v;
+        tmp_v := byte_c;
       end if;
       miso_s <= tmp_v(7);
       tmp_v(7 downto 1) := tmp_v(6 downto 0);
