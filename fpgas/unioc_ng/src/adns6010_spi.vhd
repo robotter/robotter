@@ -98,8 +98,13 @@ begin
 
       elsif send_data_i = '1' and last_send_data_v = '0' then
         -- new transmission (rising edge)
-        transfer_s <= true;
         bit_cnt_s <= 0;
+
+      elsif bit_cnt_s = 0 and spi_rising_s = true then
+        -- start transfer on SPI clock high state and wait for the first
+        -- falling edge to align transfer start with SPI clock cycles
+        -- (and avoid incomplete first cycles)
+        transfer_s <= true;
 
       end if;
       last_send_data_v := send_data_i;
@@ -124,7 +129,6 @@ begin
       end if;
     end if;
   end process busy_p;
-  --busy_o <= '1' when transfer_s = true else '0';
 
   --! MOSI transfer
   mosi_p : process (clk_i, reset_ni, data_in_i)

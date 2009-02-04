@@ -110,7 +110,7 @@ begin
       send_data_s <= '0'; 
       wait for 100 ns;
 
-      data_in_s   <= x"80";
+      data_in_s   <= x"83";
       send_data_s <= '1'; 
       wait until busy_s = '0';
 
@@ -124,7 +124,7 @@ begin
 
 
   miso1_p : process
-    constant byte_c : std_logic_vector(7 downto 0) := x"80";
+    constant byte_c : std_logic_vector(7 downto 0) := x"C1";
     variable tmp_v  : std_logic_vector(7 downto 0);
     variable bit_cnt_v  : natural range 0 to 7;
   begin
