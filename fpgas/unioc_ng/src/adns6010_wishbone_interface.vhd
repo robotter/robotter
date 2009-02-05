@@ -113,7 +113,7 @@ ARCHITECTURE adns6010_wishbone_interface_1 OF adns6010_wishbone_interface IS
 
 BEGIN  -- adns6010_wishbone_interface_1
 
-wbs_ack_o <= ack_write_s OR wbs_stb_i;
+wbs_ack_o <= ack_write_s OR ack_read_s;
 
 -- manage register
 write_bloc : PROCESS(wbs_clk_i, wbs_rst_i)
