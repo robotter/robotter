@@ -81,7 +81,7 @@ begin
     if reset_ni = '0' then
       transfer_s <= false;
       last_send_data_v := '0';
-      bit_cnt_s <= 0;
+      bit_cnt_s <= 8;
 
     elsif rising_edge(clk_i) then
 
@@ -101,6 +101,7 @@ begin
         bit_cnt_s <= 0;
 
       elsif bit_cnt_s = 0 and spi_rising_s = true then
+
         -- start transfer on SPI clock high state and wait for the first
         -- falling edge to align transfer start with SPI clock cycles
         -- (and avoid incomplete first cycles)
@@ -181,7 +182,6 @@ begin
 
 
   -- Chip select
-  --TODO add "transfer_s = true" condition?
   cs1_no <= '0' when cs_i = "01" else '1';
   cs2_no <= '0' when cs_i = "10" else '1';
   cs3_no <= '0' when cs_i = "11" else '1';
@@ -203,6 +203,7 @@ begin
       ticks_v := 0;
 
     elsif rising_edge(clk_i) then
+      
       if ticks_v = 0 then
         -- SPI tick
         if spi_clk_s = '0' then
@@ -215,7 +216,9 @@ begin
           spi_falling_s <= true;
         end if;
         ticks_v := spi_clk_ticks'high;
+
       else
+ 
         ticks_v := ticks_v - 1;
         spi_rising_s  <= false;
         spi_falling_s <= false;
