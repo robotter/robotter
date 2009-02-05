@@ -1,3 +1,4 @@
+
 -----------------------------------------------------------------------------
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -72,6 +73,28 @@ architecture t_adns6010_spi_1 of t_adns6010_spi is
   end component adns6010_spi;
   for adns6010_spi_0 : adns6010_spi use entity work.adns6010_spi;
 
+  --! Tested MISO data, set to other than 'Z' to start transfer test
+  signal miso_data_s : std_logic_vector(7 downto 0) := (others => 'Z');
+  --! Tested MOSI data, set to 'Z' to start transfer test
+  signal mosi_data_s : std_logic_vector(7 downto 0) := (others => 'Z');
+
+  --! Process a test transfer
+  procedure test_transfer(
+    constant miso_val_i  : in  std_logic_vector(7 downto 0);
+    constant mosi_val_i  : in  std_logic_vector(7 downto 0);
+    signal   send_data_o : out std_logic;
+    signal   mosi_data_o : out std_logic_vector(7 downto 0);
+    signal   miso_data_o : out std_logic_vector(7 downto 0);
+    signal   busy_i      : in  std_logic
+  ) is
+  begin
+    mosi_data_o <= mosi_val_i;
+    miso_data_o <= miso_val_i;
+    send_data_o <= '1'; 
+    wait until busy_i = '0';
+    send_data_o <= '0';
+  end procedure test_transfer;
+
 begin
 
   adns6010_spi_0 : adns6010_spi
@@ -93,28 +116,26 @@ begin
 
 
   transfers_p : process
-    variable angle_ref_v : natural range 0 to 3599;
   begin
 
     reset_ns    <= '0';
     cs_s        <= "01";
-    data_in_s   <= (others => 'Z');
+    send_data_s <= '0';
 
     wait for 2 us;
 
     reset_ns <= '1';
     
-    wait for 200 ns;
-    for i in 0 to 3 loop
+    wait for 1 us;
+    test_transfer(x"42",x"00", send_data_s,mosi_data_s,miso_data_s,busy_s);
 
-      send_data_s <= '0'; 
-      wait for 100 ns;
+    wait for 3 us;
+    test_transfer(x"00",x"FF", send_data_s,mosi_data_s,miso_data_s,busy_s);
 
-      data_in_s   <= x"83";
-      send_data_s <= '1'; 
-      wait until busy_s = '0';
+    wait for 500 ns;
+    test_transfer(x"FF",x"42", send_data_s,mosi_data_s,miso_data_s,busy_s);
 
-    end loop;
+    wait for 1 us;
 
     report "end of tests" severity note;
     endofsimulation_s <= true;
@@ -123,38 +144,54 @@ begin
   end process transfers_p;
 
 
-  miso1_p : process
-    constant byte_c : std_logic_vector(7 downto 0) := x"C1";
+  test_miso_p : process
     variable tmp_v  : std_logic_vector(7 downto 0);
-    variable bit_cnt_v  : natural range 0 to 7;
   begin
 
-    wait on sck_s;
-
+    miso_s <= 'Z';
+    wait until rising_edge(send_data_s) or endofsimulation_s = true;
     if endofsimulation_s = true then
       wait;
-
-    elsif cs1_ns = '1' or reset_ns = '0' then
-      miso_s <= 'Z';
-      bit_cnt_v := 0;
-
-    elsif sck_s = '0' and sck_s'last_value = '1' then
-      -- MISO outputs on falling edges
-      if bit_cnt_v = 0 then
-        tmp_v := byte_c;
-      end if;
-      miso_s <= tmp_v(7);
-      tmp_v(7 downto 1) := tmp_v(6 downto 0);
-
-      if bit_cnt_v = 7 then
-        bit_cnt_v := 0;
-      else
-        bit_cnt_v := bit_cnt_v + 1;
-      end if;
-
     end if;
 
-  end process miso1_p;
+    tmp_v := miso_data_s;
+    for i in 0 to 7 loop
+      wait until falling_edge(sck_s);
+      miso_s <= tmp_v(7);
+      tmp_v(7 downto 1) := tmp_v(6 downto 0);
+    end loop;
+    wait until busy_s = '0';
+
+    -- Compare with received value
+    assert data_out_s = miso_data_s
+      report "MISO transfer failed: received value mismatch" severity error;
+
+  end process test_miso_p;
+
+
+  test_mosi_p : process
+    variable tmp_v  : std_logic_vector(7 downto 0);
+  begin
+
+    data_in_s <= (others => 'Z');
+    wait until rising_edge(send_data_s) or endofsimulation_s = true;
+    if endofsimulation_s = true then
+      wait;
+    end if;
+
+    data_in_s <= mosi_data_s;
+    for i in 0 to 7 loop
+      wait until rising_edge(sck_s);
+      tmp_v(7 downto 1) := tmp_v(6 downto 0);
+      tmp_v(0) := mosi_s;
+    end loop;
+    wait until busy_s = '0';
+
+    -- Compare with sent value
+    assert tmp_v = mosi_data_s
+      report "MOSI transfer failed: sent value mismatch" severity error;
+
+  end process test_mosi_p;
 
 
   clock_p : process
