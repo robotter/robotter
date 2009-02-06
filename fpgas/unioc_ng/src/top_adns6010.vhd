@@ -101,7 +101,7 @@ ARCHITECTURE top_adns6010_1 OF top_adns6010 IS
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
   
-  COMPONENT latch_nbits IS  
+  COMPONENT adns6010_latch_nbits IS  
   GENERIC (
     CONSTANT data_width_c : natural RANGE 0 TO 127 := 32;  -- width of the data bus latched
     CONSTANT squal_width_c : natural := 8   	 -- width of the squal bus latched
@@ -116,7 +116,7 @@ ARCHITECTURE top_adns6010_1 OF top_adns6010 IS
     deltay_latched_o : OUT std_logic_vector(data_width_c-1 DOWNTO 0);  -- data latched
     squal_latched_o  : OUT std_logic_vector(squal_width_c-1 DOWNTO 0);  -- data latched
     latch_data_i     : IN  std_ulogic);  -- latches data_i while it is active (i.e. '1')
-  END COMPONENT latch_nbits;
+  END COMPONENT adns6010_latch_nbits;
 
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
@@ -439,7 +439,7 @@ reset_ns <= not(wbs_rst_i);
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
   
-  adns1_latch :  latch_nbits
+  adns1_latch :  adns6010_latch_nbits
   GENERIC MAP(
     data_width_c => 32,  -- width of the data bus latched
     squal_width_c => 8)   	 -- width of the squal bus latched
@@ -455,7 +455,7 @@ reset_ns <= not(wbs_rst_i);
     latch_data_i     => adns1_lock_s);
 
 
-  adns2_latch :  latch_nbits
+  adns2_latch :  adns6010_latch_nbits
   GENERIC MAP(
     data_width_c => 32,  -- width of the data bus latched
     squal_width_c => 8)   	 -- width of the squal bus latched
@@ -471,7 +471,7 @@ reset_ns <= not(wbs_rst_i);
     latch_data_i     => adns2_lock_s);
 
   
-  adns3_latch :  latch_nbits
+  adns3_latch :  adns6010_latch_nbits
   GENERIC MAP(
     data_width_c => 32,  -- width of the data bus latched
     squal_width_c => 8)   	 -- width of the squal bus latched
@@ -565,8 +565,8 @@ reset_ns <= not(wbs_rst_i);
     cu_adns_cs_i        => cu_adns_cs_s,
     
     -- wishbone interface
-    wb_data_in_i        => wb_data_out_s,
-    wb_data_out_o       => wb_data_in_s,
+    wb_data_in_i        => wb_data_in_s,
+    wb_data_out_o       => wb_data_out_s,
     wb_send_data_i      => wb_send_data_s,
     wb_busy_o           => wb_busy_s,
 
