@@ -148,23 +148,23 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
     switch(config->res)
     {
       case ADNS6010_RES_400:
-        cbi(byte,ADNS6010_CONFIGURATION_BIT_RES0);
         cbi(byte,ADNS6010_CONFIGURATION_BIT_RES1);
+        cbi(byte,ADNS6010_CONFIGURATION_BIT_RES0);
         break;
 
       case ADNS6010_RES_800:
-        sbi(byte,ADNS6010_CONFIGURATION_BIT_RES0);
-        cbi(byte,ADNS6010_CONFIGURATION_BIT_RES1);
+        sbi(byte,ADNS6010_CONFIGURATION_BIT_RES1);
+        cbi(byte,ADNS6010_CONFIGURATION_BIT_RES0);
         break;
 
       case ADNS6010_RES_1600:
-        cbi(byte,ADNS6010_CONFIGURATION_BIT_RES0);
-        sbi(byte,ADNS6010_CONFIGURATION_BIT_RES1);
+        cbi(byte,ADNS6010_CONFIGURATION_BIT_RES1);
+        sbi(byte,ADNS6010_CONFIGURATION_BIT_RES0);
         break;
 
       case ADNS6010_RES_2000:
-        sbi(byte,ADNS6010_CONFIGURATION_BIT_RES0);
         sbi(byte,ADNS6010_CONFIGURATION_BIT_RES1);
+        sbi(byte,ADNS6010_CONFIGURATION_BIT_RES0);
         break;
 
       default:
