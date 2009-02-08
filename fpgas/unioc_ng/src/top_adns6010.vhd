@@ -37,9 +37,9 @@ ENTITY top_adns6010 IS
     -- wishbone interface
     wbs_rst_i : IN  std_logic;          -- asynchronous reset, active high
     wbs_clk_i : IN std_logic;           -- clock
-    wbs_adr_i : IN std_logic_vector(5 DOWNTO 0);    -- adress BUS
-    wbs_dat_o : OUT std_logic_vector(wb_size_c-1 DOWNTO 0);  -- data readden from bus
-    wbs_dat_i : IN std_logic_vector(wb_size_c-1 DOWNTO 0); -- data write from BUS
+    wbs_adr_i : IN std_logic_vector(5 DOWNTO 0);    -- address BUS
+    wbs_dat_o : OUT std_logic_vector(wb_size_c-1 DOWNTO 0);  -- data read from bus
+    wbs_dat_i : IN std_logic_vector(wb_size_c-1 DOWNTO 0); -- data written from bus
     wbs_we_i  : IN std_logic;           -- read/write
     wbs_stb_i : IN std_logic;           -- validate read/write operation
     wbs_ack_o : OUT std_logic;           -- operation succesful
@@ -60,8 +60,8 @@ ENTITY top_adns6010 IS
 
 END top_adns6010;
 
-ARCHITECTURE top_adns6010_1 OF top_adns6010 IS
 
+ARCHITECTURE top_adns6010_1 OF top_adns6010 IS
 
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
@@ -104,18 +104,18 @@ ARCHITECTURE top_adns6010_1 OF top_adns6010 IS
   COMPONENT adns6010_latch_nbits IS  
   GENERIC (
     CONSTANT data_width_c : natural RANGE 0 TO 127 := 32;  -- width of the data bus latched
-    CONSTANT squal_width_c : natural := 8   	 -- width of the squal bus latched
+    CONSTANT squal_width_c : natural := 8 -- width of the squal bus latched
     ); 
   PORT (
-    clk_i            : IN  std_ulogic;
-    reset_ni         : IN  std_ulogic;
+    clk_i            : IN  std_logic;
+    reset_ni         : IN  std_logic;
     deltax_i         : IN  std_logic_vector(data_width_c-1 DOWNTO 0);  -- data to be latched
     deltay_i         : IN  std_logic_vector(data_width_c-1 DOWNTO 0);  -- data to be latched
     squal_i          : IN  std_logic_vector(squal_width_c-1 DOWNTO 0);  -- data to be latched
     deltax_latched_o : OUT std_logic_vector(data_width_c-1 DOWNTO 0);  -- data latched
     deltay_latched_o : OUT std_logic_vector(data_width_c-1 DOWNTO 0);  -- data latched
     squal_latched_o  : OUT std_logic_vector(squal_width_c-1 DOWNTO 0);  -- data latched
-    latch_data_i     : IN  std_ulogic);  -- latches data_i while it is active (i.e. '1')
+    latch_data_i     : IN  std_logic);  -- latches data_i while it is active (i.e. '1')
   END COMPONENT adns6010_latch_nbits;
 
   -----------------------------------------------------------------------------
@@ -134,10 +134,10 @@ ARCHITECTURE top_adns6010_1 OF top_adns6010 IS
     -- wishbone interface
     wbs_rst_i : IN  std_logic;          -- asynchronous reset, active high
     wbs_clk_i : IN std_logic;           -- clock
-    wbs_adr_i : IN std_logic_vector(5 DOWNTO 0);    -- adress BUS
-    wbs_dat_o : OUT std_logic_vector(wb_size_c-1 DOWNTO 0);  -- data readden
+    wbs_adr_i : IN std_logic_vector(5 DOWNTO 0);    -- address bus
+    wbs_dat_o : OUT std_logic_vector(wb_size_c-1 DOWNTO 0);  -- data read
                                                              -- from bus
-    wbs_dat_i : IN std_logic_vector(wb_size_c-1 DOWNTO 0); -- data write from BUS
+    wbs_dat_i : IN std_logic_vector(wb_size_c-1 DOWNTO 0); -- data written from bus
     wbs_we_i  : IN std_logic;           -- read/write
     wbs_stb_i : IN std_logic;           -- validate read/write operation
     wbs_ack_o : OUT std_logic;           -- operation succesful
@@ -184,7 +184,7 @@ ARCHITECTURE top_adns6010_1 OF top_adns6010 IS
     
     adns_reset_o : OUT std_logic;       -- reset of the 3 sensors
     spi_cs_o     : OUT std_logic_vector(1 DOWNTO 0)  -- selection of the slave
-                                                      -- adressed by the spi
+                                                     -- addressed by the spi
     
     );
   END COMPONENT adns6010_wishbone_interface;
@@ -229,184 +229,177 @@ ARCHITECTURE top_adns6010_1 OF top_adns6010 IS
 
     mode_select_i : IN std_logic
     
-    );
+  );
 
-END COMPONENT adns6010_mode_mux;
+  END COMPONENT adns6010_mode_mux;
 
 
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
-COMPONENT adns6010_controlunit IS 
----------------------------------------------------------------------------
-GENERIC (
-	---------- FPGA ---------------------------------------------------------
-	-- FPGA clock period in ns
-	k_fpga_clock_period : natural := 20;
+  COMPONENT adns6010_controlunit IS 
+  ---------------------------------------------------------------------------
+  GENERIC (
+    ---------- FPGA ---------------------------------------------------------
+    -- FPGA clock period in ns
+    fpga_clock_period_c : natural := 20;
 
-	---------- REGISTERS ----------------------------------------------------
-	-- register Motion_Burst address
-	k_addr_register_motion_burst : std_logic_vector(7 DOWNTO 0) := x"50";
+    ---------- REGISTERS ----------------------------------------------------
+    -- register Motion_Burst address
+    addr_register_motion_burst_c : std_logic_vector(7 DOWNTO 0) := x"50";
 
-	-- motion bit in motion register
-	k_bit_motion_register_motion : natural := 7;
-  
-  -- fault bit in motion register
-  k_bit_fault_register_motion : natural := 1;
+    -- motion bit in motion register
+    bit_motion_register_motion_c : natural := 7;
+    
+    -- fault bit in motion register
+    bit_fault_register_motion_c : natural := 1;
 
-  --
-  -- Motion register / fault offset in fault output
-  k_fault_offset : natural := 0;
+    --
+    -- Motion register / fault offset in fault output
+    fault_offset_c : natural := 0;
 
-	---------- TIMINGS in ns ------------------------------------------------
-	-- timing ratio
-	k_timing_ratio : natural := 1;
+    ---------- TIMINGS in ns ------------------------------------------------
+    -- timing ratio
+    timing_ratio_c : natural := 1;
 
-	-- timing between NCS falling edge to first SCK rising edge
-	k_timing_ncs_sck : natural := 120;
+    -- timing between NCS falling edge to first SCK rising edge
+    timing_ncs_sck_c : natural := 120;
 
-	-- timing between SCK falling edge to next SCK rising edge
-	-- after a read address and motion data
-	k_timing_srad_mot : natural := 75000;
-	
-	---------- PHYSICAL PARAMETERS ------------------------------------------
-	-- number of ADNS6010 chips
-	k_adns_number : natural := 3
-);
+    -- timing between SCK falling edge to next SCK rising edge
+    -- after a read address and motion data
+    timing_srad_mot_c : natural := 75000;
 
+    ---------- PHYSICAL PARAMETERS ------------------------------------------
+    -- number of ADNS6010 chips
+    adns_number_c : natural := 3
+  );
 
+  -------------------------------------------------------------------------
+  PORT 
+  (
+    -- FPGA signals
+    clk_i : IN  std_logic;
+    reset_ni : IN  std_logic;
 
--------------------------------------------------------------------------------
-PORT 
-(
-  -- FPGA signals
-  clk_i : IN  std_logic;
-  reset_ni : IN  std_logic;
+    ----------------------------------------------------------
+    -- Enable signal activate component on high state
+    enable_i : IN  std_logic;
 
-	----------------------------------------------------------
-  -- Enable signal activate component on high state
-	enable_i : IN  std_logic;
+    ----------------------------------------------------------
+    -- SPI port
+    spi_datain_o   : OUT  std_logic_vector (7 DOWNTO 0);
+    spi_dataout_i  : IN  std_logic_vector (7 DOWNTO 0);
+    spi_senddata_o : OUT  std_logic;
+    spi_busy_i     : IN  std_logic;
 
-	----------------------------------------------------------
-	-- SPI port
-	spi_datain_o   : OUT  std_logic_vector (7 DOWNTO 0);
-	spi_dataout_i  : IN  std_logic_vector (7 DOWNTO 0);
-	spi_senddata_o : OUT  std_logic;
-	spi_busy_i     : IN  std_logic;
+    ----------------------------------------------------------
+    -- CS ADNS selection
+    adns_cs_o : OUT std_logic_vector (1 DOWNTO 0);
 
-	----------------------------------------------------------
-	-- CS ADNS selection
-	adns_cs_o : OUT std_logic_vector (1 DOWNTO 0);
+    ----------------------------------------------------------
+    -- first encoder values
+    adns1_deltax_o : OUT std_logic_vector (31 DOWNTO 0);
+    adns1_deltay_o : OUT std_logic_vector (31 DOWNTO 0);
+    adns1_squal_o  : OUT std_logic_vector (7 DOWNTO 0);
 
-	----------------------------------------------------------
-	-- first encoder values
-	adns1_deltax_o : OUT std_logic_vector (31 DOWNTO 0);
-	adns1_deltay_o : OUT std_logic_vector (31 DOWNTO 0);
-	adns1_squal_o  : OUT std_logic_vector (7 DOWNTO 0);
+    -- second encoder values
+    adns2_deltax_o : OUT std_logic_vector (31 DOWNTO 0);
+    adns2_deltay_o : OUT std_logic_vector (31 downto 0);
+    adns2_squal_o  : OUT std_logic_vector (7 downto 0);
 
-	-- second encoder values
-	adns2_deltax_o : OUT std_logic_vector (31 DOWNTO 0);
-	adns2_deltay_o : OUT std_logic_vector (31 downto 0);
-	adns2_squal_o  : OUT std_logic_vector (7 downto 0);
+    -- third encoder values
+    adns3_deltax_o : OUT std_logic_vector (31 DOWNTO 0);
+    adns3_deltay_o : OUT std_logic_vector (31 DOWNTO 0);
+    adns3_squal_o  : OUT std_logic_vector (7 DOWNTO 0);
 
-	-- third encoder values
-	adns3_deltax_o : OUT std_logic_vector (31 DOWNTO 0);
-	adns3_deltay_o : OUT std_logic_vector (31 DOWNTO 0);
-	adns3_squal_o  : OUT std_logic_vector (7 DOWNTO 0);
+    -----------------------------------------------------------
+    -- fault
+    -- 7 :              3 : 
+    -- 6 :              2 : ADNS #3 Fault
+    -- 5 :              1 : ADNS #2 Fault
+    -- 4 :              0 : ADNS #1 Fault
+    fault_o : OUT std_logic_vector (7 DOWNTO 0)
 
-  -----------------------------------------------------------
-  -- fault
-  -- 7 :              3 : 
-  -- 6 :              2 : ADNS #3 Fault
-  -- 5 :              1 : ADNS #2 Fault
-  -- 4 :              0 : ADNS #1 Fault
-  fault_o : OUT std_logic_vector (7 DOWNTO 0)
-
-);
-END COMPONENT adns6010_controlunit;
+  );
+  END COMPONENT adns6010_controlunit;
 
 
+  -------------------------------------------------------------------------
+  -- interface to the first sensor
+
+  SIGNAL adns1_lock_s : std_logic;
+
+  SIGNAL adns1_delta_X_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns1_delta_Y_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns1_squal_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
+
+  SIGNAL adns1_delta_X_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns1_delta_Y_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns1_squal_latched_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
+  ---------------------------------------------------------------------------
+  -- interface to the second sensor
+
+  SIGNAL adns2_lock_s : std_logic;
+  SIGNAL adns2_delta_X_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns2_delta_Y_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns2_squal_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
+
+  SIGNAL adns2_delta_X_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns2_delta_Y_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns2_squal_latched_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
+  ---------------------------------------------------------------------------
+  -- interface to the third sensor
+
+  SIGNAL adns3_lock_s : std_logic;
+  SIGNAL adns3_delta_X_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns3_delta_Y_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns3_squal_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
+
+  SIGNAL adns3_delta_X_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns3_delta_Y_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns3_squal_latched_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
+  ---------------------------------------------------------------------------
+  -- common register to the ControlUnit
+
+  SIGNAL fault_s : std_logic_vector(7 DOWNTO 0);
+
+  SIGNAL auto_enable_s : std_logic;      --enable the control Unit (active High)
+
+  ---------------------------------------------------------------------------
+  -- control unit interface
+  SIGNAL cu_data_in_s        : std_logic_vector(7 DOWNTO 0);
+  SIGNAL cu_data_out_s       : std_logic_vector(7 DOWNTO 0);
+  SIGNAL cu_send_data_s      : std_logic;
+  SIGNAL cu_busy_s           : std_logic;
+
+  SIGNAL cu_adns_cs_s        : std_logic_vector(1 DOWNTO 0);
+
+  -- wishbone interface
+  SIGNAL wb_data_in_s        : std_logic_vector(7 DOWNTO 0);
+  SIGNAL wb_data_out_s       : std_logic_vector(7 DOWNTO 0);
+  SIGNAL wb_send_data_s      : std_logic;
+  SIGNAL wb_busy_s           : std_logic;
+
+  SIGNAL wb_adns_cs_s        : std_logic_vector(1 DOWNTO 0);
 
 
+  ---------------------------------------------------------------------------
+  -- spi interface
+  SIGNAL spi_data_in_s       : std_logic_vector(7 DOWNTO 0);
+  SIGNAL spi_data_out_s      : std_logic_vector(7 DOWNTO 0);
+  SIGNAL spi_send_data_s     : std_logic;
+  SIGNAL spi_busy_s          : std_logic;
 
--------------------------------------------------------------------------------
- ---------------------------------------------------------------------------
-    -- interface to the first sensor
+  SIGNAL spi_adns_cs_s       : std_logic_vector(1 DOWNTO 0);
 
-    SIGNAL adns1_lock_s : std_logic;
+  ---------------------------------------------------------------------------
+  -- signal command
 
-    SIGNAL adns1_delta_X_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-    SIGNAL adns1_delta_Y_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-    SIGNAL adns1_squal_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
-
-    SIGNAL adns1_delta_X_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-    SIGNAL adns1_delta_Y_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-    SIGNAL adns1_squal_latched_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
-    ---------------------------------------------------------------------------
-    -- interface to the second sensor
-
-    SIGNAL adns2_lock_s : std_logic;
-    SIGNAL adns2_delta_X_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-    SIGNAL adns2_delta_Y_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-    SIGNAL adns2_squal_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
-
-    SIGNAL adns2_delta_X_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-    SIGNAL adns2_delta_Y_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-    SIGNAL adns2_squal_latched_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
-    ---------------------------------------------------------------------------
-    -- interface to the third sensor
-
-    SIGNAL adns3_lock_s : std_logic;
-    SIGNAL adns3_delta_X_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-    SIGNAL adns3_delta_Y_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-    SIGNAL adns3_squal_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
-
-    SIGNAL adns3_delta_X_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-    SIGNAL adns3_delta_Y_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-    SIGNAL adns3_squal_latched_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
-    ---------------------------------------------------------------------------
-    -- common register to the ControlUnit
-
-    SIGNAL fault_s : std_logic_vector(7 DOWNTO 0);
-
-    SIGNAL auto_enable_s : std_logic;      --enable the control Unit (active High)
-
-    ---------------------------------------------------------------------------
-    -- control unit interface
-    SIGNAL cu_data_in_s        : std_logic_vector(7 DOWNTO 0);
-    SIGNAL cu_data_out_s       : std_logic_vector(7 DOWNTO 0);
-    SIGNAL cu_send_data_s      : std_logic;
-    SIGNAL cu_busy_s           : std_logic;
-
-    SIGNAL cu_adns_cs_s        : std_logic_vector(1 DOWNTO 0);
-
-    -- wishbone interface
-    SIGNAL wb_data_in_s        : std_logic_vector(7 DOWNTO 0);
-    SIGNAL wb_data_out_s       : std_logic_vector(7 DOWNTO 0);
-    SIGNAL wb_send_data_s      : std_logic;
-    SIGNAL wb_busy_s           : std_logic;
-
-    SIGNAL wb_adns_cs_s        : std_logic_vector(1 DOWNTO 0);
-
-
-    ---------------------------------------------------------------------------
-    -- spi interface
-    SIGNAL spi_data_in_s       : std_logic_vector(7 DOWNTO 0);
-    SIGNAL spi_data_out_s      : std_logic_vector(7 DOWNTO 0);
-    SIGNAL spi_send_data_s     : std_logic;
-    SIGNAL spi_busy_s          : std_logic;
-
-    SIGNAL spi_adns_cs_s       : std_logic_vector(1 DOWNTO 0);
-
-    ---------------------------------------------------------------------------
-    -- signal command
-
-    SIGNAL mode_select_s : std_logic;
-
+  SIGNAL mode_select_s : std_logic;
 
 
   SIGNAL reset_ns : std_logic;
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
+  -------------------------------------------------------------------------
+  -------------------------------------------------------------------------
 
 BEGIN  -- top_adns6010_1
 
@@ -442,7 +435,7 @@ reset_ns <= not(wbs_rst_i);
   adns1_latch :  adns6010_latch_nbits
   GENERIC MAP(
     data_width_c => 32,  -- width of the data bus latched
-    squal_width_c => 8)   	 -- width of the squal bus latched
+    squal_width_c => 8)  -- width of the squal bus latched
   PORT MAP(
     clk_i            => wbs_clk_i,
     reset_ni         => reset_ns,
@@ -458,7 +451,7 @@ reset_ns <= not(wbs_rst_i);
   adns2_latch :  adns6010_latch_nbits
   GENERIC MAP(
     data_width_c => 32,  -- width of the data bus latched
-    squal_width_c => 8)   	 -- width of the squal bus latched
+    squal_width_c => 8)  -- width of the squal bus latched
   PORT MAP(
     clk_i            => wbs_clk_i,
     reset_ni         => reset_ns,
@@ -474,7 +467,7 @@ reset_ns <= not(wbs_rst_i);
   adns3_latch :  adns6010_latch_nbits
   GENERIC MAP(
     data_width_c => 32,  -- width of the data bus latched
-    squal_width_c => 8)   	 -- width of the squal bus latched
+    squal_width_c => 8)  -- width of the squal bus latched
   PORT MAP(
     clk_i            => wbs_clk_i,
     reset_ni         => reset_ns,
@@ -584,53 +577,49 @@ reset_ns <= not(wbs_rst_i);
     -- signal command
 
     mode_select_i => auto_enable_s
-    
-    );
+  );
   
--------------------------------------------------------------------------------
   -----------------------------------------------------------------------------
 
-  
-  -----------------------------------------------------------------------------
-  -----------------------------------------------------------------------------
-cu :  adns6010_controlunit 
-GENERIC MAP(
-  k_fpga_clock_period  => 1000000/freq_fpga_c,
-  k_addr_register_motion_burst => x"50",
-  k_bit_motion_register_motion => 7,
-  k_bit_fault_register_motion => 1,
-  k_fault_offset => 0,
-  k_timing_ratio => 1,
-  k_timing_ncs_sck => 120,
-  k_timing_srad_mot => 75000,
-  k_adns_number => 3)
-PORT MAP(
-  clk_i => wbs_clk_i,
-  reset_ni => reset_ns,
-  enable_i => auto_enable_s,
-  
-  spi_datain_o   => cu_data_in_s,
-  spi_dataout_i  => cu_data_out_s,
-  spi_senddata_o => cu_send_data_s, 
-  spi_busy_i     => cu_busy_s,
-  
-  adns_cs_o => cu_adns_cs_s,
-  
-  -- first encoder values
-  adns1_deltax_o => adns1_delta_X_s, 
-  adns1_deltay_o => adns1_delta_Y_s,
-  adns1_squal_o  => adns1_squal_s,
-  
-  -- second encoder values
-  adns2_deltax_o => adns2_delta_X_s,
-  adns2_deltay_o => adns2_delta_Y_s,
-  adns2_squal_o  => adns2_squal_s,
-  
-  -- third encoder values
-  adns3_deltax_o => adns3_delta_X_s,
-  adns3_deltay_o => adns3_delta_Y_s,
-  adns3_squal_o  => adns3_squal_s,
-  fault_o => fault_s);
-  
+
+  cu :  adns6010_controlunit 
+  GENERIC MAP(
+    fpga_clock_period_c  => 1000000/freq_fpga_c,
+    addr_register_motion_burst_c => x"50",
+    bit_motion_register_motion_c => 7,
+    bit_fault_register_motion_c => 1,
+    fault_offset_c => 0,
+    timing_ratio_c => 1,
+    timing_ncs_sck_c => 120,
+    timing_srad_mot_c => 75000,
+    adns_number_c => 3)
+  PORT MAP(
+    clk_i => wbs_clk_i,
+    reset_ni => reset_ns,
+    enable_i => auto_enable_s,
+    
+    spi_datain_o   => cu_data_in_s,
+    spi_dataout_i  => cu_data_out_s,
+    spi_senddata_o => cu_send_data_s, 
+    spi_busy_i     => cu_busy_s,
+    
+    adns_cs_o => cu_adns_cs_s,
+    
+    -- first encoder values
+    adns1_deltax_o => adns1_delta_X_s, 
+    adns1_deltay_o => adns1_delta_Y_s,
+    adns1_squal_o  => adns1_squal_s,
+    
+    -- second encoder values
+    adns2_deltax_o => adns2_delta_X_s,
+    adns2_deltay_o => adns2_delta_Y_s,
+    adns2_squal_o  => adns2_squal_s,
+    
+    -- third encoder values
+    adns3_deltax_o => adns3_delta_X_s,
+    adns3_deltay_o => adns3_delta_Y_s,
+    adns3_squal_o  => adns3_squal_s,
+    fault_o => fault_s);
+
   
 END top_adns6010_1;

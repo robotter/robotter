@@ -127,11 +127,11 @@ architecture t_adns6010_controlunit_1 of t_adns6010_controlunit is
 
 begin
 
-	------------------------------------------------------------
-	-- Component declaration
-	cu_0: cu port map (
-		clk_i => clk_s,
-		reset_ni => reset_s,
+  ------------------------------------------------------------
+  -- Component declaration
+  cu_0: cu port map (
+    clk_i => clk_s,
+    reset_ni => reset_s,
     enable_i => enable_s,
     spi_datain_o => spi_datain_s,
     spi_dataout_i => spi_dataout_s,
@@ -150,9 +150,9 @@ begin
     fault_o => fault_s
     );    
 
-	------------------------------------------------------------
-	-- Process
-  clk_generator : process
+  ------------------------------------------------------------
+  -- Process
+  clk_generator_p : process
   begin
     if endofsimulation_s then
       report "1> end of test" severity note;
@@ -161,9 +161,9 @@ begin
 
     clk_s <= '1', '0' after 10 ns;
     wait for 20 ns;
-  end process; -- clk_generator
+  end process clk_generator_p;
 
-  main : process
+  main_p : process
   begin
     
     spi_dataout_s <= x"00";
@@ -175,72 +175,72 @@ begin
     wait for 20 ns;
     reset_s <= '1';
  
-  for i in 1 to 10 loop
-    -- ADDRESS
-    wait until spi_senddata_s = '1';
-    wait for 40 ns;
-    spi_busy_s <= '1';
+    for i in 1 to 10 loop
+      -- ADDRESS
+      wait until spi_senddata_s = '1';
+      wait for 40 ns;
+      spi_busy_s <= '1';
 
-    spi_dataout_s <= x"00";
+      spi_dataout_s <= x"00";
 
-    wait until spi_senddata_s = '0';
-    wait for 3.2 us;
-    spi_busy_s <= '0';
+      wait until spi_senddata_s = '0';
+      wait for 3.2 us;
+      spi_busy_s <= '0';
 
 
-    ----------------
-    -- MOTION
-    wait until spi_senddata_s = '1';
-    wait for 40 ns;
-    spi_busy_s <= '1';
-  
-    if i < 5 then
-      spi_dataout_s <= x"82";
-    else
-      spi_dataout_s <= x"80";
-    end if;
+      ----------------
+      -- MOTION
+      wait until spi_senddata_s = '1';
+      wait for 40 ns;
+      spi_busy_s <= '1';
+    
+      if i < 5 then
+        spi_dataout_s <= x"82";
+      else
+        spi_dataout_s <= x"80";
+      end if;
 
-    wait until spi_senddata_s = '0';
-    wait for 3.2 us;
-    spi_busy_s <= '0';
+      wait until spi_senddata_s = '0';
+      wait for 3.2 us;
+      spi_busy_s <= '0';
 
-    ----------------
-    -- DELTAX
-    wait until spi_senddata_s = '1';
-    wait for 40 ns;
-    spi_busy_s <= '1';
+      ----------------
+      -- DELTAX
+      wait until spi_senddata_s = '1';
+      wait for 40 ns;
+      spi_busy_s <= '1';
 
-    spi_dataout_s <= x"1F";
+      spi_dataout_s <= x"1F";
 
-    wait until spi_senddata_s = '0';
-    wait for 3.2 us;
-    spi_busy_s <= '0';
+      wait until spi_senddata_s = '0';
+      wait for 3.2 us;
+      spi_busy_s <= '0';
 
-    ----------------
-    -- DELTAY
-    wait until spi_senddata_s = '1';
-    wait for 40 ns;
-    spi_busy_s <= '1';
+      ----------------
+      -- DELTAY
+      wait until spi_senddata_s = '1';
+      wait for 40 ns;
+      spi_busy_s <= '1';
 
-    spi_dataout_s <= x"FF";
+      spi_dataout_s <= x"FF";
 
-    wait until spi_senddata_s = '0';
-    wait for 3.2 us;
-    spi_busy_s <= '0';
+      wait until spi_senddata_s = '0';
+      wait for 3.2 us;
+      spi_busy_s <= '0';
 
-    ----------------
-    -- SQUAL
-    wait until spi_senddata_s = '1';
-    wait for 40 ns;
-    spi_busy_s <= '1';
+      ----------------
+      -- SQUAL
+      wait until spi_senddata_s = '1';
+      wait for 40 ns;
+      spi_busy_s <= '1';
 
-    spi_dataout_s <= x"3F";
+      spi_dataout_s <= x"3F";
 
-    wait until spi_senddata_s = '0';
-    wait for 3.2 us;
-    spi_busy_s <= '0';
+      wait until spi_senddata_s = '0';
+      wait for 3.2 us;
+      spi_busy_s <= '0';
 
-  end loop;
+    end loop;
 
     ----------------------------------
   
@@ -250,7 +250,7 @@ begin
     -- wait forever
     wait;
 
-  end process; -- main
+  end process main_p;
 
 end t_adns6010_controlunit_1;
 

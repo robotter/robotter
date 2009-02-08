@@ -24,10 +24,10 @@ use ieee.std_logic_1164.all ;
 use ieee.numeric_std.all;
 
 
-entity t_compass_top is
-end entity t_compass_top;
+entity t_top_compass is
+end entity t_top_compass;
 
-architecture t_compass_top_1 of t_compass_top is
+architecture t_top_compass_1 of t_top_compass is
 
   constant fpga_period_c : time := 2 us; -- FPGA period
 
@@ -43,7 +43,7 @@ architecture t_compass_top_1 of t_compass_top is
   signal wbs_cyc_s  : std_logic;
   signal pwm_s      : std_logic;
 
-  component compass_top is
+  component top_compass is
     generic (
       id_c       : natural := 9;    --! module ID
       clk_freq_c : natural := 50000 --! FPGA clock frequency, in kHz
@@ -63,12 +63,12 @@ architecture t_compass_top_1 of t_compass_top is
       pwm_i     : in std_logic
     );
 
-  end component compass_top;
-  for compass_top_0 : compass_top use entity work.compass_top;
+  end component top_compass;
+  for top_compass_0 : top_compass use entity work.top_compass;
 
   --! Test returned value for a given angle
   procedure test_angle (
-    constant a_ref_c  : in  natural range 0 to 3599;
+    constant a_ref_ci : in  natural range 0 to 3599;
     signal   pwm_o    : out std_logic;
     signal   clk_i    : in  std_logic;
     signal   wb_adr_o : out std_logic_vector(1 downto 0);
@@ -82,11 +82,11 @@ architecture t_compass_top_1 of t_compass_top is
     variable a_reg_v : std_logic_vector(15 downto 0);
   begin
 
-    a_ref_v := std_logic_vector(to_unsigned(a_ref_c, 16));
+    a_ref_v := std_logic_vector(to_unsigned(a_ref_ci, 16));
 
     -- Generate PWM impulse
     pwm_o <= '1';
-    wait for (a_ref_c+100)*10 us;
+    wait for (a_ref_ci+100)*10 us;
     pwm_o <= '0';
     wait for 1 ms;
 
@@ -114,7 +114,7 @@ architecture t_compass_top_1 of t_compass_top is
     wait for 1 ms;
 
     assert a_reg_v = a_ref_v
-      report "angle value: expected "&natural'image(a_ref_i)
+      report "angle value: expected "&natural'image(a_ref_ci)
         &", got "&natural'image(to_integer(unsigned(a_reg_v)))
         severity error;
 
@@ -123,7 +123,7 @@ architecture t_compass_top_1 of t_compass_top is
 
 begin
 
-  compass_top_0 : compass_top
+  top_compass_0 : top_compass
   generic map (
     clk_freq_c => 1 ms / fpga_period_c
   )
@@ -180,7 +180,7 @@ begin
     wait for fpga_period_c/2;
   end process clock_p;
 
-end architecture t_compass_top_1;
+end architecture t_top_compass_1;
 
 
 

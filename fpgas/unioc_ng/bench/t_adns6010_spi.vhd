@@ -80,16 +80,16 @@ architecture t_adns6010_spi_1 of t_adns6010_spi is
 
   --! Process a test transfer
   procedure test_transfer(
-    constant miso_val_i  : in  std_logic_vector(7 downto 0);
-    constant mosi_val_i  : in  std_logic_vector(7 downto 0);
+    constant miso_val_ci : in  std_logic_vector(7 downto 0);
+    constant mosi_val_ci : in  std_logic_vector(7 downto 0);
     signal   send_data_o : out std_logic;
     signal   mosi_data_o : out std_logic_vector(7 downto 0);
     signal   miso_data_o : out std_logic_vector(7 downto 0);
     signal   busy_i      : in  std_logic
   ) is
   begin
-    mosi_data_o <= mosi_val_i;
-    miso_data_o <= miso_val_i;
+    mosi_data_o <= mosi_val_ci;
+    miso_data_o <= miso_val_ci;
     send_data_o <= '1'; 
     wait until busy_i = '0';
     send_data_o <= '0';

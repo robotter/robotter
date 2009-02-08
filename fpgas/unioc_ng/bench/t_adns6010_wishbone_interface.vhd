@@ -1,4 +1,17 @@
-	
+-----------------------------------------------------------------------------
+-- This program is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; either version 2, or (at your option)
+-- any later version.
+-- 
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+-- 
+-- You should have received a copy of the GNU General Public License
+-- along with this program; if not, write to the Free Software
+-----------------------------------------------------------------------------
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
@@ -7,8 +20,8 @@ USE work.p_wishbone_testbench.ALL;
 
 ENTITY t_adns6010_wishbone_interface IS
   GENERIC(
-    CONSTANT periode_clk_c : IN time := 37 ns;
-    CONSTANT periode_maj_data_c : IN time:= 49 ns;
+    CONSTANT clk_period_c : IN time := 37 ns;
+    CONSTANT update_data_period_c : IN time:= 49 ns;
     CONSTANT wb_size_c : natural := 8;           -- data port size
     CONSTANT adns_size_c : natural RANGE 8 TO 32:= 32;        -- data sensor port size
     CONSTANT squal_size_c : natural RANGE 8 TO 32:= 8  -- squal port size
@@ -47,7 +60,7 @@ COMPONENT adns6010_wishbone_interface IS
     -- wishbone interface
     wbs_rst_i : IN  std_logic;          -- asynchronous reset, active high
     wbs_clk_i : IN std_logic;           -- clock
-    wbs_adr_i : IN std_logic_vector(5 DOWNTO 0);    -- adress BUS
+    wbs_adr_i : IN std_logic_vector(5 DOWNTO 0);    -- address BUS
     wbs_dat_o : OUT std_logic_vector(wb_size_c-1 DOWNTO 0);  -- data readden
                                                              -- from bus
     wbs_dat_i : IN std_logic_vector(wb_size_c-1 DOWNTO 0); -- data write from BUS
@@ -97,7 +110,7 @@ COMPONENT adns6010_wishbone_interface IS
     
     adns_reset_o : OUT std_logic;       -- reset of the 3 sensors
     spi_cs_o     : OUT std_logic_vector(1 DOWNTO 0)  -- selection of the slave
-                                                      -- adressed by the spi
+                                                      -- addressed by the spi
     
     );
 END COMPONENT;
@@ -203,15 +216,15 @@ BEGIN
 
   
 
-  p_clk: PROCESS
-  BEGIN  -- PROCESS 
+  clk_p : PROCESS
+  BEGIN
 
     clk_s <= not(clk_s);
-    WAIT FOR periode_clk_c/2;
-  END PROCESS p_clk;
+    WAIT FOR clk_period_c/2;
+  END PROCESS clk_p;
 
-  reset : PROCESS
-  BEGIN  -- PROCESS
+  reset_p : PROCESS
+  BEGIN
     rst_ns <= '1';
     WAIT FOR 2 us;
     rst_ns <= '0';
@@ -221,20 +234,20 @@ BEGIN
     rst_ns <= '0';
     WAIT FOR 1 us;
     rst_ns <= '1';
-  END PROCESS;
+  END PROCESS reset_p;
   
-  rst_s <= not(rst_ns);                 -- wishbone reset
+  rst_s <= not(rst_ns); -- wishbone reset
 
 
 
   -------------------------------------------------------------------------------
   -- modification des donnees lues
   
-    maj_data: PROCESS 
-  BEGIN  -- PROCESS envoi_data
-    WAIT FOR periode_maj_data_c;
-    cpt_size_adns_s <= std_logic_vector(unsigned(cpt_size_adns_s)+1);	
-  END PROCESS maj_data;
+  update_data_p : PROCESS 
+  BEGIN
+    WAIT FOR update_data_period_c;
+    cpt_size_adns_s <= std_logic_vector(unsigned(cpt_size_adns_s)+1);
+  END PROCESS update_data_p;
 
   adns1_delta_X_s <= cpt_size_adns_s;
   adns1_delta_Y_s <= cpt_size_adns_s;
@@ -256,20 +269,20 @@ BEGIN
   ------------------------------------------------------------------------------
   -- acces wishbone
 
-  wishbone : PROCESS
+  wishbone_p : PROCESS
     VARIABLE cpt_adr_v : integer;
   BEGIN
     WAIT FOR 3 us; 
     FOR cpt_adr_v IN 0 TO 32 LOOP
-			wb_read(std_logic_vector(to_unsigned(cpt_adr_v,6)), clk_s, wbs_adr_s, wbs_dat_os, wbs_we_s, wbs_stb_s, wbs_ack_s, wbs_cyc_s, data_read_o);
+      wb_read(std_logic_vector(to_unsigned(cpt_adr_v,6)), clk_s, wbs_adr_s, wbs_dat_os, wbs_we_s, wbs_stb_s, wbs_ack_s, wbs_cyc_s, data_read_o);
       wb_write( std_logic_vector(to_unsigned(cpt_adr_v,6)), X"55", clk_s, wbs_adr_s, wbs_dat_is, wbs_we_s, wbs_stb_s, wbs_ack_s, wbs_cyc_s);
-			wb_read(std_logic_vector(to_unsigned(cpt_adr_v,6)), clk_s, wbs_adr_s, wbs_dat_os, wbs_we_s, wbs_stb_s, wbs_ack_s, wbs_cyc_s, data_read_o);
+      wb_read(std_logic_vector(to_unsigned(cpt_adr_v,6)), clk_s, wbs_adr_s, wbs_dat_os, wbs_we_s, wbs_stb_s, wbs_ack_s, wbs_cyc_s, data_read_o);
       wb_write( std_logic_vector(to_unsigned(cpt_adr_v,6)), X"AA", clk_s, wbs_adr_s, wbs_dat_is, wbs_we_s, wbs_stb_s, wbs_ack_s, wbs_cyc_s);
-	    wb_read(std_logic_vector(to_unsigned(cpt_adr_v,6)), clk_s, wbs_adr_s, wbs_dat_os, wbs_we_s, wbs_stb_s, wbs_ack_s, wbs_cyc_s, data_read_o);
+      wb_read(std_logic_vector(to_unsigned(cpt_adr_v,6)), clk_s, wbs_adr_s, wbs_dat_os, wbs_we_s, wbs_stb_s, wbs_ack_s, wbs_cyc_s, data_read_o);
       WAIT FOR 500 ns;
     END LOOP;  -- cpt_adr_v
     
     
-  END PROCESS;
+  END PROCESS wishbone_p;
   
 END t_adns6010_wishbone_interface_1;

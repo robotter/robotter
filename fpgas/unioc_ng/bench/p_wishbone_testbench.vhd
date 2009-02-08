@@ -11,7 +11,7 @@
 -----------------------------------------------------------------------------
 -- Description : provides read and write operation over wishbone bus.
 -- TODO : implement reset over the bus,
--- 					provide selectable wb_adr_so bus width
+--        provide selectable wb_adr_so bus width
 -----------------------------------------------------------------------------
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -33,9 +33,9 @@ USE ieee.numeric_std.ALL;
 PACKAGE p_wishbone_testbench IS
 
   PROCEDURE wb_read(
-    adress : IN std_logic_vector(5 DOWNTO 0);  -- adress written to wb bus
-    SIGNAL wb_clk_si : IN std_ulogic;          -- clock de la spi
-    SIGNAL wb_adr_so : OUT  std_logic_vector(5 DOWNTO 0);  -- wb adress BUS
+    CONSTANT address_ci : IN std_logic_vector(5 DOWNTO 0); -- written address
+    SIGNAL wb_clk_si : IN std_logic;
+    SIGNAL wb_adr_so : OUT  std_logic_vector(5 DOWNTO 0);  -- wb address BUS
     SIGNAL wb_dat_si : IN std_logic_vector(7 DOWNTO 0);  -- data bus
     SIGNAL wb_we_so : OUT std_logic;    -- read/write
     SIGNAL wb_std_so : OUT std_logic;  -- validate read/write operation
@@ -45,10 +45,10 @@ PACKAGE p_wishbone_testbench IS
 
 
   PROCEDURE wb_write(
-    adress : IN std_logic_vector(5 DOWNTO 0);
-    data_written : IN std_logic_vector(7 DOWNTO 0);
-    SIGNAL wb_clk_si : IN std_ulogic;          -- clock de la spi
-    SIGNAL wb_adr_so : OUT  std_logic_vector(5 DOWNTO 0);  -- adress BUS
+    CONSTANT address_ci : IN std_logic_vector(5 DOWNTO 0);
+    CONSTANT data_written_ci : IN std_logic_vector(7 DOWNTO 0);
+    SIGNAL wb_clk_si : IN std_logic;
+    SIGNAL wb_adr_so : OUT  std_logic_vector(5 DOWNTO 0);  -- address BUS
     SIGNAL wb_dat_so : OUT std_logic_vector(7 DOWNTO 0);  -- data bus
     SIGNAL wb_we_so : OUT std_logic;    -- read/write
     SIGNAL wb_std_so : OUT std_logic;  -- validate read/write operation
@@ -60,12 +60,10 @@ END p_wishbone_testbench;
 
 PACKAGE BODY p_wishbone_testbench IS
 
-  
-
   PROCEDURE wb_read(
-    adress : IN std_logic_vector(5 DOWNTO 0);  -- adress written to wb bus
-    SIGNAL wb_clk_si : IN std_ulogic;          -- clock de la spi
-    SIGNAL wb_adr_so : OUT  std_logic_vector(5 DOWNTO 0);  -- wb adress BUS
+    CONSTANT address_ci : IN std_logic_vector(5 DOWNTO 0); -- written address
+    SIGNAL wb_clk_si : IN std_logic;
+    SIGNAL wb_adr_so : OUT  std_logic_vector(5 DOWNTO 0);  -- wb address BUS
     SIGNAL wb_dat_si : IN std_logic_vector(7 DOWNTO 0);  -- data bus
     SIGNAL wb_we_so : OUT std_logic;    -- read/write
     SIGNAL wb_std_so : OUT std_logic;  -- validate read/write operation
@@ -76,7 +74,7 @@ PACKAGE BODY p_wishbone_testbench IS
   BEGIN
     WAIT UNTIL rising_edge(wb_clk_si);
     wb_we_so <= '0';
-    wb_adr_so <= adress;
+    wb_adr_so <= address_ci;
     wb_cyc_so <= '1';
     wb_std_so <= '1';
     WAIT UNTIL rising_edge(wb_clk_si) and wb_ack_si = '1';
@@ -86,15 +84,15 @@ PACKAGE BODY p_wishbone_testbench IS
     data_read_o <= wb_dat_si;
     wb_std_so <= '0';
     wb_cyc_so <= '0';
-     
+
   END wb_read;
 
 
   PROCEDURE wb_write(
-    adress : IN std_logic_vector(5 DOWNTO 0);
-    data_written : IN std_logic_vector(7 DOWNTO 0);
-    SIGNAL wb_clk_si : IN std_ulogic;          -- clock de la spi
-    SIGNAL wb_adr_so : OUT  std_logic_vector(5 DOWNTO 0);  -- adress BUS
+    CONSTANT address_ci : IN std_logic_vector(5 DOWNTO 0);
+    CONSTANT data_written_ci : IN std_logic_vector(7 DOWNTO 0);
+    SIGNAL wb_clk_si : IN std_logic;
+    SIGNAL wb_adr_so : OUT  std_logic_vector(5 DOWNTO 0);  -- address BUS
     SIGNAL wb_dat_so : OUT std_logic_vector(7 DOWNTO 0);  -- data bus
     SIGNAL wb_we_so : OUT std_logic;    -- read/write
     SIGNAL wb_std_so : OUT std_logic;  -- validate read/write operation
@@ -103,15 +101,15 @@ PACKAGE BODY p_wishbone_testbench IS
   IS
   BEGIN
     WAIT UNTIL rising_edge(wb_clk_si);
-    wb_adr_so <= adress;
+    wb_adr_so <= address_ci;
     wb_we_so <= '1';
-    wb_dat_so <= data_written;
+    wb_dat_so <= data_written_ci;
     wb_cyc_so <= '1';
     wb_std_so <= '1';
     WAIT UNTIL rising_edge(wb_clk_si) and wb_ack_si = '1';
     -- HACK / JD 
     -- 10 ns pour attendre la stabilisation sur le bus de data
-    wait for 10 ns;
+    WAIT FOR 10 ns;
     wb_std_so <= '0';
     wb_cyc_so <= '0';
   END wb_write;

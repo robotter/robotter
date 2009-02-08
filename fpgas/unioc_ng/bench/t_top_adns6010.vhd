@@ -70,7 +70,7 @@ architecture t_top_adns6010_1 of t_top_adns6010 is
     --! wishbone interface
     wbs_rst_i : in  std_logic;          -- asynchronous reset, active high
     wbs_clk_i : in std_logic;           -- clock
-    wbs_adr_i : in std_logic_vector(5 downto 0);    -- adress bus
+    wbs_adr_i : in std_logic_vector(5 downto 0);    -- address bus
     wbs_dat_o : out std_logic_vector(wb_size_c-1 downto 0);  -- data readden from bus
     wbs_dat_i : in std_logic_vector(wb_size_c-1 downto 0); -- data write from bus
     wbs_we_i  : in std_logic;           -- read/write
@@ -98,8 +98,8 @@ architecture t_top_adns6010_1 of t_top_adns6010 is
   -------------------------------------------------
   -- SPI SLAVE GENERATION PROCEDURES
   procedure spi_prepdata( 
-    data_miso : in  std_logic_vector(7 downto 0);
-    signal data_mosi : out  std_logic_vector(7 downto 0);
+    constant data_miso_ci : in  std_logic_vector(7 downto 0);
+    signal data_mosi_o : out  std_logic_vector(7 downto 0);
     signal spi_mosi_i : in std_logic;
     signal spi_miso_o : out std_logic;
     signal spi_clk_i  : in std_logic )
@@ -109,10 +109,10 @@ architecture t_top_adns6010_1 of t_top_adns6010 is
     for i in 7 downto 0 loop
       
       wait until falling_edge(spi_clk_i);
-      spi_miso_o <= data_miso(i);
+      spi_miso_o <= data_miso_ci(i);
       
       wait until rising_edge(spi_clk_i);
-      data_mosi(i) <= spi_mosi_i;
+      data_mosi_o(i) <= spi_mosi_i;
 
     end loop;
 
@@ -170,7 +170,7 @@ begin
     -------------------------------------------------------------------------
 
     type result_array is array (natural range <>) of std_logic_vector(7 downto 0);
-    constant results : result_array :=
+    constant results_c : result_array :=
     (x"F0",x"01",x"00",x"00", x"F4",x"01",x"00",x"00", x"AA");
     -------------------------------------------------------------------------
   begin
@@ -445,9 +445,9 @@ begin
 
         wait for 10 ns;
         
-        debug_s <=  results( addr - 2 );
+        debug_s <=  results_c( addr - 2 );
 
-        assert byte_s = results(addr - 2) report "MOVEMENT REGISTER fail" severity warning;
+        assert byte_s = results_c(addr - 2) report "MOVEMENT REGISTER fail" severity warning;
 
       end loop;
     end loop;
