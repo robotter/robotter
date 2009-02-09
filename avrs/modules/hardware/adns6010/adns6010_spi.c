@@ -48,8 +48,13 @@ uint8_t adns6010_spi_sendrecv(uint8_t send)
 	// Drive senddata high to send byte
 	sbi(ADNS6010_SPI_CTRL, ADNS6010_SPICTRL_BIT_SENDDATA);
 
-	// Wait for transmission end
 	while( !bit_is_set(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_BUSY) );
+
+	// Drive senddata low to initiate SPI communication
+	cbi(ADNS6010_SPI_CTRL, ADNS6010_SPICTRL_BIT_SENDDATA);
+
+	// Wait for transmission end
+	while( bit_is_set(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_BUSY) );
 
 	// Read received data
 	recv = ADNS6010_SPI_DATA;
