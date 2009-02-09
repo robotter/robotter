@@ -10,7 +10,7 @@
 -----------------------------------------------------------------------------
 -- Description: This bloc makes the link between the camera and the rest of
 --              the design by providing an RGB signal on 3 channels
---
+--              (the camera in Raw RGB mode Interlaced Mode 16 Bit Format)
 -----------------------------------------------------------------------------
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -45,123 +45,121 @@ library UNISIM;
 use UNISIM.VComponents.all;
 
 -----------------------------------------------------------------------
-entity threshold is
+entity cam_interface is
 -----------------------------------------------------------------------
     port (
-        clk_i          : in  std_ulogic;
-        -- input to be tested
-        Y_i            : in  std_logic_vector(8 downto 0);
-        H_i            : in  std_logic_vector(8 downto 0);
+        clk_i          : in  std_logic;
+		  rst_i          : in  std_logic;
+		  
+        -- camera side
+		  -- Y signal (see documentation)
+        Y_i            : in  std_logic_vector(7 downto 0);
+		  -- UV signal (see documentation)
+        UV_i           : in  std_logic_vector(7 downto 0);
+		  PCLK_i         : in  std_logic;
+		  HREF_i         : in  std_logic;
+		  VSYNC_i        : in  std_logic;
+		  FODD_i         : in  std_logic;
 
-        -- threshold modifier (modify bloc RAM inside)
-        valid_i        : in  std_ulogic; -- write RAM if active
-		  value_i        : in  std_logic_vector(15 downto 0);
-		  -- for adress_i: MSB=1 modify Y Look-Up Table else H LUT
-        adress_i       : in  std_logic_vector(9 downto 0); 
-
-        -- vector of all threshold result
-        result_o       : out std_logic_vector(15 downto 0) --latched
+        -- FPGA side
+		  R_o            : out std_logic_vector(7 downto 0);
+		  G_o            : out std_logic_vector(7 downto 0);
+		  B_o            : out std_logic_vector(7 downto 0);
+		  new_pix_o      : out std_logic;
+		  -- this signal indicate a new line on falling edge and rising edge
+		  new_line_o     : out std_logic;
+		  new_frame_o    : out std_logic;
+		  rst_camera_o   : out std_logic
     );
-end threshold;
+end cam_interface;
 
 -----------------------------------------------------------------------
-architecture threshold_1 of threshold is
+architecture cam_interface_1 of cam_interface is
 -----------------------------------------------------------------------
 
 -- declaration
 
-    -- Y memory signals
-    signal Y_thres_s    : std_logic_vector(15 downto 0);
-    signal Y_ADDR_A_s   : std_logic_vector(9 downto 0);
-    signal Y_ADDR_B_s   : std_logic_vector(9 downto 0);
-    signal Y_enable_B_s : std_ulogic;
+    signal old_PCLK_s   : std_logic;
 
     signal H_thres_s    : std_logic_vector(15 downto 0);
-    signal H_ADDR_A_s   : std_logic_vector(9 downto 0);
-    signal H_ADDR_B_s   : std_logic_vector(9 downto 0);
-    signal H_enable_B_s : std_ulogic;
-
+	 
+	 -- the reading mode: 0: first part of the signal
+	 --                   1: second part of the signal
+	 -- see datasheet
+	 signal mode_s       : std_logic;
+	 
+	 --intermediate signals for line delays
+	 signal last_camera_rst   : std_logic;
+	 signal last_frame_status : std_logic;
+	 signal last_line_status  : std_logic;
+	 
 begin
     -- the main program
 
-    -- Y memory signals
-	 Y_ADDR_A_s <= "0"&Y_i;
-    Y_ADDR_B_s <= "0"&adress_i(8 downto 0);
-    Y_enable_B_s <=adress_i(9) and valid_i;
 
-    -- RAMB16_S18_S18: Spartan-3 1k x 16 + 2 Parity bits Dual-Port RAM
-    RAMB16_Y_inst : RAMB16_S18_S18
-    generic map (
-		--  Value of output RAM registers at startup
-      INIT_A => "000000000000000000", 
-      INIT_B => "000000000000000000"
-		)
-    port map (
-		-- PORT A: Threshold
-      DOA   => Y_thres_s,     -- 16-bit Data Output
-      DOPA  => open,          -- 2-bit parity Output
-      ADDRA => Y_ADDR_A_s,    -- 10-bit Address Input
-      CLKA  => clk_i,         -- Clock
-      DIA   => X"0000",       -- 16-bit Data Input
-      DIPA  => "00",          -- 2-bit parity Input
-      ENA   => '1',           -- RAM Enable Input
-      SSRA  => '0',           -- Synchronous Set/Reset Input
-      WEA   => '0',           -- Write Enable Input
-		
-		-- PORT B: modification
-      DOB   => open,          -- 16-bit Data Output
-      DOPB  => open,          -- 2-bit parity Output
-      ADDRB => Y_ADDR_B_s,    -- 10-bit Address Input
-      CLKB  => clk_i,         -- Clock
-      DIB   => value_i,       -- 16-bit Data Input
-      DIPB  => "00",          -- 2-bit parity Input
-      ENB   => Y_enable_B_s,  -- RAM Enable Input
-      SSRB  => '0',           -- Synchronous Set/Reset Input
-      WEB   => '1'            -- Write Enable Input
-    ); 
-	 
-	 
-   -- H memory signals
-	 H_ADDR_A_s <= "0"&H_i;
-    H_ADDR_B_s <= "0"&adress_i(8 downto 0);
-    H_enable_B_s <=not(adress_i(9)) and valid_i;
-
-    -- RAMB16_S18_S18: Spartan-3 1k x 16 + 2 Parity bits Dual-Port RAM
-    RAMB16_H_inst : RAMB16_S18_S18
-    generic map (
-		--  Value of output RAM registers at startup
-      INIT_A => "000000000000000000", 
-      INIT_B => "000000000000000000"
-	)
-    port map (
-		-- PORT A: Threshold
-      DOA   => H_thres_s,     -- 16-bit Data Output
-      DOPA  => open,          -- 2-bit parity Output
-      ADDRA => H_ADDR_A_s,    -- 10-bit Address Input
-      CLKA  => clk_i,         -- Clock
-      DIA   => X"0000",       -- 16-bit Data Input
-      DIPA  => "00",          -- 2-bit parity Input
-      ENA   => '1',           -- RAM Enable Input
-      SSRA  => '0',           -- Synchronous Set/Reset Input
-      WEA   => '0',           -- Write Enable Input
-		
-		-- PORT B: modification
-      DOB   => open,          -- 16-bit Data Output
-      DOPB  => open,          -- 2-bit parity Output
-      ADDRB => H_ADDR_B_s,    -- 10-bit Address Input
-      CLKB  => clk_i,         -- Clock
-      DIB   => value_i,       -- 16-bit Data Input
-      DIPB  => "00",          -- 2-bit parity Input
-      ENB   => H_enable_B_s,  -- RAM Enable Input
-      SSRB  => '0',           -- Synchronous Set/Reset Input
-      WEB   => '1'            -- Write Enable Input
-    ); 
-	 
-    -- output = true => H_thres_s && Y_thres_s
-    latch_out_p : process
+    -- convert the data into 
+    to_RGB_convertor_p : process
 	 begin
         wait until rising_edge(clk_i);
-		  result_o <= H_thres_s and Y_thres_s;
-    end process latch_out_p;
+		  if rst_i<='1' or HREF_i='0' then
+		      mode_s<='1';
+		  elsif old_PCLK_s='0' and PCLK_i='1' then -- on rising edge of PCLK
+				if mode_s<='1' then
+				   B_o<=Y_i;
+					mode_s<='0';
+				else 
+					G_o<=Y_i;
+					R_o<=UV_i;
+					mode_s<='1';
+				end if;
+		  end if;
+		  old_PCLK_s<=PCLK_i;
+    end process to_RGB_convertor_p;
 	 
-end threshold_1; 
+	 -- mode is in fact the clock for pixels
+	 new_pix_o<=mode_s;
+	 
+	 -- one camera clock delay for line odd flag
+	 new_line_flag_p : process
+	 begin
+        wait until rising_edge(clk_i);
+		  if rst_i<='0' then
+		      new_line_o<='1';
+		  elsif old_PCLK_s='0' and PCLK_i='1' then -- on rising edge of PCLK
+				new_line_o<=last_line_status;
+		  elsif old_PCLK_s='1' and PCLK_i='0' then -- on falling edge of PCLK
+				-- store the last state
+				last_line_status<=FODD_i;
+		  end if;
+    end process new_line_flag_p;
+
+	 -- one camera clock delay for line new image flag
+	 new_frame_flag_p : process
+	 begin
+        wait until rising_edge(clk_i);
+		  if rst_i<='0' then
+		      new_frame_o<='1';
+		  elsif old_PCLK_s='0' and PCLK_i='1' then -- on rising edge of PCLK
+				new_frame_o<=last_frame_status;
+		  elsif old_PCLK_s='1' and PCLK_i='0' then -- on falling edge of PCLK
+				-- store the last state
+				last_frame_status<=VSYNC_i;
+		  end if;
+    end process new_frame_flag_p;
+	 
+	 -- one camera clock delay for line new image flag
+	 rst_camera_flag_p : process
+	 begin
+        wait until rising_edge(clk_i);
+		  if rst_i<='0' then
+		      rst_camera_o<='1';
+		  elsif old_PCLK_s='0' and PCLK_i='1' then -- on rising edge of PCLK
+				rst_camera_o<=last_camera_rst;
+		  elsif old_PCLK_s='1' and PCLK_i='0' then -- on falling edge of PCLK
+				-- store the last state
+				last_camera_rst<=not(HREF_i); -- Cam signal valid on HREF high stat
+		  end if;
+    end process rst_camera_flag_p;
+
+	 
+end cam_interface_1; 
