@@ -80,8 +80,6 @@ architecture cam_interface_1 of cam_interface is
 -- declaration
 
     signal old_PCLK_s   : std_logic;
-
-    signal H_thres_s    : std_logic_vector(15 downto 0);
 	 
 	 -- the reading mode: 0: first part of the signal
 	 --                   1: second part of the signal
@@ -97,23 +95,40 @@ begin
     -- the main program
 
 
+    -- internal clock handle
+    internal_clk_p : process
+	 begin
+        wait until rising_edge(clk_i);
+		  old_PCLK_s<=PCLK_i;
+    end process internal_clk_p;
+
+
+
+    -- convert the data into 
+    output_clk_p : process
+	 begin
+        wait until rising_edge(clk_i);
+		  if rst_i='1' or HREF_i='0' then
+		      mode_s<='1';
+		  elsif old_PCLK_s='0' and PCLK_i='1' then -- on rising edge of PCLK
+				mode_s<=not(mode_s);
+		  end if;
+    end process output_clk_p;
+
+
+
     -- convert the data into 
     to_RGB_convertor_p : process
 	 begin
         wait until rising_edge(clk_i);
-		  if rst_i<='1' or HREF_i='0' then
-		      mode_s<='1';
-		  elsif old_PCLK_s='0' and PCLK_i='1' then -- on rising edge of PCLK
-				if mode_s<='1' then
+			if mode_s='1' then -- on rising edge of PCLK
 				   B_o<=Y_i;
-					mode_s<='0';
-				else 
+					G_o<="00000000";
+					R_o<="00000000";
+		  else
 					G_o<=Y_i;
 					R_o<=UV_i;
-					mode_s<='1';
-				end if;
 		  end if;
-		  old_PCLK_s<=PCLK_i;
     end process to_RGB_convertor_p;
 	 
 	 -- mode is in fact the clock for pixels
@@ -123,7 +138,7 @@ begin
 	 new_line_flag_p : process
 	 begin
         wait until rising_edge(clk_i);
-		  if rst_i<='0' then
+		  if rst_i='0' then
 		      new_line_o<='1';
 		  elsif old_PCLK_s='0' and PCLK_i='1' then -- on rising edge of PCLK
 				new_line_o<=last_line_status;
@@ -137,7 +152,7 @@ begin
 	 new_frame_flag_p : process
 	 begin
         wait until rising_edge(clk_i);
-		  if rst_i<='0' then
+		  if rst_i='0' then
 		      new_frame_o<='1';
 		  elsif old_PCLK_s='0' and PCLK_i='1' then -- on rising edge of PCLK
 				new_frame_o<=last_frame_status;
@@ -151,7 +166,7 @@ begin
 	 rst_camera_flag_p : process
 	 begin
         wait until rising_edge(clk_i);
-		  if rst_i<='0' then
+		  if rst_i='0' then
 		      rst_camera_o<='1';
 		  elsif old_PCLK_s='0' and PCLK_i='1' then -- on rising edge of PCLK
 				rst_camera_o<=last_camera_rst;
