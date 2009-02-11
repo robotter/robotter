@@ -19,12 +19,15 @@
 /** @file adns6010.c
   * @author JD
   *
-  * Drive Avago optical encoders ADNS6010
+  * Drive RobOtter ADNS6010 FPGA system.
   */
 
 #include <aversive.h>
 #include <aversive/wait.h>
 #include <util/delay.h>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "adns6010.h"
 #include "adns6010_spi.h"
@@ -32,16 +35,38 @@
 
 #include "adns6010_firmware.h"
 
-/*-------------------------------------*/
+
 void adns6010_init()
 {
+  // Initialize external memory over FPGA
+
+  // enable ATmega external SRAM operation
+  sbi(MCUCR,SRE);
+
+  // set low timings on SRAM
+  sbi(MCUCR,SRW10);
+  sbi(XMCRA,SRW11);
+  sbi(XMCRA,SRW00);
+  sbi(XMCRA,SRW01);
+
+  sbi(XMCRA,SRL0);
+  sbi(XMCRA,SRL1);
+  sbi(XMCRA,SRL2);
+
+  // FPGA need some time to boot
+  wait_ms(200);
+
   // Initialize SPI
   adns6010_spi_init();
+
+  // Default configuration
+  ADNS6010_LOCK = 0;
+  ADNS6010_ENABLE = 0;
 
   return;
 }  
 
-/*-------------------------------------*/
+
 uint8_t adns6010_boot(adns6010_configuration_t* config)
 {
   uint8_t byte,hbyte,lbyte,lpcfg;
@@ -50,11 +75,16 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
   // Wait OP + IN-RST for ADNS GO
   _delay_us(ADNS6010_TIMINGS_OP + ADNS6010_TIMINGS_INRST);
 
-  // Perform RESET on all ADNS during PW-RESET
+  // perform reset on all adns during pw-reset
   adns6010_setReset(1);
-  _delay_us(ADNS6010_TIMINGS_PWRESET);
+  // TODO Test original timings values TODO
+  //_delay_us(adns6010_timings_pwreset);
+  wait_ms(5);
   adns6010_setReset(0);
 
+  // t(pu-reset)
+  // TODO Test original timings values TODO
+  wait_ms(150);
 
   // For each ADNS
   for(it=1;it<=ADNS6010_NUM;it++)
@@ -122,7 +152,7 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
       adns6010_spi_cs(0);
       return ADNS6010_RV_ADNS1_SROMCRCFAIL + it - 1;
     }
-
+    
     //------------------------------------------------
     // Load ADNS configuration
     //------------------------------------------------
@@ -172,13 +202,15 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
         return ADNS6010_RV_BAD_CONFIGURATION;
     }
   
+    // Constant bits in register
+    sbi(byte,ADNS6010_CONFIGURATION2_BIT_ONE);
+
     // delay read-write
     _delay_us(ADNS6010_TIMINGS_SRWSRR);
 
     // Write value to register 
     adns6010_spi_send(ADNS6010_SPI_WRITE|ADNS6010_SPIREGISTER_CONFIGURATION);
     adns6010_spi_send(byte);
-
 
     //-------------------------------
     // Load ConfigurationII register
@@ -194,41 +226,39 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
     // LASER_NEN functions as normal
     cbi(byte,ADNS6010_CONFIGURATION2_BIT_FORCEDISABLE);
     
+    // Constant bits in register
+    sbi(byte,ADNS6010_CONFIGURATION2_BIT_ONE);
+
     // delay read-write
     _delay_us(ADNS6010_TIMINGS_SRWSRR);
 
     // Write value to register 
-    adns6010_spi_send(ADNS6010_SPI_WRITE|ADNS6010_SPIREGISTER_CONFIGURATION);
+    adns6010_spi_send(ADNS6010_SPI_WRITE|ADNS6010_SPIREGISTER_CONFIGURATION2);
     adns6010_spi_send(byte);
-
 
     //-------------------------------
     // Set LASER power / load LP_CFG0 register
-    
-    // delay write-write
-    _delay_us(ADNS6010_TIMINGS_SWW);
-
+ 
     // bit7/Match shall be set to 0
     lpcfg = (config->power) & 0x7F;
+    
+    // LP_CFG1 shall be LP_CFG0 complement
+    byte = ~lpcfg;
 
+    // delay write-write
+    _delay_us(ADNS6010_TIMINGS_SWW);
     // Write value to register 
     adns6010_spi_send(ADNS6010_SPI_WRITE|ADNS6010_SPIREGISTER_LPCFG0);
     adns6010_spi_send(lpcfg);
-
 
     //------------------------------
     // Set LASER power / load LP_CFG1 register
 
     // delay write-write
     _delay_us(ADNS6010_TIMINGS_SWW);
-
-    // LP_CFG1 shall be LP_CFG0 complement
-    byte = ~lpcfg;
-
     // Write value to register
     adns6010_spi_send(ADNS6010_SPI_WRITE|ADNS6010_SPIREGISTER_LPCFG1);
     adns6010_spi_send(byte);
- 
 
     //-------------------------------
     // Good to GO !
@@ -283,9 +313,17 @@ uint8_t adns6010_checks()
 
     //-------------------------------
     // Read Observation register
-    
-    // delay read-read
+
+    // delay read-write
     _delay_us(ADNS6010_TIMINGS_SRWSRR);
+
+    // Clear observation register
+    adns6010_spi_send(ADNS6010_SPI_WRITE|ADNS6010_SPIREGISTER_OBSERVATION);
+    adns6010_spi_send(0x00);
+
+    // wait one frame
+    //(DS don't exactly specify delay here, one frame seems to be max refresh time)
+    _delay_us(ADNS6010_TIMINGS_FRAME_PERIOD);
 
     // Read register current value
     adns6010_spi_send(ADNS6010_SPIREGISTER_OBSERVATION);
@@ -300,7 +338,7 @@ uint8_t adns6010_checks()
     }
  
     // Check if NPD pulse was detected, if true, error.
-    if( bit_is_set(byte,ADNS6010_OBSERVATION_BIT_OB7) )
+    if( bit_is_set(byte,ADNS6010_OBSERVATION_BIT_OB5) )
     {
       adns6010_spi_cs(0);
       return ADNS6010_RV_ADNS1_NPDPULSEFAIL + it - 1;
@@ -315,7 +353,25 @@ uint8_t adns6010_checks()
   return ADNS6010_RV_OK;
 }
 
-/*-------------------------------------*/
+
+void adns6010_setMode(adns6010_behaviour_t behaviour)
+{
+  switch(behaviour)
+  {
+    default:
+    case ADNS6010_BHVR_MODE_UC_DRIVEN:
+        ADNS6010_ENABLE = 0;
+      break;
+
+    case ADNS6010_BHVR_MODE_AUTOMATIC:
+        ADNS6010_ENABLE = 1;
+      break;
+  }
+
+  return;
+}
+
+
 void adns6010_setReset(uint8_t value)
 {
   if(value)
@@ -326,10 +382,11 @@ void adns6010_setReset(uint8_t value)
   return;
 }
 
-/*-------------------------------------*/
+
 void adns6010_uploadFirmware(uint8_t adns_i)
 {
   uint16_t nb;
+  uint8_t byte;
 
   // Set CS to current ADNS
   adns6010_spi_cs(adns_i);
@@ -376,8 +433,12 @@ void adns6010_uploadFirmware(uint8_t adns_i)
   // For each firmware byte 
   for(nb=0;nb<sizeof(adns6010_firmwareArray);nb++)
   {
+    // Read firmware from AVR FLASH
+    byte = pgm_read_byte(adns6010_firmwareArray + nb);
+
     // Send firmware byte
-    adns6010_spi_send( adns6010_firmwareArray[nb] );
+    adns6010_spi_send( byte );
+
     // Wait LOAD
     _delay_us(ADNS6010_TIMINGS_LOAD);
   }
@@ -386,10 +447,12 @@ void adns6010_uploadFirmware(uint8_t adns_i)
   adns6010_spi_cs(0);
   _delay_us(ADNS6010_TIMINGS_FIRMWEND);
 
+  wait_ms(10);
+
   return;
 }
 
-/*-------------------------------------*/
+
 uint8_t adns6010_computeFirmwareCRC()
 {
   uint8_t crc = 0x00;
@@ -404,7 +467,7 @@ uint8_t adns6010_computeFirmwareCRC()
   return crc;
 }
 
-/*-------------------------------------*/
+
 uint8_t adns6010_checkFirmware()
 {
   uint8_t crc;
@@ -417,4 +480,45 @@ uint8_t adns6010_checkFirmware()
     return 1;
   else
     return 0;
+}
+
+
+uint8_t adns6010_checkSPI(void)
+{
+  uint8_t it;
+  uint8_t byte_pid;
+  uint8_t byte_ipid;
+
+  for(it=1;it<=ADNS6010_NUM;it++)
+  {
+    // Activate ADNS SPI
+    adns6010_spi_cs(it);
+
+    // Wait NCS-SCLK
+    _delay_us(1);
+    
+    // Read productID
+    adns6010_spi_send(ADNS6010_SPIREGISTER_PRODUCTID);
+    _delay_us(ADNS6010_TIMINGS_SRAD);
+    byte_pid = adns6010_spi_recv();
+
+    // delay read-read
+    _delay_us(ADNS6010_TIMINGS_SRWSRR);
+
+    // Read inverse productID
+    adns6010_spi_send(ADNS6010_SPIREGISTER_INVPRODUCTID);
+    _delay_us(ADNS6010_TIMINGS_SRAD);
+    byte_ipid = adns6010_spi_recv();
+    
+    // Test if productID and inverse productID are consistents
+    if( byte_pid != ~byte_ipid )
+    {  
+      adns6010_spi_cs(0);
+      return ADNS6010_RV_ADNS1_SPICOMMFAIL + it - 1;
+    }
+
+    adns6010_spi_cs(0);
+  }
+  
+  return ADNS6010_RV_OK;
 }

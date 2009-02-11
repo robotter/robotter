@@ -21,20 +21,21 @@
   *
   * Functions controlling FPGA driven SPI to ADNS
   */
+
 #include <aversive.h>
 #include <stdint.h>
 
 #include "adns6010_spi.h"
 #include "adns6010_fpga.h"
 
-/*-------------------------------------*/
+
 void adns6010_spi_init()
 {
 
 	return;
 }
 
-/*-------------------------------------*/
+
 uint8_t adns6010_spi_sendrecv(uint8_t send)
 {
 	uint8_t recv;
@@ -53,7 +54,6 @@ uint8_t adns6010_spi_sendrecv(uint8_t send)
 	// Drive senddata low to initiate SPI communication
 	cbi(ADNS6010_SPI_CTRL, ADNS6010_SPICTRL_BIT_SENDDATA);
 
-	// Wait for transmission end
 	while( bit_is_set(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_BUSY) );
 
 	// Read received data
@@ -62,14 +62,14 @@ uint8_t adns6010_spi_sendrecv(uint8_t send)
 	return recv;
 }
 
-/*-------------------------------------*/
+
 void adns6010_spi_send(uint8_t byte)
 {
 	adns6010_spi_sendrecv(byte);
 	return;
 }
 
-/*-------------------------------------*/
+
 uint8_t adns6010_spi_recv()
 {
 	uint8_t byte;
@@ -77,32 +77,35 @@ uint8_t adns6010_spi_recv()
 	return byte;
 }
 
-/*-------------------------------------*/
+
 void adns6010_spi_cs(uint8_t cs)
 {
 	switch(cs)
 	{
 		default:
 		case 0:
+      // No ADNS selected
 			cbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS0);
 			cbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS1);
 			break;
 
 		case 1:
+      // ADNS#1
 			sbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS0);
 			cbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS1);
 			break;
 
 		case 2:
+      // ADNS#2
 			cbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS0);
 			sbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS1);
 			break;
 
 		case 3:
+      // ADNS#3
 			sbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS0);
 			sbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS1);
 			break;
-		
 	}
 
 	return;

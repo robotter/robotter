@@ -1,7 +1,7 @@
 /** \file adns6010_firmware.h
   * 
   * File automaticaly generated from adns6010_srom_56.inc by inc_to_header.pl.
-  * Generated at Mon Feb  2 16:00:17 CET 2009
+  * Generated Mon Feb  2 16:00:17 CET 2009
   */
 
 #ifndef _ADNS6010_FIRWARE_H_
@@ -10,10 +10,10 @@
 #include <stdint.h>
 #include <avr/pgmspace.h>
 
-#define ADNS6010_FIRMWARE_CRCHI (0x00)
-#define ADNS6010_FIRMWARE_CRCLO (0x00)
+#define ADNS6010_FIRMWARE_CRCHI (0xBE)
+#define ADNS6010_FIRMWARE_CRCLO (0xEF)
 
-#define ADNS6010_FIRMWARE_ID (0x00)
+#define ADNS6010_FIRMWARE_ID (0x56)
 
 #define ADNS6010_FIRMWARE_CRC (0x69)
 

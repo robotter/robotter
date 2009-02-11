@@ -62,7 +62,7 @@ print FOUT <<EOF;
 /** \\file $ARGV[1]
   * 
   * File automaticaly generated from $ARGV[0] by inc_to_header.pl.
-  * Generated at $date
+  * Generated $date
   */
 
 #ifndef _ADNS6010_FIRWARE_H_
@@ -71,10 +71,10 @@ print FOUT <<EOF;
 #include <stdint.h>
 #include <avr/pgmspace.h>
 
-#define ADNS6010_FIRMWARE_CRCHI (0x00)
-#define ADNS6010_FIRMWARE_CRCLO (0x00)
+#define ADNS6010_FIRMWARE_CRCHI (0xBE)
+#define ADNS6010_FIRMWARE_CRCLO (0xEF)
 
-#define ADNS6010_FIRMWARE_ID (0x00)
+#define ADNS6010_FIRMWARE_ID (0x56)
 
 #define ADNS6010_FIRMWARE_CRC ($firmware_crc)
 

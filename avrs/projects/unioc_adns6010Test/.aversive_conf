@@ -1,0 +1,18 @@
+# Aversive configuration
+MCU = atmega128
+OPT = s
+FORMAT = ihex
+FORMAT_EXTENSION = hex
+MATH_LIB = -lm
+PRINTF_LDFLAGS = 
+PROGRAMMER = avrdude
+AVRDUDE_PROGRAMMER = stk200
+AVRDUDE_PORT = "/dev/parport0"
+AVARICE_PROGRAMMER = mkI
+AVARICE_PORT = "/dev/ttyS0"
+AVARICE_DEBUG_PORT = 1234
+MODULES = comm/uart base/cirbuf debug/error
+
+ROBOTTER_MODULES = ../..//modules/hardware/adns6010
+MODULES := $(ROBOTTER_MODULES) $(MODULES)
+

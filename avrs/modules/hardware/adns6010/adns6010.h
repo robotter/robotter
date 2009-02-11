@@ -19,7 +19,7 @@
 /** @file adns6010.h
   * @author JD
   *
-  * Drive Avago optical encoders ADNS6010
+  * Drive RobOtter ADNS6010 FPGA system.
   */
 
 #ifndef _ADNS6010_H_
@@ -27,12 +27,13 @@
 
 #include <stdint.h>
 
+#include "adns6010_encoders.h"
 #include "adns6010_fpga.h"
 #include "adns6010_timings.h"
 #include "adns6010_returns.h"
 
 //@ Number of ADNS
-#define ADNS6010_NUM 3
+#define ADNS6010_NUM 1
 
 /** @brief ADNS resolutions
   */
@@ -87,6 +88,7 @@ void adns6010_init(void);
 uint8_t adns6010_boot(adns6010_configuration_t*);
 
 /** @brief Check ADNS6010s for GO
+  * @return error code
   */
 uint8_t adns6010_checks(void);
 
@@ -100,18 +102,24 @@ void adns6010_setMode(adns6010_behaviour_t);
 void adns6010_setReset(uint8_t value);
 
 /** @brief Upload firmware to an ADNS6010
-  * @param adns to load
+  * @param adns_i ADNS to load
   */
 void adns6010_uploadFirmware(uint8_t adns_i);
 
 /** @brief Compute atmega FLASH firmware CRC
+  * @return computed firmware CRC 
   */
 uint8_t adns6010_computeFirmwareCRC(void);
 
 /** @brief Check atmega FLASH firmware
-  * @return 0 - check fail, 1 - otherwise
+  * @return 0 - check fail, 1 - check pass
   */
 uint8_t adns6010_checkFirmware(void);  
+
+/** @brief Check SPI communication between ATMEGA and ADNS6010
+  * @return error code
+  */
+uint8_t adns6010_checkSPI(void);
 
 
 #endif/*_ADNS6010_H_*/
