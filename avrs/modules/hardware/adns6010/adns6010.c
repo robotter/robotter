@@ -26,15 +26,11 @@
 #include <aversive/wait.h>
 #include <util/delay.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "adns6010.h"
 #include "adns6010_spi.h"
 #include "adns6010_spi_registers.h"
 
 #include "adns6010_firmware.h"
-
 
 void adns6010_init()
 {
@@ -77,14 +73,11 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
 
   // perform reset on all adns during pw-reset
   adns6010_setReset(1);
-  // TODO Test original timings values TODO
-  //_delay_us(adns6010_timings_pwreset);
-  wait_ms(5);
+  _delay_us(ADNS6010_TIMINGS_PWRESET);
   adns6010_setReset(0);
 
   // t(pu-reset)
-  // TODO Test original timings values TODO
-  wait_ms(150);
+  _delay_us(ADNS6010_TIMINGS_INRST);
 
   // For each ADNS
   for(it=1;it<=ADNS6010_NUM;it++)
@@ -271,6 +264,7 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
   // Wait maximum delay (a frame period) in case we've got
   // a command immediatly after this function.
   _delay_us(ADNS6010_TIMINGS_FRAME_PERIOD);
+  _delay_us(ADNS6010_TIMINGS_FRAME_PERIOD);
 
   return ADNS6010_RV_OK;
 }
@@ -321,8 +315,9 @@ uint8_t adns6010_checks()
     adns6010_spi_send(ADNS6010_SPI_WRITE|ADNS6010_SPIREGISTER_OBSERVATION);
     adns6010_spi_send(0x00);
 
-    // wait one frame
+    // wait for new frame 
     //(DS don't exactly specify delay here, one frame seems to be max refresh time)
+    _delay_us(ADNS6010_TIMINGS_FRAME_PERIOD);
     _delay_us(ADNS6010_TIMINGS_FRAME_PERIOD);
 
     // Read register current value
@@ -334,6 +329,7 @@ uint8_t adns6010_checks()
     if( !bit_is_set(byte,ADNS6010_OBSERVATION_BIT_OB7) )
     {
       adns6010_spi_cs(0);
+      dbgno = byte;
       return ADNS6010_RV_ADNS1_SROMCODEFAIL + it - 1;
     }
  
@@ -401,7 +397,8 @@ void adns6010_uploadFirmware(uint8_t adns_i)
   // Set CS inactive
   adns6010_spi_cs(0);
 
-  // Wait one frame
+  // Wait for new frame
+  _delay_us(ADNS6010_TIMINGS_FRAME_PERIOD);
   _delay_us(ADNS6010_TIMINGS_FRAME_PERIOD);
 
   // Set CS to current ADNS

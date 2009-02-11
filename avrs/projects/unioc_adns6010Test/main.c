@@ -91,6 +91,7 @@ int main(void)
   if(rv)
   {
     printf("KO -- adns6010_checks() returned 0x%X\n",rv);
+    printf("dbgno = %X\n",dbgno);
 
     // It's a trap !
     while(1);
@@ -118,13 +119,13 @@ int main(void)
   {
     adns6010_encoders_get_value(&adnsenc);
     
-    printf("%ld %ld %X| %ld %ld %X| %ld %ld %X| %X \n",
+    printf("%6.6ld %6.6ld %X| %6.6ld %6.6ld %X| %6.6ld %6.6ld %X| %X          \r",
               adnsenc.x1, adnsenc.y1, adnsenc.squal1,
               adnsenc.x2, adnsenc.y2, adnsenc.squal2,
               adnsenc.x3, adnsenc.y3, adnsenc.squal3,
               adnsenc.fault);
 
-    wait_ms(10);              
+    wait_ms(20);
   }
 
   return 0;
