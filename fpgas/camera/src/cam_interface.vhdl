@@ -79,7 +79,8 @@ architecture cam_interface_1 of cam_interface is
 
 -- declaration
 
-    signal old_PCLK_s   : std_logic;
+    signal r_edge_pclk_s   : std_logic;
+    signal f_edge_pclk_s   : std_logic;
 	 
 	 -- the reading mode: 0: first part of the signal
 	 --                   1: second part of the signal
@@ -97,9 +98,19 @@ begin
 
     -- internal clock handle
     internal_clk_p : process
-	 begin
-        wait until rising_edge(clk_i);
-		  old_PCLK_s<=PCLK_i;
+	  VARIABLE detect : std_logic_vector(1 DOWNTO 0);
+	  BEGIN
+			WAIT UNTIL rising_edge (clk_i); -- c'est donc synchrone de clk
+			  r_edge_pclk_s <= '0'; 
+			  f_edge_pclk_s <= '0'; 
+			 detect(1) := detect(0);
+			 detect(0) := PCLK_i;
+			 IF detect = "01" THEN
+							 r_edge_pclk_s <= '1';
+			 END IF;
+			 IF detect = "10" THEN
+							 f_edge_pclk_s <= '1';
+			 END IF;
     end process internal_clk_p;
 
 
@@ -110,7 +121,7 @@ begin
         wait until rising_edge(clk_i);
 		  if rst_i='1' or HREF_i='0' then
 		      mode_s<='1';
-		  elsif old_PCLK_s='0' and PCLK_i='1' then -- on rising edge of PCLK
+		  elsif r_edge_pclk_s='1' then -- on rising edge of PCLK
 				mode_s<=not(mode_s);
 		  end if;
     end process output_clk_p;
@@ -136,43 +147,43 @@ begin
 	 
 	 -- one camera clock delay for line odd flag
 	 new_line_flag_p : process
+	  VARIABLE detect : std_logic_vector(1 DOWNTO 0);
 	 begin
         wait until rising_edge(clk_i);
-		  if rst_i='0' then
+		  if rst_i='1' then
 		      new_line_o<='1';
-		  elsif old_PCLK_s='0' and PCLK_i='1' then -- on rising edge of PCLK
-				new_line_o<=last_line_status;
-		  elsif old_PCLK_s='1' and PCLK_i='0' then -- on falling edge of PCLK
-				-- store the last state
-				last_line_status<=FODD_i;
+		  elsif r_edge_pclk_s='1' then -- on rising edge of PCLK
+				 detect(1) := detect(0);
+				 detect(0) := FODD_i;
+				new_line_o<=detect(1);
 		  end if;
     end process new_line_flag_p;
 
 	 -- one camera clock delay for line new image flag
 	 new_frame_flag_p : process
+	  VARIABLE detect : std_logic_vector(1 DOWNTO 0);
 	 begin
         wait until rising_edge(clk_i);
-		  if rst_i='0' then
+		  if rst_i='1' then
 		      new_frame_o<='1';
-		  elsif old_PCLK_s='0' and PCLK_i='1' then -- on rising edge of PCLK
-				new_frame_o<=last_frame_status;
-		  elsif old_PCLK_s='1' and PCLK_i='0' then -- on falling edge of PCLK
-				-- store the last state
-				last_frame_status<=VSYNC_i;
+		  elsif r_edge_pclk_s='1' then -- on rising edge of PCLK
+				 detect(1) := detect(0);
+				 detect(0) := VSYNC_i;
+				new_frame_o<=detect(1);
 		  end if;
     end process new_frame_flag_p;
 	 
 	 -- one camera clock delay for line new image flag
 	 rst_camera_flag_p : process
+	  VARIABLE detect : std_logic_vector(1 DOWNTO 0);
 	 begin
         wait until rising_edge(clk_i);
-		  if rst_i='0' then
+		  if rst_i='1' then
 		      rst_camera_o<='1';
-		  elsif old_PCLK_s='0' and PCLK_i='1' then -- on rising edge of PCLK
-				rst_camera_o<=last_camera_rst;
-		  elsif old_PCLK_s='1' and PCLK_i='0' then -- on falling edge of PCLK
-				-- store the last state
-				last_camera_rst<=not(HREF_i); -- Cam signal valid on HREF high stat
+		  elsif r_edge_pclk_s='1' then -- on rising edge of PCLK
+				detect(1) := detect(0);
+				 detect(0) := not(HREF_i); -- Cam signal valid on HREF high stat
+				rst_camera_o<=detect(1);
 		  end if;
     end process rst_camera_flag_p;
 
