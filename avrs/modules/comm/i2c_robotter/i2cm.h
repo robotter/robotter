@@ -12,18 +12,40 @@
 #define I2C_SEND(d) { TWDR = (d); I2C_NEXT(); }
 
 
-// Initialize
+/// Initialize I2C, master side
 void i2cm_init(void);
 
-// Send a n-byte data frame to an address
+/** @brief Send data frame to a slave
+ *
+ * @param  slave_addr  slave address
+ * @param  n           size to send
+ * @param  data        buffer for send data
+ */
 void i2cm_send(uint8_t slave_addr, uint8_t n, const uint8_t* data);
 
-// Receive a frame from an address
-// Slave must respect the i2c_ryder protocol : first byte tells if there are
-// data to transmit or not
-// Return number of read bytes
-uint8_t i2cm_rcv(uint8_t slave_addr, uint8_t n, uint8_t* data);
+/** @brief Send data frame to a slave
+ *
+ * @param  slave_addr  slave address
+ * @param  n           size to read
+ * @param  data        buffer for read data
+ *
+ * @retval  0  success
+ * @retval -1  error (no ACK)
+ */
+int8_t i2cm_recv(uint8_t slave_addr, uint8_t n, uint8_t* data);
 
-// Receive one data byte from an address, -1 on error
-int i2cm_rcv_single(uint8_t slave_addr);
+/** @brief Ask slave for data and read it is ready
+ *
+ * Read data from slave. If the first read byte is 0, it means that slave is
+ * not ready and the function ends. Otherwise, the next \e n bytes are read.
+ *
+ * @param  slave_addr  slave address
+ * @param  n           size to read
+ * @param  data        buffer for read data
+ *
+ * @retval -1  error (no ACK)
+ * @retval  0  data is not ready, no data read
+ * @retval  1  data has been read
+ */
+int8_t i2cm_ask_and_recv(uint8_t slave_addr, uint8_t n, uint8_t* data);
 

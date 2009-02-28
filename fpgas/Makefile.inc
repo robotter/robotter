@@ -47,7 +47,11 @@ $(OBJ_CF): $(SRC)
 	$(GHDL) -i $(GHDL_FLAGS) $^
 
 $(OBJS) $(BENCHS): $(OBJ_CF)
+ifneq ($(OS),Windows_NT)
 	$(GHDL) -m $(GHDL_FLAGS) -o $@ $@
+else
+	$(GHDL) -m $(GHDL_FLAGS) $@
+endif
 
 %.vcd: %
 	$(GHDL) -r $(GHDL_FLAGS) $< --vcd=$@ $(SIMU_FLAGS)

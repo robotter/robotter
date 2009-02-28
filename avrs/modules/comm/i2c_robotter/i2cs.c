@@ -7,7 +7,6 @@ uint8_t i2cs_data[I2C_BUF_SIZE];
 I2CS_STATE i2cs_state;
 
 
-// Initialize slave
 void i2cs_init(uint8_t slave_addr)
 {
   uint8_t flags;
