@@ -1,17 +1,4 @@
 -----------------------------------------------------------------------------
--- Title      : Threshold bloc
--- Project    : Carte camera 2009
------------------------------------------------------------------------------
--- File       : threshold.vhdl
--- Author     : BLANCHARD Remy <remyb718 at gmail dot com>
--- Company    : Rob'Otter
--- Last update: 16/11/2008
--- Platform   : Spartan 3
------------------------------------------------------------------------------
--- Description: Determine if the input are in or outside the wanted values
---              This bloc uses a block RAM per entry and a "AND" door: the 
---              value must within range for all inputs
------------------------------------------------------------------------------
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
 -- the Free Software Foundation; either version 2, or (at your option)
@@ -24,19 +11,21 @@
 -- 
 -- You should have received a copy of the GNU General Public License
 -- along with this program; if not, write to the Free Software
+-- Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 -----------------------------------------------------------------------------
--- HISTORY :
--- +------------------------------------------------------------------------+
--- | Ver. | Date     | Aut. | Commentaire                                   |
--- +------------------------------------------------------------------------+
--- | 1.00 | 16/11/08 | RBL  | Creation                                      |
--- +------------------------------------------------------------------------+
--- | 1.05 | 18/01/09 | RBL  | Modification of the H's output size           |
--- +------------------------------------------------------------------------+
--- |      |          |      |                                               |
--- +------------------------------------------------------------------------+
--- |      |          |      |                                               |
--- +------------------------------------------------------------------------+
+
+-----------------------------------------------------------------------------
+--! @threshold.vhd
+--! @brief Threshold bloc
+--! @author BLANCHARD Remy <remyb718 at gmail dot com>
+--! @platform Spartan 3
+--
+--! Determine if the input are in or outside the wanted values
+--! This bloc uses a block RAM per entry and a "AND" door: the 
+--! value must within range for all inputs.
+--! Optimisation: only one RAM bloc can be used
+-----------------------------------------------------------------------------
+
 
 library ieee;
 use ieee.std_logic_1164.all;
