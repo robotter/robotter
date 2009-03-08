@@ -14,10 +14,14 @@
 -----------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------
---! @wishbone_interface.vhd
+--! @file wishbone_interface.vhd
 --! @brief Wishbone interface bloc
 --! @author BLANCHARD Remy <remyb718 at gmail dot com>
---
+--!
+--!
+--! Platform   : Spartan 3
+--!
+--! Description:
 --! This bloc is the POD complient Wishbone interface (16 bits).
 --! the aim of this bloc is to:
 --!    - configure the RAMs of the segmentation bloc

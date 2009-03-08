@@ -1,17 +1,4 @@
 -----------------------------------------------------------------------------
--- Title      : Camera interface bloc
--- Project    : Carte camera 2009
------------------------------------------------------------------------------
--- File       : cam_interface.vhdl
--- Author     : BLANCHARD Remy <remyb718 at gmail dot com>
--- Company    : Rob'Otter
--- Last update: 01/02/2008
--- Platform   : Spartan 3
------------------------------------------------------------------------------
--- Description: This bloc makes the link between the camera and the rest of
---              the design by providing an RGB signal on 3 channels
---              (the camera in Raw RGB mode Interlaced Mode 16 Bit Format)
------------------------------------------------------------------------------
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
 -- the Free Software Foundation; either version 2, or (at your option)
@@ -24,19 +11,20 @@
 -- 
 -- You should have received a copy of the GNU General Public License
 -- along with this program; if not, write to the Free Software
+-- Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 -----------------------------------------------------------------------------
--- HISTORY :
--- +------------------------------------------------------------------------+
--- | Ver. | Date     | Aut. | Commentaire                                   |
--- +------------------------------------------------------------------------+
--- | 1.00 | 16/11/08 | RBL  | Creation                                      |
--- +------------------------------------------------------------------------+
--- |      |          |      |                                               |
--- +------------------------------------------------------------------------+
--- |      |          |      |                                               |
--- +------------------------------------------------------------------------+
--- |      |          |      |                                               |
--- +------------------------------------------------------------------------+
+
+-----------------------------------------------------------------------------
+--! @file cam_interface.vhd
+--! @brief Camera interface bloc
+--! @author BLANCHARD Remy <remyb718 at gmail dot com>
+--!
+--! Platform   : Spartan 3
+--!
+--! Description: This bloc makes the link between the camera and the rest of
+--!              the design by providing an RGB signal on 3 channels
+--!              (the camera in Raw RGB mode Interlaced Mode 16 Bit Format)
+-----------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;

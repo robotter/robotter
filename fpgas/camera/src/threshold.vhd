@@ -15,11 +15,13 @@
 -----------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------
---! @threshold.vhd
+--! @file threshold.vhd
 --! @brief Threshold bloc
 --! @author BLANCHARD Remy <remyb718 at gmail dot com>
 --! @platform Spartan 3
---
+--!
+--! Platform   : Spartan 3
+--!
 --! Determine if the input are in or outside the wanted values
 --! This bloc uses a block RAM per entry and a "AND" door: the 
 --! value must within range for all inputs.

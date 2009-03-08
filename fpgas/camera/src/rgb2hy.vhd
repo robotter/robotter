@@ -1,17 +1,4 @@
 -----------------------------------------------------------------------------
--- Title    : RGB to Hue and light
--- Project  : Carte camera 2009
------------------------------------------------------------------------------
--- File     : rgb2hy.vhdl
--- Author   : BLANCHARD Remy <remyb718 at gmail dot com>
--- Company  : Rob'Otter
--- Last update: 03/07/2008
--- Platform   : Spartan 3
------------------------------------------------------------------------------
--- Description: Convert a pixel in the RGB colors space into an hue (H) and 
---        Light (Y)
---          TODO: Timing synchronisation
------------------------------------------------------------------------------
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
 -- the Free Software Foundation; either version 2, or (at your option)
@@ -24,19 +11,20 @@
 -- 
 -- You should have received a copy of the GNU General Public License
 -- along with this program; if not, write to the Free Software
+-- Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 -----------------------------------------------------------------------------
--- HISTORY :
--- +------------------------------------------------------------------------+
--- | Ver. | Date   | Aut. | Commentaire                   |
--- +------------------------------------------------------------------------+
--- | 1.00 | 17/03/08 | RBL  | Creation                    |
--- +------------------------------------------------------------------------+
--- | 1.05 | 18/01/09 | RBL  | Modification of the H's output size       |
--- +------------------------------------------------------------------------+
--- |    |      |    |                                      |
--- +------------------------------------------------------------------------+
--- |    |      |    |                         |
--- +------------------------------------------------------------------------+
+
+-----------------------------------------------------------------------------
+--! @file rgb2hy.vhd
+--! @brief RGB to Hue and light
+--! @author BLANCHARD Remy <remyb718 at gmail dot com>
+--!
+--! Platform   : Spartan 3
+--!
+--! Description: Convert a pixel in the RGB colors space into an hue (H) and 
+--!        Light (Y)
+--!          TODO: Timing synchronisation
+-----------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;

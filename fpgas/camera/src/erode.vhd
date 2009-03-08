@@ -1,24 +1,4 @@
 -----------------------------------------------------------------------------
--- Title      : Pixel averager
--- Project    : Carte camera 2009
------------------------------------------------------------------------------
--- File       : averager.vhdl
--- Author     : BLANCHARD Remy <remyb718 at gmail dot com>
--- Company    : Rob'Otter
--- Last update: 14/12/2008
--- Platform   : Spartan 3
------------------------------------------------------------------------------
--- Description: the aim of this bloc is to average the incoming H and Y with
--- 9 elements (the center pixel in 8-connexity).
--- 
--- This bloc sum the 9 elements and divide them by 8 (instead of 9), this
--- have to be consider in the next bloc.
--- 
--- This bloc uses a dual access RAM per signal to store the last pixels in
--- order to make a multiline average. This bloc is divided in 2 parts, the
--- first one only records the incoming pixels, the second one average the
--- recorded pixels.
------------------------------------------------------------------------------
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
 -- the Free Software Foundation; either version 2, or (at your option)
@@ -32,18 +12,26 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program; if not, write to the Free Software
 -----------------------------------------------------------------------------
--- HISTORY :
--- +------------------------------------------------------------------------+
--- | Ver. | Date     | Aut. | Commentaire                                   |
--- +------------------------------------------------------------------------+
--- | 1.00 | 14/12/08 | RBL  | Creation                                      |
--- +------------------------------------------------------------------------+
--- |      |          |      |                                               |
--- +------------------------------------------------------------------------+
--- |      |          |      |                                               |
--- +------------------------------------------------------------------------+
--- |      |          |      |                                               |
--- +------------------------------------------------------------------------+
+
+-----------------------------------------------------------------------------
+--! @file averager.vhd
+--! @brief Pixel averager
+--! @author BLANCHARD Remy <remyb718 at gmail dot com>
+--!
+--! Platform   : Spartan 3
+--!
+--! Description: the aim of this bloc is to average the incoming H and Y with
+--! 9 elements (the center pixel in 8-connexity).
+--! 
+--! This bloc sum the 9 elements and divide them by 8 (instead of 9), this
+--! have to be consider in the next bloc.
+--! 
+--! This bloc uses a dual access RAM per signal to store the last pixels in
+--! order to make a multiline average. This bloc is divided in 2 parts, the
+--! first one only records the incoming pixels, the second one average the
+--! recorded pixels.
+-----------------------------------------------------------------------------
+
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -55,7 +43,7 @@ use XilinxCoreLib.all;
 
 
 -----------------------------------------------------------------------
-entity multi_pixel_mean is
+entity eroder is
 -----------------------------------------------------------------------
     port (
         clk_i          : in  std_ulogic;
@@ -74,10 +62,10 @@ entity multi_pixel_mean is
         mean_H_o   : out  unsigned(8 downto 0)
         
     );
-end multi_pixel_mean;
+end eroder;
 
 -----------------------------------------------------------------------
-architecture multi_pixel_mean_1 of multi_pixel_mean is
+architecture eroder_1 of eroder is
 -----------------------------------------------------------------------
 
 	 -- signal for the first part
@@ -480,5 +468,5 @@ begin
       WEB   => '1'                             -- Write Enable Input
     ); 
 	 
-end multi_pixel_mean_1; 
+end eroder_1;
 
