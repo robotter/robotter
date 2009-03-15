@@ -14,22 +14,15 @@
 -----------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------
---! @file averager.vhd
---! @brief Pixel averager
+--! @file erode.vhd
+--! @brief 3x3 erosion
 --! @author BLANCHARD Remy <remyb718 at gmail dot com>
 --!
 --! Platform   : Spartan 3
 --!
---! Description: the aim of this bloc is to average the incoming H and Y with
---! 9 elements (the center pixel in 8-connexity).
---! 
---! This bloc sum the 9 elements and divide them by 8 (instead of 9), this
---! have to be consider in the next bloc.
---! 
---! This bloc uses a dual access RAM per signal to store the last pixels in
---! order to make a multiline average. This bloc is divided in 2 parts, the
---! first one only records the incoming pixels, the second one average the
---! recorded pixels.
+--! Description: This bloc perform a 3*3 erosion on a binary image.
+--!              Each bit of the 8 bit entry is the result of a different
+--!              threshold process.
 -----------------------------------------------------------------------------
 
 
@@ -50,16 +43,14 @@ entity eroder is
         reset_i        : in  std_ulogic;
 		  
 		  -- input signals
-		  Y_i            : in std_logic_vector(7 downto 0);
-		  H_i            : in std_logic_vector(7 downto 0);
+		  segm_i         : in std_logic_vector(7 downto 0);
 		  
         -- camera input (with delay)
         camera_clk_i   : in  std_ulogic; -- new pixel signal
         camera_rst_i   : in  std_ulogic; -- new image signal
 		  
         -- average outputs
-        mean_Y_o   : out  unsigned(8 downto 0);
-        mean_H_o   : out  unsigned(8 downto 0)
+        segm_erode_o   : out std_logic_vector(7 downto 0)
         
     );
 end eroder;
@@ -109,12 +100,10 @@ architecture eroder_1 of eroder is
     signal current_pixel_s, next_pixel_s: sweep_pix;
 	 
 	 -- RAM output
-	 signal Y_element_s: std_logic_vector(7 downto 0);
-	 signal H_element_s: std_logic_vector(7 downto 0); 
+	 signal erode_element_s: std_logic_vector(7 downto 0);
 	 
-	 -- outputs for the sum
-	 signal Y_accumulator_s: unsigned(11 downto 0);
-	 signal H_accumulator_s: unsigned(11 downto 0);
+	 -- output of the AND door
+	 signal erode_tmp_s    : std_logic_vector(7 downto 0);
 	
 begin
 	 ---------------------------------------------------------
@@ -212,51 +201,30 @@ begin
 	 -- read position
 	 in_ram_pos_s<=std_logic_vector(write_element_pos_s-offset_value_s);
 	 
-	 -- sum for Y
-	 y_sum_process_p: process
+	 -- "And" process
+	 and_process_p: process
     begin
 		wait until rising_edge(clk_i);
 		if st_mach_actif_s='0' then
-			Y_accumulator_s<="000000000000";
+			erode_tmp_s<="00000000";
 		else
-			Y_accumulator_s<=Y_accumulator_s+unsigned(Y_element_s);
+			erode_tmp_s<=erode_tmp_s and erode_element_s;
 		end if;
-	 end process y_sum_process_p;
+	 end process and_process_p;
 	 
-	 -- latch it in the right time in the output (Y)
-	 Y_output_latch_p: process
+	 -- latch it in the right time in the output
+	 erode_output_latch_p: process
     begin
 		wait until rising_edge(clk_i);
 		if current_pixel_s=w_state then
-			mean_Y_o<=Y_accumulator_s(11 downto 3);
+			segm_erode_o<=erode_tmp_s;
 		end if;
-	end process Y_output_latch_p;
-	
-	
-	 -- sum for H
-	 h_sum_process_p: process
-    begin
-		wait until rising_edge(clk_i);
-		if st_mach_actif_s='0' then
-			H_accumulator_s<="000000000000";
-		else
-			H_accumulator_s<=H_accumulator_s+unsigned(H_element_s);
-		end if;
-	 end process h_sum_process_p;
-	 
-	 -- latch it in the right time in the output (H)
-	 H_output_latch_p: process
-    begin
-		wait until rising_edge(clk_i);
-		if current_pixel_s=w_state then
-			mean_H_o<=H_accumulator_s(11 downto 3);
-		end if;
-	end process H_output_latch_p;
+	end process erode_output_latch_p;
 	
 	 -- 2 RAM dual access
 	 
     -- RAMB16_S9_S9: Spartan-3 2k x 8 + 1 unused Parity bits Dual-Port RAM
-    RAMB16_Y_inst : RAMB16_S9_S9
+    RAMB16_inst : RAMB16_S9_S9
 	 generic map (
       INIT_A => "000000000", --  Value of output RAM registers at startup
       INIT_B => "000000000", --  Value of output RAM registers at startup
@@ -343,14 +311,14 @@ begin
       DOPA  => open,                           -- 1-bit parity Output
       ADDRA => write_element_pos_bit_vec_s,    -- 10-bit Address Input
       CLKA  => clk_i,                          -- Clock
-      DIA   => Y_i,                            -- 8-bit Data Input
+      DIA   => segm_i,                         -- 8-bit Data Input
       DIPA  => "0",                            -- 1-bit parity Input
       ENA   => valid_ram_pos_s,                -- RAM Enable Input
       SSRA  => '0',                            -- Synchronous Set/Reset Input
-      WEA   => '0',                            -- Write Enable Input
+      WEA   => '1',                            -- Write Enable Input
 		
-		-- PORT B: modification
-      DOB   => Y_element_s,                    -- 8-bit Data Output
+		-- PORT B: fetch for erosion
+      DOB   => erode_element_s,                -- 8-bit Data Output
       DOPB  => open,                           -- 1-bit parity Output
       ADDRB => in_ram_pos_s,                   -- 10-bit Address Input
       CLKB  => clk_i,                          -- Clock
@@ -358,114 +326,7 @@ begin
       DIPB  => "0",                            -- 1-bit parity Input
       ENB   => '1',                            -- RAM Enable Input
       SSRB  => '0',                            -- Synchronous Set/Reset Input
-      WEB   => '1'                             -- Write Enable Input
-    ); 
-	 
-	 
-    -- RAMB16_S9_S9: Spartan-3 2k x 8 + 1 Parity bits Dual-Port RAM
-    RAMB16_H_inst : RAMB16_S9_S9
-	 generic map (
-      INIT_A => "000000000", --  Value of output RAM registers at startup
-      INIT_B => "000000000", --  Value of output RAM registers at startup
-		SRVAL_A => "000000000", --  Ouput value upon SSR assertion
-      SRVAL_B => "000000000", --  Ouput value upon SSR assertion
-		WRITE_MODE_A => "WRITE_FIRST", --  WRITE_FIRST, READ_FIRST or NO_CHANGE
-		WRITE_MODE_B => "WRITE_FIRST", --  WRITE_FIRST, READ_FIRST or NO_CHANGE
-		SIM_COLLISION_CHECK => "NONE", -- "NONE", "WARNING", "GENERATE_X_ONLY", "ALL" 
-      INIT_00 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_01 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_02 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_03 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_04 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_05 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_06 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_07 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_08 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_09 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_0A => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_0B => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_0C => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_0D => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_0E => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_0F => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_10 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_11 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_12 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_13 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_14 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_15 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_16 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_17 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_18 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_19 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_1A => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_1B => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_1C => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_1D => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_1E => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_1F => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_20 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_21 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_22 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_23 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_24 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_25 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_26 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_27 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_28 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_29 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_2A => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_2B => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_2C => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_2D => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_2E => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_2F => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_30 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_31 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_32 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_33 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_34 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_35 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_36 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_37 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_38 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_39 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_3A => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_3B => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_3C => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_3D => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_3E => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INIT_3F => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INITP_00 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INITP_01 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INITP_02 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INITP_03 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INITP_04 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INITP_05 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INITP_06 => X"0000000000000000000000000000000000000000000000000000000000000000",
-      INITP_07 => X"0000000000000000000000000000000000000000000000000000000000000000")
-    port map (
-		-- PORT A: store
-      DOA   => open,                           -- 8-bit Data Output
-      DOPA  => open,                           -- 1-bit parity Output
-      ADDRA => write_element_pos_bit_vec_s,    -- 10-bit Address Input
-      CLKA  => clk_i,                          -- Clock
-      DIA   => H_i,                            -- 8-bit Data Input
-      DIPA  => "0",                            -- 1-bit parity Input
-      ENA   => valid_ram_pos_s,                -- RAM Enable Input
-      SSRA  => '0',                            -- Synchronous Set/Reset Input
-      WEA   => '0',                            -- Write Enable Input
-		
-		-- PORT B: modification
-      DOB   => H_element_s,                    -- 8-bit Data Output
-      DOPB  => open,                           -- 1-bit parity Output
-      ADDRB => in_ram_pos_s,                   -- 10-bit Address Input
-      CLKB  => clk_i,                          -- Clock
-      DIB   => "00000000",                     -- 8-bit Data Input
-      DIPB  => "0",                            -- 1-bit parity Input
-      ENB   => '1',                            -- RAM Enable Input
-      SSRB  => '0',                            -- Synchronous Set/Reset Input
-      WEB   => '1'                             -- Write Enable Input
+      WEB   => '0'                             -- Write Enable Input
     ); 
 	 
 end eroder_1;
