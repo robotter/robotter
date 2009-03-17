@@ -26,8 +26,6 @@
 #include <aversive/wait.h>
 #include <util/delay.h>
 
-#include <stdio.h>
-
 #include "adns6010.h"
 #include "adns6010_spi.h"
 #include "adns6010_spi_registers.h"
