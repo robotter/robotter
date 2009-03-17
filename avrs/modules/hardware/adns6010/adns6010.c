@@ -26,6 +26,8 @@
 #include <aversive/wait.h>
 #include <util/delay.h>
 
+#include <stdio.h>
+
 #include "adns6010.h"
 #include "adns6010_spi.h"
 #include "adns6010_spi_registers.h"
@@ -50,7 +52,7 @@ void adns6010_init()
   sbi(XMCRA,SRL2);
 
   // FPGA need some time to boot
-  wait_ms(200);
+  wait_ms(1000);
 
   // Initialize SPI
   adns6010_spi_init();
@@ -136,6 +138,7 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
     adns6010_spi_send(ADNS6010_SPIREGISTER_DOUTHI);
     _delay_us(ADNS6010_TIMINGS_SRAD);
     hbyte = adns6010_spi_recv();
+    
 
     // Check CRC value
     if( !((lbyte == ADNS6010_FIRMWARE_CRCLO)
@@ -329,7 +332,6 @@ uint8_t adns6010_checks()
     if( !bit_is_set(byte,ADNS6010_OBSERVATION_BIT_OB7) )
     {
       adns6010_spi_cs(0);
-      dbgno = byte;
       return ADNS6010_RV_ADNS1_SROMCODEFAIL + it - 1;
     }
  
@@ -508,10 +510,10 @@ uint8_t adns6010_checkSPI(void)
     byte_ipid = adns6010_spi_recv();
     
     // Test if productID and inverse productID are consistents
-    if( byte_pid != ~byte_ipid )
+    if( byte_pid != (uint8_t)(~byte_ipid) )
     {  
       adns6010_spi_cs(0);
-      return ADNS6010_RV_ADNS1_SPICOMMFAIL + it - 1;
+      return (ADNS6010_RV_ADNS1_SPICOMMFAIL + it - 1);
     }
 
     adns6010_spi_cs(0);

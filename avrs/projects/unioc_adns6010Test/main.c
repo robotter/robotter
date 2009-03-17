@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <uart.h>
+#include <math.h>
 
 #include <adns6010.h>
 #include <adns6010_spi.h>
@@ -27,7 +28,6 @@ int main(void)
   // Some advertisment :p
   printf("\n\nRobotter 2009 - 102chute - UNIOC ADNS6010 TEST\n");
   printf("Compiled "__DATE__" at "__TIME__"\n\n");
-
 
   //--------------------------------------------------------
   // Initialize ADNS6010s
@@ -56,10 +56,12 @@ int main(void)
 
   //--------------------------------------------------------
 
+  wait_ms(100);
+
   printf("Checking SPI communication with ADNS6010s : ");
   rv = adns6010_checkSPI();
 
-  if(!rv)
+  if(rv)
   {
     printf("KO -- adns6010_checkSPI() returned 0x%2.2X",rv);
     
@@ -91,7 +93,6 @@ int main(void)
   if(rv)
   {
     printf("KO -- adns6010_checks() returned 0x%X\n",rv);
-    printf("dbgno = %X\n",dbgno);
 
     // It's a trap !
     while(1);
@@ -105,21 +106,24 @@ int main(void)
   // Ready up
   printf("All systems GO.\n\n");
 
-  uint8_t motion;
-  uint8_t squal;
-  int8_t mreg[2];
-  int32_t x = 0;
-  int32_t y = 0;
-  
+  int32_t x2,y2,x3,y3;
+
   // Set ADNS6010 system to automatic
   adns6010_setMode(ADNS6010_BHVR_MODE_AUTOMATIC);
   
   adns6010_encoders_t adnsenc;
+
+  printf("t | x1 | y1 | s1 | x2 | y2 | s2 | x3 | y3 | s3 | fault\n");
+
+  uint32_t t=0;
   while(1)
   {
+    t++;
+
     adns6010_encoders_get_value(&adnsenc);
     
-    printf("%6.6ld %6.6ld %X| %6.6ld %6.6ld %X| %6.6ld %6.6ld %X| %X          \r",
+    printf("%ld %6.6ld %6.6ld %d %6.6ld %6.6ld %d %6.6ld %6.6ld %d %d\n",
+              t,
               adnsenc.x1, adnsenc.y1, adnsenc.squal1,
               adnsenc.x2, adnsenc.y2, adnsenc.squal2,
               adnsenc.x3, adnsenc.y3, adnsenc.squal3,

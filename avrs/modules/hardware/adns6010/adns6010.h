@@ -33,7 +33,7 @@
 #include "adns6010_returns.h"
 
 //@ Number of ADNS
-#define ADNS6010_NUM 1
+#define ADNS6010_NUM 3
 
 /** @brief ADNS resolutions
   */
