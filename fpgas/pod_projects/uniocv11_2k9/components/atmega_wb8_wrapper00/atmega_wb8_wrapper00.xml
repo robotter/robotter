@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component instance_name="atmega_wb8_wrapper00" name="atmega_wb8_wrapper" num="0" version="1.0">
+    <description>
+        Convert atmega bus EMI to wishbone8 bus.
+    </description>
+    <hdl_files>
+        <hdl_file filename="hdl/atmega_wb8_wrapper.vhd" istop="1" />
+    </hdl_files>
+    <interfaces>
+        <interface class="GLS" name="emi">
+            <ports>
+                <port dir="in" name="Address_H" size="7" type="EXPORT">
+                    <pin num="0">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="data_fpga_8" />
+                    </pin>
+                    <pin num="1">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="data_fpga_9" />
+                    </pin>
+                    <pin num="2">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="data_fpga_10" />
+                    </pin>
+                    <pin num="3">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="data_fpga_11" />
+                    </pin>
+                    <pin num="4">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="data_fpga_12" />
+                    </pin>
+                    <pin num="5">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="data_fpga_13" />
+                    </pin>
+                    <pin num="6">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="data_fpga_14" />
+                    </pin>
+                </port>
+                <port dir="inout" name="DA" size="8" type="EXPORT">
+                    <pin num="0">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="AD_fpga_0" />
+                    </pin>
+                    <pin num="1">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="AD_fpga_1" />
+                    </pin>
+                    <pin num="2">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="AD_fpga_2" />
+                    </pin>
+                    <pin num="3">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="AD_fpga_3" />
+                    </pin>
+                    <pin num="4">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="AD_fpga_4" />
+                    </pin>
+                    <pin num="5">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="AD_fpga_5" />
+                    </pin>
+                    <pin num="6">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="AD_fpga_6" />
+                    </pin>
+                    <pin num="7">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="AD_fpga_7" />
+                    </pin>
+                </port>
+                <port dir="in" name="ALE" size="1" type="EXPORT">
+                    <pin num="0">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="ALE_3V" />
+                    </pin>
+                </port>
+                <port dir="in" name="RD" size="1" type="EXPORT">
+                    <pin num="0">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="RD_fpga" />
+                    </pin>
+                </port>
+                <port dir="in" name="WR" size="1" type="EXPORT">
+                    <pin num="0">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="WR_fpga" />
+                    </pin>
+                </port>
+                <port dir="out" name="DIR_buffer" size="1" type="EXPORT">
+                    <pin num="0">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="ALE_fpga" />
+                    </pin>
+                </port>
+            </ports>
+        </interface>
+        <interface class="CLK_RST" name="candr">
+            <ports>
+                <port dir="in" name="reset" size="1" type="RST">
+                    <pin num="0">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_candr" pin_dest="0" port_dest="atmega_wb8_wrapper00_reset" />
+                    </pin>
+                </port>
+                <port dir="in" name="clk" size="1" type="CLK">
+                    <pin num="0">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_candr" pin_dest="0" port_dest="atmega_wb8_wrapper00_clk" />
+                    </pin>
+                </port>
+            </ports>
+        </interface>
+        <interface bus="wishbone8" class="MASTER" clockandreset="candr" name="mwb8">
+            <ports>
+                <port dir="out" name="wbm_address" size="15" type="ADR">
+                    <pin num="0">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="0" port_dest="atmega_wb8_wrapper00_wbm_address" />
+                    </pin>
+                    <pin num="1">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="1" port_dest="atmega_wb8_wrapper00_wbm_address" />
+                    </pin>
+                    <pin num="2">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="2" port_dest="atmega_wb8_wrapper00_wbm_address" />
+                    </pin>
+                    <pin num="3">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="3" port_dest="atmega_wb8_wrapper00_wbm_address" />
+                    </pin>
+                    <pin num="4">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="4" port_dest="atmega_wb8_wrapper00_wbm_address" />
+                    </pin>
+                    <pin num="5">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="5" port_dest="atmega_wb8_wrapper00_wbm_address" />
+                    </pin>
+                    <pin num="6">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="6" port_dest="atmega_wb8_wrapper00_wbm_address" />
+                    </pin>
+                    <pin num="7">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="7" port_dest="atmega_wb8_wrapper00_wbm_address" />
+                    </pin>
+                    <pin num="8">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="8" port_dest="atmega_wb8_wrapper00_wbm_address" />
+                    </pin>
+                    <pin num="9">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="9" port_dest="atmega_wb8_wrapper00_wbm_address" />
+                    </pin>
+                    <pin num="10">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="10" port_dest="atmega_wb8_wrapper00_wbm_address" />
+                    </pin>
+                    <pin num="11">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="11" port_dest="atmega_wb8_wrapper00_wbm_address" />
+                    </pin>
+                    <pin num="12">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="12" port_dest="atmega_wb8_wrapper00_wbm_address" />
+                    </pin>
+                    <pin num="13">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="13" port_dest="atmega_wb8_wrapper00_wbm_address" />
+                    </pin>
+                    <pin num="14">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="14" port_dest="atmega_wb8_wrapper00_wbm_address" />
+                    </pin>
+                </port>
+                <port dir="in" name="wbm_readdata" size="8" type="DAT_I">
+                    <pin num="0">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="0" port_dest="atmega_wb8_wrapper00_wbm_readdata" />
+                    </pin>
+                    <pin num="1">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="1" port_dest="atmega_wb8_wrapper00_wbm_readdata" />
+                    </pin>
+                    <pin num="2">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="2" port_dest="atmega_wb8_wrapper00_wbm_readdata" />
+                    </pin>
+                    <pin num="3">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="3" port_dest="atmega_wb8_wrapper00_wbm_readdata" />
+                    </pin>
+                    <pin num="4">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="4" port_dest="atmega_wb8_wrapper00_wbm_readdata" />
+                    </pin>
+                    <pin num="5">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="5" port_dest="atmega_wb8_wrapper00_wbm_readdata" />
+                    </pin>
+                    <pin num="6">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="6" port_dest="atmega_wb8_wrapper00_wbm_readdata" />
+                    </pin>
+                    <pin num="7">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="7" port_dest="atmega_wb8_wrapper00_wbm_readdata" />
+                    </pin>
+                </port>
+                <port dir="out" name="wbm_writedata" size="8" type="DAT_O">
+                    <pin num="0">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="0" port_dest="atmega_wb8_wrapper00_wbm_writedata" />
+                    </pin>
+                    <pin num="1">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="1" port_dest="atmega_wb8_wrapper00_wbm_writedata" />
+                    </pin>
+                    <pin num="2">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="2" port_dest="atmega_wb8_wrapper00_wbm_writedata" />
+                    </pin>
+                    <pin num="3">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="3" port_dest="atmega_wb8_wrapper00_wbm_writedata" />
+                    </pin>
+                    <pin num="4">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="4" port_dest="atmega_wb8_wrapper00_wbm_writedata" />
+                    </pin>
+                    <pin num="5">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="5" port_dest="atmega_wb8_wrapper00_wbm_writedata" />
+                    </pin>
+                    <pin num="6">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="6" port_dest="atmega_wb8_wrapper00_wbm_writedata" />
+                    </pin>
+                    <pin num="7">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="7" port_dest="atmega_wb8_wrapper00_wbm_writedata" />
+                    </pin>
+                </port>
+                <port dir="out" name="wbm_strobe" size="1" type="STB">
+                    <pin num="0">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="0" port_dest="atmega_wb8_wrapper00_wbm_strobe" />
+                    </pin>
+                </port>
+                <port dir="out" name="wbm_write" size="1" type="WE">
+                    <pin num="0">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="0" port_dest="atmega_wb8_wrapper00_wbm_write" />
+                    </pin>
+                </port>
+                <port dir="in" name="wbm_ack" size="1" type="ACK">
+                    <pin num="0">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="0" port_dest="atmega_wb8_wrapper00_wbm_ack" />
+                    </pin>
+                </port>
+                <port dir="out" name="wbm_cycle" size="1" type="CYC">
+                    <pin num="0">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="atmega_wb8_wrapper00_mwb8" pin_dest="0" port_dest="atmega_wb8_wrapper00_wbm_cycle" />
+                    </pin>
+                </port>
+            </ports>
+            <slaves>
+                <slave instancename="adns6010system00" interfacename="swb8" />
+            </slaves>
+        </interface>
+    </interfaces>
+</component>

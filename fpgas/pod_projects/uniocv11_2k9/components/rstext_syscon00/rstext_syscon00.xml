@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component instance_name="rstext_syscon00" name="rstext_syscon" num="0" version="1.0">
+    <description>
+        manage rst and clock that come from ext.
+    </description>
+    <generics>
+        <generic destination="fpga" match="&apos;0&apos;|&apos;1&apos;" name="invert_reset" public="true" type="std_logic" value="&apos;1&apos;" />
+    </generics>
+    <hdl_files>
+        <hdl_file filename="hdl/rstext_syscon.vhd" istop="1" scope="spartan3" />
+    </hdl_files>
+    <interfaces>
+        <interface class="CLK_RST" name="candr">
+            <ports>
+                <port dir="out" name="gls_clk" size="1" type="CLK">
+                    <pin num="0">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="rstext_syscon00_atmega_wb8_wrapper00" pin_dest="0" port_dest="rstext_syscon00_gls_clk" />
+                    </pin>
+                </port>
+                <port dir="out" name="gls_reset" size="1" type="RST">
+                    <pin num="0">
+                        <connect instance_dest="atmega_wb8_wrapper00_mwb8_intercon" interface_dest="rstext_syscon00_atmega_wb8_wrapper00" pin_dest="0" port_dest="rstext_syscon00_gls_reset" />
+                    </pin>
+                </port>
+            </ports>
+            <slaves>
+                <slave instancename="atmega_wb8_wrapper00" interfacename="mwb8" />
+            </slaves>
+        </interface>
+        <interface class="GLS" name="ext">
+            <ports>
+                <port dir="in" name="ext_clk" size="1" type="CLK">
+                    <pin num="0">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="CLK0" />
+                    </pin>
+                </port>
+                <port dir="in" name="ext_rst_n" size="1" type="RST">
+                    <pin num="0">
+                        <connect instance_dest="unioc_v11" interface_dest="fpga" pin_dest="0" port_dest="nRST_fpga" />
+                    </pin>
+                </port>
+            </ports>
+        </interface>
+    </interfaces>
+</component>
