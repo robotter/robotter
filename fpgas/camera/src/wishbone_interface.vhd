@@ -58,7 +58,7 @@ entity wishbone_interface is
 		  wbs_stb_i      : in  std_logic;
 		  wbs_ack_o      : out std_logic;
 		  wbs_cyc_i      : in  std_logic;
-		  pod_irq        : out std_logic;
+		  pod_irq_o      : out std_logic;
 
         -- *******************
         -- Camera side signals
@@ -175,13 +175,13 @@ begin
     begin
 		wait until rising_edge(clk_i);
       if rst_i='1' then
-          pod_irq<='0';
+          pod_irq_o<='0';
 	   elsif wbs_adr_i="1111000000000000" and wbs_we_i='0' 
 	     and wbs_stb_i='1' and wbs_cyc_i ='1' then
-		    pod_irq<='0';
+		    pod_irq_o<='0';
 		-- signal the interruption before the half-RAM swap
 	   elsif RAM_adress_s="011100000" or RAM_adress_s="111100000" then
-		    pod_irq<='1';
+		    pod_irq_o<='1';
       end if;
 	 end process;
 
