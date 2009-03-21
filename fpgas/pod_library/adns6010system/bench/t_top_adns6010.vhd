@@ -59,7 +59,7 @@ architecture t_top_adns6010_1 of t_top_adns6010 is
   
   component top_adns6010 is 
   generic (
-    id_c         : natural := 2;
+    id         : natural := 2;
     wb_size_c    : natural := 8;           -- data port size
     adns_size_c  : natural range 8 to 32:= 32;        -- data sensor port size
     squal_size_c : natural range 8 to 32:= 8;  -- squal port size

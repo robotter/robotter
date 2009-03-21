@@ -27,7 +27,7 @@ use ieee.numeric_std.all;
 entity top_compass is
 
   generic (
-    id_c       : natural := 9;    --! module ID
+    id_c         : natural := 9;    --! module ID
     clk_freq_c : natural := 50000 --! FPGA clock frequency, in kHz
   );
   port (
@@ -99,7 +99,7 @@ begin
 
   compass_wbs_0 : compass_wbs
   generic map (
-    id_c => id_c
+    id_c => id
   )
   port map (
     wbs_rst_i => wbs_rst_i,

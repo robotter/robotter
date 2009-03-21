@@ -33,7 +33,7 @@ USE ieee.numeric_std.ALL;
 ENTITY adns6010_wishbone_interface IS
   
   GENERIC (
-    id      : natural := 2;
+    id_c      : natural := 2;
     wb_size_c : natural := 8;           -- data port size
     adns_size_c : natural RANGE 8 TO 32:= 32;        -- data sensor port size
     squal_size_c : natural RANGE 8 TO 32:= 8  -- squal port size
@@ -161,7 +161,7 @@ BEGIN  -- adns6010_wishbone_interface_1
       IF (wbs_stb_i = '1' AND wbs_we_i = '0'  AND wbs_cyc_i = '1' ) THEN
         ack_read_s <= '1';
         CASE to_integer(unsigned(wbs_adr_i)) IS
-          WHEN 0 => wbs_dat_o <= std_logic_vector(to_unsigned(id,wb_size_c));
+          WHEN 0 => wbs_dat_o <= std_logic_vector(to_unsigned(id_c,wb_size_c));
             -- lock adns latchs
           WHEN 1 => wbs_dat_o(2 DOWNTO 0) <= lock_adns_s;
             --adns 1

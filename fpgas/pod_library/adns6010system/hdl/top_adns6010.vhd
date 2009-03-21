@@ -25,7 +25,7 @@ USE ieee.std_logic_1164.ALL;
 
 ENTITY top_adns6010 IS
   GENERIC (
-    id_c         : natural := 2;
+    id           : natural := 2;
     wb_size_c    : natural := 8;           -- data port size
     adns_size_c  : natural RANGE 8 TO 32:= 32;        -- data sensor port size
     squal_size_c : natural RANGE 8 TO 32:= 8;  -- squal port size
@@ -123,7 +123,7 @@ ARCHITECTURE top_adns6010_1 OF top_adns6010 IS
   
   COMPONENT adns6010_wishbone_interface IS
   GENERIC (
-    id      : natural := 2;
+    id_c      : natural := 2;
     wb_size_c : natural := 8;           -- data port size
     adns_size_c : natural RANGE 8 TO 32:= 32;        -- data sensor port size
     squal_size_c : natural RANGE 8 TO 32:= 8  -- squal port size
@@ -484,7 +484,7 @@ reset_ns <= not(wbs_rst_i);
   
   wishbone_interface : adns6010_wishbone_interface
   GENERIC MAP(
-    id => id_c,
+    id_c => id,
     wb_size_c => wb_size_c,
     adns_size_c => adns_size_c,
     squal_size_c => squal_size_c )

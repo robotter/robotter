@@ -49,7 +49,7 @@ ARCHITECTURE t_adns6010_wishbone_interface_1 OF t_adns6010_wishbone_interface IS
 
 COMPONENT adns6010_wishbone_interface IS
   GENERIC (
-    id      : natural := 2;
+    id_c      : natural := 2;
     wb_size_c : natural := 8;           -- data port size
     adns_size_c : natural RANGE 8 TO 32:= 32;        -- data sensor port size
     squal_size_c : natural RANGE 8 TO 32:= 8  -- squal port size
@@ -148,7 +148,7 @@ BEGIN
 
   entity_testee : adns6010_wishbone_interface 
   GENERIC MAP(
-    id      => 42,
+    id_c      => 42,
     wb_size_c => 8,     -- data port size
     adns_size_c => 32,        -- data sensor port size
     squal_size_c => 8  -- squal port size
