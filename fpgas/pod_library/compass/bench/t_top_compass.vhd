@@ -142,7 +142,6 @@ begin
 
 
   stimuli_p : process
-    variable angle_ref_v : natural range 0 to 3599;
   begin
 
     rst_s <= '1';
