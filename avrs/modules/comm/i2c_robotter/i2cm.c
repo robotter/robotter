@@ -1,6 +1,6 @@
 #include <aversive.h>
 #include <compat/twi.h>
-#include <wait.h>
+#include <aversive/wait.h>
 
 #include "i2cm.h"
 
@@ -76,7 +76,7 @@ int8_t i2cm_recv(uint8_t slave_addr, uint8_t n, uint8_t* data)
 }
 
 
-int8_t i2cm_ask_and_rcv(uint8_t slave_addr)
+int8_t i2cm_ask_and_recv(uint8_t slave_addr, uint8_t n, uint8_t* data)
 {
   uint8_t i;
 
@@ -90,7 +90,7 @@ int8_t i2cm_ask_and_rcv(uint8_t slave_addr)
   {
     I2C_STOP();
     wait_4cyc(100);
-    return 0;
+    return -1;
   }
 
   // First byte: is there something to transmit?
