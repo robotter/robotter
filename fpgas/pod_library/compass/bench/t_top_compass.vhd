@@ -19,8 +19,8 @@
 --! @author ~ryder <benoit@ryder.fr>
 -----------------------------------------------------------------------------
 
-library ieee ;
-use ieee.std_logic_1164.all ;
+library ieee;
+use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 
@@ -45,7 +45,7 @@ architecture t_top_compass_1 of t_top_compass is
 
   component top_compass is
     generic (
-      id_c       : natural := 9;    --! module ID
+      id         : natural := 9;    --! module ID
       clk_freq_c : natural := 50000 --! FPGA clock frequency, in kHz
     );
     port (

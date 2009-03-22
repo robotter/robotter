@@ -18,8 +18,8 @@
 --! @author ~ryder <benoit@ryder.fr>
 -----------------------------------------------------------------------------
 
-library ieee ;
-use ieee.std_logic_1164.all ;
+library ieee;
+use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 
@@ -27,7 +27,7 @@ use ieee.numeric_std.all;
 entity top_compass is
 
   generic (
-    id_c         : natural := 9;    --! module ID
+    id         : natural := 9;    --! module ID
     clk_freq_c : natural := 50000 --! FPGA clock frequency, in kHz
   );
   port (
@@ -50,6 +50,7 @@ end entity top_compass;
 
 architecture top_compass_1 of top_compass is
 
+  alias id_c : natural is  id;
   signal angle_s : natural range 0 to 3599;
 
   component compass_reader is
@@ -99,7 +100,7 @@ begin
 
   compass_wbs_0 : compass_wbs
   generic map (
-    id_c => id
+    id_c => id_c
   )
   port map (
     wbs_rst_i => wbs_rst_i,

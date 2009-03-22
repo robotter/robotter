@@ -139,3 +139,4 @@ ise-%:
 
 endif
 
+# vim: filetype=make
