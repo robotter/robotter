@@ -519,3 +519,33 @@ uint8_t adns6010_checkSPI(void)
   
   return ADNS6010_RV_OK;
 }
+
+void adns6010_encoders_get_value(adns6010_encoders_t* encoders)
+{
+  // Latch all movement registers
+  // (latch is triggered on lock rising edge)
+  ADNS6010_LOCK = ADNS6010_LOCK_NONE;
+  _delay_us(1);
+  ADNS6010_LOCK = ADNS6010_LOCK_ALL;
+  _delay_us(1);
+  
+  // ADNS 1
+  encoders->x1 = ADNS6010_1_DELTAX;
+  encoders->y1 = ADNS6010_1_DELTAY;
+  encoders->squal1 = ADNS6010_1_SQUAL;
+ 
+  // ADNS 2
+  encoders->x2 = ADNS6010_2_DELTAX;
+  encoders->y2 = ADNS6010_2_DELTAY;
+  encoders->squal2 = ADNS6010_2_SQUAL; 
+
+  // ADNS 3
+  encoders->x3 = ADNS6010_3_DELTAX;
+  encoders->y3 = ADNS6010_3_DELTAY;
+  encoders->squal3 = ADNS6010_3_SQUAL;
+
+  // FAULT register
+  encoders->fault = ADNS6010_FAULT;
+
+  return;
+}

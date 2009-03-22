@@ -27,13 +27,35 @@
 
 #include <stdint.h>
 
-#include "adns6010_encoders.h"
 #include "adns6010_fpga.h"
 #include "adns6010_timings.h"
 #include "adns6010_returns.h"
 
 //@ Number of ADNS
 #define ADNS6010_NUM 3
+
+//@ Encoders values
+typedef struct
+{
+  // ADNS 1
+  int32_t x1;
+  int32_t y1;
+  uint8_t squal1;
+
+  // ADNS 2
+  int32_t x2;
+  int32_t y2;
+  uint8_t squal2;
+
+  // ADNS 3
+  int32_t x3;
+  int32_t y3;
+  uint8_t squal3;
+
+  // FAULT register
+  uint8_t fault;
+
+}adns6010_encoders_t;
 
 /** @brief ADNS resolutions
   */
@@ -120,6 +142,11 @@ uint8_t adns6010_checkFirmware(void);
   * @return error code
   */
 uint8_t adns6010_checkSPI(void);
+
+/** @brief Access ADNS6010 system to get encoders values
+  * 
+  */
+void adns6010_encoders_get_value(adns6010_encoders_t*);
 
 
 #endif/*_ADNS6010_H_*/
