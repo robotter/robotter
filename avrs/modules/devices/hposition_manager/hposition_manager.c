@@ -28,6 +28,7 @@
 #include <adns6010.h>
 
 #include <hposition_manager.h>
+#include "hposition_manager_config.h"
 
 void hposition_init( hrobot_position_t* hpos )
 {

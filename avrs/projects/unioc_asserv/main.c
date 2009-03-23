@@ -7,6 +7,7 @@
 
 #include <adns6010.h>
 #include <hposition_manager.h>
+#include <hrobot_manager.h>
 
 int main(void)
 {
@@ -107,19 +108,33 @@ int main(void)
   //--------------------------------------------------------
 
   //--------------------------------------------------------
+  // Initialize robot manager
+  printf("Initializing robot manager : ");
+  hrobot_init();
+  printf("OK\n");
+
+  printf("Robot manager is GO\n\n");
+
+  //--------------------------------------------------------
+
+  //--------------------------------------------------------
   // Initialize position manager
   printf("Initializing position manager : ");
   hposition_init( &position );
   hposition_set( &position, 0.0, 0.0, 0.0 );
   printf("OK\n");
 
+  printf("Position manager is GO\n\n");
+
+
+  //--------------------------------------------------------
 
   // Ready up
   printf("All systems GO.\n\n");
 
   // Set ADNS6010 system to automatic
   adns6010_setMode(ADNS6010_BHVR_MODE_AUTOMATIC);
-  
+
   uint32_t t=0;
   while(1)
   {

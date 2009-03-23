@@ -38,8 +38,8 @@
 /* Which PWM are enabled ? */
 //#define PWM0_ENABLED
 #define PWM1A_ENABLED
-//#define PWM1B_ENABLED
-//#define PWM1C_ENABLED
+#define PWM1B_ENABLED
+#define PWM1C_ENABLED
 //#define PWM2_ENABLED
 //#define PWM3A_ENABLED
 //#define PWM3B_ENABLED
@@ -96,6 +96,16 @@ if you need for example a PWM1A with special sign mode you configure like this :
 #define PWM1A_MODE       (PWM_SIGNED)
 #define PWM1A_SIGN_PORT  PORTB
 #define PWM1A_SIGN_BIT   2
+
+#define PWM1B_MODE       (PWM_SIGNED)
+#define PWM1B_SIGN_PORT  PORTB
+#define PWM1B_SIGN_BIT   3
+
+#define PWM1C_MODE       (PWM_SIGNED)
+#define PWM1C_SIGN_PORT  PORTB
+#define PWM1C_SIGN_BIT   4
+
+
 
 
 
