@@ -68,7 +68,7 @@ architecture top_compass_1 of top_compass is
 
   component compass_wbs is
     generic (
-      id_c : natural := id_c
+      id_c : natural := id
     );
     port (
       wbs_rst_i : in  std_logic;
@@ -99,9 +99,6 @@ begin
   );
 
   compass_wbs_0 : compass_wbs
-  generic map (
-    id_c => id_c
-  )
   port map (
     wbs_rst_i => wbs_rst_i,
     wbs_clk_i => wbs_clk_i,

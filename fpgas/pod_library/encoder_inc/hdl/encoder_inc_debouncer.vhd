@@ -71,10 +71,21 @@ begin
   end process reg_p;
 
   --! Generate current state value
-  cur_s <= reset_data_c when reset_i = '1' else
-           '0' when reg_s = reg_0_c else
-           '1' when reg_s = reg_1_c else
-           cur_s;
+  process (clk_i, reset_i)
+  begin
+
+    if reset_i = '1' then
+      cur_s <= reset_data_c;
+
+    elsif rising_edge(clk_i) then
+      if reg_s = reg_0_c then
+        cur_s <= '0';
+      elsif reg_s = reg_1_c then
+        cur_s <= '1';
+      end if;
+
+    end if;
+  end process;
 
   --! Copy current state to output
   data_o <= cur_s;
