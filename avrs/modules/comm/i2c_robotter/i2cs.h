@@ -6,23 +6,23 @@
 
 /** @brief Slave data state
  *
- * After receiving data from master, state is set to \e RECEIVED.
+ * After receiving data from master, state is set to \e I2C_RECEIVED.
  *
  * When master ask slave for data (by reading on it), slaves send back 1 if
- * state is \e READY and 0 otherwise.
+ * state is \e I2C_READY and 0 otherwise.
  */
 typedef enum
 {
-  NONE,
-  READY,    ///< Data ready to transfer
-  RECEIVED  ///< Data has been received
+  I2C_NONE,
+  I2C_READY,    ///< Data ready to transfer
+  I2C_RECEIVED  ///< Data has been received
 } I2CS_STATE;
 
 /** @brief Slave data buffer
  *
  * This buffer is used both for reading and writing.
  * When the slave has to send data to the master, it first fill the buffer and
- * then set its state to \e READY.
+ * then set its state to \e I2C_READY.
  */
 extern uint8_t i2cs_data[I2C_BUF_SIZE];
 

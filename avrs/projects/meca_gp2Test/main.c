@@ -67,10 +67,10 @@ int main(void)
 
     printf("%X %2.2f %2.2f\n",i2cs_state,dl,dr);
 
-    i2cs_state = NONE;
+    i2cs_state = I2C_NONE;
     *((double*)i2cs_data) = dl;
     *(((double*)i2cs_data)+1) = dr;
-    i2cs_state = READY;
+    i2cs_state = I2C_READY;
   }
 
   while(1) nop();

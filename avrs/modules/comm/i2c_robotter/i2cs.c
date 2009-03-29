@@ -22,7 +22,7 @@ void i2cs_init(uint8_t slave_addr)
   if(I2C_PRESCALER & 2)
     sbi(TWSR, TWPS1);
 
-  i2cs_state = NONE;
+  i2cs_state = I2C_NONE;
 
   TWCR = (1<<TWEA)+(1<<TWEN)+(1<<TWIE)+(1<<TWINT);
 
@@ -47,10 +47,10 @@ SIGNAL(SIG_2WIRE_SERIAL)
       break;
       
     case TW_ST_SLA_ACK:
-      if( i2cs_state == READY )
+      if( i2cs_state == I2C_READY )
       {
         ptr = i2cs_data;
-        i2cs_state = NONE;
+        i2cs_state = I2C_NONE;
         I2C_SEND(1);
       }
       else
@@ -68,7 +68,7 @@ SIGNAL(SIG_2WIRE_SERIAL)
       break;
 
     case TW_SR_STOP:
-      i2cs_state = RECEIVED;
+      i2cs_state = I2C_RECEIVED;
       I2C_NEXT();
 
     case TW_ST_LAST_DATA:
