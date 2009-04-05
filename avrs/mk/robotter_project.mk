@@ -37,24 +37,24 @@ export AVERSIVE_TO_ROBOTTER_DIR
 # Run generate_robotter_config if needed
 
 config:
-	@sh -n $(ROBOTTER_DIR)/config/config.in
+	@${SHELL} -n $(ROBOTTER_DIR)/config/config.in
 	@HELP_FILE=$(AVERSIVE_DIR)/config/Configure.help \
 		AUTOCONF_FILE=autoconf.h \
-		sh $(AVERSIVE_DIR)/config/scripts/Configure $(ROBOTTER_DIR)/config/config.in
-		sh $(ROBOTTER_DIR)/config/generate_robotter_config .config .aversive_conf
+		${SHELL} $(AVERSIVE_DIR)/config/scripts/Configure $(ROBOTTER_DIR)/config/config.in
+		${SHELL} $(ROBOTTER_DIR)/config/generate_robotter_config .config .aversive_conf
 
 noconfig:
-	@sh -n $(ROBOTTER_DIR)/config/config.in
+	@${SHELL} -n $(ROBOTTER_DIR)/config/config.in
 	@HELP_FILE=$(AVERSIVE_DIR)/config/Configure.help \
 		AUTOCONF_FILE=autoconf.h \
-		sh $(AVERSIVE_DIR)/config/scripts/Configure -d $(ROBOTTER_DIR)/config/config.in
+		${SHELL} $(AVERSIVE_DIR)/config/scripts/Configure -d $(ROBOTTER_DIR)/config/config.in
 
 menuconfig:
-	@sh -n $(ROBOTTER_DIR)/config/config.in
+	@${SHELL} -n $(ROBOTTER_DIR)/config/config.in
 	@make -C $(AVERSIVE_DIR)/config/scripts/lxdialog all
 	@HELP_FILE=$(AVERSIVE_DIR)/config/Configure.help \
 		AUTOCONF_FILE=autoconf.h \
-		sh $(AVERSIVE_DIR)/config/scripts/Menuconfig $(ROBOTTER_DIR)/config/config.in
-		sh $(ROBOTTER_DIR)/config/generate_robotter_config .config .aversive_conf
+		${SHELL} $(AVERSIVE_DIR)/config/scripts/Menuconfig $(ROBOTTER_DIR)/config/config.in
+		${SHELL} $(ROBOTTER_DIR)/config/generate_robotter_config .config .aversive_conf
 
 
