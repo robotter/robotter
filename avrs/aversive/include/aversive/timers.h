@@ -166,6 +166,68 @@
 #define TIMER_16_MODE_PWM_F2      15 // fast PWM
 
 
+// ATMEGA16 ////////////////////////////////////////
+#elif defined (__AVR_ATmega16__)
+
+// available pwm
+#define PWM0    0
+#define PWM1A  1
+#define PWM1B  2
+#define PWM2    4
+
+// OCR_BITS
+#define OCR0_DDR DDRB
+#define OCR0_BIT 3
+
+#define OCR1A_DDR DDRD
+#define OCR1A_BIT 5
+#define OCR1B_DDR DDRD
+#define OCR1B_BIT 4
+
+#define OCR2_DDR DDRD
+#define OCR2_BIT 7
+
+
+// Timer WGM bits
+#define TIMER_8_MODE_NORMAL      0
+#define TIMER_8_MODE_PWM_PC      1 // phase correct PWM
+#define TIMER_8_MODE_CTC         2
+#define TIMER_8_MODE_PWM         3 // fast PWM
+
+#define TIMER_16_MODE_NORMAL      0
+#define TIMER_16_MODE_PWM_PC_8    1 // phase correct PWM 8 bits
+#define TIMER_16_MODE_PWM_PC_9    2 // phase correct PWM 9 bits
+#define TIMER_16_MODE_PWM_PC_10   3 // phase correct PWM 10 bits
+#define TIMER_16_MODE_CTC1        4 // clear on compare, TOP = OCRA
+#define TIMER_16_MODE_PWM_8       5 // fast PWM 8 bits
+#define TIMER_16_MODE_PWM_9       6 // fast PWM 9 bits
+#define TIMER_16_MODE_PWM_10      7 // fast PWM 10 bits
+
+
+
+// prescaler options
+
+// timer 0
+#define TIMER_8_PRESCALE_STOP 0
+#define TIMER_8_PRESCALE_1    1
+#define TIMER_8_PRESCALE_8    2
+#define TIMER_8_PRESCALE_64   3
+#define TIMER_8_PRESCALE_256   4
+#define TIMER_8_PRESCALE_1024  5
+#define TIMER_8_PRESCALE_EXT_FALL  6
+#define TIMER_8_PRESCALE_EXT_RISE 7
+
+// timer 1
+#define TIMER_16_PRESCALE_STOP 0
+#define TIMER_16_PRESCALE_1    1
+#define TIMER_16_PRESCALE_8    2
+#define TIMER_16_PRESCALE_64   3
+#define TIMER_16_PRESCALE_256  4
+#define TIMER_16_PRESCALE_1024 5
+#define TIMER_16_PRESCALE_EXT_FALL 6 // falling edge on T0
+#define TIMER_16_PRESCALE_EXT_RISE 7 // rising edge on T0
+
+
 
 // ATMEGA163 ////////////////////////////////////////
 #elif defined (__AVR_ATmega163__)
