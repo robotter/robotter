@@ -82,19 +82,19 @@ void motor1_speed(int speed){
 	printf("\n");
 }
 
-//void motor2_speed(int speed){
-//	printf("MOTOR2 = %d ",speed);
-//	pwm_set_0(speed);
-//	uart0_recv();
-//	printf("\n");
-//}
-//
-//void motor3_speed(int speed){
-//	printf("MOTOR3 = %d ",speed);
-//	pwm_set_2(speed);
-//	uart0_recv();
-//	printf("\n");
-//}
+void motor2_speed(int speed){
+	printf("MOTOR2 = %d ",speed);
+	pwm_set_0(speed);
+	uart0_recv();
+	printf("\n");
+}
+
+void motor3_speed(int speed){
+	printf("MOTOR3 = %d ",speed);
+	pwm_set_2(speed);
+	uart0_recv();
+	printf("\n");
+}
 
 int main(void)
 {
@@ -134,20 +134,20 @@ int main(void)
 	motor1_speed(2000);
 	motor1_speed(3000);
 	motor1_speed(4000);
-//	/* test motor2 */
-//	motor2_speed(100);
-//	motor2_speed(500);
-//	motor2_speed(1000);
-//	motor2_speed(2000);
-//	motor2_speed(3000);
-//	motor2_speed(4000);
-//	/* test motor 3 */
-//	motor3_speed(100);
-//	motor3_speed(500);
-//	motor3_speed(1000);
-//	motor3_speed(2000);
-//	motor3_speed(3000);
-//	motor3_speed(4000);
+	/* test motor2 */
+	motor2_speed(100);
+	motor2_speed(500);
+	motor2_speed(1000);
+	motor2_speed(2000);
+	motor2_speed(3000);
+	motor2_speed(4000);
+	/* test motor 3 */
+	motor3_speed(100);
+	motor3_speed(500);
+	motor3_speed(1000);
+	motor3_speed(2000);
+	motor3_speed(3000);
+	motor3_speed(4000);
 
 	/* potentiometers */
 	printf("* testing potentiometers:\n");

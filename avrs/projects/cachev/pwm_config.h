@@ -36,11 +36,11 @@
 #define _PWM_CONFIG_VERSION_ 2
 
 /* Which PWM are enabled ? */
-//#define PWM0_ENABLED
+#define PWM0_ENABLED
 #define PWM1A_ENABLED
 //#define PWM1B_ENABLED
 //#define PWM1C_ENABLED
-//#define PWM2_ENABLED
+#define PWM2_ENABLED
 //#define PWM3A_ENABLED
 //#define PWM3B_ENABLED
 //#define PWM3C_ENABLED
@@ -90,13 +90,13 @@ if you need for example a PWM1A with special sign mode you configure like this :
 #define PWM1A_SIGN_PORT  PORTC
 #define PWM1A_SIGN_BIT   6
 // for motor2
-//#define PWM0_MODE       (PWM_SIGNED)
-//#define PWM0_SIGN_PORT  PORTC
-//#define PWM0_SIGN_BIT   7
-//// for motor3
-//#define PWM2_MODE       (PWM_SIGNED)
-//#define PWM2_SIGN_PORT  PORTD
-//#define PWM2_SIGN_BIT   6
+#define PWM0_MODE       (PWM_SIGNED)
+#define PWM0_SIGN_PORT  PORTC
+#define PWM0_SIGN_BIT   7
+// for motor3
+#define PWM2_MODE       (PWM_SIGNED)
+#define PWM2_SIGN_PORT  PORTD
+#define PWM2_SIGN_BIT   6
 
 /** 
 PWM synchronization.
