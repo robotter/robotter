@@ -12,6 +12,8 @@ SOURCE = .
 
 EXEC = test_camera
 
+IMAGE = mire-test.jpg
+
 $(EXEC): $(OBJS)
 	$(CC) $(OBJS) $(COMPOPT) $(LDFLAGS) -o $(EXEC);
 
@@ -22,7 +24,7 @@ $(EXEC): $(OBJS)
 	$(CC) $(CFLAGS) $< -c -o $@
 
 exec: $(EXEC)
-	./$(EXEC) mire-coul.jpg
+	./$(EXEC) $(IMAGE)
 
 clean:
 	rm -f $(OBJS) $(SOURCE)/*~ $(SOURCE)/\#*\# $(EXEC)

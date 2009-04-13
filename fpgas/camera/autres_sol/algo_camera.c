@@ -7,6 +7,9 @@
  * Notes:
  * On peut passer la definition de Y en utilisant les vrais coeffs plutôt que la somme
  *
+ * Ameliorations:
+ * Passer H vers [0,360[
+ *
  * */
 
 #include <stdio.h>
@@ -105,7 +108,7 @@ int process_image(uint8_t * image, information * es_info){
  * Recupere la luminance du pixel de l'image
  */
 uint8_t get_pixel_Y(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uint16_t hauteur,uint16_t largueur){
-  uint16_t pos=no_ligne*largueur+no_colonne;
+  uint32_t pos=no_ligne*largueur+no_colonne;
 #if IMAGE_MODE_COLORSP==IMGMODE_RGB
   // pour le mode RGB application de la transformation.
 
@@ -117,7 +120,7 @@ uint8_t get_pixel_Y(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uin
 
 #if IMAGE_MODE_STORE==IMGMODE_RFGFBF
   //mode RGB divisé en 3
-  uint16_t dim_img=largueur*hauteur;
+  uint32_t dim_img=largueur*hauteur;
   sum=0.299f*(double)image[pos]+0.587f*(double)image[dim_img+pos]+0.114f*(double)image[dim_img*2+pos];
 #endif /* IMAGE_MODE_STORE==MODE_RFGFBF */
   return (uint8_t)sum;
@@ -139,7 +142,7 @@ uint8_t get_pixel_Y(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uin
  * Recupere la chrominance du pixel de l'image
  */
 uint8_t get_pixel_H(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uint16_t hauteur,uint16_t largueur){
-  uint16_t pos=no_ligne*largueur+no_colonne;
+  uint32_t pos=no_ligne*largueur+no_colonne;
 #if IMAGE_MODE_COLORSP==IMGMODE_YUV
   // En mode YUV on commence par passer en RGB
  #if IMAGE_MODE_STORE==IMGMODE_RPGPBP 
@@ -177,7 +180,7 @@ uint8_t get_pixel_H(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uin
 
 #if IMAGE_MODE_STORE==IMGMODE_RFGFBF
   //mode RGB divisé en 3
-  uint16_t dim_img=largueur*hauteur;
+  uint32_t dim_img=largueur*hauteur;
   double R=(double)image[pos];
   double G=(double)image[pos+dim_img];
   double B=(double)image[pos+dim_img*2];
@@ -195,17 +198,8 @@ uint8_t get_pixel_H(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uin
   min=(R>G)?G:R;
   min=(min>B)?B:min;
 
-/*
   if (min==max) H=0.0f; else
-  if ((max==R)&&(G>B))  H=0.0; else
-  if (max==R)  H=0.0f; else
-  if (max==G)  H=0.0f; else
-  if (max==B)  H=0.0f; else
-  H=0.0f;
-*/
-
-  if (min==max) H=0.0f; else
-  if ((max==R)&&(G>B))  H=60*(G-B)/(max-min); else
+  if ((max==R)&&(G>B))  H=60.0f*(G-B)/(max-min); else
   if (max==R)  H=(60.0f*(G-B)/(max-min))+360.0f; else
   if (max==G)  H=(60.0f*(B-R)/(max-min))+120.0f; else
   if (max==B)  H=(60.0f*(R-G)/(max-min))+240.0f; else
