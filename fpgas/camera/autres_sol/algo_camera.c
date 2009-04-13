@@ -62,24 +62,49 @@ int process_image(uint8_t * image, information * es_info){
       img_HY[(i*es_info->largueur+j)*2+1]=get_pixel_H(image,i,j,es_info->hauteur,es_info->largueur);
     }
   }
-  #if _DEBUG
-    es_info->test=img_HY;
-    return 1;
-  #endif
-
   // ** Moyennage de l'image **
   // Mise en place de l'image des seuils
   uint8_t* img_moyenne=(uint8_t *)malloc(es_info->hauteur*es_info->largueur*2*sizeof(uint8_t));
   if (img_moyenne==NULL) {free(img_HY); return 0;}
 
+  double sum_H,sum_Y;
+  int16_t x,y;
   // on parcourt l'image
   for (i=0; i<es_info->hauteur;i++){
     for (j=0; j<es_info->largueur;j++){
-      // ici on stocke l'image en IMGMODE_RPGPBP pour la suite du travail
-      //img_moyenne[]=get_pixel_R
+      sum_Y=0.0;
+      sum_H=0.0;
+      for (x=-(MOYENNE_DIM-1)/2; x<=(MOYENNE_DIM-1)/2;x++){
+        for (y=-(MOYENNE_DIM-1)/2; y<=(MOYENNE_DIM-1)/2;y++){
+#if BORDURE_MODE==BORDURE_NONE
+          sum_Y+=(float)img_HY[((i+y)*es_info->largueur+j+x)*2];
+          sum_H+=(float)img_HY[((i+y)*es_info->largueur+j+x)*2+1];
+#endif
+
+// ***********************************************
+// ***********************************************
+// ***********************************************
+// ***********************************************
+// ************** REPRENDRE ICI ******************
+// ***********************************************
+// ***********************************************
+// ***********************************************
+// ***********************************************
+
+        }
+      }
+
+      img_moyenne[(i*es_info->largueur+j)*2]=(uint8_t)(sum_Y/(float)(MOYENNE_DIM*MOYENNE_DIM));
+      img_moyenne[(i*es_info->largueur+j)*2+1]=(uint8_t)(sum_H/(float)(MOYENNE_DIM*MOYENNE_DIM));
+
     }
   }
   free(img_HY);
+#if _DEBUG
+  es_info->test=img_moyenne;
+  return 1;
+#endif
+
 
 
   // ** Seuille l'images selon les paramètres **
@@ -145,7 +170,7 @@ uint8_t get_pixel_H(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uin
   uint32_t pos=no_ligne*largueur+no_colonne;
 #if IMAGE_MODE_COLORSP==IMGMODE_YUV
   // En mode YUV on commence par passer en RGB
- #if IMAGE_MODE_STORE==IMGMODE_RPGPBP 
+#if IMAGE_MODE_STORE==IMGMODE_RPGPBP 
   //mode RGB regroupés
   double Y=(double)image[pos*IMG_ALPHA];
   double U=(double)image[pos*IMG_ALPHA+1];
@@ -189,7 +214,7 @@ uint8_t get_pixel_H(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uin
 #endif /* IMAGE_MODE_COLORSP==IMGMODE_RGB */
 
   double H, min, max;
-  
+
   // détermanation du max
   max=(R>G)?R:G;
   max=(max>B)?max:B;
@@ -199,11 +224,11 @@ uint8_t get_pixel_H(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uin
   min=(min>B)?B:min;
 
   if (min==max) H=0.0f; else
-  if ((max==R)&&(G>B))  H=60.0f*(G-B)/(max-min); else
-  if (max==R)  H=(60.0f*(G-B)/(max-min))+360.0f; else
-  if (max==G)  H=(60.0f*(B-R)/(max-min))+120.0f; else
-  if (max==B)  H=(60.0f*(R-G)/(max-min))+240.0f; else
-  H=0.0f;
+    if ((max==R)&&(G>B))  H=60.0f*(G-B)/(max-min); else
+      if (max==R)  H=(60.0f*(G-B)/(max-min))+360.0f; else
+        if (max==G)  H=(60.0f*(B-R)/(max-min))+120.0f; else
+          if (max==B)  H=(60.0f*(R-G)/(max-min))+240.0f; else
+            H=0.0f;
 
   return (uint8_t)(H*256.0f/360.0f);
 
