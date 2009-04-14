@@ -3,22 +3,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <sys/time.h>
+#include <unistd.h>
 #include <opencv/highgui.h>
 #include <opencv/cv.h>
 #include "algo_camera.h"
 
+
 int main(int argc, char** argv){
   int i; // parce que l'on a toujours besoin d'un i
+  struct timeval start,stop;
+  struct timezone tz;
+  int sec,us;
 
   IplImage* src=NULL;
   information resultat_test;
   if( (argc == 2) && ((src=cvLoadImage(argv[1], 1))!= 0))
   {
-    printf("Chargement: %s\n",argv[1]);fflush(stdout);
+    printf("Chargement: %s\n",argv[1]);
 
     resultat_test.largueur=src->width;
     resultat_test.hauteur=src->height;
-    printf("Dimensions: Largueur=%d, Hauteur=%d\n",resultat_test.largueur,resultat_test.hauteur);fflush(stdout);
+    printf("Dimensions: Largueur=%d, Hauteur=%d\n",resultat_test.largueur,resultat_test.hauteur);
     printf("Information: Profondeur=");
     switch (src->depth){
       case IPL_DEPTH_8U:
@@ -66,15 +72,20 @@ int main(int argc, char** argv){
       (src->imageData)[3*i+2]=swap_tmp;
     }
 
-
-
+    tz.tz_minuteswest=0;
+    gettimeofday(&start, &tz); 
     int out=process_image( (uint8_t *)src->imageData, &resultat_test);
-    printf("La fonction de traitement à retourné: %d ",out);
+    gettimeofday(&stop, &tz); 
+    printf("La fonction de traitement à retourné: %d \n",out);
     if (out!=1){
       cvReleaseImage(&src);
       return 1;
     }
-
+    sec = stop.tv_sec - start.tv_sec;
+    us = stop.tv_usec - start.tv_usec;
+    if (us<0){sec--;us+=1000;}
+    printf ("Temps ecoule : %d.%06d secondes\n", sec, us); 
+    fflush(stdout);
 
     IplImage* dst_H = cvCreateImage( cvGetSize(src), IPL_DEPTH_8U, 1);
     IplImage* dst_Y = cvCreateImage( cvGetSize(src), IPL_DEPTH_8U, 1);
@@ -95,11 +106,11 @@ int main(int argc, char** argv){
     cvReleaseImage(&dst_H);
     cvReleaseImage(&dst_Y);
     cvReleaseImage(&src);
-  }
-  if(src==NULL){
-    printf("Erreur de chargement\n");
-    return 1;
-  }
+  }else
+    if(src==NULL){
+      printf("Erreur de chargement\n");
+      return 1;
+    }
 
 
   return 0;
