@@ -106,7 +106,6 @@ typedef struct
   // ** Sorties **
   zone zones[NB_MAX_ZONES];
 
-
   #if _DEBUG
     uint8_t * test;
   #endif

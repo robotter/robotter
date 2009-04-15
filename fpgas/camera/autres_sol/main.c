@@ -56,8 +56,6 @@ int main(int argc, char** argv){
     else
       printf("(KO)\n");
 
-    //Attention à l'alignement des colonnes => semble OK en tout cas pour une image de 512*512
-
     fflush(stdout);
 
     // On affiche l'image avant de déconner avec les pixels
@@ -72,6 +70,24 @@ int main(int argc, char** argv){
       (src->imageData)[3*i+2]=swap_tmp;
     }
 
+    // Mets des valeurs dans les seuils
+    for (i=0;i<NB_SEUILS;i++){
+      resultat_test.seuils[i].actif=0;
+    }
+    resultat_test.seuils[0].actif=1;
+    resultat_test.seuils[0].mode=SEUIL_YSHS;
+    resultat_test.seuils[0].H=0;
+    resultat_test.seuils[0].Y=128;
+    resultat_test.seuils[0].or_avec=-1;
+    resultat_test.seuils[0].and_avec=-1;
+    resultat_test.seuils[1].actif=1;
+    resultat_test.seuils[1].mode=SEUIL_YIHS;
+    resultat_test.seuils[1].H=0;
+    resultat_test.seuils[1].Y=200;
+    resultat_test.seuils[1].or_avec=-1;
+    resultat_test.seuils[1].and_avec=0;
+
+    // mise en place du système de mesure
     tz.tz_minuteswest=0;
     gettimeofday(&start, &tz); 
     int out=process_image( (uint8_t *)src->imageData, &resultat_test);
@@ -84,9 +100,13 @@ int main(int argc, char** argv){
     sec = stop.tv_sec - start.tv_sec;
     us = stop.tv_usec - start.tv_usec;
     if (us<0){sec--;us+=1000;}
-    printf ("Temps ecoule : %d.%06d secondes\n", sec, us); 
+    // printf ("Temps ecoule : %u.%06u secondes\n", sec, us);
+    printf ("Temps ecoule : %u ms\n", us/1000); // semble plus fiable
     fflush(stdout);
 
+
+    // pour l'affichage des HY(avant et après moyennage)
+    /*
     IplImage* dst_H = cvCreateImage( cvGetSize(src), IPL_DEPTH_8U, 1);
     IplImage* dst_Y = cvCreateImage( cvGetSize(src), IPL_DEPTH_8U, 1);
 
@@ -99,12 +119,54 @@ int main(int argc, char** argv){
     cvShowImage("Luminance", dst_Y);
     cvNamedWindow("Chrominance", CV_WINDOW_AUTOSIZE);
     cvShowImage("Chrominance", dst_H);
+    cvReleaseImage(&dst_H);
+    cvReleaseImage(&dst_Y);
+    */
+    // pour l'affichage des seuils
+    int sel_seuil_1=0;
+    int sel_seuil_2=1;
+
+    IplImage* seuil_1 = cvCreateImage( cvGetSize(src), IPL_DEPTH_8U, 1);
+    IplImage* seuil_2 = cvCreateImage( cvGetSize(src), IPL_DEPTH_8U, 1);
+
+    for (i=0;i<resultat_test.largueur*resultat_test.hauteur;i++){
+      // premier seuil et pas de t=(o)?1:2;
+      if (sel_seuil_1<8)
+        if (((char)resultat_test.test[2*i]&(1<<sel_seuil_1))>0)
+          (seuil_1->imageData)[i]=255;
+        else
+          (seuil_1->imageData)[i]=0;
+      else
+        if (((char)resultat_test.test[2*i+1]&(1<<(sel_seuil_1-8)))>0)
+          (seuil_1->imageData)[i]=255;
+        else
+          (seuil_1->imageData)[i]=0;
+
+      // seuil 2
+      if (sel_seuil_2<8)
+        if (((char)resultat_test.test[2*i]&(1<<sel_seuil_2))>0)
+          (seuil_2->imageData)[i]=255;
+        else
+          (seuil_2->imageData)[i]=0;
+      else
+        if (((char)resultat_test.test[2*i+1]&(1<<(sel_seuil_2-8)))>0)
+          (seuil_2->imageData)[i]=255;
+        else
+          (seuil_2->imageData)[i]=0;
+    }
+
+    cvNamedWindow("Seuil 1", CV_WINDOW_AUTOSIZE);
+    cvShowImage("Seuil 1", seuil_1);
+    cvNamedWindow("Seuil 2", CV_WINDOW_AUTOSIZE);
+    cvShowImage("Seuil 2", seuil_2);
+
+    cvReleaseImage(&seuil_1);
+    cvReleaseImage(&seuil_2);
+    
 
     cvWaitKey(0);
 
     free(resultat_test.test);
-    cvReleaseImage(&dst_H);
-    cvReleaseImage(&dst_Y);
     cvReleaseImage(&src);
   }else
     if(src==NULL){

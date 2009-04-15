@@ -9,6 +9,7 @@
  *
  * Ameliorations:
  * Passer H vers [0,360[
+ * Utilisation de l'équivalent de bloc RAM du FPGA (par des pointeurs) augmenterai significativement la vitesse du bloc segmentation
  *
  * */
 
@@ -51,7 +52,7 @@ uint8_t get_pixel_H(uint8_t * image,uint16_t no_ligne, uint16_t no_colonne, uint
 int process_image(uint8_t * image, information * es_info){
   // ** Declarations **
   // on suppose que le processeur a une MMU => utilisation de malloc
-  uint16_t i,j;
+  uint16_t i,j,k,l=0;
 
   // ** Recuperation de H et Y **
   uint8_t* img_HY=(uint8_t *)malloc(es_info->hauteur*es_info->largueur*2*sizeof(uint8_t));
@@ -70,9 +71,6 @@ int process_image(uint8_t * image, information * es_info){
 
   float sum_Y;
   int16_t x,y;
-#if BORDURE_MODE!=BORDURE_NONE
-  int16_t k,l;
-#endif
   // variables pour le calcul de la mediane de H
   float mean_H, dist_H, min_dist_H, med_H=0.0f;
   // on parcourt l'image
@@ -141,23 +139,52 @@ int process_image(uint8_t * image, information * es_info){
     }
   }
   free(img_HY);
-#if _DEBUG
-  es_info->test=img_moyenne;
-  return 1;
-#endif
 
   // ** Seuille l'images selon les paramètres **
   // Mise en place de l'image des seuils
   uint16_t* img_seuils=(uint16_t *)malloc(es_info->hauteur*es_info->largueur*sizeof(uint16_t));
   if (img_seuils==NULL) {free(img_moyenne); return 0;}
 
-  // on parcourt et applique les seuils
-  for (i=0; i<NB_SEUILS ;i++){
-
-
-
+  int out_seuil;
+  // on parcourt et applique les seuils, s'ils sont actifs
+  for (k=0; k<NB_SEUILS ;k++){
+    if (es_info->seuils[k].actif==1){
+      for (i=0; i<es_info->hauteur;i++){
+        for (j=0; j<es_info->largueur;j++){
+          switch(es_info->seuils[k].mode){
+            case SEUIL_YIHI:
+              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]<es_info->seuils[k].H)&&(img_moyenne[(i*es_info->largueur+j)*2+1]<es_info->seuils[k].Y);
+              break;
+            case SEUIL_YSHS:
+              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]>es_info->seuils[k].H)&&(img_moyenne[(i*es_info->largueur+j)*2+1]>es_info->seuils[k].Y);
+              break;
+            case SEUIL_YIHS:
+              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]<es_info->seuils[k].H)&&(img_moyenne[(i*es_info->largueur+j)*2+1]>es_info->seuils[k].Y);
+              break;
+            case SEUIL_YSHI:
+              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]>es_info->seuils[k].H)&&(img_moyenne[(i*es_info->largueur+j)*2+1]<es_info->seuils[k].Y);
+              break;
+            default:
+              out_seuil=0;
+              break;
+          }
+          // application des fonctions AND et OR
+          if (es_info->seuils[k].or_avec>=0)
+            out_seuil=out_seuil||((img_seuils[i*es_info->largueur+j]&&(1<<es_info->seuils[k].or_avec))>>es_info->seuils[k].or_avec);
+          if (es_info->seuils[k].and_avec>=0)
+            out_seuil=out_seuil&&((img_seuils[i*es_info->largueur+j]&&(1<<es_info->seuils[k].and_avec))>>es_info->seuils[k].and_avec);
+          img_seuils[i*es_info->largueur+j]=out_seuil>>k;
+        }
+      }
+    }
   }
   free(img_moyenne);
+#if _DEBUG
+  es_info->test=(uint8_t*)img_seuils;
+  return 1;
+#endif
+
+  // ** Erosion de l'image **
 
   return 1;
 }
