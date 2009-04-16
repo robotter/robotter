@@ -80,12 +80,13 @@ int main(int argc, char** argv){
     resultat_test.seuils[0].Y=128;
     resultat_test.seuils[0].or_avec=-1;
     resultat_test.seuils[0].and_avec=-1;
+
     resultat_test.seuils[1].actif=1;
     resultat_test.seuils[1].mode=SEUIL_YIHS;
-    resultat_test.seuils[1].H=0;
-    resultat_test.seuils[1].Y=200;
+    resultat_test.seuils[1].H=128;
+    resultat_test.seuils[1].Y=255;
     resultat_test.seuils[1].or_avec=-1;
-    resultat_test.seuils[1].and_avec=0;
+    resultat_test.seuils[1].and_avec=-1;
 
     // mise en place du système de mesure
     tz.tz_minuteswest=0;

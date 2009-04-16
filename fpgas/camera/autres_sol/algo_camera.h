@@ -43,10 +43,10 @@
 #define BORDURE_MODE BORDURE_NONE
 
 // Types de seuils
-#define SEUIL_YIHI 0 // Valeur inferieure à Y et H
-#define SEUIL_YSHS 1 // Valeur superieure à Y et H
-#define SEUIL_YIHS 2 // Valeur inferieure à Y et superieure à H
-#define SEUIL_YSHI 3 // Valeur superieure à Y et inferieure à H
+#define SEUIL_YIHI 0 // Le seuil est actif si la valeur testée est inferieure à Y et H
+#define SEUIL_YSHS 1 // Le seuil est actif si la valeur testée est superieure à Y et H
+#define SEUIL_YIHS 2 // Le seuil est actif si la valeur testée est inferieure à Y et superieure à H
+#define SEUIL_YSHI 3 // Le seuil est actif si la valeur testée est superieure à Y et inferieure à H
 
 // Nombre de seuils definis
 #define NB_SEUILS 8
@@ -58,7 +58,7 @@
 #define MOYENNE_DIM 3
 
 // Taille de l'erosion
-#define EROSION_DIM 3
+#define EROSION_DIM 9
 
 
 // Definition d'un seuil
@@ -73,9 +73,9 @@ typedef struct{
   // ATTENTION: LES VALEURS CI DESSOUS DOIVENT ETRE 
   // INFERIEURE AU NUMERO DU SEUIL
   // faire un OR avec le seuil (-1: aucun)
-  uint8_t or_avec;
+  int8_t or_avec;
   // faire un AND avec le seuil (-1: aucun)
-  uint8_t and_avec;
+  int8_t and_avec;
   
 } seuil;
 

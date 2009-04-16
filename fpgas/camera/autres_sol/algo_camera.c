@@ -52,7 +52,8 @@ uint8_t get_pixel_H(uint8_t * image,uint16_t no_ligne, uint16_t no_colonne, uint
 int process_image(uint8_t * image, information * es_info){
   // ** Declarations **
   // on suppose que le processeur a une MMU => utilisation de malloc
-  uint16_t i,j,k,l=0;
+  uint16_t i,j,k,l;
+  int16_t x,y;
 
   // ** Recuperation de H et Y **
   uint8_t* img_HY=(uint8_t *)malloc(es_info->hauteur*es_info->largueur*2*sizeof(uint8_t));
@@ -70,7 +71,6 @@ int process_image(uint8_t * image, information * es_info){
   if (img_moyenne==NULL) {free(img_HY); return 0;}
 
   float sum_Y;
-  int16_t x,y;
   // variables pour le calcul de la mediane de H
   float mean_H, dist_H, min_dist_H, med_H=0.0f;
   // on parcourt l'image
@@ -145,7 +145,7 @@ int process_image(uint8_t * image, information * es_info){
   uint16_t* img_seuils=(uint16_t *)malloc(es_info->hauteur*es_info->largueur*sizeof(uint16_t));
   if (img_seuils==NULL) {free(img_moyenne); return 0;}
 
-  int out_seuil;
+  int out_seuil=0;
   // on parcourt et applique les seuils, s'ils sont actifs
   for (k=0; k<NB_SEUILS ;k++){
     if (es_info->seuils[k].actif==1){
@@ -153,16 +153,16 @@ int process_image(uint8_t * image, information * es_info){
         for (j=0; j<es_info->largueur;j++){
           switch(es_info->seuils[k].mode){
             case SEUIL_YIHI:
-              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]<es_info->seuils[k].H)&&(img_moyenne[(i*es_info->largueur+j)*2+1]<es_info->seuils[k].Y);
+              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]<=es_info->seuils[k].Y)&(img_moyenne[(i*es_info->largueur+j)*2+1]<=es_info->seuils[k].H);
               break;
             case SEUIL_YSHS:
-              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]>es_info->seuils[k].H)&&(img_moyenne[(i*es_info->largueur+j)*2+1]>es_info->seuils[k].Y);
+              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]>=es_info->seuils[k].Y)&(img_moyenne[(i*es_info->largueur+j)*2+1]>=es_info->seuils[k].H);
               break;
             case SEUIL_YIHS:
-              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]<es_info->seuils[k].H)&&(img_moyenne[(i*es_info->largueur+j)*2+1]>es_info->seuils[k].Y);
+              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]<=es_info->seuils[k].Y)&(img_moyenne[(i*es_info->largueur+j)*2+1]>=es_info->seuils[k].H);
               break;
             case SEUIL_YSHI:
-              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]>es_info->seuils[k].H)&&(img_moyenne[(i*es_info->largueur+j)*2+1]<es_info->seuils[k].Y);
+              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]>=es_info->seuils[k].Y)&(img_moyenne[(i*es_info->largueur+j)*2+1]<=es_info->seuils[k].H);
               break;
             default:
               out_seuil=0;
@@ -170,21 +170,62 @@ int process_image(uint8_t * image, information * es_info){
           }
           // application des fonctions AND et OR
           if (es_info->seuils[k].or_avec>=0)
-            out_seuil=out_seuil||((img_seuils[i*es_info->largueur+j]&&(1<<es_info->seuils[k].or_avec))>>es_info->seuils[k].or_avec);
+            out_seuil=out_seuil||((img_seuils[i*es_info->largueur+j]&(1<<es_info->seuils[k].or_avec))>>es_info->seuils[k].or_avec);
           if (es_info->seuils[k].and_avec>=0)
-            out_seuil=out_seuil&&((img_seuils[i*es_info->largueur+j]&&(1<<es_info->seuils[k].and_avec))>>es_info->seuils[k].and_avec);
-          img_seuils[i*es_info->largueur+j]=out_seuil>>k;
+            out_seuil=out_seuil&&((img_seuils[i*es_info->largueur+j]&(1<<es_info->seuils[k].and_avec))>>es_info->seuils[k].and_avec);
+          img_seuils[i*es_info->largueur+j]=img_seuils[i*es_info->largueur+j]|(out_seuil<<k);
         }
       }
     }
   }
   free(img_moyenne);
+
+
+  // ** Erosion de l'image **
+  uint16_t* img_erode=(uint16_t *)malloc(es_info->hauteur*es_info->largueur*sizeof(uint16_t));
+  if (img_erode==NULL) {free(img_seuils); return 0;}
+
+  uint16_t erode;
+  // on parcourt l'image
+  for (i=0; i<es_info->hauteur;i++){
+    for (j=0; j<es_info->largueur;j++){
+      erode=65535;
+      for (x=-(EROSION_DIM-1)/2; x<=(EROSION_DIM-1)/2;x++){
+        for (y=-(EROSION_DIM-1)/2; y<=(EROSION_DIM-1)/2;y++){
+#if BORDURE_MODE==BORDURE_NONE
+          erode=erode&img_seuils[(i+y)*es_info->largueur+j+x];
+#endif
+#if BORDURE_MODE!=BORDURE_NONE
+          k=i+y;
+          l=j+x;
+#if BORDURE_MODE==BORDURE_CONTINU
+          if (k<0) k=0;
+          if (l<0) l=0;
+#endif
+#if BORDURE_MODE==BORDURE_REVERSE
+          k=abs(k);
+          l=abs(l);
+#endif
+          erode=erode&img_seuils[k*es_info->largueur+l];
+#endif
+        }
+      }
+      img_erode[i*es_info->largueur+j]=erode;
+    }
+  }
+  free(img_seuils);
 #if _DEBUG
-  es_info->test=(uint8_t*)img_seuils;
+  es_info->test=(uint8_t*)img_erode;
   return 1;
 #endif
 
-  // ** Erosion de l'image **
+  // ** Reconnaissance de zones **
+
+l=0;
+l++;
+
+
+
 
   return 1;
 }
