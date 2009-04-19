@@ -16,6 +16,3 @@ MODULES = comm/uart hardware/pwm hardware/adc base/scheduler base/cirbuf debug/e
 ROBOTTER_MODULES =
 MODULES := $(ROBOTTER_MODULES) $(MODULES)
 
-ROBOTTER_MODULES =
-MODULES := $(ROBOTTER_MODULES) $(MODULES)
-

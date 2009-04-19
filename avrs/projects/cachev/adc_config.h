@@ -2,9 +2,9 @@
 #define _ADC_CONFIG_H_
 
 /* Uncomment the ADC inputs you want to use */
-/* #define ADC0_USE */
-/* #define ADC1_USE */
-/* #define ADC2_USE */
+#define ADC0_USE
+#define ADC1_USE
+#define ADC2_USE
 #define ADC3_USE
 #define ADC4_USE
 #define ADC5_USE
