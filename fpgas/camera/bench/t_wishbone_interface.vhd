@@ -221,8 +221,13 @@ BEGIN
 	-- Wishbone query
 	whishbone_p : PROCESS
     BEGIN
-        wbs_adr_s <= std_logic_vector(unsigned(wbs_adr_s)+1);
-        wait for periode_wb_c*4;
+	
+		  wbs_adr_s <= X"0000";
+		  wait for periode_wb_c*4;
+--	loop
+--        wbs_adr_s <= std_logic_vector(unsigned(wbs_adr_s)+1);
+--        wait for periode_wb_c*4;
+--    end loop;
     end process whishbone_p;
 	 
 	 whishbone_we_p : PROCESS
@@ -231,7 +236,7 @@ BEGIN
         wait for periode_wb_c;
     end process whishbone_we_p;
 			
-	 wbs_dat_s<="11001100";
+	 wbs_dat_s<="1100110011001100";
 	
 	 wbs_stb_s<='1';
 	 

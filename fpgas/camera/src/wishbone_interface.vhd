@@ -94,11 +94,12 @@ architecture wishbone_interface_1 of wishbone_interface is
 	 signal addr_buf_s      : std_logic_vector(9  downto 0);
 	 -- adresses for reading the RAM
 	 signal RAM_adress_s    : std_logic_vector(8  downto 0);
-	 signal RAM_valid_s     : std_logic;
 	 signal RAM_data_o_s    : std_logic_vector(15  downto 0);
 	 
 	 -- ack signal
-	 signal old_ack_s: std_logic;
+	 signal old_ack_s       : std_logic;
+	 
+	 signal parity_data     : std_logic_vector(3  downto 0);
 	 
 begin
     -- the main program
@@ -106,39 +107,47 @@ begin
 
 
     -- dispatch process validation signals for write
-	 dispatch_p : process
-	 begin
-	  if wbs_adr_i(15 downto 12)=X"1" and wbs_we_i='0' 
-	  and wbs_stb_i='1' and wbs_cyc_i ='1' then
-		prgseg_valid_o <= '1';
-	  else
-		prgseg_valid_o <= '0';
-	  end if;
-	 end process dispatch_p;
+	prgseg_valid_o <= '1' when wbs_adr_i(15 downto 12)=X"1" and wbs_we_i='0' and wbs_stb_i='1' and wbs_cyc_i ='1' else '0';
+--	 dispatch_p : process
+--	 begin
+--	  wait until rising_edge(wbs_clk_i);
+--	  if wbs_adr_i(15 downto 12)=X"1" and wbs_we_i='0' 
+--	  and wbs_stb_i='1' and wbs_cyc_i ='1' then
+--		prgseg_valid_o <= '1';
+--	  else
+--		prgseg_valid_o <= '0';
+--	  end if;
+--	 end process dispatch_p;
 	 
     -- set the output data signal
-	 output_val_p : process
-	 begin
-	  if    wbs_adr_i(15 downto 12)=X"0" and wbs_we_i='1' 
-	  and wbs_stb_i='1' and wbs_cyc_i ='1' then
-		wbs_dat_o     <= RAM_data_o_s;
-	  elsif wbs_adr_i(15 downto 12)=X"2" and wbs_we_i='1' 
-	  and wbs_stb_i='1' and wbs_cyc_i ='1' then
-	  	wbs_dat_o     <= pt_data_i;
-	  else
-	  	wbs_dat_o     <= wbs_dat_i;
-	  end if;
-	 end process output_val_p;
+    wbs_dat_o <= RAM_data_o_s when wbs_adr_i(15 downto 12)=X"0" and wbs_we_i='1' and wbs_stb_i='1' and wbs_cyc_i ='1' 
+			else pt_data_i when wbs_adr_i(15 downto 12)=X"2" and wbs_we_i='1' and wbs_stb_i='1' and wbs_cyc_i ='1' 
+			else wbs_dat_i;
+--	 output_val_p : process
+--	 begin
+--	  wait until rising_edge(wbs_clk_i);
+--	  if    wbs_adr_i(15 downto 12)=X"0" and wbs_we_i='1' 
+--	  and wbs_stb_i='1' and wbs_cyc_i ='1' then
+--		wbs_dat_o     <= RAM_data_o_s;
+--	  elsif wbs_adr_i(15 downto 12)=X"2" and wbs_we_i='1' 
+--	  and wbs_stb_i='1' and wbs_cyc_i ='1' then
+--	  	wbs_dat_o     <= pt_data_i;
+--	  else
+--	  	wbs_dat_o     <= wbs_dat_i;
+--	  end if;
+--	 end process output_val_p;
 	 
 	 -- set the output data for write
-	 output_data_p : process
-	 begin
-	  if wbs_adr_i(15 downto 12)=X"1" and wbs_we_i='0' 
-	  and wbs_stb_i='1' and wbs_cyc_i ='1' then
-		prgseg_data_o <= wbs_dat_i;
-	  --else
-	  end if;
-	 end process output_data_p;
+	 prgseg_data_o <= wbs_dat_i when wbs_adr_i(15 downto 12)=X"1" and wbs_we_i='0' and wbs_stb_i='1' and wbs_cyc_i ='1';
+--	 output_data_p : process
+--	 begin
+--	  wait until rising_edge(wbs_clk_i);
+--	  if wbs_adr_i(15 downto 12)=X"1" and wbs_we_i='0' 
+--	  and wbs_stb_i='1' and wbs_cyc_i ='1' then
+--		prgseg_data_o <= wbs_dat_i;
+--	  --else
+--	  end if;
+--	 end process output_data_p;
 	 
 	 -- handle the ack signal
 	 ack_wishbone_p : process
@@ -163,7 +172,7 @@ begin
 		wait until rising_edge(clk_i);
 		detect(1) := detect(0);
       detect(0) := img_clk_i;
-      if rst_i='1' or img_rst_i='1' then
+      if rst_i='1' then
           RAM_adress_s<="000000000";
 	   elsif detect = "01" then
 		   RAM_adress_s<=std_logic_vector(unsigned(RAM_adress_s)+1);
@@ -196,10 +205,12 @@ begin
 	 buffer_data_in_s(23 downto 16) <= B_i;
 	 buffer_data_in_s(31 downto 24) <= segm_i;
 
+
+	 
 	-- RAMB16_S18_S36: Virtex-II/II-Pro, Spartan-3/3E 1k/512 x 16/32
 	-- + 2/4 Parity bits Dual-Port RAM
    -- Xilinx HDL Language Template, version 10.1
-
+   parity_data<=img_rst_i&"000";
    RAMB16_S18_S36_inst : RAMB16_S18_S36
    generic map (
       INIT_A => X"00000", --  Value of output RAM registers on Port A at startup
@@ -309,7 +320,7 @@ begin
 		ADDRB => RAM_adress_s,       -- Port B 9-bit Address Input
 		CLKB  => clk_i,              -- Port B Clock
       DIB   => buffer_data_in_s,   -- Port B 32-bit Data Input
-      DIPB  => X"0",               -- Port B 4-bit parity Input
+      DIPB  => parity_data,        -- Port B 4-bit parity Input
       ENB   => img_clk_i,          -- Port B RAM Enable Input
       SSRB  => '0',                -- Port B Synchronous Set/Reset Input
       WEB   => '0'                 -- Port B Write Enable Input
