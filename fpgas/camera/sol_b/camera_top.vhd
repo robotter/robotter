@@ -14,31 +14,16 @@
 -----------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------
---! @file wishbone_interface.vhd
---! @brief Wishbone interface bloc
+--! @file 
+--! @brief Camera bloc topdesign
 --! @author BLANCHARD Remy <remyb718 at gmail dot com>
 --!
 --!
 --! Platform   : Spartan 3
 --!
 --! Description:
---! This bloc is the POD complient Wishbone interface (16 bits).
---! the aim of this bloc is to:
---!    - reset the interruption flag
---!        in write mode at adresses 0xF000 (for buffer ping),
---!        in write mode at adresses 0xF001 (for buffer pong),
---!
---!    - read the output RAM buffer for Red and Green
---!        in read mode for adresses from 0x0000 to 0x07FF (for buffer ping),
---!        in read mode for adresses from 0x1000 to 0x17FF (for buffer pong),
---!        (first 8 bits (from LSB) are for Red, last 8 bits are for Green)
---!    - read the output RAM buffer for Blue and Status flags
---!        in read mode for adresses from 0x2000 to 0x27FF (for buffer ping),
---!        in read mode for adresses from 0x3000 to 0x37FF (for buffer pong),
---!        (first 8 bits (from LSB) are for Blue, bit 9: camera line flag,
-						--!         bit 10: camera frame flag, bit 11: reset camera flag)
---!
---! This bloc also generate an interuption when the RAM is ready for reading
+--! This bloc is the top design of the camera bloc, for more informations
+--! please see each bloc.
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 --! 								SOLUTION B
