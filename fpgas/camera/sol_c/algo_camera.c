@@ -224,6 +224,27 @@ int process_image(uint8_t * image, information * es_info){
 l=0;
 l++;
 
+// Algorithme inspiré du travail de Mehdi Darouich
+//
+// Une zone est définié par le cadre qui l'entoure et le filtre qui l'a généré.
+// Le cadre est défini par le coin supérieur gauche et sa largueur et hauteur
+//
+// L'algo est le suivant:
+// - pour chaque ligne on prend les pixels connexes
+// - on regarde s'ils correspondent à des pixels de la lignes précedente
+//         ex:
+//            AAAAAAAAAAAAAAAAAAA                                               AAAAAAAA
+//                BBBBBBBBBBBBBBBBBBBB                            BBBBBBBBB
+//             les deux lignes correspondent                       les deux lignes ne correspondent pas
+//      - si les deux lignes correspondent on associe la ligne du bas à la zone au dessus
+//      - si les deux lignes ne correspondent pas on commence une nouvelle zone
+// - une fois la ligne terminée on regarde si tous les blocs de pixels de la ligne précédente ont trouvé un
+//     correspondant ceux qui n'en ont pas forment une "fin de zone"
+// - pour chaque "fin de zone", on regarde si la zone est intéressante ou non
+//
+// dans chaque zone on calcule la densité des pixels
+
+
 
 
 

@@ -74,19 +74,45 @@ int main(int argc, char** argv){
     for (i=0;i<NB_SEUILS;i++){
       resultat_test.seuils[i].actif=0;
     }
+    // pour le vert
     resultat_test.seuils[0].actif=1;
     resultat_test.seuils[0].mode=SEUIL_YSHS;
-    resultat_test.seuils[0].H=0;
-    resultat_test.seuils[0].Y=128;
+    resultat_test.seuils[0].H=50;
+    resultat_test.seuils[0].Y=56;
     resultat_test.seuils[0].or_avec=-1;
     resultat_test.seuils[0].and_avec=-1;
 
     resultat_test.seuils[1].actif=1;
-    resultat_test.seuils[1].mode=SEUIL_YIHS;
-    resultat_test.seuils[1].H=128;
-    resultat_test.seuils[1].Y=255;
+    resultat_test.seuils[1].mode=SEUIL_YIHI;
+    resultat_test.seuils[1].H=120;
+    resultat_test.seuils[1].Y=200;
     resultat_test.seuils[1].or_avec=-1;
-    resultat_test.seuils[1].and_avec=-1;
+    resultat_test.seuils[1].and_avec=0;
+
+    // pour le rouge
+    resultat_test.seuils[2].actif=1;
+    resultat_test.seuils[2].mode=SEUIL_YIHI;
+    resultat_test.seuils[2].H=21;
+    resultat_test.seuils[2].Y=200;
+    resultat_test.seuils[2].or_avec=-1;
+    resultat_test.seuils[2].and_avec=-1;
+
+    resultat_test.seuils[3].actif=1;
+    resultat_test.seuils[3].mode=SEUIL_YIHS;
+    resultat_test.seuils[3].H=235;
+    resultat_test.seuils[3].Y=200;
+    resultat_test.seuils[3].or_avec=2;
+    resultat_test.seuils[3].and_avec=-1;
+
+    resultat_test.seuils[4].actif=1;
+    resultat_test.seuils[4].mode=SEUIL_YSHS;
+    resultat_test.seuils[4].H=0;
+    resultat_test.seuils[4].Y=10;
+    resultat_test.seuils[4].or_avec=-1;
+    resultat_test.seuils[4].and_avec=3;
+
+
+
 
     // mise en place du système de mesure
     tz.tz_minuteswest=0;
@@ -124,8 +150,8 @@ int main(int argc, char** argv){
     cvReleaseImage(&dst_Y);
     */
     // pour l'affichage des seuils
-    int sel_seuil_1=0;
-    int sel_seuil_2=1;
+    int sel_seuil_1=1;
+    int sel_seuil_2=4;
 
     IplImage* seuil_1 = cvCreateImage( cvGetSize(src), IPL_DEPTH_8U, 1);
     IplImage* seuil_2 = cvCreateImage( cvGetSize(src), IPL_DEPTH_8U, 1);

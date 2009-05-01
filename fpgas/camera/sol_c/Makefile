@@ -12,7 +12,8 @@ SOURCE = .
 
 EXEC = test_camera
 
-IMAGE = mire-test.jpg
+#IMAGE = mire-test.jpg
+IMAGE = TEST_IMG.JPG
 
 $(EXEC): $(OBJS)
 	$(CC) $(OBJS) $(COMPOPT) $(LDFLAGS) -o $(EXEC);
