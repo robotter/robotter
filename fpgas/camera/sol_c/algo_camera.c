@@ -30,6 +30,10 @@
 #error "Le carre pour l'erosion doit etre de dimension impaire"
 #endif
 
+#if NB_SEUILS>255
+#error "Le nombre maximum de zones est de 256 (stockage dans un uint8_t)"
+#endif
+
 
 
 /*
@@ -221,29 +225,96 @@ int process_image(uint8_t * image, information * es_info){
 
   // ** Reconnaissance de zones **
 
-l=0;
-l++;
+  l=0;
+  l++;
 
-// Algorithme inspiré du travail de Mehdi Darouich
-//
-// Une zone est définié par le cadre qui l'entoure et le filtre qui l'a généré.
-// Le cadre est défini par le coin supérieur gauche et sa largueur et hauteur
-//
-// L'algo est le suivant:
-// - pour chaque ligne on prend les pixels connexes
-// - on regarde s'ils correspondent à des pixels de la lignes précedente
-//         ex:
-//            AAAAAAAAAAAAAAAAAAA                                               AAAAAAAA
-//                BBBBBBBBBBBBBBBBBBBB                            BBBBBBBBB
-//             les deux lignes correspondent                       les deux lignes ne correspondent pas
-//      - si les deux lignes correspondent on associe la ligne du bas à la zone au dessus
-//      - si les deux lignes ne correspondent pas on commence une nouvelle zone
-// - une fois la ligne terminée on regarde si tous les blocs de pixels de la ligne précédente ont trouvé un
-//     correspondant ceux qui n'en ont pas forment une "fin de zone"
-// - pour chaque "fin de zone", on regarde si la zone est intéressante ou non
-//
-// dans chaque zone on calcule la densité des pixels
+  // Algorithme inspiré du travail de Mehdi Darouich
+  //
+  // Une zone est définié par le cadre qui l'entoure et le filtre qui l'a généré.
+  // Le cadre est défini par le coin supérieur gauche et sa largueur et hauteur
+  //
+  // L'algo est le suivant:
+  // - pour chaque ligne on prend les pixels connexes
+  // - on regarde s'ils correspondent à des pixels de la lignes précedente
+  //         ex:
+  //            AAAAAAAAAAAAAAAAAAA                                               AAAAAAAA
+  //                BBBBBBBBBBBBBBBBBBBB                            BBBBBBBBB
+  //             les deux lignes correspondent                       les deux lignes ne correspondent pas
+  //      - si les deux lignes correspondent on associe la ligne du bas à la zone au dessus
+  //      - si les deux lignes ne correspondent pas on commence une nouvelle zone
+  // - une fois la ligne terminée on regarde si tous les blocs de pixels de la ligne précédente ont trouvé un
+  //     correspondant ceux qui n'en ont pas forment une "fin de zone"
+  // - pour chaque "fin de zone", on regarde si la zone est intéressante ou non
+  //
+  // dans chaque zone on calcule la densité des pixels
 
+  // intialisation des variables
+  uint8_t active_zones[NB_MAX_ZONES];
+  uint8_t * last_label;
+  uint8_t * new_label;
+
+  last_label=malloc(es_info->largueur*sizeof(uint8_t));
+  new_label=malloc(es_info->largueur*sizeof(uint8_t));
+
+  for (j=0;j<=es_info->largueur;j++) last_label[j]=0;
+
+
+  l=-1;
+  // pour chaque seuil actif
+  for (k=0;k<NB_SEUILS;k++){
+    if (es_info->zone[k].utilise_zones==1){
+      // on parcourt l'image
+      for (i=0;i<=es_info->hauteur;i++){
+        for (j=0;j<=es_info->largueur;j++){
+          // si on tombe sur un pixel actif
+          if ( img_erode[i*es_info->largueur+j]&(1<<k) != 0) {
+            // on commence une nouvelle zone
+            l++;
+            es_info->seuils[l].x=j;
+            es_info->seuils[l].y=j;
+            // on détermine la largeur
+            // on determine les limites des pixels en dessous
+            // on efface la ligne en cour.
+
+
+
+
+
+
+
+
+
+        // pour chaque pixel
+          // on regarde si le pixel est actif
+            // si le pixel precedent est aussi actif, il prend son label, sinon on ouvre un nouveau label
+            if ((img_erode[i*es_info->largueur+j-1]&(1<<k) != 0)&&(k>0)) {
+                
+
+            }else{
+
+            }
+
+          }
+
+
+
+
+
+
+
+
+        // si non on ouvre une nouvelle zone
+          // s'il y un seuil actif
+          l=0;
+          if ( img_erode[i*es_info->largueur+j]&es_info->mask_z_s != 0) {
+            // on fait la labélisation sur une ligne
+            if (img_erode[i*es_info->largueur+j-1]==0)&&(j>0)
+
+          }
+        }
+      }
+    }
+  }
 
 
 

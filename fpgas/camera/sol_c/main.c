@@ -70,9 +70,10 @@ int main(int argc, char** argv){
       (src->imageData)[3*i+2]=swap_tmp;
     }
 
-    // Mets des valeurs dans les seuils
+    // *Mets des valeurs dans les seuils*
     for (i=0;i<NB_SEUILS;i++){
       resultat_test.seuils[i].actif=0;
+      resultat_test.seuils[i].utilise_zones=0;
     }
     // pour le vert
     resultat_test.seuils[0].actif=1;
@@ -81,6 +82,7 @@ int main(int argc, char** argv){
     resultat_test.seuils[0].Y=56;
     resultat_test.seuils[0].or_avec=-1;
     resultat_test.seuils[0].and_avec=-1;
+    resultat_test.seuils[0].utilise_zones=0;
 
     resultat_test.seuils[1].actif=1;
     resultat_test.seuils[1].mode=SEUIL_YIHI;
@@ -88,6 +90,7 @@ int main(int argc, char** argv){
     resultat_test.seuils[1].Y=200;
     resultat_test.seuils[1].or_avec=-1;
     resultat_test.seuils[1].and_avec=0;
+    resultat_test.seuils[1].utilise_zones=1;
 
     // pour le rouge
     resultat_test.seuils[2].actif=1;
@@ -96,6 +99,7 @@ int main(int argc, char** argv){
     resultat_test.seuils[2].Y=200;
     resultat_test.seuils[2].or_avec=-1;
     resultat_test.seuils[2].and_avec=-1;
+    resultat_test.seuils[2].utilise_zones=0;
 
     resultat_test.seuils[3].actif=1;
     resultat_test.seuils[3].mode=SEUIL_YIHS;
@@ -103,6 +107,7 @@ int main(int argc, char** argv){
     resultat_test.seuils[3].Y=200;
     resultat_test.seuils[3].or_avec=2;
     resultat_test.seuils[3].and_avec=-1;
+    resultat_test.seuils[3].utilise_zones=0;
 
     resultat_test.seuils[4].actif=1;
     resultat_test.seuils[4].mode=SEUIL_YSHS;
@@ -110,9 +115,21 @@ int main(int argc, char** argv){
     resultat_test.seuils[4].Y=10;
     resultat_test.seuils[4].or_avec=-1;
     resultat_test.seuils[4].and_avec=3;
+    resultat_test.seuils[4].utilise_zones=1;
+    
 
+    // * Zones *
+    // Taille des zones
+    resultat_test.z_larg_min=0;
+    resultat_test.z_long_min=0;
+    resultat_test.z_larg_max=1000;
+    resultat_test.z_long_max=1000;
 
-
+    // Position des zones
+    resultat_test.z_x_min=0;
+    resultat_test.z_y_min=0;
+    resultat_test.z_x_max=1000;
+    resultat_test.z_y_max=1000;
 
     // mise en place du système de mesure
     tz.tz_minuteswest=0;

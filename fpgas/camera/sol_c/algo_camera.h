@@ -58,7 +58,7 @@
 #define MOYENNE_DIM 3
 
 // Taille de l'erosion
-#define EROSION_DIM 9
+#define EROSION_DIM 3
 
 
 // Definition d'un seuil
@@ -68,7 +68,9 @@ typedef struct{
   // mode du seuil
   uint8_t mode;
   // valeurs du seuil
+  // Pour H: 0°=>0 360° =>256 (359°=>255)
   uint8_t H;
+  // Pour Y: blanc = 255, noir= 0
   uint8_t Y;
   // ATTENTION: LES VALEURS CI DESSOUS DOIVENT ETRE 
   // INFERIEURE AU NUMERO DU SEUIL
@@ -76,7 +78,9 @@ typedef struct{
   int8_t or_avec;
   // faire un AND avec le seuil (-1: aucun)
   int8_t and_avec;
-  
+  // utilisation pour la detection de de zone
+  int8_t utilise_zones;
+
 } seuil;
 
 // Definition d'une zone
@@ -102,7 +106,20 @@ typedef struct
   uint16_t hauteur;
   // Seuils
   seuil seuils[NB_SEUILS];
-  
+
+  // Zones
+  // Variables pour les dimensions min/max des zones 
+  uint16_t z_larg_min;
+  uint16_t z_long_min;
+  uint16_t z_larg_max;
+  uint16_t z_long_max;
+
+  // Variables pour les positions à analyser
+  uint16_t z_x_min;
+  uint16_t z_y_min;
+  uint16_t z_x_max;
+  uint16_t z_y_max;
+
   // ** Sorties **
   zone zones[NB_MAX_ZONES];
 
