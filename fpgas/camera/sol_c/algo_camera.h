@@ -91,7 +91,7 @@ typedef struct{
  uint16_t x;
  uint16_t y;
  // dimensions de la zone
- uint16_t largeur;
+ uint16_t largueur;
  uint16_t hauteur;
  // Information de forme sur la zone: densite
  float densite;

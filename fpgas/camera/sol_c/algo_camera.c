@@ -249,68 +249,47 @@ int process_image(uint8_t * image, information * es_info){
   // dans chaque zone on calcule la densité des pixels
 
   // intialisation des variables
-  uint8_t active_zones[NB_MAX_ZONES];
-  uint8_t * last_label;
-  uint8_t * new_label;
-
-  last_label=malloc(es_info->largueur*sizeof(uint8_t));
-  new_label=malloc(es_info->largueur*sizeof(uint8_t));
-
-  for (j=0;j<=es_info->largueur;j++) last_label[j]=0;
-
+  int m,n;
+  int z_largueur,z_hauteur,z_active_pix;
 
   l=-1;
   // pour chaque seuil actif
   for (k=0;k<NB_SEUILS;k++){
-    if (es_info->zone[k].utilise_zones==1){
+    if (es_info->seuils[k].utilise_zones==1){
       // on parcourt l'image
       for (i=0;i<=es_info->hauteur;i++){
         for (j=0;j<=es_info->largueur;j++){
           // si on tombe sur un pixel actif
-          if ( img_erode[i*es_info->largueur+j]&(1<<k) != 0) {
+          if ( (img_erode[i*es_info->largueur+j]&(1<<k)) != 0) {
             // on commence une nouvelle zone
             l++;
-            es_info->seuils[l].x=j;
-            es_info->seuils[l].y=j;
+            es_info->zones[l].x=j;
+            es_info->zones[l].y=j;
+            img_erode[i*es_info->largueur+j]=img_erode[i*es_info->largueur+j]&(~(1<<k));
+            z_active_pix=1;
+            z_largueur++;
+            es_info->zones[l].largueur=1;
+            es_info->zones[l].hauteur=1;
+            m=i;
+            n=j;
+            n++;
             // on détermine la largeur
-            // on determine les limites des pixels en dessous
             // on efface la ligne en cour.
-
-
-
-
-
-
-
-
-
-        // pour chaque pixel
-          // on regarde si le pixel est actif
-            // si le pixel precedent est aussi actif, il prend son label, sinon on ouvre un nouveau label
-            if ((img_erode[i*es_info->largueur+j-1]&(1<<k) != 0)&&(k>0)) {
-                
-
-            }else{
-
+            while(((img_erode[m*es_info->largueur+n]&(1<<k))!= 0)&&(n<es_info->largueur)){
+              z_largueur++;
+              img_erode[m*es_info->largueur+n]=img_erode[m*es_info->largueur+n]&(~(1<<k));
+              z_active_pix++;
+              n++;
             }
+            // on determine les limites des pixels en dessous
+
+
 
           }
 
-
-
-
-
-
-
-
-        // si non on ouvre une nouvelle zone
-          // s'il y un seuil actif
-          l=0;
-          if ( img_erode[i*es_info->largueur+j]&es_info->mask_z_s != 0) {
-            // on fait la labélisation sur une ligne
-            if (img_erode[i*es_info->largueur+j-1]==0)&&(j>0)
-
-          }
+          es_info->zones[l].largueur=z_largueur;
+          es_info->zones[l].hauteur=z_hauteur;
+          es_info->zones[l].densite=(float)z_active_pix/((float)z_largueur*(float)z_hauteur);
         }
       }
     }

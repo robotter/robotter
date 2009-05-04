@@ -116,8 +116,7 @@ int main(int argc, char** argv){
     resultat_test.seuils[4].or_avec=-1;
     resultat_test.seuils[4].and_avec=3;
     resultat_test.seuils[4].utilise_zones=1;
-    
-
+ 
     // * Zones *
     // Taille des zones
     resultat_test.z_larg_min=0;
