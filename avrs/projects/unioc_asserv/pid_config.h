@@ -1,5 +1,5 @@
 /*  
- *  Copyright RobOtter (2009)
+ *  Copyright Droids Corporation, Microb Technology, Eirbot (2005)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,22 +14,17 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * 
+ *
  */
 
-/** @file adns6010_config.h
-  * @author JD
-  *
-  * ADNS6010 module configurations
-  */
+#ifndef PID_CONFIG_H
+#define PID_CONFIG_H
 
-#ifndef _ADNS6010_CONFIG_H_
-#define _ADNS6010_CONFIG_H_
+/** the derivate term can be filtered to remove the noise. This value
+ * is the maxium sample count to keep in memory to do this
+ * filtering. For an instance of pid, this count is defined o*/
+#define PID_DERIVATE_FILTER_MAX_SIZE 4
 
-//@ matrix transforming coordinates in ADNS system to (x,y,a) robot coordinate system
-double hrobot_adnsMatrix[3][6] = {
-{ 0.0000897,  0.0041783, -0.0032225, -0.0021137,  0.0034996, -0.0021684},
-{ 0.0039630,  0.0002610, -0.0019085,  0.0035498, -0.0022024, -0.0034904},
-{-0.0000009, -0.0000343,  0.0000008, -0.0000338,  0.0000017, -0.0000336}
-};
-
-#endif/*_ADNS6010_CONFIG_H_*/
+#endif

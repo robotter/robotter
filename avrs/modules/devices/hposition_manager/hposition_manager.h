@@ -26,6 +26,9 @@
 #ifndef _HPOSITION_MANAGER_H_
 #define _HPOSITION_MANAGER_H_
 
+#define HROBOT_DX 0
+#define HROBOT_DY 1 
+#define HROBOT_DA 2
 
 typedef struct
 {
@@ -33,13 +36,18 @@ typedef struct
   double x,y;
   // Robot orientation in radians
   double alpha;
-
+  
 } hrobot_vector_t;
 
 typedef struct 
 {
   // Robot position
   hrobot_vector_t position;
+
+  // Previous step ADNS vectors
+  int32_t pAdnsVectors[6];
+  // Is it first time update 
+  uint8_t firstUpdate;
 
 } hrobot_position_t;
 
@@ -61,6 +69,6 @@ void hposition_get( hrobot_position_t*, hrobot_vector_t* );
 
 /**@brief Update robot position
   */
-void hposition_update( hrobot_position_t* );
+void hposition_update( void* );
 
 #endif/*_HPOSITION_MANAGER_H_*/

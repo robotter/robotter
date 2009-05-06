@@ -33,20 +33,14 @@
 // meaning the direction of the force applied
 // on the table by the motor.
 
-//       0 --
-//      / \\
-//  \\ /   \\
+//       0
+//      / 
+//     /  
 //    1-----2
-//         /
+//         
 
 #define HROBOT_MOTOR0_COURSE 0.0
 #define HROBOT_MOTOR1_COURSE 2.094395 // ~ 2*M_PI/3
 #define HROBOT_MOTOR2_COURSE 4.188790 // ~ 4*M_PI/3
-
-
-// Robot motors pwm outputs
-#define HROBOT_MOTOR0_PWM 1A
-#define HROBOT_MOTOR1_PWM 1B
-#define HROBOT_MOTOR2_PWM 1C
 
 #endif/*_HROBOT_MANAGER_CONFIG_H_*/

@@ -25,6 +25,7 @@
 
 #include <aversive.h>
 #include <stdlib.h>
+#include <math.h>
 #include <adns6010.h>
 
 #include <hposition_manager.h>
@@ -33,6 +34,7 @@
 void hposition_init( hrobot_position_t* hpos )
 {
   uint8_t flags;
+  int i;
 
   if(hpos == NULL)
     return;
@@ -41,8 +43,12 @@ void hposition_init( hrobot_position_t* hpos )
   hpos->position.x = 0.0; 
   hpos->position.y = 0.0; 
   hpos->position.alpha = 0.0; 
-  
   IRQ_UNLOCK(flags);
+
+  for(i=0;i<6;i++)
+    hpos->pAdnsVectors[i] = 0;
+
+  hpos->firstUpdate = 1;
 
   return;
 }
@@ -79,21 +85,70 @@ void hposition_get( hrobot_position_t* hpos, hrobot_vector_t* hvec)
   return;
 }
 
-void hposition_update( hrobot_position_t* hpos )
+void hposition_update(void *dummy)
 {
   uint8_t flags;
+  int i,k;
+  int32_t v[6];
+  double dp[3],alpha,x,y;
+
+  hrobot_position_t* hpos  = dummy;
+
   adns6010_encoders_t adns6010;
 
   if(hpos == NULL)
     return;
 
+  //------------------------
   // Access ADNS6010 values
   adns6010_encoders_get_value(&adns6010);
-  
-  // TODO
+ 
+  // first time update => update vector, quit
+  if( hpos->firstUpdate )
+  {
+    for(i=0;i<6;i++)
+      hpos->pAdnsVectors[i] = adns6010.vectors[i];
 
+    return;
+  }
+
+  //----------------------------------------------------------
+  // Transform speed in ADNS coordinates to robot coordinates
+
+  // compute speed in ADNS coordinates
+  for(i=0;i<6;i++)
+    v[i] = hpos->pAdnsVectors[i] - adns6010.vectors[i];
+
+  // update previous ADNS vectors
+  for(i=0;i<6;i++)
+    hpos->pAdnsVectors[i] = adns6010.vectors[i];
+
+  // for each robot coordinate (x,y,a) compute a dx of mouvement
+  for(k=0;k<3;k++)
+  {
+    dp[k] = 0.0;
+    
+    // for each ADNS coordinate (vx1,vy1,vx2,vy2,vx3,vy3) 
+    for(i=0;i<6;i++)
+    {
+      dp[k] += hrobot_adnsMatrix[k][i]*v[i];
+    }
+  }
+
+  //--------------------------------------------------
+  // Integrate speed in robot coordinates to position
+  
+  alpha = hpos->position.alpha + dp[HROBOT_DA];
+
+  x = hpos->position.x + dp[HROBOT_DX]*cos(alpha) - dp[HROBOT_DY]*sin(alpha);
+  y = hpos->position.y + dp[HROBOT_DX]*sin(alpha) + dp[HROBOT_DY]*cos(alpha);
+
+  //------------------------------------
+  // Latch computed values to accessors
   IRQ_LOCK(flags);
-  // TODO
+  hpos->position.x = x;
+  hpos->position.y = y;
+  hpos->position.alpha = alpha;
   IRQ_UNLOCK(flags);
 
   return;

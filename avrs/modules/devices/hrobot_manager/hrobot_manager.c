@@ -27,37 +27,50 @@
 
 #include <aversive.h>
 #include <stdlib.h>
-#include <pwm.h>
 
 #include <hrobot_manager.h>
 #include "hrobot_manager_config.h"
 
-void hrobot_init()
+void hrobot_init( hrobot_system_t* hrs )
 {
-  // Initialize motors pwms
-  pwm_init();
+	if(!hrs)
+		return;
+
+	hrs->motors_accessor = NULL;
+	hrs->motors_accessor_params = NULL;
 
   return;
 }
 
-void hrobot_setMotors( int16_t speed, double course)
+void hrobot_set_motors_accessor( hrobot_system_t* hrs,
+																	void(*f)(void*,int32_t,int32_t,int32_t),
+																	void* params)
 {
-  int16_t pwm0,pwm1,pwm2;
+	hrs->motors_accessor = f;
+	hrs->motors_accessor_params = params;
+}
+
+void hrobot_set_motors( hrobot_system_t* hrs,
+                        int32_t speed, double course,
+                        int32_t omega)
+{
+  int32_t v0,v1,v2;
+
+	if(!hrs)
+		return;
 
   // project speed vector on each motor 
-  pwm0 = speed * cos( course - HROBOT_MOTOR0_COURSE );
-  pwm1 = speed * cos( course - HROBOT_MOTOR1_COURSE );
-  pwm2 = speed * cos( course - HROBOT_MOTOR2_COURSE );
+  v0 = speed * cos( course - HROBOT_MOTOR0_COURSE );
+  v1 = speed * cos( course - HROBOT_MOTOR1_COURSE );
+  v2 = speed * cos( course - HROBOT_MOTOR2_COURSE );
 
-  // saturate PWM values
-  S_MAX(pwm0, HROBOT_PWMMAXVALUE); 
-  S_MAX(pwm1, HROBOT_PWMMAXVALUE);
-  S_MAX(pwm2, HROBOT_PWMMAXVALUE);
+  v0 += omega;
+  v1 += omega;
+  v2 += omega;
 
-  // set motors pwms
-  HROBOT_SETPWM(HROBOT_MOTOR0_PWM,pwm0);
-  HROBOT_SETPWM(HROBOT_MOTOR1_PWM,pwm1);
-  HROBOT_SETPWM(HROBOT_MOTOR2_PWM,pwm2);
+  // set motors speeds
+	if(hrs->motors_accessor)
+		(hrs->motors_accessor)(hrs->motors_accessor_params, v0, v1, v2);
 
   return;
 }

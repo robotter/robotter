@@ -4,15 +4,15 @@ OPT = s
 FORMAT = ihex
 FORMAT_EXTENSION = hex
 MATH_LIB = -lm
-PRINTF_LDFLAGS = 
+PRINTF_LDFLAGS = -Wl,-u,vfprintf -lprintf_flt
 PROGRAMMER = avrdude
 AVRDUDE_PROGRAMMER = stk200
 AVRDUDE_PORT = "/dev/parport0"
 AVARICE_PROGRAMMER = mkI
 AVARICE_PORT = "/dev/ttyS0"
 AVARICE_DEBUG_PORT = 1234
-MODULES = comm/uart hardware/pwm base/scheduler base/cirbuf debug/error
+MODULES = comm/uart hardware/pwm devices/control_system/filters/pid devices/control_system/filters/quadramp devices/control_system/control_system_manager base/scheduler base/cirbuf debug/error
 
-ROBOTTER_MODULES = ../..//modules/comm/i2c_robotter ../..//modules/hardware/adns6010 ../..//modules/devices/hposition_manager ../..//modules/devices/hrobot_manager
+ROBOTTER_MODULES = ../..//modules/hardware/adns6010 ../..//modules/devices/hposition_manager ../..//modules/devices/hrobot_manager
 MODULES := $(ROBOTTER_MODULES) $(MODULES)
 

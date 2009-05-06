@@ -530,19 +530,19 @@ void adns6010_encoders_get_value(adns6010_encoders_t* encoders)
   _delay_us(1);
   
   // ADNS 1
-  encoders->x1 = ADNS6010_1_DELTAX;
-  encoders->y1 = ADNS6010_1_DELTAY;
-  encoders->squal1 = ADNS6010_1_SQUAL;
+  encoders->vectors[ADNS6010_VX1] = ADNS6010_1_DELTAX;
+  encoders->vectors[ADNS6010_VY1] = ADNS6010_1_DELTAY;
+  encoders->squals[0] = ADNS6010_1_SQUAL;
  
   // ADNS 2
-  encoders->x2 = ADNS6010_2_DELTAX;
-  encoders->y2 = ADNS6010_2_DELTAY;
-  encoders->squal2 = ADNS6010_2_SQUAL; 
+  encoders->vectors[ADNS6010_VX2] = ADNS6010_2_DELTAX;
+  encoders->vectors[ADNS6010_VY2] = ADNS6010_2_DELTAY;
+  encoders->squals[1] = ADNS6010_2_SQUAL; 
 
   // ADNS 3
-  encoders->x3 = ADNS6010_3_DELTAX;
-  encoders->y3 = ADNS6010_3_DELTAY;
-  encoders->squal3 = ADNS6010_3_SQUAL;
+  encoders->vectors[ADNS6010_VX3] = ADNS6010_3_DELTAX;
+  encoders->vectors[ADNS6010_VY3] = ADNS6010_3_DELTAY;
+  encoders->squals[2] = ADNS6010_3_SQUAL;
 
   // FAULT register
   encoders->fault = ADNS6010_FAULT;

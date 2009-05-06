@@ -34,23 +34,22 @@
 //@ Number of ADNS
 #define ADNS6010_NUM 3
 
+// Vectors
+#define ADNS6010_VX1 0
+#define ADNS6010_VY1 1
+#define ADNS6010_VX2 2
+#define ADNS6010_VY2 3
+#define ADNS6010_VX3 4
+#define ADNS6010_VY3 5
+
 //@ Encoders values
 typedef struct
 {
-  // ADNS 1
-  int32_t x1;
-  int32_t y1;
-  uint8_t squal1;
+  // ADNS VECTORS
+  int32_t vectors[6];
 
-  // ADNS 2
-  int32_t x2;
-  int32_t y2;
-  uint8_t squal2;
-
-  // ADNS 3
-  int32_t x3;
-  int32_t y3;
-  uint8_t squal3;
+  // ADNS SQUALS
+  uint8_t squals[3];
 
   // FAULT register
   uint8_t fault;

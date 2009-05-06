@@ -1,5 +1,5 @@
 /*  
- *  Copyright RobOtter (2009)
+ *  Copyright RobOtter (2009) 
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,20 +16,37 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** @file adns6010_config.h
-  * @author JD
+/** \file hrobot_manager_config.h
+  * \author JD
   *
-  * ADNS6010 module configurations
+  * Abstract robot hardware
+  *
   */
 
-#ifndef _ADNS6010_CONFIG_H_
-#define _ADNS6010_CONFIG_H_
+#ifndef _HROBOT_MANAGER_CONFIG_H_
+#define _HROBOT_MANAGER_CONFIG_H_
 
-//@ matrix transforming coordinates in ADNS system to (x,y,a) robot coordinate system
-double hrobot_adnsMatrix[3][6] = {
-{ 0.0000897,  0.0041783, -0.0032225, -0.0021137,  0.0034996, -0.0021684},
-{ 0.0039630,  0.0002610, -0.0019085,  0.0035498, -0.0022024, -0.0034904},
-{-0.0000009, -0.0000343,  0.0000008, -0.0000338,  0.0000017, -0.0000336}
-};
+#include <math.h>
 
-#endif/*_ADNS6010_CONFIG_H_*/
+// Motors course
+// Warning : Those values defines the motors COURSES in radians,
+// meaning the direction of the force applied
+// on the table by the motor.
+
+//       0
+//      /  
+//     /   
+//    1-----2
+//         
+
+#define HROBOT_MOTOR0_COURSE 0.0
+#define HROBOT_MOTOR1_COURSE 2.094395 // ~ 2*M_PI/3
+#define HROBOT_MOTOR2_COURSE 4.188790 // ~ 4*M_PI/3
+
+
+// Robot motors pwm outputs
+#define HROBOT_MOTOR0_PWM 1A
+#define HROBOT_MOTOR1_PWM 1B
+#define HROBOT_MOTOR2_PWM 1C
+
+#endif/*_HROBOT_MANAGER_CONFIG_H_*/

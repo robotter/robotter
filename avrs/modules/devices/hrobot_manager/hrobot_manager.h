@@ -26,23 +26,32 @@
 #ifndef _HROBOT_MANAGER_H_
 #define _HROBOT_MANAGER_H_
 
-// TODO
-/**@todo find a way to do that in one step */
-#define _HROBOT_SETPWM(n,value) pwm_set_##n(value)
-#define HROBOT_SETPWM(n,value) _HROBOT_SETPWM(n,value)
+/**@brief Structure describing robot hardware
+	*/
+typedef struct
+{
+	void (*motors_accessor)(void*,int32_t,int32_t,int32_t);
+	void* motors_accessor_params;
 
-// PWM maximum value
-#define HROBOT_PWMMAXVALUE ( (1<<PWM_SIGNIFICANT_BITS) - 1 )
-
+}hrobot_system_t;
 
 /**@brief Initialize robot hardware
   */
-void hrobot_init(void);
+void hrobot_init( hrobot_system_t* );
+
+/**@brief Setup accessors for motors consigns
+  */
+void hrobot_set_motors_accessor( hrobot_system_t*,
+																	void(*)(void*,int32_t,int32_t,int32_t), 
+																	void*);
 
 /**@brief Set robot course and speed 
-  *@param speed motors speed in PWM values
+  *@param speed motors speed 
   *@param course in radians
+  *@param omega robot angular velocity
   */
-void hrobot_setMotors( int16_t speed, double course);
+void hrobot_set_motors( hrobot_system_t*,
+                        int32_t speed, double course,
+                        int32_t omega);
 
 #endif/*_HROBOT_MANAGER_H_*/
