@@ -44,9 +44,9 @@
  *
  */
 // Recupere la luminance du pixel de l'image
-inline uint8_t get_pixel_Y(uint8_t * image,uint16_t no_ligne, uint16_t no_colonne, uint16_t hauteur,uint16_t largueur);
+inline uint8_t get_pixel_Y(uint8_t * image, uint32_t pos);
 // Recupere la chrominance du pixel de l'image
-inline uint8_t get_pixel_H(uint8_t * image,uint16_t no_ligne, uint16_t no_colonne, uint16_t hauteur,uint16_t largueur);
+inline uint8_t get_pixel_H(uint8_t * image, uint32_t pos);
 
 /*
  *
@@ -58,8 +58,10 @@ inline uint8_t get_pixel_H(uint8_t * image,uint16_t no_ligne, uint16_t no_colonn
 int process_image(uint8_t * image, information * es_info){
   // ** Declarations **
   // on suppose que le processeur a une MMU => utilisation de malloc
-  uint16_t i,j,k,l;
+  int16_t i,j;
+  int16_t k,l;
   int16_t x,y;
+  uint32_t pos;
 
 
 #if VERBOSE_MODE>=5  
@@ -71,18 +73,19 @@ int process_image(uint8_t * image, information * es_info){
   fflush(stdout);
 #endif
   // ** Recuperation de H et Y **
-  uint8_t* img_HY=(uint8_t *)malloc(es_info->hauteur*es_info->largueur*2*sizeof(uint8_t));
+  uint8_t* img_HY=(uint8_t *)malloc(IMAGE_SIZE*2*sizeof(uint8_t));
   if (img_HY==NULL) return 0;
 #if VERBOSE_MODE==6  
   printf("    -> Parcourt de l'image\n");
   fflush(stdout);
 #endif
-  for (i=0; i<es_info->hauteur;i++){
-    for (j=0; j<es_info->largueur;j++){
-      img_HY[(i*es_info->largueur+j)*2]=get_pixel_Y(image,i,j,es_info->hauteur,es_info->largueur);
-      img_HY[(i*es_info->largueur+j)*2+1]=get_pixel_H(image,i,j,es_info->hauteur,es_info->largueur);
-    }
+
+  // Conversion H/Y
+  for( pos=0; pos<IMAGE_SIZE; pos++ ) {
+    img_HY[pos*2]   = get_pixel_Y(image, pos);
+    img_HY[pos*2+1] = get_pixel_H(image, pos);
   }
+
 #if VERBOSE_MODE>=5  
   printf("** Moyennage de l'image **\n");
   fflush(stdout);
@@ -97,26 +100,27 @@ uint8_t* img_moyenne;
   img_moyenne=img_HY;
 #else
   // Mise en place de l'image des seuils
-  img_moyenne=(uint8_t *)malloc(es_info->hauteur*es_info->largueur*2*sizeof(uint8_t));
+  img_moyenne=(uint8_t *)malloc(IMAGE_SIZE*2*sizeof(uint8_t));
   if (img_moyenne==NULL) {free(img_HY); return 0;}
 
 #if VERBOSE_MODE==6  
   printf("    -> Parcourt de l'image\n");
   fflush(stdout);
 #endif
+
   float sum_Y;
   // variables pour le calcul de la mediane de H
   float mean_H, dist_H, min_dist_H, med_H=0.0f;
   // on parcourt l'image
-  for (i=0; i<es_info->hauteur;i++){
-    for (j=0; j<es_info->largueur;j++){
+  for (i=0; i<IMAGE_HEIGHT;i++){
+    for (j=0; j<IMAGE_WIDTH;j++){
       sum_Y=0.0;
       mean_H=0.0;
       for (x=-(MOYENNE_DIM-1)/2; x<=(MOYENNE_DIM-1)/2;x++){
         for (y=-(MOYENNE_DIM-1)/2; y<=(MOYENNE_DIM-1)/2;y++){
 #if BORDURE_MODE==BORDURE_NONE
-          sum_Y+=(float)img_HY[((i+y)*es_info->largueur+j+x)*2];
-          mean_H+=(float)img_HY[((i+y)*es_info->largueur+j+x)*2+1];
+          sum_Y+=(float)img_HY[((i+y)*IMAGE_WIDTH+j+x)*2];
+          mean_H+=(float)img_HY[((i+y)*IMAGE_WIDTH+j+x)*2+1];
 #endif
 #if BORDURE_MODE!=BORDURE_NONE
           k=i+y;
@@ -129,25 +133,26 @@ uint8_t* img_moyenne;
           k=abs(k);
           l=abs(l);
 #endif
-          sum_Y+=(float)img_HY[(k*es_info->largueur+l)*2];
-          mean_H+=(float)img_HY[(k*es_info->largueur+l)*2+1];
+          sum_Y+=(float)img_HY[(k*IMAGE_WIDTH+l)*2];
+          mean_H+=(float)img_HY[(k*IMAGE_WIDTH+l)*2+1];
 #endif
         }
       }
 
-      // Faire une seconde passe pour H, normalement on devrait prendre la mediane là on va prendre la valeur la plus proche de la moyenne (pour ne pas avoir à faire un tri - trop lent)
+      // Faire une seconde passe pour H, normalement on devrait prendre la
+      // mediane là on va prendre la valeur la plus proche de la moyenne (pour
+      // ne pas avoir à faire un tri - trop lent)
       mean_H/=(float)(MOYENNE_DIM*MOYENNE_DIM);
       min_dist_H=512.0f;
       for (x=-(MOYENNE_DIM-1)/2; x<=(MOYENNE_DIM-1)/2;x++){
         for (y=-(MOYENNE_DIM-1)/2; y<=(MOYENNE_DIM-1)/2;y++){
 #if BORDURE_MODE==BORDURE_NONE
-          dist_H=fabs(mean_H-(float)img_HY[((i+y)*es_info->largueur+j+x)*2+1]);
+          dist_H=fabs(mean_H-(float)img_HY[((i+y)*IMAGE_WIDTH+j+x)*2+1]);
           if (dist_H<min_dist_H){
             min_dist_H=dist_H;
-            med_H=(float)img_HY[((i+y)*es_info->largueur+j+x)*2+1];
+            med_H=(float)img_HY[((i+y)*IMAGE_WIDTH+j+x)*2+1];
           }
-#endif
-#if BORDURE_MODE!=BORDURE_NONE
+#else
           k=i+y;
           l=j+x;
 #if BORDURE_MODE==BORDURE_CONTINU
@@ -158,22 +163,25 @@ uint8_t* img_moyenne;
           k=abs(k);
           l=abs(l);
 #endif
-          dist_H=fabs(mean_H-(float)img_HY[(k*es_info->largueur+l)*2+1]);
+          dist_H=fabs(mean_H-(float)img_HY[(k*IMAGE_WIDTH+l)*2+1]);
           if (dist_H<min_dist_H){
             min_dist_H=dist_H;
-            med_H=(float)img_HY[(k*es_info->largueur+l)*2+1];
+            med_H=(float)img_HY[(k*IMAGE_WIDTH+l)*2+1];
           }
 #endif
         }
       }
 
-      img_moyenne[(i*es_info->largueur+j)*2]=(uint8_t)(sum_Y/(float)(MOYENNE_DIM*MOYENNE_DIM));
-      img_moyenne[(i*es_info->largueur+j)*2+1]=med_H;
+      img_moyenne[(i*IMAGE_WIDTH+j)*2]=(uint8_t)(sum_Y/(float)(MOYENNE_DIM*MOYENNE_DIM));
+      img_moyenne[(i*IMAGE_WIDTH+j)*2+1]=med_H;
 
     }
   }
   free(img_HY);
+
 #endif
+
+
 #if VERBOSE_MODE>=5  
   printf("** Seuille l'images selon les paramètres **\n");
   fflush(stdout);
@@ -182,49 +190,47 @@ uint8_t* img_moyenne;
   printf("    -> Allocation mémoire\n");
   fflush(stdout);
 #endif 
+
   // ** Seuille l'images selon les paramètres **
   // Mise en place de l'image des seuils
-  uint16_t* img_seuils=(uint16_t *)malloc(es_info->hauteur*es_info->largueur*sizeof(uint16_t));
+  uint16_t* img_seuils=(uint16_t *)malloc(IMAGE_SIZE*sizeof(uint16_t));
   if (img_seuils==NULL) {free(img_moyenne); return 0;}
 
 #if VERBOSE_MODE==6  
   printf("    -> Parcourt de l'image\n");
   fflush(stdout);
 #endif
-  int out_seuil=0;
   // on parcourt et applique les seuils, s'ils sont actifs
-  for (k=0; k<NB_SEUILS ;k++){
-    if (es_info->seuils[k].actif==1){
-      for (i=0; i<es_info->hauteur;i++){
-        for (j=0; j<es_info->largueur;j++){
-          switch(es_info->seuils[k].mode){
-            case SEUIL_YIHI:
-              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]<=es_info->seuils[k].Y)&(img_moyenne[(i*es_info->largueur+j)*2+1]<=es_info->seuils[k].H);
-              break;
-            case SEUIL_YSHS:
-              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]>=es_info->seuils[k].Y)&(img_moyenne[(i*es_info->largueur+j)*2+1]>=es_info->seuils[k].H);
-              break;
-            case SEUIL_YIHS:
-              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]<=es_info->seuils[k].Y)&(img_moyenne[(i*es_info->largueur+j)*2+1]>=es_info->seuils[k].H);
-              break;
-            case SEUIL_YSHI:
-              out_seuil=(img_moyenne[(i*es_info->largueur+j)*2]>=es_info->seuils[k].Y)&(img_moyenne[(i*es_info->largueur+j)*2+1]<=es_info->seuils[k].H);
-              break;
-            default:
-              out_seuil=0;
-              break;
-          }
-          // application des fonctions AND et OR
-          if (es_info->seuils[k].or_avec>=0)
-            out_seuil=out_seuil||((img_seuils[i*es_info->largueur+j]&(1<<es_info->seuils[k].or_avec))>>es_info->seuils[k].or_avec);
-          if (es_info->seuils[k].and_avec>=0)
-            out_seuil=out_seuil&&((img_seuils[i*es_info->largueur+j]&(1<<es_info->seuils[k].and_avec))>>es_info->seuils[k].and_avec);
-          img_seuils[i*es_info->largueur+j]=img_seuils[i*es_info->largueur+j]|(out_seuil<<k);
-        }
+  for( pos=0; pos<IMAGE_SIZE; pos++ ) {
+    uint16_t y = img_moyenne[pos*2];
+    uint16_t h = img_moyenne[pos*2+1];
+    unsigned int bits_seuil = 0;
+    for( k=0; k<NB_SEUILS; k++ ) {
+      seuil *s = &es_info->seuils[k];
+      if( s->actif != 1 )
+        continue;
+      char out_seuil;
+      switch( s->mode ) {
+        case SEUIL_YIHI: out_seuil = (y <= s->Y) && (h <= s->H); break;
+        case SEUIL_YSHS: out_seuil = (y >= s->Y) && (h >= s->H); break;
+        case SEUIL_YIHS: out_seuil = (y <= s->Y) && (h >= s->H); break;
+        case SEUIL_YSHI: out_seuil = (y >= s->Y) && (h <= s->H); break;
+        default: out_seuil = 0; break;
       }
+      // application des fonctions AND et OR
+      // on suppose qu'on n'utilise pas de bits pas encore calculés
+      if( s->or_avec >= 0 )
+        out_seuil = out_seuil || ((bits_seuil & (1<<(s->or_avec))) != 0);
+      else if( s->and_avec >= 0 )
+        out_seuil = out_seuil && ((bits_seuil & (1<<(s->and_avec))) != 0);
+
+      if( out_seuil )
+        bits_seuil |= (1<<k);
     }
+    img_seuils[pos] = bits_seuil;
   }
   free(img_moyenne);
+
 #if VERBOSE_MODE>=5 
   printf("** Erosion de l'image **\n");
   fflush(stdout);
@@ -235,39 +241,39 @@ uint8_t* img_moyenne;
 #endif
 
   // ** Erosion de l'image **
-  uint16_t* img_erode=(uint16_t *)malloc(es_info->hauteur*es_info->largueur*sizeof(uint16_t));
+  uint16_t* img_erode=(uint16_t *)malloc(IMAGE_SIZE*sizeof(uint16_t));
   if (img_erode==NULL) {free(img_seuils); return 0;}
 
 #if VERBOSE_MODE==6  
   printf("    -> Parcourt de l'image\n");
   fflush(stdout);
 #endif
-  uint16_t erode;
   // on parcourt l'image
-  for (i=0; i<es_info->hauteur;i++){
-    for (j=0; j<es_info->largueur;j++){
-      erode=65535;
-      for (x=-(EROSION_DIM-1)/2; x<=(EROSION_DIM-1)/2;x++){
-        for (y=-(EROSION_DIM-1)/2; y<=(EROSION_DIM-1)/2;y++){
-#if BORDURE_MODE==BORDURE_NONE
-          erode=erode&img_seuils[(i+y)*es_info->largueur+j+x];
-#endif
-#if BORDURE_MODE!=BORDURE_NONE
+  for (i=0; i<IMAGE_HEIGHT;i++){
+    for (j=0; j<IMAGE_WIDTH;j++){
+      uint16_t erode = 0xffff;
+      for( x=-(EROSION_DIM-1)/2; erode!=0 && x<=(EROSION_DIM-1)/2; x++ ) {
+        for( y=-(EROSION_DIM-1)/2; erode!=0 && y<=(EROSION_DIM-1)/2; y++ ) {
           k=i+y;
           l=j+x;
+#if BORDURE_MODE==BORDURE_NONE
+          if( k < 0 || l < 0 )
+            continue;
+#else
 #if BORDURE_MODE==BORDURE_CONTINU
           if (k<0) k=0;
           if (l<0) l=0;
-#endif
+#else
 #if BORDURE_MODE==BORDURE_REVERSE
           k=abs(k);
           l=abs(l);
 #endif
-          erode=erode&img_seuils[k*es_info->largueur+l];
 #endif
+#endif
+          erode &= img_seuils[k*IMAGE_WIDTH+l];
         }
       }
-      img_erode[i*es_info->largueur+j]=erode;
+      img_erode[i*IMAGE_WIDTH+j] = erode;
     }
   }
   free(img_seuils);
@@ -306,50 +312,45 @@ uint8_t* img_moyenne;
   int z_largueur,z_hauteur,z_active_pix;
 
   l=-1;
-  // pour chaque seuil actif
-  for (k=0;k<NB_SEUILS;k++){
-    if (es_info->seuils[k].utilise_zones==1){
-      // on parcourt l'image
-      for (i=0;i<=es_info->hauteur;i++){
-        for (j=0;j<=es_info->largueur;j++){
-          // si on tombe sur un pixel actif
-          if ( (img_erode[i*es_info->largueur+j]&(1<<k)) != 0) {
-            // on commence une nouvelle zone
-            l++;
-            es_info->zones[l].x=j;
-            es_info->zones[l].y=j;
-            img_erode[i*es_info->largueur+j]=img_erode[i*es_info->largueur+j]&(~(1<<k));
-            z_active_pix=1;
+  // on parcourt l'image
+  for( i=0; i<IMAGE_HEIGHT; i++ ) {
+    for( j=0; j<IMAGE_WIDTH; j++ ) {
+      // pour chaque seuil actif
+      for (k=0;k<NB_SEUILS;k++){
+        seuil *s = &es_info->seuils[k];
+        if( s->utilise_zones != 1 )
+          continue;
+        // si on tombe sur un pixel actif
+        if( (img_erode[i*IMAGE_WIDTH+j]&(1<<k)) != 0 ) {
+          // on commence une nouvelle zone
+          l++;
+          es_info->zones[l].x=j;
+          es_info->zones[l].y=j;
+          img_erode[i*IMAGE_WIDTH+j]=img_erode[i*IMAGE_WIDTH+j]&(~(1<<k));
+          z_active_pix=1;
+          z_largueur++;
+          es_info->zones[l].largueur=1;
+          es_info->zones[l].hauteur=1;
+          m=i;
+          n=j;
+          n++;
+          // on détermine la largeur
+          // on efface la ligne en cour.
+          while(((img_erode[m*IMAGE_WIDTH+n]&(1<<k))!= 0)&&(n<IMAGE_WIDTH)){
             z_largueur++;
-            es_info->zones[l].largueur=1;
-            es_info->zones[l].hauteur=1;
-            m=i;
-            n=j;
+            img_erode[m*IMAGE_WIDTH+n]=img_erode[m*IMAGE_WIDTH+n]&(~(1<<k));
+            z_active_pix++;
             n++;
-            // on détermine la largeur
-            // on efface la ligne en cour.
-            while(((img_erode[m*es_info->largueur+n]&(1<<k))!= 0)&&(n<es_info->largueur)){
-              z_largueur++;
-              img_erode[m*es_info->largueur+n]=img_erode[m*es_info->largueur+n]&(~(1<<k));
-              z_active_pix++;
-              n++;
-            }
-            // on determine les limites des pixels en dessous
-
-
-
           }
-
-          es_info->zones[l].largueur=z_largueur;
-          es_info->zones[l].hauteur=z_hauteur;
-          es_info->zones[l].densite=(float)z_active_pix/((float)z_largueur*(float)z_hauteur);
+          // on determine les limites des pixels en dessous
         }
+
+        es_info->zones[l].largueur = z_largueur;
+        es_info->zones[l].hauteur  = z_hauteur;
+        es_info->zones[l].densite  = (float)z_active_pix/(float)(z_largueur*z_hauteur);
       }
     }
   }
-
-
-
 
   return 1;
 }
@@ -363,8 +364,7 @@ uint8_t* img_moyenne;
 /*
  * Recupere la luminance du pixel de l'image
  */
-inline uint8_t get_pixel_Y(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uint16_t hauteur,uint16_t largueur){
-  uint32_t pos=no_ligne*largueur+no_colonne;
+inline uint8_t get_pixel_Y(uint8_t * image, uint32_t pos){
 #if IMAGE_MODE_COLORSP==IMGMODE_RGB
   // pour le mode RGB application de la transformation.
 
@@ -376,8 +376,7 @@ inline uint8_t get_pixel_Y(uint8_t * image, uint16_t no_ligne, uint16_t no_colon
 
 #if IMAGE_MODE_STORE==IMGMODE_RFGFBF
   //mode RGB divisé en 3
-  uint32_t dim_img=largueur*hauteur;
-  sum=0.299f*(float)image[pos]+0.587f*(float)image[dim_img+pos]+0.114f*(float)image[dim_img*2+pos];
+  sum=0.299f*(float)image[pos]+0.587f*(float)image[IMAGE_SIZE+pos]+0.114f*(float)image[IMAGE_SIZE*2+pos];
 #endif /* IMAGE_MODE_STORE==MODE_RFGFBF */
   return (uint8_t)sum;
 
@@ -397,29 +396,46 @@ inline uint8_t get_pixel_Y(uint8_t * image, uint16_t no_ligne, uint16_t no_colon
 /*
  * Recupere la chrominance du pixel de l'image
  */
-inline uint8_t get_pixel_H(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uint16_t hauteur,uint16_t largueur){
-  uint32_t pos=no_ligne*largueur+no_colonne;
+inline uint8_t get_pixel_H(uint8_t * image, uint32_t pos){
 #if IMAGE_MODE_COLORSP==IMGMODE_YUV
   // En mode YUV on commence par passer en RGB
 #if IMAGE_MODE_STORE==IMGMODE_RPGPBP 
   //mode RGB regroupés
-  float Y=(float)image[pos*IMG_ALPHA];
-  float U=(float)image[pos*IMG_ALPHA+1];
-  float V=(float)image[pos*IMG_ALPHA+2];
+  float Y = image[pos*IMG_ALPHA];
+  float U = image[pos*IMG_ALPHA+1];
+  float V = image[pos*IMG_ALPHA+2];
 #endif /* IMAGE_MODE_STORE==MODE_RPGPBP */
 
 #if IMAGE_MODE_STORE==IMGMODE_RFGFBF
   //mode RGB divisé en 3
-  uint16_t dim_img=largueur*hauteur;
-  float Y=(float)image[pos];
-  float U=(float)image[pos+dim_img];
-  float V=(float)image[pos+dim_img*2];
+  float Y = image[pos];
+  float U = image[pos+IMAGE_SIZE];
+  float V = image[pos+IMAGE_SIZE*2];
 #endif /* IMAGE_MODE_STORE==MODE_RFGFBF */
   /* TODO: trouver s'il faut normaliser */
+  // TODO: modifier les coefficients pour être tout de suite sur [0;256[ au
+  // lieu de passer par [0;360[
   float R,G,B;
   R=Y+1.14f*V;
   G=Y-0.395f*U-0.581f*V;
   B=Y+2.032f*U;
+
+  float H;
+  if( max == min )
+    H = 0.0f;
+  else {
+    float f = 60.0f / (max-min);
+    if( max == R )
+      H = f * (G-B);
+    else if( max == G )
+      H = f * (B-R) + 120.0f;
+    else if( max == B )
+      H = f * (R-G) + 240.0f;
+    else
+      H = 0.0f;
+  }
+
+  return (uint8_t)(H*256.0f/360.0f);
 
 #endif /* IMAGE_MODE_COLORSP==IMGMODE_RGB */
 
@@ -429,39 +445,39 @@ inline uint8_t get_pixel_H(uint8_t * image, uint16_t no_ligne, uint16_t no_colon
 
 #if IMAGE_MODE_STORE==IMGMODE_RPGPBP 
   //mode RGB regroupés
-  float R=(float)image[pos*IMG_ALPHA];
-  float G=(float)image[pos*IMG_ALPHA+1];
-  float B=(float)image[pos*IMG_ALPHA+2];
+  uint8_t R = image[pos*IMG_ALPHA];
+  uint8_t G = image[pos*IMG_ALPHA+1];
+  uint8_t B = image[pos*IMG_ALPHA+2];
 #endif /* IMAGE_MODE_STORE==MODE_RPGPBP */
 
 #if IMAGE_MODE_STORE==IMGMODE_RFGFBF
   //mode RGB divisé en 3
-  uint32_t dim_img=largueur*hauteur;
-  float R=(float)image[pos];
-  float G=(float)image[pos+dim_img];
-  float B=(float)image[pos+dim_img*2];
-
+  uint8_t R = image[pos];
+  uint8_t G = image[pos+IMAGE_SIZE];
+  uint8_t B = image[pos+IMAGE_SIZE*2];
 #endif /* IMAGE_MODE_STORE==MODE_RFGFBF */
-#endif /* IMAGE_MODE_COLORSP==IMGMODE_RGB */
 
-  float H, min, max;
-
-  // détermanation du max
+  int min, max;
   max=(R>G)?R:G;
   max=(max>B)?max:B;
-
-  // détermination du min
   min=(R>G)?G:R;
   min=(min>B)?B:min;
 
-  if (min==max) H=0.0f; else
-    if ((max==R)&&(G>B))  H=60.0f*(G-B)/(max-min); else
-      if (max==R)  H=(60.0f*(G-B)/(max-min))+360.0f; else
-        if (max==G)  H=(60.0f*(B-R)/(max-min))+120.0f; else
-          if (max==B)  H=(60.0f*(R-G)/(max-min))+240.0f; else
-            H=0.0f;
+  if( max == min )
+    return 0;
+  else {
+    // Optimisations pour calculs en entiers
+    if( max == R )
+      return 256 * (G-B) / (6*(max-min));
+    else if( max == G )
+      return 256 * (B-R) / (6*(max-min)) + 256/3;
+    else if( max == B )
+      return 256 * (R-G) / (6*(max-min)) + 256*2/3;
+    else
+      return 0;
+  }
 
-  return (uint8_t)(H*256.0f/360.0f);
+#endif /* IMAGE_MODE_COLORSP==IMGMODE_RGB */
 
 }
 

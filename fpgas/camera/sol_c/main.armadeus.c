@@ -3,6 +3,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "algo_camera.h"
+#include <sys/time.h>
+
+void print_time(const char *msg)
+{
+  static struct timeval tp;
+  gettimeofday(&tp, NULL);
+  fprintf(stderr, "%ld.%06ld  %s\n", tp.tv_sec, tp.tv_usec, msg);
+}
+
+
 
 #define IS_ARMADEUS 1
 
@@ -102,8 +112,12 @@ int main(int argc, char** argv){
   printf("Lunch algo\n");
   fflush(stdout);
   int out;
-  for (i=0;i<20;i++)
+  print_time("process_image START");
+  for (i=0;i<100;i++) {
     out=process_image( image, &resultat_test);
+  }
+  print_time("process_image END");
+
   printf("Stop algo\n");
   fflush(stdout);
   printf("La fonction de traitement à retourné: %d \n",out);

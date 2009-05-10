@@ -8,13 +8,14 @@
  * */
 
 #ifndef __ALGO_CAMERA_H__
+#define __ALGO_CAMERA_H__ 
 
 #include <stdint.h>
 
 // Seulement pour le programmeur
 #define _DEBUG 1
 
-#define VERBOSE_MODE 6
+#define VERBOSE_MODE 0
 
 // Les modes de stockages pour les pixels issus de la caméra
 #define IMGMODE_RPGPBP 0 // le mode: R1G1B1R2G2B2R3G3B3...
@@ -37,11 +38,11 @@
 
 
 // Gestions des bords
-#define BORDURE_NONE    0 // on s'en fou, on prend les pixels suivants en RAM
+#define BORDURE_NONE    0 // on s'en fou, on ignore les débordements
 #define BORDURE_CONTINU 1 // on prend le dernier pixel dans la ligne
 #define BORDURE_REVERSE 2 // on recopie l'image en l'inversant
 
-#define BORDURE_MODE BORDURE_NONE
+#define BORDURE_MODE BORDURE_CONTINU
 
 // Types de seuils
 #define SEUIL_YIHI 0 // Le seuil est actif si la valeur testée est inferieure à Y et H
@@ -149,6 +150,8 @@ typedef struct
  */
 int process_image(uint8_t * image, information * es_info);
 
-#define __ALGO_CAMERA_H__ 
+#define IMAGE_WIDTH   332
+#define IMAGE_HEIGHT  246
+#define IMAGE_SIZE    (IMAGE_WIDTH*IMAGE_HEIGHT)
 
 #endif
