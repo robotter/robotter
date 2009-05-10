@@ -303,8 +303,8 @@ uint8_t* img_moyenne;
 
   // intialisation des variables
   int m,n;
-  uint16_t z_largueur,z_hauteur,z_active_pix;
-  uint16_t active_x_min,active_x_max;
+  int z_largueur,z_hauteur,z_active_pix;
+
   l=-1;
   // pour chaque seuil actif
   for (k=0;k<NB_SEUILS;k++){
@@ -317,7 +317,7 @@ uint8_t* img_moyenne;
             // on commence une nouvelle zone
             l++;
             es_info->zones[l].x=j;
-            es_info->zones[l].y=i;
+            es_info->zones[l].y=j;
             img_erode[i*es_info->largueur+j]=img_erode[i*es_info->largueur+j]&(~(1<<k));
             z_active_pix=1;
             z_largueur++;
@@ -334,29 +334,8 @@ uint8_t* img_moyenne;
               z_active_pix++;
               n++;
             }
-			m++;
+            // on determine les limites des pixels en dessous
 
-			active_x_min=j;
-			active_x_max=n-1;
-			// On commence a parcourir l'objet
-			in_object=1;
-			while(in_object==1){
-				// on determine les limites des pixels en dessous
-				active_x_min--;
-				active_x_max++;
-
-				// si la ligne est plus large 
-				while (((img_erode[m*es_info->largueur+active_x_min]&(1<<k))!= 0)&&(active_x_min>0))active_x_min--;
-				while (((img_erode[m*es_info->largueur+active_x_max]&(1<<k))!= 0)&&(active_x_max<es_info->largueur)) active_x_max++;
-
-				while (((img_erode[m*es_info->largueur+active_x_min]&(1<<k))== 0)&&(active_x_min<es_info->largueur)&&(active_x_min!=active_x_max)) active_x_min++;
-				while (((img_erode[m*es_info->largueur+active_x_max]&(1<<k))== 0)&&(active_x_max>0)&&(active_x_min!=active_x_max)) active_x_max--;
-
-				// on efface la ligne
-				for (k=0)
-				// si les deux marqueurs se sont rejoint c'est que l'objet est fini
-				if (active_x_min==active_x_max) in_object=0;
-			}
 
 
           }
