@@ -1,19 +1,21 @@
-CC = gcc
+#CC = gcc
+CC="/opt/ARMadeus/armadeus/buildroot/build_armv4t/staging_dir/usr/bin/arm-linux-gcc"
+
+INSTALL_DIR="/opt/ARMadeus/armadeus/buildroot/project_build_arm/armadeus/root/usr/bin/"
 
 COMPOPT = -O3 -Wall
 
 CFLAGS = $(COMPOPT)
 
-LDFLAGS = -lm -lhighgui -lcxcore 
+LDFLAGS = 
 
-OBJS = algo_camera.o main.o
+OBJS = algo_camera.o main.armadeus.o
 
 SOURCE = .
 
-EXEC = test_camera
+EXEC = test_camera.Armadeus
 
-#IMAGE = mire-test.jpg
-IMAGE = TEST_IMG.JPG
+#IMAGE = TEST_IMG.JPG
 
 $(EXEC): $(OBJS)
 	$(CC) $(OBJS) $(COMPOPT) $(LDFLAGS) -o $(EXEC);
@@ -24,8 +26,11 @@ $(EXEC): $(OBJS)
 %.o:$(SOURCE)/%.c
 	$(CC) $(CFLAGS) $< -c -o $@
 
-exec: $(EXEC)
-	./$(EXEC) $(IMAGE)
+#exec: $(EXEC)
+#	./$(EXEC) $(IMAGE)
+
+install: $(EXEC)
+	cp $(EXEC)  $(INSTALL_DIR)
 
 clean:
 	rm -f $(OBJS) $(SOURCE)/*~ $(SOURCE)/\#*\# $(EXEC)

@@ -10,6 +10,9 @@
 #include "algo_camera.h"
 
 
+#define IS_ARMADEUS 0
+#define VERBOSE_MODE 0
+
 int main(int argc, char** argv){
   int i; // parce que l'on a toujours besoin d'un i
   struct timeval start,stop;
@@ -129,6 +132,40 @@ int main(int argc, char** argv){
     resultat_test.z_y_min=0;
     resultat_test.z_x_max=1000;
     resultat_test.z_y_max=1000;
+
+
+
+//**********************************
+//**********************************
+//**********************************
+//**********************************
+//**********************************
+//**********************************
+//**********************************
+FILE * pFile;
+
+pFile=fopen("image.modif","w");
+
+   for (i=0;i<resultat_test.largueur*resultat_test.hauteur;i++){
+ putc ((src->imageData)[3*i] , pFile);
+ putc ((src->imageData)[3*i+1] , pFile);
+ putc ((src->imageData)[3*i+2] , pFile);
+    }
+
+ fclose (pFile);
+
+
+
+
+//**********************************
+//**********************************
+//**********************************
+//**********************************
+//**********************************
+//**********************************
+//**********************************
+
+
 
     // mise en place du système de mesure
     tz.tz_minuteswest=0;

@@ -14,6 +14,7 @@
 // Seulement pour le programmeur
 #define _DEBUG 1
 
+#define VERBOSE_MODE 6
 
 // Les modes de stockages pour les pixels issus de la caméra
 #define IMGMODE_RPGPBP 0 // le mode: R1G1B1R2G2B2R3G3B3...
@@ -55,7 +56,8 @@
 #define NB_MAX_ZONES 16
 
 // Taille du moyennage n*n
-#define MOYENNE_DIM 3
+// Une taille de 0 désactive les moyennages
+#define MOYENNE_DIM 0
 
 // Taille de l'erosion
 #define EROSION_DIM 3

@@ -23,10 +23,12 @@
 #endif
 
 #if MOYENNE_DIM%2==0
+#if MOYENNE_DIM!=0
 #error "Le carre pour la moyenne doit etre de dimension impaire"
 #endif
+#endif
 
-#if MOYENNE_DIM%2==0
+#if EROSION_DIM%2==0
 #error "Le carre pour l'erosion doit etre de dimension impaire"
 #endif
 
@@ -42,9 +44,9 @@
  *
  */
 // Recupere la luminance du pixel de l'image
-uint8_t get_pixel_Y(uint8_t * image,uint16_t no_ligne, uint16_t no_colonne, uint16_t hauteur,uint16_t largueur);
+inline uint8_t get_pixel_Y(uint8_t * image,uint16_t no_ligne, uint16_t no_colonne, uint16_t hauteur,uint16_t largueur);
 // Recupere la chrominance du pixel de l'image
-uint8_t get_pixel_H(uint8_t * image,uint16_t no_ligne, uint16_t no_colonne, uint16_t hauteur,uint16_t largueur);
+inline uint8_t get_pixel_H(uint8_t * image,uint16_t no_ligne, uint16_t no_colonne, uint16_t hauteur,uint16_t largueur);
 
 /*
  *
@@ -59,21 +61,49 @@ int process_image(uint8_t * image, information * es_info){
   uint16_t i,j,k,l;
   int16_t x,y;
 
+
+#if VERBOSE_MODE>=5  
+  printf("** Recuperation de H et Y **\n");
+  fflush(stdout);
+#endif
+#if VERBOSE_MODE==6  
+  printf("    -> Allocation mémoire\n");
+  fflush(stdout);
+#endif
   // ** Recuperation de H et Y **
   uint8_t* img_HY=(uint8_t *)malloc(es_info->hauteur*es_info->largueur*2*sizeof(uint8_t));
   if (img_HY==NULL) return 0;
-
+#if VERBOSE_MODE==6  
+  printf("    -> Parcourt de l'image\n");
+  fflush(stdout);
+#endif
   for (i=0; i<es_info->hauteur;i++){
     for (j=0; j<es_info->largueur;j++){
       img_HY[(i*es_info->largueur+j)*2]=get_pixel_Y(image,i,j,es_info->hauteur,es_info->largueur);
       img_HY[(i*es_info->largueur+j)*2+1]=get_pixel_H(image,i,j,es_info->hauteur,es_info->largueur);
     }
   }
-  // ** Moyennage de l'image **
+#if VERBOSE_MODE>=5  
+  printf("** Moyennage de l'image **\n");
+  fflush(stdout);
+#endif
+#if VERBOSE_MODE==6  
+  printf("    -> Allocation mémoire\n");
+  fflush(stdout);
+#endif
+// ** Moyennage de l'image **
+uint8_t* img_moyenne;
+#if MOYENNE_DIM==0
+  img_moyenne=img_HY;
+#else
   // Mise en place de l'image des seuils
-  uint8_t* img_moyenne=(uint8_t *)malloc(es_info->hauteur*es_info->largueur*2*sizeof(uint8_t));
+  img_moyenne=(uint8_t *)malloc(es_info->hauteur*es_info->largueur*2*sizeof(uint8_t));
   if (img_moyenne==NULL) {free(img_HY); return 0;}
 
+#if VERBOSE_MODE==6  
+  printf("    -> Parcourt de l'image\n");
+  fflush(stdout);
+#endif
   float sum_Y;
   // variables pour le calcul de la mediane de H
   float mean_H, dist_H, min_dist_H, med_H=0.0f;
@@ -143,12 +173,24 @@ int process_image(uint8_t * image, information * es_info){
     }
   }
   free(img_HY);
-
+#endif
+#if VERBOSE_MODE>=5  
+  printf("** Seuille l'images selon les paramètres **\n");
+  fflush(stdout);
+#endif
+#if VERBOSE_MODE==6  
+  printf("    -> Allocation mémoire\n");
+  fflush(stdout);
+#endif 
   // ** Seuille l'images selon les paramètres **
   // Mise en place de l'image des seuils
   uint16_t* img_seuils=(uint16_t *)malloc(es_info->hauteur*es_info->largueur*sizeof(uint16_t));
   if (img_seuils==NULL) {free(img_moyenne); return 0;}
 
+#if VERBOSE_MODE==6  
+  printf("    -> Parcourt de l'image\n");
+  fflush(stdout);
+#endif
   int out_seuil=0;
   // on parcourt et applique les seuils, s'ils sont actifs
   for (k=0; k<NB_SEUILS ;k++){
@@ -183,12 +225,23 @@ int process_image(uint8_t * image, information * es_info){
     }
   }
   free(img_moyenne);
-
+#if VERBOSE_MODE>=5 
+  printf("** Erosion de l'image **\n");
+  fflush(stdout);
+#endif
+#if VERBOSE_MODE==6  
+  printf("    -> Allocation mémoire\n");
+  fflush(stdout);
+#endif
 
   // ** Erosion de l'image **
   uint16_t* img_erode=(uint16_t *)malloc(es_info->hauteur*es_info->largueur*sizeof(uint16_t));
   if (img_erode==NULL) {free(img_seuils); return 0;}
 
+#if VERBOSE_MODE==6  
+  printf("    -> Parcourt de l'image\n");
+  fflush(stdout);
+#endif
   uint16_t erode;
   // on parcourt l'image
   for (i=0; i<es_info->hauteur;i++){
@@ -331,7 +384,7 @@ int process_image(uint8_t * image, information * es_info){
 /*
  * Recupere la luminance du pixel de l'image
  */
-uint8_t get_pixel_Y(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uint16_t hauteur,uint16_t largueur){
+inline uint8_t get_pixel_Y(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uint16_t hauteur,uint16_t largueur){
   uint32_t pos=no_ligne*largueur+no_colonne;
 #if IMAGE_MODE_COLORSP==IMGMODE_RGB
   // pour le mode RGB application de la transformation.
@@ -365,7 +418,7 @@ uint8_t get_pixel_Y(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uin
 /*
  * Recupere la chrominance du pixel de l'image
  */
-uint8_t get_pixel_H(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uint16_t hauteur,uint16_t largueur){
+inline uint8_t get_pixel_H(uint8_t * image, uint16_t no_ligne, uint16_t no_colonne, uint16_t hauteur,uint16_t largueur){
   uint32_t pos=no_ligne*largueur+no_colonne;
 #if IMAGE_MODE_COLORSP==IMGMODE_YUV
   // En mode YUV on commence par passer en RGB
