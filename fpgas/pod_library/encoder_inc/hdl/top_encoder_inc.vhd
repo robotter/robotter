@@ -23,7 +23,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 
-entity top_encoder_inc is
+entity encoder_inc is
 
   generic (
     id         : natural := 5;  --! module ID
@@ -46,10 +46,10 @@ entity top_encoder_inc is
     ch_b_i    : in  std_logic
   );
 
-end entity top_encoder_inc;
+end entity encoder_inc;
 
 
-architecture top_encoder_inc_1 of top_encoder_inc is
+architecture encoder_inc_1 of encoder_inc is
 
   alias id_c : natural is id;
   signal angle_s : integer;
@@ -151,5 +151,5 @@ begin
     angle_i   => angle_s
   );
 
-end architecture top_encoder_inc_1;
+end architecture encoder_inc_1;
 

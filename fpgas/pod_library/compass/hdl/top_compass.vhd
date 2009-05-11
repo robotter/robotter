@@ -24,7 +24,7 @@ use ieee.numeric_std.all;
 
 
 --! Compass top
-entity top_compass is
+entity compass is
 
   generic (
     id         : natural := 9;    --! module ID
@@ -45,10 +45,10 @@ entity top_compass is
     pwm_i     : in std_logic
   );
 
-end entity top_compass;
+end entity compass;
 
 
-architecture top_compass_1 of top_compass is
+architecture compass_1 of compass is
 
   alias id_c : natural is  id;
   signal angle_s : natural range 0 to 3599;
@@ -112,6 +112,6 @@ begin
     angle_i   => angle_s
   );
 
-end architecture top_compass_1;
+end architecture compass_1;
 
 

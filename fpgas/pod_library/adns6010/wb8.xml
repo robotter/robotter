@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component name="top_adns6010" version="1.0">
+<component name="adns6010" version="1.0">
 	<description>
 		ADNS6010 device driving 3 ADNS6010 optical encoders
 	</description>

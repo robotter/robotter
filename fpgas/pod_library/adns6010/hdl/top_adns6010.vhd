@@ -14,7 +14,7 @@
 -----------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------
---! @file top_adns6010.vhd
+--! @file adns6010.vhd
 --! @author lamygale
 -----------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 
 
-ENTITY top_adns6010 IS
+ENTITY adns6010 IS
   GENERIC (
     id           : natural := 2;
     wb_size_c    : natural := 8;           -- data port size
@@ -58,10 +58,10 @@ ENTITY top_adns6010 IS
     adns_reset_o : OUT std_logic
     );
 
-END top_adns6010;
+END adns6010;
 
 
-ARCHITECTURE top_adns6010_1 OF top_adns6010 IS
+ARCHITECTURE adns6010_1 OF adns6010 IS
 
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
@@ -401,7 +401,7 @@ ARCHITECTURE top_adns6010_1 OF top_adns6010 IS
   -------------------------------------------------------------------------
   -------------------------------------------------------------------------
 
-BEGIN  -- top_adns6010_1
+BEGIN  -- adns6010_1
 
 reset_ns <= not(wbs_rst_i);
   
@@ -622,4 +622,4 @@ reset_ns <= not(wbs_rst_i);
     fault_o => fault_s);
 
   
-END top_adns6010_1;
+END adns6010_1;
