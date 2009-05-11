@@ -26,6 +26,7 @@
 
                     <port size="1" name="18" position="PIN_18" dir="inout"/>
                     <port size="1" name="21" position="PIN_21" dir="inout"/>
+                    <port size="1" name="22" position="PIN_22" dir="inout"/>
                     <port size="1" name="91" position="PIN_91" dir="inout"/>
                     <port size="1" name="90" position="PIN_90" dir="inout"/>
                     <port size="1" name="89" position="PIN_89" dir="inout"/>
@@ -51,7 +52,6 @@
                     <port size="1" name="AD_fpga_6" position="PIN_51" dir="inout"/>
                     <port size="1" name="AD_fpga_7" position="PIN_52" dir="inout"/>
 
-                    <port size="1" name="ALE_fpga" position="PIN_22" dir="inout"/>
                     <port size="1" name="ALE_3V" position="PIN_53" dir="inout"/>
 
                     <port size="1" name="data_fpga_15" position="PIN_55" dir="inout"/>
