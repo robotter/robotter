@@ -24,13 +24,13 @@
                     <port size="1" name="8" position="PIN_8" dir="inout"/>
                     <port size="1" name="9" position="PIN_9" dir="inout"/>
 
-                    <port size="1" name="18" position="PIN_18" dir="inout"/>
-                    <port size="1" name="21" position="PIN_21" dir="inout"/>
-                    <port size="1" name="22" position="PIN_22" dir="inout"/>
-                    <port size="1" name="91" position="PIN_91" dir="inout"/>
-                    <port size="1" name="90" position="PIN_90" dir="inout"/>
-                    <port size="1" name="89" position="PIN_89" dir="inout"/>
-                    <port size="1" name="88" position="PIN_88" dir="inout"/>
+                    <port size="1" name="18" position="PIN_18" dir="in"/>
+                    <port size="1" name="21" position="PIN_21" dir="in"/>
+                    <port size="1" name="22" position="PIN_22" dir="in"/>
+                    <port size="1" name="91" position="PIN_91" dir="in"/>
+                    <port size="1" name="90" position="PIN_90" dir="in"/>
+                    <port size="1" name="89" position="PIN_89" dir="in"/>
+                    <port size="1" name="88" position="PIN_88" dir="in"/>
     
                     <port size="1" name="SCL_fpga" position="PIN_24" dir="inout"/>
                     <port size="1" name="SDA_fpga" position="PIN_25" dir="inout"/>

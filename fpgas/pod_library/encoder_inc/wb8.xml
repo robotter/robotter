@@ -26,7 +26,7 @@
 
     <interface name="swb8" class="SLAVE" bus="wishbone8" clockandreset="clock">
 			<ports>
-				<port name="wbs_adr_i" type="ADR" size="6" dir="in"/>
+				<port name="wbs_adr_i" type="ADR" size="3" dir="in"/>
 <!--				<port name="wbs_dat_i" type="DAT_I" size="8" dir="in"/>-->
 				<port name="wbs_dat_o" type="DAT_O" size="8" dir="out"/>
 				<port name="wbs_we_i" type="WE" size="1" dir="in"/>
