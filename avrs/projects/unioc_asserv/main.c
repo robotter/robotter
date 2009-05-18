@@ -61,6 +61,7 @@ int main(void)
   printf("\n\n# Robotter 2009 - 102chute - UNIOC POSITION TEST\n");
   printf("# Compiled "__DATE__" at "__TIME__"\n\n");
 
+
   //--------------------------------------------------------
   // Initialize ADNS6010s
   printf("# Initializing ADNS6010s : ");
@@ -132,7 +133,7 @@ int main(void)
   printf("# OK\n");
 
 	printf("# ADNS6010s are GO\n\n");
-
+  
   //--------------------------------------------------------
 
   //--------------------------------------------------------
@@ -176,22 +177,35 @@ int main(void)
   // Set ADNS6010 system to automatic
   adns6010_setMode(ADNS6010_BHVR_MODE_AUTOMATIC);
 
+
+  // initialize scheduler
   scheduler_init();
 
   // Fire up position management
   scheduler_add_periodical_event_priority(&hposition_update, &position,
                                             400, 50);
+
   // Unleash control systems
   scheduler_add_periodical_event_priority(&robot_cs_update, &robot_cs,
                                             40, 100);
 
-  uint32_t t=0;
+  // remove break
+  motor_cs_break(0);
+
+  double t=0;
+  int32_t pwm;
+
+  robot_cs_set_update(&robot_cs_update, 0, 0, 500);
+
   while(1)
   {
-    t++;
-    
-    printf("# \\_°< *kwain !*\n");
-    wait_ms(2000);
+ /* 
+    printf("%f %f %f\n",
+            position.position.x,
+            position.position.y,
+            position.position.alpha);
+*/
+    wait_ms(100);            
   }
 
   return 0;

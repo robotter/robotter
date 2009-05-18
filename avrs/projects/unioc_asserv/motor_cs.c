@@ -24,7 +24,10 @@
   */
 
 #include "motor_cs.h"
+#include "motor_cs_config.h"
 
+#include <avr/interrupt.h>
+#include <aversive/wait.h>
 #include <pwm.h>
 
 // control system managers
@@ -37,26 +40,75 @@ struct pid_filter pid_motor1;
 struct pid_filter pid_motor2;
 struct pid_filter pid_motor3;
 
+// encoders previous values
+int32_t encoder1_pvalue;
+int32_t encoder2_pvalue;
+int32_t encoder3_pvalue;
+
+// motors bit signs
+uint8_t motor1_sign;
+uint8_t motor2_sign;
+uint8_t motor3_sign;
+
+
+ISR(SIG_OVERFLOW1)
+{
+
+  if(motor1_sign)
+    sbi(MOTOR_CS_PWM1_PORT,MOTOR_CS_PWM1_PIN);
+  else
+    cbi(MOTOR_CS_PWM1_PORT,MOTOR_CS_PWM1_PIN);
+
+  if(motor2_sign)
+    sbi(MOTOR_CS_PWM2_PORT,MOTOR_CS_PWM2_PIN);
+  else
+    cbi(MOTOR_CS_PWM2_PORT,MOTOR_CS_PWM2_PIN);
+
+  if(motor3_sign)
+    sbi(MOTOR_CS_PWM3_PORT,MOTOR_CS_PWM3_PIN);
+  else
+    cbi(MOTOR_CS_PWM3_PORT,MOTOR_CS_PWM3_PIN);
+
+}
+
 void motor_cs_init()
 {
-	// Setup PIDs
+  // setup pwms dirs
+  sbi(MOTOR_CS_PWM1_DDR,MOTOR_CS_PWM1_PIN);
+  sbi(MOTOR_CS_PWM2_DDR,MOTOR_CS_PWM2_PIN);
+  sbi(MOTOR_CS_PWM3_DDR,MOTOR_CS_PWM3_PIN);
+
+  // setup brake
+  sbi(MOTOR_CS_BREAK_DDR, MOTOR_CS_BREAK_PIN);
+  cbi(MOTOR_CS_BREAK_PORT, MOTOR_CS_BREAK_PIN);
+
+  motor1_sign = 0;
+  motor2_sign = 0;
+  motor3_sign = 0;
+
+  // initialize pwms
+  pwm_init();
+
+  sbi(TIMSK,TOIE1);
+
+	// setup PIDs
 	pid_init(&pid_motor1);
 	pid_init(&pid_motor2);
 	pid_init(&pid_motor3);
 
-  pid_set_gains(&pid_motor1, 200, 0, 0) ;
+  pid_set_gains(&pid_motor1, 300, 0, 0) ;
   pid_set_maximums(&pid_motor1, 0, 0, 0);
   pid_set_out_shift(&pid_motor1, 10);
  
-  pid_set_gains(&pid_motor2, 200, 0, 0) ;
+  pid_set_gains(&pid_motor2, 300, 0, 0) ;
   pid_set_maximums(&pid_motor2, 0, 0, 0);
   pid_set_out_shift(&pid_motor2, 10);
  
-  pid_set_gains(&pid_motor3, 200, 0, 0) ;
+  pid_set_gains(&pid_motor3, 300, 0, 0);
   pid_set_maximums(&pid_motor3, 0, 0, 0);
   pid_set_out_shift(&pid_motor3, 10);
 
-	// Setup CSMs
+	// setup CSMs
 	cs_init(&csm_motor1);
 	cs_init(&csm_motor2);
 	cs_init(&csm_motor3);
@@ -87,6 +139,8 @@ void motor_cs_init()
 
 void motor_cs_update(void* dummy, int32_t m1, int32_t m2, int32_t m3)
 {
+  uint8_t flags;
+
 	// set consigns for motors CS
 	cs_set_consign(&csm_motor1, m1);
 	cs_set_consign(&csm_motor2, m2);
@@ -100,35 +154,103 @@ void motor_cs_update(void* dummy, int32_t m1, int32_t m2, int32_t m3)
 	return;
 }
 
+void motor_cs_break(uint8_t state)
+{
+  if(state)
+    cbi(MOTOR_CS_BREAK_PORT,MOTOR_CS_BREAK_PIN);
+  else    
+    sbi(MOTOR_CS_BREAK_PORT,MOTOR_CS_BREAK_PIN);
+}
+
 int32_t get_encoder_motor1(void* dummy)
 {
-	//XXX return speed !
-	return 0;
+  int32_t value,speed;
+
+  value = _SFR_MEM32(MOTOR_CS_ENCODER1_ADDR);
+  speed = value - encoder1_pvalue;
+  encoder1_pvalue = value;
+
+	return speed;
 }
 
 int32_t get_encoder_motor2(void* dummy)
 {
-	//XXX return speed !
-	return 0;
+  int32_t value,speed;
+
+  value = _SFR_MEM32(MOTOR_CS_ENCODER2_ADDR);
+  speed = value - encoder2_pvalue;
+  encoder2_pvalue = value;
+
+	return speed;
 }
 
 int32_t get_encoder_motor3(void* dummy)
 {
-	//XXX return speed !
-	return 0;
+  int32_t value,speed;
+
+  value = _SFR_MEM32(MOTOR_CS_ENCODER3_ADDR);
+  speed = value - encoder3_pvalue;
+  encoder3_pvalue = value;
+
+	return speed;
 }
 
 void set_pwm_motor1(void* dummy, int32_t pwm)
 {
-	//XXX
+  S_MAX(pwm,4095);
+
+  if(pwm>0)
+  {
+    pwm_set_1C(4095-pwm);
+    //sbi(MOTOR_CS_PWM1_PORT,MOTOR_CS_PWM1_PIN);
+    motor1_sign = 1;
+  }
+  else
+  {
+    pwm_set_1C(-pwm);
+    //cbi(MOTOR_CS_PWM1_PORT,MOTOR_CS_PWM1_PIN);
+    motor1_sign = 0;
+  }
+
+  return;
 }
 
 void set_pwm_motor2(void* dummy, int32_t pwm)
 {
-	//XXX
+  S_MAX(pwm,4095);
+
+  if(pwm>0)
+  {
+    pwm_set_1B(4095-pwm);
+    //sbi(MOTOR_CS_PWM2_PORT,MOTOR_CS_PWM2_PIN);
+    motor2_sign = 1;
+  }
+  else
+  {
+    pwm_set_1B(-pwm);
+    //cbi(MOTOR_CS_PWM2_PORT,MOTOR_CS_PWM2_PIN);
+    motor2_sign = 0;
+  }
+
+  return;
 }
 
 void set_pwm_motor3(void* dummy, int32_t pwm)
 {
-	//XXX
+  S_MAX(pwm,4095);
+
+	if(pwm>0)
+  {
+    pwm_set_1A(4095-pwm);
+    //sbi(MOTOR_CS_PWM3_PORT,MOTOR_CS_PWM3_PIN);
+    motor3_sign = 1;
+  }
+  else
+  {
+    pwm_set_1A(-pwm);
+    //cbi(MOTOR_CS_PWM3_PORT,MOTOR_CS_PWM3_PIN);
+    motor3_sign = 0;
+  }
+
+  return;
 }

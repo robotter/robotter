@@ -42,6 +42,9 @@ void motor_cs_init(void);
   */
 void motor_cs_update(void* dummy, int32_t m1, int32_t m2, int32_t m3);
 
+/**@brief Set break active/inactive */
+void motor_cs_break(uint8_t);
+
 /**@brief Return motor 1 speed */
 int32_t get_encoder_motor1(void*);
 

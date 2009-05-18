@@ -40,6 +40,8 @@ uint8_t adns6010_spi_sendrecv(uint8_t send)
 {
 	uint8_t recv;
 
+	while( bit_is_set(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_BUSY) );
+  
 	// Drive senddata low to initiate SPI communication
 	cbi(ADNS6010_SPI_CTRL, ADNS6010_SPICTRL_BIT_SENDDATA);
 	
@@ -80,33 +82,41 @@ uint8_t adns6010_spi_recv()
 
 void adns6010_spi_cs(uint8_t cs)
 {
+  uint8_t byte;
+
+  byte = ADNS6010_SPI_CTRL;
+
 	switch(cs)
 	{
-		default:
 		case 0:
       // No ADNS selected
-			cbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS0);
-			cbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS1);
+			cbi(byte,ADNS6010_SPICTRL_BIT_CS0);
+			cbi(byte,ADNS6010_SPICTRL_BIT_CS1);
 			break;
 
 		case 1:
       // ADNS#1
-			sbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS0);
-			cbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS1);
+			sbi(byte,ADNS6010_SPICTRL_BIT_CS0);
+			cbi(byte,ADNS6010_SPICTRL_BIT_CS1);
 			break;
 
 		case 2:
       // ADNS#2
-			cbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS0);
-			sbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS1);
+			cbi(byte,ADNS6010_SPICTRL_BIT_CS0);
+			sbi(byte,ADNS6010_SPICTRL_BIT_CS1);
 			break;
 
 		case 3:
       // ADNS#3
-			sbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS0);
-			sbi(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_CS1);
+			sbi(byte,ADNS6010_SPICTRL_BIT_CS0);
+			sbi(byte,ADNS6010_SPICTRL_BIT_CS1);
 			break;
+
+		default:
+      break;
 	}
+
+  ADNS6010_SPI_CTRL = byte;
 
 	return;
 }

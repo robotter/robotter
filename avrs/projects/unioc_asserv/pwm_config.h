@@ -90,26 +90,9 @@ if you need for example a PWM1A with special sign mode you configure like this :
 
 */
 
-
-
-// example for signed pwm1A
-#define PWM1A_MODE       (PWM_SIGNED)
-#define PWM1A_SIGN_PORT  PORTB
-#define PWM1A_SIGN_BIT   2
-
-#define PWM1B_MODE       (PWM_SIGNED)
-#define PWM1B_SIGN_PORT  PORTB
-#define PWM1B_SIGN_BIT   3
-
-#define PWM1C_MODE       (PWM_SIGNED)
-#define PWM1C_SIGN_PORT  PORTB
-#define PWM1C_SIGN_BIT   4
-
-
-
-
-
-
+#define PWM1A_MODE       (PWM_NORMAL)
+#define PWM1B_MODE       (PWM_NORMAL)
+#define PWM1C_MODE       (PWM_NORMAL)
 
 /** 
 PWM synchronization.

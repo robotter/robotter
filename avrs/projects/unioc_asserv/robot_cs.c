@@ -57,15 +57,15 @@ void robot_cs_init(robot_cs_t* rcs)
 	pid_init(&pid_y);
 	pid_init(&pid_angle);
 
-	pid_set_gains(&pid_x, 200, 0, 0) ;
+	pid_set_gains(&pid_x, 600, 0, 0) ;
   pid_set_maximums(&pid_x, 0, 0, 0);
   pid_set_out_shift(&pid_x, 10);
  
-  pid_set_gains(&pid_y, 200, 0, 0) ;
+  pid_set_gains(&pid_y, 600, 0, 0) ;
   pid_set_maximums(&pid_y, 0, 0, 0);
   pid_set_out_shift(&pid_y, 10);
  
-  pid_set_gains(&pid_angle, 200, 0, 0) ;
+  pid_set_gains(&pid_angle, 600, 0, 0) ;
   pid_set_maximums(&pid_angle, 0, 0, 0);
   pid_set_out_shift(&pid_angle, 10);
 
@@ -132,8 +132,8 @@ void robot_cs_update(void* dummy)
   cs_manage(&csm_angle);
 
   // set second level consigns
-  hrobot_set_motors(rcs->hrs, cs_get_out(&csm_x),
-                              cs_get_out(&csm_y),
+  hrobot_set_motors(rcs->hrs, 0,//cs_get_out(&csm_x),
+                              0,//cs_get_out(&csm_y),
                               cs_get_out(&csm_angle));
 
 }

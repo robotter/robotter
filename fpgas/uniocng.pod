@@ -8,12 +8,13 @@ project.addinstance pod_library.encoder_inc
 project.addinstance pod_library.encoder_inc
 project.addinstance pod_library.encoder_inc
 project.addinstance pod_library.compass
+project.addinstance components.led.wb8
 
 # pin connections 
 project.connectpin adns601000.adns_spi.mosi_o unioc_ng.fpga.86
 project.connectpin adns601000.adns_spi.miso_i unioc_ng.fpga.92
-project.connectpin adns601000.adns_spi.sck_o  unioc_ng.fpga.88
-project.connectpin adns601000.adns_spi.cs1_no unioc_ng.fpga.90
+project.connectpin adns601000.adns_spi.sck_o  unioc_ng.fpga.87
+project.connectpin adns601000.adns_spi.cs1_no unioc_ng.fpga.97
 project.connectpin adns601000.adns_spi.cs2_no unioc_ng.fpga.94
 project.connectpin adns601000.adns_spi.cs3_no unioc_ng.fpga.73
 project.connectpin adns601000.adns_spi.adns_reset_o unioc_ng.fpga.75
@@ -29,44 +30,47 @@ project.connectpin encoder_inc02.channels.ch_b_i unioc_ng.fpga.143
 
 project.connectpin compass00.pwm.pwm_i unioc_ng.fpga.144
 
+project.connectpin led00.int_led.led unioc_ng.fpga.TLED
+
 # wrapper connection
-project.connectpin atmega_wb8_wrapper00.emi.Address_H.0 unioc_ng.fpga.data_fpga_8
-project.connectpin atmega_wb8_wrapper00.emi.Address_H.1 unioc_ng.fpga.data_fpga_9
-project.connectpin atmega_wb8_wrapper00.emi.Address_H.2 unioc_ng.fpga.data_fpga_10
-project.connectpin atmega_wb8_wrapper00.emi.Address_H.3 unioc_ng.fpga.data_fpga_11
-project.connectpin atmega_wb8_wrapper00.emi.Address_H.4 unioc_ng.fpga.data_fpga_12
-project.connectpin atmega_wb8_wrapper00.emi.Address_H.5 unioc_ng.fpga.data_fpga_13
-project.connectpin atmega_wb8_wrapper00.emi.Address_H.6 unioc_ng.fpga.data_fpga_14
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.Address_H.0 unioc_ng.fpga.data_fpga_8
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.Address_H.1 unioc_ng.fpga.data_fpga_9
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.Address_H.2 unioc_ng.fpga.data_fpga_10
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.Address_H.3 unioc_ng.fpga.data_fpga_11
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.Address_H.4 unioc_ng.fpga.data_fpga_12
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.Address_H.5 unioc_ng.fpga.data_fpga_13
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.Address_H.6 unioc_ng.fpga.data_fpga_14
 
-project.connectpin atmega_wb8_wrapper00.emi.DA.0 unioc_ng.fpga.AD_fpga_0
-project.connectpin atmega_wb8_wrapper00.emi.DA.1 unioc_ng.fpga.AD_fpga_1
-project.connectpin atmega_wb8_wrapper00.emi.DA.2 unioc_ng.fpga.AD_fpga_2
-project.connectpin atmega_wb8_wrapper00.emi.DA.3 unioc_ng.fpga.AD_fpga_3
-project.connectpin atmega_wb8_wrapper00.emi.DA.4 unioc_ng.fpga.AD_fpga_4
-project.connectpin atmega_wb8_wrapper00.emi.DA.5 unioc_ng.fpga.AD_fpga_5
-project.connectpin atmega_wb8_wrapper00.emi.DA.6 unioc_ng.fpga.AD_fpga_6
-project.connectpin atmega_wb8_wrapper00.emi.DA.7 unioc_ng.fpga.AD_fpga_7
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.DA.0 unioc_ng.fpga.AD_fpga_0
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.DA.1 unioc_ng.fpga.AD_fpga_1
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.DA.2 unioc_ng.fpga.AD_fpga_2
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.DA.3 unioc_ng.fpga.AD_fpga_3
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.DA.4 unioc_ng.fpga.AD_fpga_4
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.DA.5 unioc_ng.fpga.AD_fpga_5
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.DA.6 unioc_ng.fpga.AD_fpga_6
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.DA.7 unioc_ng.fpga.AD_fpga_7
 
-project.connectpin atmega_wb8_wrapper00.emi.ALE unioc_ng.fpga.ALE_3V
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.ALE unioc_ng.fpga.ALE_3V
 
-project.connectpin atmega_wb8_wrapper00.emi.RD unioc_ng.fpga.RD_fpga
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.RD unioc_ng.fpga.RD_fpga
 
-project.connectpin atmega_wb8_wrapper00.emi.WR unioc_ng.fpga.WR_fpga
+#project.connectpin atmega_nodir_wb8_wrapper00.emi.WR unioc_ng.fpga.WR_fpga
 
 # bus connections
-project.connectbus atmega_wb8_wrapper00.mwb8 adns601000.swb8
-project.connectbus atmega_wb8_wrapper00.mwb8 encoder_inc00.swb8
-project.connectbus atmega_wb8_wrapper00.mwb8 encoder_inc01.swb8
-project.connectbus atmega_wb8_wrapper00.mwb8 encoder_inc02.swb8
-project.connectbus atmega_wb8_wrapper00.mwb8 compass00.swb8
+project.connectbus atmega_nodir_wb8_wrapper00.mwb8 adns601000.swb8
+project.connectbus atmega_nodir_wb8_wrapper00.mwb8 encoder_inc00.swb8
+project.connectbus atmega_nodir_wb8_wrapper00.mwb8 encoder_inc01.swb8
+project.connectbus atmega_nodir_wb8_wrapper00.mwb8 encoder_inc02.swb8
+project.connectbus atmega_nodir_wb8_wrapper00.mwb8 compass00.swb8
+project.connectbus atmega_nodir_wb8_wrapper00.mwb8 led00.swb8
 
 # syscon connections
-project.addbusclock rstext_syscon00.candr atmega_wb8_wrapper00.mwb8
+project.addbusclock rstext_syscon00.candr atmega_nodir_wb8_wrapper00.mwb8
 project.connectpin rstext_syscon00.ext.ext_clk unioc_ng.fpga.CLK0
 project.connectpin rstext_syscon00.ext.ext_rst_n unioc_ng.fpga.nRST_fpga
 
 # intercon
-project.intercon atmega_wb8_wrapper00.mwb8
+project.intercon atmega_nodir_wb8_wrapper00.mwb8
 
 # memory mapping 
 project.setaddr adns601000.swb8 0x1300
@@ -74,6 +78,7 @@ project.setaddr encoder_inc00.swb8 0x1400
 project.setaddr encoder_inc01.swb8 0x1500
 project.setaddr encoder_inc02.swb8 0x1600
 project.setaddr compass00.swb8 0x1700
+project.setaddr led00.swb8 0x1800
 
 # top gen.
 project.top

@@ -8,7 +8,7 @@
 
 		<components>
             <component name="syscons/rstext_syscon" />
-            <component name="wrappers/atmega_wb8_wrapper" />
+            <component name="pod_library/atmega_nodir_wb8_wrapper" />
 		</components>
 
     <simulation>
@@ -68,7 +68,8 @@
                     
                     <port size="1" name="IRQ_fpga"     position="PIN_70" dir="inout"/>
 
-                    <port size="1" name="CLK0" position="PIN_71" dir="inout" freq="50"/>
+                    <port size="1" name="CLK0" position="PIN_17" dir="inout" freq="50"/>
+                    <port size="1" name="CLK_mega" position="PIN_71" dir="in"/>
 
                     <port size="1" name="73" position="PIN_73" dir="inout"/>
                     <port size="1" name="74" position="PIN_74" dir="inout"/>

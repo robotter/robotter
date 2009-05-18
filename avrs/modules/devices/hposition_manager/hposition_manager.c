@@ -109,6 +109,7 @@ void hposition_update(void *dummy)
     for(i=0;i<6;i++)
       hpos->pAdnsVectors[i] = adns6010.vectors[i];
 
+    hpos->firstUpdate = 0;
     return;
   }
 

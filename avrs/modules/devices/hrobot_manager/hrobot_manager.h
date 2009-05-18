@@ -46,12 +46,12 @@ void hrobot_set_motors_accessor( hrobot_system_t*,
 																	void*);
 
 /**@brief Set robot course and speed 
-  *@param speed motors speed 
-  *@param course in radians
+  *@param vx robot speed x coordinate
+  *@param vy robot speed y coordinate
   *@param omega robot angular velocity
   */
 void hrobot_set_motors( hrobot_system_t*,
-                        int32_t speed, double course,
+                        int32_t vx, int32_t vy,
                         int32_t omega);
 
 #endif/*_HROBOT_MANAGER_H_*/

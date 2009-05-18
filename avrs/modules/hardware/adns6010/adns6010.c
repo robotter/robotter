@@ -279,6 +279,11 @@ uint8_t adns6010_checks()
   // For each ADNS
   for(it=1;it<=ADNS6010_NUM;it++)
   {
+
+    sbi(PORTD,7);
+    cbi(PORTD,7);
+    sbi(PORTD,7);
+
     // Set current ADNS CS active
     adns6010_spi_cs(it);
     // Wait NCS-SCLK
@@ -320,6 +325,10 @@ uint8_t adns6010_checks()
     //(DS don't exactly specify delay here, one frame seems to be max refresh time)
     _delay_us(ADNS6010_TIMINGS_FRAME_PERIOD);
     _delay_us(ADNS6010_TIMINGS_FRAME_PERIOD);
+    
+    //XXX 
+    wait_ms(1);
+    //XXX
 
     // Read register current value
     adns6010_spi_send(ADNS6010_SPIREGISTER_OBSERVATION);
@@ -505,15 +514,16 @@ uint8_t adns6010_checkSPI(void)
     // Read inverse productID
     adns6010_spi_send(ADNS6010_SPIREGISTER_INVPRODUCTID);
     _delay_us(ADNS6010_TIMINGS_SRAD);
-    byte_ipid = adns6010_spi_recv();
     
+    byte_ipid = adns6010_spi_recv();
+
     // Test if productID and inverse productID are consistents
     if( byte_pid != (uint8_t)(~byte_ipid) )
     {  
       adns6010_spi_cs(0);
       return (ADNS6010_RV_ADNS1_SPICOMMFAIL + it - 1);
     }
-
+    
     adns6010_spi_cs(0);
   }
   
