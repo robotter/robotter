@@ -119,7 +119,7 @@ int main(int argc, char** argv){
     resultat_test.seuils[4].or_avec=-1;
     resultat_test.seuils[4].and_avec=3;
     resultat_test.seuils[4].utilise_zones=1;
- 
+
     // * Zones *
     // Taille des zones
     resultat_test.z_larg_min=0;
@@ -133,39 +133,21 @@ int main(int argc, char** argv){
     resultat_test.z_x_max=1000;
     resultat_test.z_y_max=1000;
 
+    //**********************************
+    //**********************************
+    FILE * pFile;
 
+    pFile=fopen("image.modif","w");
 
-//**********************************
-//**********************************
-//**********************************
-//**********************************
-//**********************************
-//**********************************
-//**********************************
-FILE * pFile;
-
-pFile=fopen("image.modif","w");
-
-   for (i=0;i<resultat_test.largueur*resultat_test.hauteur;i++){
- putc ((src->imageData)[3*i] , pFile);
- putc ((src->imageData)[3*i+1] , pFile);
- putc ((src->imageData)[3*i+2] , pFile);
+    for (i=0;i<resultat_test.largueur*resultat_test.hauteur;i++){
+      putc ((src->imageData)[3*i] , pFile);
+      putc ((src->imageData)[3*i+1] , pFile);
+      putc ((src->imageData)[3*i+2] , pFile);
     }
 
- fclose (pFile);
-
-
-
-
-//**********************************
-//**********************************
-//**********************************
-//**********************************
-//**********************************
-//**********************************
-//**********************************
-
-
+    fclose (pFile);
+    //**********************************
+    //**********************************
 
     // mise en place du système de mesure
     tz.tz_minuteswest=0;
@@ -187,21 +169,21 @@ pFile=fopen("image.modif","w");
 
     // pour l'affichage des HY(avant et après moyennage)
     /*
-    IplImage* dst_H = cvCreateImage( cvGetSize(src), IPL_DEPTH_8U, 1);
-    IplImage* dst_Y = cvCreateImage( cvGetSize(src), IPL_DEPTH_8U, 1);
+       IplImage* dst_H = cvCreateImage( cvGetSize(src), IPL_DEPTH_8U, 1);
+       IplImage* dst_Y = cvCreateImage( cvGetSize(src), IPL_DEPTH_8U, 1);
 
-    for (i=0;i<resultat_test.largueur*resultat_test.hauteur;i++){
-      (dst_H->imageData)[i]=(char)resultat_test.test[2*i+1];
-      (dst_Y->imageData)[i]=(char)resultat_test.test[2*i];
-    }
+       for (i=0;i<resultat_test.largueur*resultat_test.hauteur;i++){
+       (dst_H->imageData)[i]=(char)resultat_test.test[2*i+1];
+       (dst_Y->imageData)[i]=(char)resultat_test.test[2*i];
+       }
 
-    cvNamedWindow("Luminance", CV_WINDOW_AUTOSIZE);
-    cvShowImage("Luminance", dst_Y);
-    cvNamedWindow("Chrominance", CV_WINDOW_AUTOSIZE);
-    cvShowImage("Chrominance", dst_H);
-    cvReleaseImage(&dst_H);
-    cvReleaseImage(&dst_Y);
-    */
+       cvNamedWindow("Luminance", CV_WINDOW_AUTOSIZE);
+       cvShowImage("Luminance", dst_Y);
+       cvNamedWindow("Chrominance", CV_WINDOW_AUTOSIZE);
+       cvShowImage("Chrominance", dst_H);
+       cvReleaseImage(&dst_H);
+       cvReleaseImage(&dst_Y);
+     */
     // pour l'affichage des seuils
     int sel_seuil_1=1;
     int sel_seuil_2=4;
@@ -242,7 +224,6 @@ pFile=fopen("image.modif","w");
 
     cvReleaseImage(&seuil_1);
     cvReleaseImage(&seuil_2);
-    
 
     cvWaitKey(0);
 

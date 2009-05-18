@@ -15,7 +15,7 @@
 // Seulement pour le programmeur
 #define _DEBUG 1
 
-#define VERBOSE_MODE 0
+#define VERBOSE_MODE 6
 
 // Les modes de stockages pour les pixels issus de la caméra
 #define IMGMODE_RPGPBP 0 // le mode: R1G1B1R2G2B2R3G3B3...
@@ -58,7 +58,7 @@
 
 // Taille du moyennage n*n
 // Une taille de 0 désactive les moyennages
-#define MOYENNE_DIM 0
+#define MOYENNE_DIM 1
 
 // Taille de l'erosion
 #define EROSION_DIM 3
@@ -104,9 +104,11 @@ typedef struct{
 typedef struct
 {
   // ** Entrees **
-  // Dimensions de l'image (en cas d'utilisation de fenetres)
-  uint16_t largueur;
-  uint16_t hauteur;
+  // Dimensions de l'image (en cas d'utilisation de fenetres), virées pour raisons
+  // d'optimisation,
+  //uint16_t largueur;
+  //uint16_t hauteur;
+
   // Seuils
   seuil seuils[NB_SEUILS];
 
@@ -150,8 +152,8 @@ typedef struct
  */
 int process_image(uint8_t * image, information * es_info);
 
-#define IMAGE_WIDTH   332
-#define IMAGE_HEIGHT  246
+#define IMAGE_WIDTH   800
+#define IMAGE_HEIGHT  600
 #define IMAGE_SIZE    (IMAGE_WIDTH*IMAGE_HEIGHT)
 
 #endif

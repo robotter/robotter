@@ -94,8 +94,8 @@ int process_image(uint8_t * image, information * es_info){
   printf("    -> Allocation mémoire\n");
   fflush(stdout);
 #endif
-// ** Moyennage de l'image **
-uint8_t* img_moyenne;
+  // ** Moyennage de l'image **
+  uint8_t* img_moyenne;
 #if MOYENNE_DIM==0
   img_moyenne=img_HY;
 #else
@@ -283,74 +283,14 @@ uint8_t* img_moyenne;
 #endif
 
   // ** Reconnaissance de zones **
+  for (i=0; i<IMAGE_HEIGHT;i++){
+    for (j=0; j<IMAGE_WIDTH;j++){
 
-  l=0;
-  l++;
-
-  // Algorithme inspiré du travail de Mehdi Darouich
-  //
-  // Une zone est définié par le cadre qui l'entoure et le filtre qui l'a généré.
-  // Le cadre est défini par le coin supérieur gauche et sa largueur et hauteur
-  //
-  // L'algo est le suivant:
-  // - pour chaque ligne on prend les pixels connexes
-  // - on regarde s'ils correspondent à des pixels de la lignes précedente
-  //         ex:
-  //            AAAAAAAAAAAAAAAAAAA                                               AAAAAAAA
-  //                BBBBBBBBBBBBBBBBBBBB                            BBBBBBBBB
-  //             les deux lignes correspondent                       les deux lignes ne correspondent pas
-  //      - si les deux lignes correspondent on associe la ligne du bas à la zone au dessus
-  //      - si les deux lignes ne correspondent pas on commence une nouvelle zone
-  // - une fois la ligne terminée on regarde si tous les blocs de pixels de la ligne précédente ont trouvé un
-  //     correspondant ceux qui n'en ont pas forment une "fin de zone"
-  // - pour chaque "fin de zone", on regarde si la zone est intéressante ou non
-  //
-  // dans chaque zone on calcule la densité des pixels
-
-  // intialisation des variables
-  int m,n;
-  int z_largueur,z_hauteur,z_active_pix;
-
-  l=-1;
-  // on parcourt l'image
-  for( i=0; i<IMAGE_HEIGHT; i++ ) {
-    for( j=0; j<IMAGE_WIDTH; j++ ) {
-      // pour chaque seuil actif
-      for (k=0;k<NB_SEUILS;k++){
-        seuil *s = &es_info->seuils[k];
-        if( s->utilise_zones != 1 )
-          continue;
-        // si on tombe sur un pixel actif
-        if( (img_erode[i*IMAGE_WIDTH+j]&(1<<k)) != 0 ) {
-          // on commence une nouvelle zone
-          l++;
-          es_info->zones[l].x=j;
-          es_info->zones[l].y=j;
-          img_erode[i*IMAGE_WIDTH+j]=img_erode[i*IMAGE_WIDTH+j]&(~(1<<k));
-          z_active_pix=1;
-          z_largueur++;
-          es_info->zones[l].largueur=1;
-          es_info->zones[l].hauteur=1;
-          m=i;
-          n=j;
-          n++;
-          // on détermine la largeur
-          // on efface la ligne en cour.
-          while(((img_erode[m*IMAGE_WIDTH+n]&(1<<k))!= 0)&&(n<IMAGE_WIDTH)){
-            z_largueur++;
-            img_erode[m*IMAGE_WIDTH+n]=img_erode[m*IMAGE_WIDTH+n]&(~(1<<k));
-            z_active_pix++;
-            n++;
-          }
-          // on determine les limites des pixels en dessous
-        }
-
-        es_info->zones[l].largueur = z_largueur;
-        es_info->zones[l].hauteur  = z_hauteur;
-        es_info->zones[l].densite  = (float)z_active_pix/(float)(z_largueur*z_hauteur);
-      }
     }
   }
+
+
+
 
   return 1;
 }
