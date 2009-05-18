@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component instance_name="compass00" name="compass" num="0" version="1.0">
+    <description>
+	  Lextronic CMP03 reading module
+    </description>
+    <generics>
+        <generic destination="both" match="\d+" name="id" public="true" type="natural" value="5" />
+    </generics>
+    <hdl_files>
+        <hdl_file filename="hdl/top_compass.vhd" istop="1" scope="all" />
+        <hdl_file filename="hdl/compass_wbs.vhd" istop="0" scope="all" />
+        <hdl_file filename="hdl/compass_reader.vhd" istop="0" scope="all" />
+    </hdl_files>
+    <interfaces>
+        <interface class="CLK_RST" name="clock">
+            <ports>
+                <port dir="in" name="wbs_clk_i" size="1" type="CLK">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_clock" pin_dest="0" port_dest="compass00_wbs_clk_i" />
+                    </pin>
+                </port>
+                <port dir="in" name="wbs_rst_i" size="1" type="RST">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_clock" pin_dest="0" port_dest="compass00_wbs_rst_i" />
+                    </pin>
+                </port>
+            </ports>
+        </interface>
+        <interface bus="wishbone8" class="SLAVE" clockandreset="clock" name="swb8">
+            <ports>
+                <port dir="in" name="wbs_adr_i" size="2" type="ADR">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_swb8" pin_dest="0" port_dest="compass00_wbs_adr_i" />
+                    </pin>
+                    <pin num="1">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_swb8" pin_dest="1" port_dest="compass00_wbs_adr_i" />
+                    </pin>
+                </port>
+                <port dir="out" name="wbs_dat_o" size="8" type="DAT_O">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_swb8" pin_dest="0" port_dest="compass00_wbs_dat_o" />
+                    </pin>
+                    <pin num="1">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_swb8" pin_dest="1" port_dest="compass00_wbs_dat_o" />
+                    </pin>
+                    <pin num="2">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_swb8" pin_dest="2" port_dest="compass00_wbs_dat_o" />
+                    </pin>
+                    <pin num="3">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_swb8" pin_dest="3" port_dest="compass00_wbs_dat_o" />
+                    </pin>
+                    <pin num="4">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_swb8" pin_dest="4" port_dest="compass00_wbs_dat_o" />
+                    </pin>
+                    <pin num="5">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_swb8" pin_dest="5" port_dest="compass00_wbs_dat_o" />
+                    </pin>
+                    <pin num="6">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_swb8" pin_dest="6" port_dest="compass00_wbs_dat_o" />
+                    </pin>
+                    <pin num="7">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_swb8" pin_dest="7" port_dest="compass00_wbs_dat_o" />
+                    </pin>
+                </port>
+                <port dir="in" name="wbs_we_i" size="1" type="WE">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_swb8" pin_dest="0" port_dest="compass00_wbs_we_i" />
+                    </pin>
+                </port>
+                <port dir="in" name="wbs_stb_i" size="1" type="STB">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_swb8" pin_dest="0" port_dest="compass00_wbs_stb_i" />
+                    </pin>
+                </port>
+                <port dir="in" name="wbs_cyc_i" size="1" type="CYC">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_swb8" pin_dest="0" port_dest="compass00_wbs_cyc_i" />
+                    </pin>
+                </port>
+                <port dir="out" name="wbs_ack_o" size="1" type="ACK">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="compass00_swb8" pin_dest="0" port_dest="compass00_wbs_ack_o" />
+                    </pin>
+                </port>
+            </ports>
+            <registers base="0x58" />
+        </interface>
+        <interface name="pwm">
+            <ports>
+                <port dir="in" name="pwm_i" size="1" type="EXPORT">
+                    <pin num="0">
+                        <connect instance_dest="unioc_ng" interface_dest="fpga" pin_dest="0" port_dest="144" />
+                    </pin>
+                </port>
+            </ports>
+        </interface>
+    </interfaces>
+</component>

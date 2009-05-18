@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<toolchain name="quartus" version="1.0" type="synthesis" >
+    <description></description>
+    <tool name="quartus"/>
+</toolchain>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component instance_name="led00" name="led" num="0" version="1.0">
+    <description>
+        A simple led read/write.
+    </description>
+    <driver_files>
+    </driver_files>
+    <hdl_files>
+        <hdl_file filename="hdl/led.vhd" istop="1" scope="all" />
+    </hdl_files>
+    <generics>
+        <generic destination="both" match="\d+" name="id" public="true" type="natural" value="6" />
+        <generic destination="fpga" match="\d+" name="wb_size" public="false" type="natural" value="8" />
+    </generics>
+    <interfaces>
+        <interface class="GLS" name="int_led">
+            <ports>
+                <port dir="out" name="led" size="1" type="EXPORT">
+                    <pin num="0">
+                        <connect instance_dest="unioc_ng" interface_dest="fpga" pin_dest="0" port_dest="TLED" />
+                    </pin>
+                </port>
+            </ports>
+        </interface>
+        <interface class="CLK_RST" name="candr">
+            <ports>
+                <port dir="in" name="gls_reset" size="1" type="RST">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_candr" pin_dest="0" port_dest="led00_gls_reset" />
+                    </pin>
+                </port>
+                <port dir="in" name="gls_clk" size="1" type="CLK">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_candr" pin_dest="0" port_dest="led00_gls_clk" />
+                    </pin>
+                </port>
+            </ports>
+        </interface>
+        <interface bus="wishbone8" class="SLAVE" clockandreset="candr" name="swb8">
+            <registers base="0x5c">
+                <register name="id" offset="0x00" rows="1" size="8" />
+                <register name="reg_led" offset="0x01" rows="1" size="8" />
+            </registers>
+            <ports>
+                <port dir="in" name="wbs_add" size="1" type="ADR">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="0" port_dest="led00_wbs_add" />
+                    </pin>
+                </port>
+                <port dir="in" name="wbs_writedata" size="8" type="DAT_I">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="0" port_dest="led00_wbs_writedata" />
+                    </pin>
+                    <pin num="1">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="1" port_dest="led00_wbs_writedata" />
+                    </pin>
+                    <pin num="2">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="2" port_dest="led00_wbs_writedata" />
+                    </pin>
+                    <pin num="3">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="3" port_dest="led00_wbs_writedata" />
+                    </pin>
+                    <pin num="4">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="4" port_dest="led00_wbs_writedata" />
+                    </pin>
+                    <pin num="5">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="5" port_dest="led00_wbs_writedata" />
+                    </pin>
+                    <pin num="6">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="6" port_dest="led00_wbs_writedata" />
+                    </pin>
+                    <pin num="7">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="7" port_dest="led00_wbs_writedata" />
+                    </pin>
+                </port>
+                <port dir="out" name="wbs_readdata" size="8" type="DAT_O">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="0" port_dest="led00_wbs_readdata" />
+                    </pin>
+                    <pin num="1">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="1" port_dest="led00_wbs_readdata" />
+                    </pin>
+                    <pin num="2">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="2" port_dest="led00_wbs_readdata" />
+                    </pin>
+                    <pin num="3">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="3" port_dest="led00_wbs_readdata" />
+                    </pin>
+                    <pin num="4">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="4" port_dest="led00_wbs_readdata" />
+                    </pin>
+                    <pin num="5">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="5" port_dest="led00_wbs_readdata" />
+                    </pin>
+                    <pin num="6">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="6" port_dest="led00_wbs_readdata" />
+                    </pin>
+                    <pin num="7">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="7" port_dest="led00_wbs_readdata" />
+                    </pin>
+                </port>
+                <port dir="in" name="wbs_strobe" size="1" type="STB">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="0" port_dest="led00_wbs_strobe" />
+                    </pin>
+                </port>
+                <port dir="in" name="wbs_cycle" size="1" type="CYC">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="0" port_dest="led00_wbs_cycle" />
+                    </pin>
+                </port>
+                <port dir="in" name="wbs_write" size="1" type="WE">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="0" port_dest="led00_wbs_write" />
+                    </pin>
+                </port>
+                <port dir="out" name="wbs_ack" size="1" type="ACK">
+                    <pin num="0">
+                        <connect instance_dest="atmega_nodir_wb8_wrapper00_mwb8_intercon" interface_dest="led00_swb8" pin_dest="0" port_dest="led00_wbs_ack" />
+                    </pin>
+                </port>
+            </ports>
+        </interface>
+    </interfaces>
+</component>

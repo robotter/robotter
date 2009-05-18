@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="uniocng" version="1.0">
+    <description>insert a description here
+    </description>
+    <components>
+        <component name="unioc_ng" platform="true" />
+        <component name="rstext_syscon00" />
+        <component name="atmega_nodir_wb8_wrapper00" />
+        <component name="adns601000" />
+        <component name="encoder_inc00" />
+        <component name="encoder_inc01" />
+        <component name="encoder_inc02" />
+        <component name="compass00" />
+        <component name="led00" />
+        <component name="atmega_nodir_wb8_wrapper00_mwb8_intercon" />
+    </components>
+    <platform name="unioc_ng" version="1.0">
+        <description>
+        UNIOC-NG Rob'Otter version card
+        </description>
+        <fpga device="ep2C5T144C8N" family="cyclone" main_clock="50000" package="TQFP144" speed="C8" />
+        <components>
+            <component name="syscons/rstext_syscon" />
+            <component name="pod_library/atmega_nodir_wb8_wrapper" />
+        </components>
+        <simulation>
+            <simlib filename="atmega_emi_pkg.vhd" />
+        </simulation>
+        <interfaces>
+            <interface name="fpga">
+                <ports>
+                    <port dir="inout" name="3" position="PIN_3" size="1">
+                        <pin num="0">
+                            <connect instance_dest="encoder_inc02" interface_dest="channels" pin_dest="0" port_dest="ch_a_i" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="4" position="PIN_4" size="1">
+                        <pin num="0">
+                            <connect instance_dest="encoder_inc00" interface_dest="channels" pin_dest="0" port_dest="ch_a_i" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="7" position="PIN_7" size="1">
+                        <pin num="0">
+                            <connect instance_dest="encoder_inc01" interface_dest="channels" pin_dest="0" port_dest="ch_b_i" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="8" position="PIN_8" size="1">
+                        <pin num="0">
+                            <connect instance_dest="encoder_inc00" interface_dest="channels" pin_dest="0" port_dest="ch_b_i" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="9" position="PIN_9" size="1">
+                        <pin num="0">
+                            <connect instance_dest="encoder_inc01" interface_dest="channels" pin_dest="0" port_dest="ch_a_i" />
+                        </pin>
+                    </port>
+                    <port dir="in" name="18" position="PIN_18" size="1" />
+                    <port dir="in" name="21" position="PIN_21" size="1" />
+                    <port dir="in" name="22" position="PIN_22" size="1" />
+                    <port dir="in" name="91" position="PIN_91" size="1" />
+                    <port dir="in" name="90" position="PIN_90" size="1" />
+                    <port dir="in" name="89" position="PIN_89" size="1" />
+                    <port dir="in" name="88" position="PIN_88" size="1" />
+                    <port dir="inout" name="SCL_fpga" position="PIN_24" size="1" />
+                    <port dir="inout" name="SDA_fpga" position="PIN_25" size="1" />
+                    <port dir="inout" name="nRST_fpga" position="PIN_28" size="1">
+                        <pin num="0">
+                            <connect instance_dest="rstext_syscon00" interface_dest="ext" pin_dest="0" port_dest="ext_rst_n" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="INT1_fpga" position="PIN_30" size="1" />
+                    <port dir="inout" name="INT0_fpga" position="PIN_32" size="1" />
+                    <port dir="inout" name="TX_fpga" position="PIN_40" size="1" />
+                    <port dir="inout" name="RX_fpga" position="PIN_41" size="1" />
+                    <port dir="inout" name="AD_fpga_0" position="PIN_42" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="0" port_dest="DA" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="AD_fpga_1" position="PIN_43" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="1" port_dest="DA" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="AD_fpga_2" position="PIN_44" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="2" port_dest="DA" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="AD_fpga_3" position="PIN_45" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="3" port_dest="DA" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="AD_fpga_4" position="PIN_47" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="4" port_dest="DA" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="AD_fpga_5" position="PIN_48" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="5" port_dest="DA" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="AD_fpga_6" position="PIN_51" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="6" port_dest="DA" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="AD_fpga_7" position="PIN_52" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="7" port_dest="DA" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="ALE_3V" position="PIN_53" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="0" port_dest="ALE" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="data_fpga_15" position="PIN_55" size="1" />
+                    <port dir="inout" name="data_fpga_14" position="PIN_57" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="6" port_dest="Address_H" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="data_fpga_13" position="PIN_58" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="5" port_dest="Address_H" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="data_fpga_12" position="PIN_59" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="4" port_dest="Address_H" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="data_fpga_11" position="PIN_60" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="3" port_dest="Address_H" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="data_fpga_10" position="PIN_63" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="2" port_dest="Address_H" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="data_fpga_9" position="PIN_64" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="1" port_dest="Address_H" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="data_fpga_8" position="PIN_65" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="0" port_dest="Address_H" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="RD_fpga" position="PIN_67" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="0" port_dest="RD" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="WR_fpga" position="PIN_69" size="1">
+                        <pin num="0">
+                            <connect instance_dest="atmega_nodir_wb8_wrapper00" interface_dest="emi" pin_dest="0" port_dest="WR" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="IRQ_fpga" position="PIN_70" size="1" />
+                    <port dir="inout" freq="50" name="CLK0" position="PIN_17" size="1">
+                        <pin num="0">
+                            <connect instance_dest="rstext_syscon00" interface_dest="ext" pin_dest="0" port_dest="ext_clk" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="73" position="PIN_73" size="1">
+                        <pin num="0">
+                            <connect instance_dest="adns601000" interface_dest="adns_spi" pin_dest="0" port_dest="cs3_no" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="74" position="PIN_74" size="1" />
+                    <port dir="inout" name="75" position="PIN_75" size="1">
+                        <pin num="0">
+                            <connect instance_dest="adns601000" interface_dest="adns_spi" pin_dest="0" port_dest="adns_reset_o" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="79" position="PIN_79" size="1" />
+                    <port dir="inout" name="86" position="PIN_86" size="1">
+                        <pin num="0">
+                            <connect instance_dest="adns601000" interface_dest="adns_spi" pin_dest="0" port_dest="mosi_o" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="87" position="PIN_87" size="1">
+                        <pin num="0">
+                            <connect instance_dest="adns601000" interface_dest="adns_spi" pin_dest="0" port_dest="sck_o" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="92" position="PIN_92" size="1">
+                        <pin num="0">
+                            <connect instance_dest="adns601000" interface_dest="adns_spi" pin_dest="0" port_dest="miso_i" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="93" position="PIN_93" size="1" />
+                    <port dir="inout" name="94" position="PIN_94" size="1">
+                        <pin num="0">
+                            <connect instance_dest="adns601000" interface_dest="adns_spi" pin_dest="0" port_dest="cs2_no" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="96" position="PIN_96" size="1" />
+                    <port dir="inout" name="97" position="PIN_97" size="1">
+                        <pin num="0">
+                            <connect instance_dest="adns601000" interface_dest="adns_spi" pin_dest="0" port_dest="cs1_no" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="99" position="PIN_99" size="1" />
+                    <port dir="inout" name="100" position="PIN_100" size="1" />
+                    <port dir="inout" name="101" position="PIN_101" size="1" />
+                    <port dir="inout" name="103" position="PIN_103" size="1" />
+                    <port dir="inout" name="104" position="PIN_104" size="1" />
+                    <port dir="inout" name="112" position="PIN_112" size="1" />
+                    <port dir="inout" name="113" position="PIN_113" size="1" />
+                    <port dir="inout" name="114" position="PIN_114" size="1" />
+                    <port dir="inout" name="118" position="PIN_118" size="1" />
+                    <port dir="inout" name="119" position="PIN_119" size="1" />
+                    <port dir="inout" name="120" position="PIN_120" size="1" />
+                    <port dir="inout" name="125" position="PIN_125" size="1" />
+                    <port dir="inout" name="126" position="PIN_126" size="1" />
+                    <port dir="inout" name="129" position="PIN_129" size="1" />
+                    <port dir="inout" name="132" position="PIN_132" size="1" />
+                    <port dir="inout" name="133" position="PIN_133" size="1" />
+                    <port dir="inout" name="134" position="PIN_134" size="1" />
+                    <port dir="inout" name="135" position="PIN_135" size="1" />
+                    <port dir="inout" name="136" position="PIN_136" size="1" />
+                    <port dir="inout" name="137" position="PIN_137" size="1" />
+                    <port dir="inout" name="139" position="PIN_139" size="1" />
+                    <port dir="inout" name="142" position="PIN_142" size="1" />
+                    <port dir="inout" name="143" position="PIN_143" size="1">
+                        <pin num="0">
+                            <connect instance_dest="encoder_inc02" interface_dest="channels" pin_dest="0" port_dest="ch_b_i" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="144" position="PIN_144" size="1">
+                        <pin num="0">
+                            <connect instance_dest="compass00" interface_dest="pwm" pin_dest="0" port_dest="pwm_i" />
+                        </pin>
+                    </port>
+                    <port dir="inout" name="TLED" position="PIN_72" size="1">
+                        <pin num="0">
+                            <connect instance_dest="led00" interface_dest="int_led" pin_dest="0" port_dest="led" />
+                        </pin>
+                    </port>
+                </ports>
+                <slaves>
+                    <slave instancename="atmega_nodir_wb8_wrapper" interfacename="mwb8" />
+                </slaves>
+            </interface>
+        </interfaces>
+    </platform>
+</project>
