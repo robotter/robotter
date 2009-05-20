@@ -46,6 +46,13 @@ dep_bool 'holonomic robot manager' CONFIG_MODULE_HROBOT_MANAGER_ROBOTTER \
 dep_bool '  |-- Create Default hposition_manager config' CONFIG_MODULE_HROBOT_MANAGER_ROBOTTER_CREATE_CONFIG \
 	$CONFIG_MODULE_HROBOT_MANAGER_ROBOTTER
 
+#
+
+dep_bool 'AX12' CONFIG_MODULE_AX12_ROBOTTER
+
+dep_bool '  |-- Create Default ax12 config' CONFIG_MODULE_AX12_ROBOTTER_CREATE_CONFIG \
+	$CONFIG_MODULE_AX12_ROBOTTER
+
 
 
 

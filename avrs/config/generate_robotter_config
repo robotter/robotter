@@ -15,7 +15,8 @@ MODULES_LIST="CONFIG_MODULE_I2C_ROBOTTER,comm/i2c_robotter
               CONFIG_MODULE_ADNS6010_ROBOTTER,hardware/adns6010
               CONFIG_MODULE_HPOSITION_MANAGER_ROBOTTER,devices/hposition_manager
               CONFIG_MODULE_HROBOT_MANAGER_ROBOTTER,devices/hrobot_manager
-              CONFIG_MODULE_GP2PACK_ROBOTTER,hardware/gp2pack"
+              CONFIG_MODULE_GP2PACK_ROBOTTER,hardware/gp2pack
+              CONFIG_MODULE_AX12_ROBOTTER,devices/servo/ax12"
 
 
 # This script is always sourced, even if configuration is not saved in
