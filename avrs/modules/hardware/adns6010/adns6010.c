@@ -146,7 +146,7 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
       adns6010_spi_cs(0);
       return ADNS6010_RV_ADNS1_SROMCRCFAIL + it - 1;
     }
-    
+
     //------------------------------------------------
     // Load ADNS configuration
     //------------------------------------------------
@@ -279,11 +279,6 @@ uint8_t adns6010_checks()
   // For each ADNS
   for(it=1;it<=ADNS6010_NUM;it++)
   {
-
-    sbi(PORTD,7);
-    cbi(PORTD,7);
-    sbi(PORTD,7);
-
     // Set current ADNS CS active
     adns6010_spi_cs(it);
     // Wait NCS-SCLK

@@ -50,45 +50,56 @@ uint8_t motor1_sign;
 uint8_t motor2_sign;
 uint8_t motor3_sign;
 
-
+// PWM overflow event
 ISR(SIG_OVERFLOW1)
 {
-
+  // set motor1 sign bit
   if(motor1_sign)
     sbi(MOTOR_CS_PWM1_PORT,MOTOR_CS_PWM1_PIN);
   else
     cbi(MOTOR_CS_PWM1_PORT,MOTOR_CS_PWM1_PIN);
 
+  // set motor2 sign bit
   if(motor2_sign)
     sbi(MOTOR_CS_PWM2_PORT,MOTOR_CS_PWM2_PIN);
   else
     cbi(MOTOR_CS_PWM2_PORT,MOTOR_CS_PWM2_PIN);
 
+  // set motor3 sign bit
   if(motor3_sign)
     sbi(MOTOR_CS_PWM3_PORT,MOTOR_CS_PWM3_PIN);
   else
     cbi(MOTOR_CS_PWM3_PORT,MOTOR_CS_PWM3_PIN);
-
 }
 
 void motor_cs_init()
 {
+  // initialize pwms
+  pwm_init();
+
   // setup pwms dirs
   sbi(MOTOR_CS_PWM1_DDR,MOTOR_CS_PWM1_PIN);
-  sbi(MOTOR_CS_PWM2_DDR,MOTOR_CS_PWM2_PIN);
-  sbi(MOTOR_CS_PWM3_DDR,MOTOR_CS_PWM3_PIN);
+  cbi(MOTOR_CS_PWM1_PORT,MOTOR_CS_PWM1_PIN);
 
-  // setup brake
-  sbi(MOTOR_CS_BREAK_DDR, MOTOR_CS_BREAK_PIN);
-  cbi(MOTOR_CS_BREAK_PORT, MOTOR_CS_BREAK_PIN);
+  sbi(MOTOR_CS_PWM2_DDR,MOTOR_CS_PWM2_PIN);
+  cbi(MOTOR_CS_PWM2_PORT,MOTOR_CS_PWM2_PIN);
+
+  sbi(MOTOR_CS_PWM3_DDR,MOTOR_CS_PWM3_PIN);
+  cbi(MOTOR_CS_PWM3_PORT,MOTOR_CS_PWM3_PIN);
 
   motor1_sign = 0;
   motor2_sign = 0;
   motor3_sign = 0;
 
-  // initialize pwms
-  pwm_init();
+  pwm_set_1A(0);
+  pwm_set_1B(0);
+  pwm_set_1C(0);
+  
+  // setup brake
+  sbi(MOTOR_CS_BREAK_DDR, MOTOR_CS_BREAK_PIN);
+  cbi(MOTOR_CS_BREAK_PORT, MOTOR_CS_BREAK_PIN);
 
+  // activate interrupts
   sbi(TIMSK,TOIE1);
 
 	// setup PIDs
@@ -96,15 +107,15 @@ void motor_cs_init()
 	pid_init(&pid_motor2);
 	pid_init(&pid_motor3);
 
-  pid_set_gains(&pid_motor1, 300, 0, 0) ;
+  pid_set_gains(&pid_motor1, 500, 0, 10) ;
   pid_set_maximums(&pid_motor1, 0, 0, 0);
   pid_set_out_shift(&pid_motor1, 10);
  
-  pid_set_gains(&pid_motor2, 300, 0, 0) ;
+  pid_set_gains(&pid_motor2, 500, 0, 10) ;
   pid_set_maximums(&pid_motor2, 0, 0, 0);
   pid_set_out_shift(&pid_motor2, 10);
  
-  pid_set_gains(&pid_motor3, 300, 0, 0);
+  pid_set_gains(&pid_motor3, 500, 0, 10);
   pid_set_maximums(&pid_motor3, 0, 0, 0);
   pid_set_out_shift(&pid_motor3, 10);
 
@@ -117,13 +128,13 @@ void motor_cs_init()
 	cs_set_consign_filter(&csm_motor2, NULL, NULL);
 	cs_set_consign_filter(&csm_motor3, NULL, NULL);
 
-	cs_set_correct_filter(&csm_motor1, NULL, NULL);
-	cs_set_correct_filter(&csm_motor2, NULL, NULL);
-	cs_set_correct_filter(&csm_motor3, NULL, NULL);
+	cs_set_correct_filter(&csm_motor1, &pid_do_filter, &pid_motor1);
+	cs_set_correct_filter(&csm_motor2, &pid_do_filter, &pid_motor2);
+	cs_set_correct_filter(&csm_motor3, &pid_do_filter, &pid_motor3);
 
-	cs_set_feedback_filter(&csm_motor1, &pid_do_filter, &pid_motor1);
-	cs_set_feedback_filter(&csm_motor2, &pid_do_filter, &pid_motor2);
-	cs_set_feedback_filter(&csm_motor3, &pid_do_filter, &pid_motor3);
+	cs_set_feedback_filter(&csm_motor1, NULL, NULL);
+	cs_set_feedback_filter(&csm_motor2, NULL, NULL);
+	cs_set_feedback_filter(&csm_motor3, NULL, NULL);
 
 	cs_set_process_out( &csm_motor1, &get_encoder_motor1, NULL);
 	cs_set_process_out( &csm_motor2, &get_encoder_motor2, NULL);

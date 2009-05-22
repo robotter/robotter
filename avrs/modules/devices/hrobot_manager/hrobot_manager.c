@@ -65,9 +65,9 @@ void hrobot_set_motors( hrobot_system_t* hrs,
   v2 = vx*HROBOT_MOTOR2_COS_COURSE + vy*HROBOT_MOTOR2_SIN_COURSE;
   
   // 
-  v0 -= omega;
-  v1 -= omega;
-  v2 -= omega;
+  v0 += omega;
+  v1 += omega;
+  v2 += omega;
 
   // set motors speeds
 	if(hrs->motors_accessor)

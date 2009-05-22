@@ -30,6 +30,7 @@
 #include "pid_config.h"
 #include <quadramp.h>
 
+#include <stdio.h>
 
 // control system managers
 struct cs csm_x;
@@ -52,21 +53,24 @@ void robot_cs_init(robot_cs_t* rcs)
   rcs->hrs = NULL;
   rcs->hpm = NULL;
 
+  // set CS on
+  rcs->active = 1;
+
 	// setup PIDs
 	pid_init(&pid_x);
 	pid_init(&pid_y);
 	pid_init(&pid_angle);
 
-	pid_set_gains(&pid_x, 600, 0, 0) ;
-  pid_set_maximums(&pid_x, 0, 0, 0);
+	pid_set_gains(&pid_x, 120, 1, 0) ;
+  pid_set_maximums(&pid_x, 20000, 10, 0);
   pid_set_out_shift(&pid_x, 10);
  
-  pid_set_gains(&pid_y, 600, 0, 0) ;
-  pid_set_maximums(&pid_y, 0, 0, 0);
+  pid_set_gains(&pid_y, 120, 1, 0) ;
+  pid_set_maximums(&pid_y, 20000, 10, 0);
   pid_set_out_shift(&pid_y, 10);
  
-  pid_set_gains(&pid_angle, 600, 0, 0) ;
-  pid_set_maximums(&pid_angle, 0, 0, 0);
+  pid_set_gains(&pid_angle, 1000, 10, 0) ;
+  pid_set_maximums(&pid_angle, 2000, 200, 0);
   pid_set_out_shift(&pid_angle, 10);
 
   // setup quadramps
@@ -74,14 +78,14 @@ void robot_cs_init(robot_cs_t* rcs)
   quadramp_init(&qramp_y);
   quadramp_init(&qramp_angle);
 
-  quadramp_set_1st_order_vars(&qramp_x, 10, 10);
-  quadramp_set_2nd_order_vars(&qramp_x, 10, 10);
+  quadramp_set_1st_order_vars(&qramp_x, 1000, 1000);
+  quadramp_set_2nd_order_vars(&qramp_x, 5, 5);
 
-  quadramp_set_1st_order_vars(&qramp_y, 10, 10);
-  quadramp_set_2nd_order_vars(&qramp_y, 10, 10);
+  quadramp_set_1st_order_vars(&qramp_y, 1000, 1000);
+  quadramp_set_2nd_order_vars(&qramp_y, 5, 5);
 
-  quadramp_set_1st_order_vars(&qramp_angle, 10, 10);
-  quadramp_set_2nd_order_vars(&qramp_angle, 10, 10);
+  quadramp_set_1st_order_vars(&qramp_angle, 200, 200);
+  quadramp_set_2nd_order_vars(&qramp_angle, 20, 20);
 
 	// setup CSMs
 	cs_init(&csm_x);
@@ -92,13 +96,13 @@ void robot_cs_init(robot_cs_t* rcs)
 	cs_set_consign_filter(&csm_y, &quadramp_do_filter, &qramp_y);
   cs_set_consign_filter(&csm_angle, &quadramp_do_filter, &qramp_angle);
 
-	cs_set_correct_filter(&csm_x, NULL, NULL);
-	cs_set_correct_filter(&csm_y, NULL, NULL);
-	cs_set_correct_filter(&csm_angle, NULL, NULL);
+	cs_set_correct_filter(&csm_x,     &pid_do_filter, &pid_x);
+	cs_set_correct_filter(&csm_y,     &pid_do_filter, &pid_y);
+	cs_set_correct_filter(&csm_angle, &pid_do_filter, &pid_angle);
 
-	cs_set_feedback_filter(&csm_x, &pid_do_filter, &pid_x);
-	cs_set_feedback_filter(&csm_y, &pid_do_filter, &pid_y);
-	cs_set_feedback_filter(&csm_angle, &pid_do_filter, &pid_angle);
+	cs_set_feedback_filter(&csm_x,     NULL, NULL);
+	cs_set_feedback_filter(&csm_y,     NULL, NULL);
+	cs_set_feedback_filter(&csm_angle, NULL, NULL);
 
 	cs_set_process_out(&csm_x, &get_robot_x, rcs);
 	cs_set_process_out(&csm_y, &get_robot_y, rcs);
@@ -126,19 +130,30 @@ void robot_cs_update(void* dummy)
 {
 	robot_cs_t *rcs = dummy;
  
+  if(!rcs->active)
+  {
+    hrobot_set_motors(rcs->hrs, 0, 0, 0);
+    return;
+  }
+
   // compute control system first level (x,y,a)
   cs_manage(&csm_x);
   cs_manage(&csm_y);
   cs_manage(&csm_angle);
-
+/*
+  printf("%ld %ld %ld %ld\n",
+            cs_get_consign(&csm_x),
+            cs_get_filtered_consign(&csm_x),
+            cs_get_filtered_feedback(&csm_x),
+            cs_get_error(&csm_x));
+*/
   // set second level consigns
-  hrobot_set_motors(rcs->hrs, 0,//cs_get_out(&csm_x),
-                              0,//cs_get_out(&csm_y),
-                              cs_get_out(&csm_angle));
-
+  hrobot_set_motors(rcs->hrs, cs_get_out(&csm_x),
+                                cs_get_out(&csm_y),
+                                cs_get_out(&csm_angle));
 }
 
-void robot_cs_set_update( robot_cs_t* rcs,
+void robot_cs_set_consigns( robot_cs_t *rcs,
 														int32_t x,
 														int32_t y,
                             int32_t angle )
@@ -154,12 +169,16 @@ void robot_cs_set_update( robot_cs_t* rcs,
 
 int32_t get_robot_x(void* dummy)
 {
+  int32_t out;
+
   hrobot_vector_t hvec;
   robot_cs_t* rcs = dummy;
 
   hposition_get(rcs->hpm, &hvec);
-  
-  return (hvec.x * RCS_MM_TO_CSUNIT);
+ 
+  out = hvec.x * RCS_MM_TO_CSUNIT;
+
+  return out;
 }
 
 int32_t get_robot_y(void* dummy)

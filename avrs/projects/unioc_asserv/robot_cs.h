@@ -38,6 +38,7 @@ typedef struct
   hrobot_system_t* hrs;
   hrobot_position_t* hpm;
 
+  uint8_t active;
 }robot_cs_t;
 
 /**@brief Initialize robot-level control systems
@@ -63,10 +64,10 @@ void robot_cs_update(void* rcs);
   *@param y robot y position in CSUNITs
   *@param angle robot angle in CSUNITs
   */
-void robot_cs_set_consigns(robot_cs_t* rcs,
+void robot_cs_set_consigns( robot_cs_t* rcs,
 														int32_t x,
 														int32_t y,
-														int32_t angle );
+														int32_t angle);
 
 /**@brief Accessor used by CSM to access robot x position */
 int32_t get_robot_x(void*);

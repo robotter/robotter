@@ -23,6 +23,7 @@
 #include <uart.h>
 #include <math.h>
 #include <scheduler.h>
+#include <adc.h>
 
 #include <adns6010.h>
 #include <hposition_manager.h>
@@ -30,6 +31,49 @@
 
 #include "motor_cs.h"
 #include "robot_cs.h"
+#include "htrajectory.h"
+
+
+int color = 1; // 1 => GREEN -1 => RED
+
+uint8_t RDS_got_it(uint8_t mode)
+{
+  int16_t g1,g2,g3;
+  int val = 0;
+
+  g1 = adc_get_value(MUX_ADC2|ADC_REF_AVCC); 
+  if(color==-1)
+  {
+    g2 = adc_get_value(MUX_ADC3|ADC_REF_AVCC); 
+    g3 = adc_get_value(MUX_ADC0|ADC_REF_AVCC); 
+  }
+  else
+  {
+    g3 = adc_get_value(MUX_ADC3|ADC_REF_AVCC); 
+    g2 = adc_get_value(MUX_ADC0|ADC_REF_AVCC); 
+  }
+
+
+  if(mode&0x01)
+  {
+    if(g1 > 600)
+      val = 1;
+  }
+
+  if(mode&0x02)
+  {
+    if(g2 > 400)
+      val = 1;
+  }
+
+  if(mode&0x04)
+  {
+    if(g3 > 400)
+      val = 1;
+  }
+    
+  return val;
+}
 
 int main(void)
 {
@@ -47,6 +91,9 @@ int main(void)
   // Robot control systems
   robot_cs_t robot_cs;
 
+  // Trajectory management
+  htrajectory_t trajectory;
+
 	//--------------------------------------------------------------------------
 	// Booting
 
@@ -63,13 +110,31 @@ int main(void)
 
 
   //--------------------------------------------------------
+  // Reboot FPGA
+/* XXX DOESNOTWORK XXX
+  sbi(DDRE,6);
+
+  // pull reset low
+  cbi(PORTE,6);
+  
+  wait_ms(10);
+
+  // pull reset high
+  sbi(PORTE,6);
+*/
+
+  //--------------------------------------------------------
   // Initialize ADNS6010s
   printf("# Initializing ADNS6010s : ");
   adns6010_init();
   printf("# OK\n");
 
   //--------------------------------------------------------
-
+  // Shutting down LED
+  _SFR_MEM8(0x1800) = 1;
+  
+  //--------------------------------------------------------
+  
   printf("# Checking ADNS6010 firmware on FLASH : ");
   rv = adns6010_checkFirmware();
 
@@ -171,12 +236,80 @@ int main(void)
   printf("# Control systems are GO\n\n");
   //--------------------------------------------------------
 
+  //--------------------------------------------------------
+  // Initialize trajectory management
+  printf("# Initializing trajectory management : ");
+  htrajectory_init(&trajectory,&robot_cs,&position);
+  htrajectory_set_precision(&trajectory,3.0,0.1*M_PI);
+  printf("# OK\n");
+  //--------------------------------------------------------
+
   // Ready up
   printf("# All systems GO.\n\n");
 
+
+  //------------------------------------------------------------
+  printf("# Robot color is : ");
+  
+  // pink   -> GND
+  // grey   -> 3v3
+  sbi(DDRE,7);
+  sbi(PORTE,7);
+
+  // yellow -> ?
+  cbi(DDRE,5);
+    
+  if(PINE&(1<<5))
+  {
+    printf("GREEN");
+    color = 1;
+  }
+  else
+  {
+    printf("RED");
+    color = -1;
+  }
+  
+  printf("\n");
+
+  //------------------------------------------------------------
+  printf("# Waiting for tirette...\n");
+  
+  // tirette to Z
+  cbi(DDRF,1);
+  cbi(PORTF,1);
+  int tircpt=0;
+  uint8_t twilite=0;
+  while(1)
+  {
+    if(PINF&0x02)
+      tircpt++;
+    else
+      tircpt=0;
+    
+    if(tircpt>2) break;
+
+    // info
+    _SFR_MEM8(0x1800) = twilite;
+    twilite = !twilite;
+    wait_ms(100);
+  }
+  
+  // switch led off
+  _SFR_MEM8(0x1800) = 0;
+
+  printf("# GO !\n");
+
+  //--------------------------------------------------------------------------
+  // Initializing ADCs
+  printf("# Initializing ADCs : ");
+  adc_init();
+  printf("OK\n");
+  //--------------------------------------------------------------------------
+
+
   // Set ADNS6010 system to automatic
   adns6010_setMode(ADNS6010_BHVR_MODE_AUTOMATIC);
-
 
   // initialize scheduler
   scheduler_init();
@@ -186,27 +319,102 @@ int main(void)
                                             400, 50);
 
   // Unleash control systems
-  scheduler_add_periodical_event_priority(&robot_cs_update, &robot_cs,
-                                            40, 100);
+  int event =
+    scheduler_add_periodical_event_priority(&robot_cs_update, &robot_cs,
+                                            10,100);
 
   // remove break
   motor_cs_break(0);
 
-  double t=0;
-  int32_t pwm;
 
-  robot_cs_set_update(&robot_cs_update, 0, 0, 500);
+  //----------------------------------------------------------------------
+  //----------------------------------------------------------------------
 
-  while(1)
+  printf("step 0\n");
+  htrajectory_goto_xya(&trajectory,color*450,-180,0);
+  while(!htrajectory_in_position(&trajectory))
   {
- /* 
-    printf("%f %f %f\n",
-            position.position.x,
-            position.position.y,
-            position.position.alpha);
-*/
-    wait_ms(100);            
+    if(RDS_got_it(1))
+      robot_cs.active = 0;
+    else
+      robot_cs.active = 1;
   }
+  wait_ms(100);
+  
+  printf("step 1\n");
+  htrajectory_goto_xya(&trajectory,color*450,-300,0);
+  while(!htrajectory_in_position(&trajectory))
+  {
+    if(RDS_got_it(1))
+      robot_cs.active = 0;
+    else
+      robot_cs.active = 1;
+  }
+  wait_ms(100);
 
+  printf("step 2\n");
+  htrajectory_goto_xya(&trajectory,color*130,-400,0);
+  while(!htrajectory_in_position(&trajectory))
+  {
+    if(RDS_got_it(0x01|0x04))
+      robot_cs.active = 0;
+    else
+      robot_cs.active = 1;
+  }
+  wait_ms(100);
+
+  printf("step 3A\n");
+  htrajectory_goto_xya(&trajectory,color*130,-1300,0);
+  while(!htrajectory_in_position(&trajectory))
+  {
+    if(RDS_got_it(1))
+      robot_cs.active = 0;
+    else
+      robot_cs.active = 1;
+  }
+  wait_ms(100);
+
+  printf("step 3B\n");
+  htrajectory_goto_xya(&trajectory,color*400,-1500,0);
+  while(!htrajectory_in_position(&trajectory))
+  {
+    if(RDS_got_it(1))
+      robot_cs.active = 0;
+    else
+      robot_cs.active = 1;
+  }
+  wait_ms(100);
+
+
+  printf("step 4\n");
+  htrajectory_goto_xya(&trajectory,color*700,-1500,0);
+  while(!htrajectory_in_position(&trajectory))
+  {
+    if(RDS_got_it(0x01|0x02))
+      robot_cs.active = 0;
+    else
+      robot_cs.active = 1;
+  }
+  wait_ms(100);
+
+  printf("step 5\n");
+  htrajectory_goto_xya(&trajectory,color*700,-1900,0);
+  wait_ms(500);
+
+  printf("step 6\n");
+  htrajectory_goto_xya(&trajectory,color*700,-1400,0);
+  while(!htrajectory_in_position(&trajectory))
+  {
+    if(RDS_got_it(0x02|0x04))
+      robot_cs.active = 0;
+    else
+      robot_cs.active = 1;
+  }
+  wait_ms(100);
+
+  printf("step 7\n");
+  motor_cs_break(1);
+
+  while(1) nop();
   return 0;
 }

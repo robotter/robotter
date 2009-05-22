@@ -16,41 +16,37 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** \file hrobot_manager_config.h
+/** \file motor_cs_config.h
   * \author JD
   *
-  * Abstract robot hardware
+  * Motors configuraton
   *
   */
 
-#ifndef _HROBOT_MANAGER_CONFIG_H_
-#define _HROBOT_MANAGER_CONFIG_H_
+#ifndef MOTOR_CS_CONFIG_H
+#define MOTOR_CS_CONFIG_H
 
-#include <math.h>
+// break
+#define MOTOR_CS_BREAK_DDR DDRB
+#define MOTOR_CS_BREAK_PORT PORTB
+#define MOTOR_CS_BREAK_PIN 2
 
-// Motors course
-// Warning : Those values defines the motors COURSES in radians,
-// meaning the direction of the force applied
-// on the table by the motor.
+// pwms
+#define MOTOR_CS_PWM1_DDR DDRE
+#define MOTOR_CS_PWM1_PORT PORTE
+#define MOTOR_CS_PWM1_PIN 4
 
-//       0
-//      /  
-//     /   
-//    1-----2
-//         
+#define MOTOR_CS_PWM2_DDR DDRB
+#define MOTOR_CS_PWM2_PORT PORTB
+#define MOTOR_CS_PWM2_PIN 4
 
-#define HROBOT_MOTOR0_COURSE 0.0
-#define HROBOT_MOTOR1_COURSE 4.188790 // ~ 4*M_PI/3
-#define HROBOT_MOTOR2_COURSE 2.094395 // ~ 2*M_PI/3
+#define MOTOR_CS_PWM3_DDR DDRG
+#define MOTOR_CS_PWM3_PORT PORTG
+#define MOTOR_CS_PWM3_PIN 3
 
-#define HROBOT_MOTOR0_COS_COURSE (-1.0)
-#define HROBOT_MOTOR0_SIN_COURSE (0.0)
+// encoders
+#define MOTOR_CS_ENCODER1_ADDR (0x1400)
+#define MOTOR_CS_ENCODER2_ADDR (0x1500)
+#define MOTOR_CS_ENCODER3_ADDR (0x1600)
 
-#define HROBOT_MOTOR1_COS_COURSE (0.5)
-#define HROBOT_MOTOR1_SIN_COURSE (0.886025388)
-
-#define HROBOT_MOTOR2_COS_COURSE (0.5)
-#define HROBOT_MOTOR2_SIN_COURSE (-0.866025388)
-
-
-#endif/*_HROBOT_MANAGER_CONFIG_H_*/
+#endif/*MOTOR_CS_CONFIG_H*/

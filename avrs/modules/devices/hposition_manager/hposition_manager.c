@@ -139,6 +139,11 @@ void hposition_update(void *dummy)
   //--------------------------------------------------
   // Integrate speed in robot coordinates to position
   
+  // XXX wooowooo hack 
+  dp[HROBOT_DX] *= -1.0;
+  dp[HROBOT_DA] *= (360.0/395.0);
+  // XXX hack no more
+
   alpha = hpos->position.alpha + dp[HROBOT_DA];
 
   x = hpos->position.x + dp[HROBOT_DX]*cos(alpha) - dp[HROBOT_DY]*sin(alpha);

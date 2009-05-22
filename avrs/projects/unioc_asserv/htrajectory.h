@@ -16,41 +16,39 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** \file hrobot_manager_config.h
+/** \file htrajectory.h
   * \author JD
   *
-  * Abstract robot hardware
+  * Manage simple trajectory management 
   *
   */
 
-#ifndef _HROBOT_MANAGER_CONFIG_H_
-#define _HROBOT_MANAGER_CONFIG_H_
+#ifndef HTRAJECTORY_H
+#define HTRAJECTORY_H
 
-#include <math.h>
+#include "robot_cs.h"
+#include <hposition_manager.h>
 
-// Motors course
-// Warning : Those values defines the motors COURSES in radians,
-// meaning the direction of the force applied
-// on the table by the motor.
+typedef struct
+{
+  robot_cs_t *rcs;
+  hrobot_position_t *hps;
 
-//       0
-//      /  
-//     /   
-//    1-----2
-//         
+  double mind;
+  double mina;
 
-#define HROBOT_MOTOR0_COURSE 0.0
-#define HROBOT_MOTOR1_COURSE 4.188790 // ~ 4*M_PI/3
-#define HROBOT_MOTOR2_COURSE 2.094395 // ~ 2*M_PI/3
+  double tx,ty,ta;
 
-#define HROBOT_MOTOR0_COS_COURSE (-1.0)
-#define HROBOT_MOTOR0_SIN_COURSE (0.0)
+}htrajectory_t;
 
-#define HROBOT_MOTOR1_COS_COURSE (0.5)
-#define HROBOT_MOTOR1_SIN_COURSE (0.886025388)
+void htrajectory_init(htrajectory_t *htj,
+                        robot_cs_t *rcs,
+                        hrobot_position_t *hps);
 
-#define HROBOT_MOTOR2_COS_COURSE (0.5)
-#define HROBOT_MOTOR2_SIN_COURSE (-0.866025388)
+void htrajectory_set_precision(htrajectory_t *htj, double d, double a);
 
+void htrajectory_goto_xya(htrajectory_t *htj, double x, double y, double a);
 
-#endif/*_HROBOT_MANAGER_CONFIG_H_*/
+uint8_t htrajectory_in_position(htrajectory_t *htj);
+
+#endif/*HTRAJECTORY_H*/
