@@ -130,7 +130,7 @@ int main(void)
   printf("# OK\n");
 
   //--------------------------------------------------------
-  // Shutting down LED
+  // Shut down LED
   _SFR_MEM8(0x1800) = 1;
   
   //--------------------------------------------------------
@@ -249,6 +249,7 @@ int main(void)
 
 
   //------------------------------------------------------------
+  // Acquire robot color
   printf("# Robot color is : ");
   
   // pink   -> GND
@@ -273,6 +274,7 @@ int main(void)
   printf("\n");
 
   //------------------------------------------------------------
+  // Wait for *tirette*
   printf("# Waiting for tirette...\n");
   
   // tirette to Z
@@ -306,7 +308,6 @@ int main(void)
   adc_init();
   printf("OK\n");
   //--------------------------------------------------------------------------
-
 
   // Set ADNS6010 system to automatic
   adns6010_setMode(ADNS6010_BHVR_MODE_AUTOMATIC);

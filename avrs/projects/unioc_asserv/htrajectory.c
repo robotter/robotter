@@ -53,23 +53,10 @@ void htrajectory_goto_xya(htrajectory_t *htj, double x, double y, double a)
   htj->tx = x;
   htj->ty = y;
   htj->ta = a;
-/*
-  // get current angle
-  hposition_get(htj->hps, &vector);
 
-  // angle to target in [0;2pi]
-  diff_a = fmod(a - vector.alpha,2*M_PI);
-
-  // angle to target in [-pi;+pi]
-  if(diff_a<M_PI) diff_a -= 2*M_PI;
-
-  printf("a=%2.2f robot_a=%2.2f diff_a=%2.2f va+difa=%2.2f\n",
-            a, vector.alpha, diff_a, (vector.alpha + diff_a));
-*/
   // set consign to high level cs
   robot_cs_set_consigns(htj->rcs, x*RCS_MM_TO_CSUNIT,
                                   y*RCS_MM_TO_CSUNIT,
-                                  //(vector.alpha+diff_a)*RCS_RAD_TO_CSUNIT);
                                   a*RCS_RAD_TO_CSUNIT);
 }
 
