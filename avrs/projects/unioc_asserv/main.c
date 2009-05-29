@@ -227,6 +227,7 @@ int main(void)
   motor_cs_init();
   printf("# OK\n");
 
+  // Initialize control systems for robot
   printf("# Initializing robot control systems : ");
   robot_cs_init(&robot_cs);
   robot_cs_set_hrobot_manager(&robot_cs,&system);
@@ -327,9 +328,35 @@ int main(void)
   // remove break
   motor_cs_break(0);
 
+  //----------------------------------------------------------------------
+  //----------------------------------------------------------------------
 
-  //----------------------------------------------------------------------
-  //----------------------------------------------------------------------
+  while(1)
+  {
+    htrajectory_goto_xya(&trajectory,0,300,0);
+    while(!htrajectory_in_position(&trajectory))
+    {
+      if(RDS_got_it(1))
+        robot_cs.active = 0;
+      else
+        robot_cs.active = 1;
+    }
+    wait_ms(100);
+    
+    printf("step 1\n");
+    htrajectory_goto_xya(&trajectory,0,0,0);
+    while(!htrajectory_in_position(&trajectory))
+    {
+      if(RDS_got_it(1))
+        robot_cs.active = 0;
+      else
+        robot_cs.active = 1;
+    }
+    wait_ms(100);
+  }
+
+  while(1) nop();
+  //--------------------------------------------------------------------
 
   printf("step 0\n");
   htrajectory_goto_xya(&trajectory,color*450,-180,0);
