@@ -19,7 +19,7 @@
 /** \file hposition_manager.h
   * \author JD
   *
-  * Manage holonomic robot encoders to calculate robot position
+  * Manages holonomic robot encoders to calculate robot position
   *
   */
 

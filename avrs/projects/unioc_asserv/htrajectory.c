@@ -19,7 +19,7 @@
 /** \file htrajectory.c
   * \author JD
   *
-  * Manage simple trajectory management 
+  * Simple trajectory management 
   *
   */
 

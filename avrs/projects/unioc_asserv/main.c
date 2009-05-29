@@ -105,7 +105,7 @@ int main(void)
   fdevopen(uart1_dev_send, uart1_dev_recv);
 
   // Some advertisment :p
-  printf("\n\n# Robotter 2009 - 102chute - UNIOC POSITION TEST\n");
+  printf("\n\n# Robotter 2009 - Galipeur - UNIOC POSITION TEST\n");
   printf("# Compiled "__DATE__" at "__TIME__"\n\n");
 
 

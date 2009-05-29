@@ -19,7 +19,7 @@
 /** \file motor_cs.c
   * \author JD
   *
-  * Manage control systems for motors
+  * Manage motors' control systems
   *
   */
 
