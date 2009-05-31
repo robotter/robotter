@@ -1,0 +1,464 @@
+\mychapter{Asservissement}
+
+\begin{center}
+\includegraphics[width=1.0\textwidth]{imgs/asserv.png}
+\end{center}
+
+
+%%-------------------------------------------------------------------------------
+\clearpage
+\section{Asservissement en vitesse des moteurs}
+
+\begin{center}
+\includegraphics[width=0.8\textwidth]{imgs/motorcs.png}
+\end{center}
+
+Chaque moteur est individuellement asservi en vitesse par un régulateur PD
+(Proportionnel,Dérivée) et une codeur incrémental HEDS5540 fixé à l'axe moteur.
+
+\subsection{Consigne}
+La consigne est ici une vitesse moteur exprimée en \emph{pas
+codeurs}/\emph{tick asservissement}.
+
+\subsection{Correction}
+La correction de l'asservissement est appliquée sous la forme d'une PWM + signe
+envoyée aux drivers moteurs, permettant de contrôler le moteur en tension.
+
+\subsection{Feedback}
+L'information de vitesse est récupérée depuis les codeurs incrémentaux HEDS5540,
+branchée sur le FPGA de l'UNIOC-NG, traités pour obtenir une position
+absolue de l'axe moteur puis transmis à l'ATmega128 de l'UNIOC-NG.\\
+
+Un filtre dérivateur est appliquée sur la boucle de retour afin d'obtenir la
+vitesse de rotation de l'axe moteur.
+
+\clearpage
+\subsection{Code}
+
+L'asservissement en vitesse des moteurs est réalisé  dans les fichiers
+\verb$unioc_asserv/motor_cs.c$, \verb$unioc_asserv/motor_cs.h$ et 
+\verb$unioc_asserv/motor_cs_config.h$.
+
+\subsubsection{Initialisation}
+
+\verb$unioc_asserv/main.c$ ligne 224 :\\
+\begin{verbatim}
+  //--------------------------------------------------------
+  // Initialize control systems for motors
+  printf("# Initializing motors control systems : ");
+  motor_cs_init();
+  printf("# OK\n");
+\end{verbatim}
+
+La fonction \verb$motor_cs_init$ assure l'initialisation des
+\verb$control_system_managers$, filtres PID et PWM moteurs.
+
+\subsubsection{Mise à jour}
+
+La mise à jour de l'asservissement est effectuée par la fonction
+\verb$motor_cs_update()$ appellée par la fonction \verb$hrobot_set_motors()$ 
+du module \verb$hrobot_manager$ lors de l'envoi des consignes aux moteurs.
+
+\verb$modules/devices/hrobot_manager/hrobot_manager.c$ ligne 74 :\\
+\begin{verbatim}
+  // set motors speeds
+	if(hrs->motors_accessor)
+		(hrs->motors_accessor)(hrs->motors_accessor_params, v0, v1, v2);
+\end{verbatim}
+
+Le pointeur \verb$hrs->motors_accessor$ est assigné à \verb$motor_cs_update()$ 
+dans \verb$unioc_asserv/main.c$ ligne 208 :\\
+
+\begin{verbatim}
+  hrobot_set_motors_accessor(&system, motor_cs_update, NULL);
+\end{verbatim}
+
+%%-------------------------------------------------------------------------------
+
+\clearpage
+
+\section{Propulsion vectorielle}
+
+\begin{center}
+\includegraphics[width=0.6\textwidth]{imgs/hrobot.png}
+\end{center}
+
+\subsection{Théorie}
+
+La propulsion vectorielle permet de transformer une consigne en vitesse exprimée
+dans l'espace du robot :
+\begin{equation}
+\left(\begin{array}{c} v_x\\v_y\\\omega_z\end{array}\right)_{robot}
+\end{equation}
+
+En une consigne en vitesse sur chaque moteur :
+\begin{equation}
+\left(\begin{array}{c}v_{M_1}\\v_{M_2}\\v_{M_3}\end{array}\right)_{moteurs}
+\end{equation}
+
+\begin{center}
+\includegraphics[width=0.5\textwidth]{imgs/prop_vect.png}
+\end{center}
+
+Soit $\overrightarrow{u_{M_1}}$, $\overrightarrow{u_{M_2}}$,
+$\overrightarrow{u_{M_3}}$ respectivement les vecteurs unitaires
+colinéaires au diamètre de chaque roue et appartenant au plan
+$(\vec{x},\vec{y})$, chaque vecteur positif dans le sens de poussée positive
+de chaque moteur.\\
+Soit $R$ la distance entre le point d'appui d'une omniwheel et le centre du
+robot.\\
+On  pose $\overrightarrow{V_{robot/table}}_O =
+\left(\begin{array}{c}v_x\\v_y\\0\end{array}\right)_O$
+vecteur vitesse du robot en $O$ dans le repère lié à la table.\\
+
+\vskip 1cm
+
+On effectue le déplacement du torseur cinématique du robot en $O$
+aux points de contacts de chaque roue $M_1$, $M_2$ et $M_3$.\\
+
+Au point $O$ le torseur cinématique du robot est :
+\begin{equation}
+\left\{ \nu_{robot/table} \right\}
+%%
+= \left\{ \begin{array}{c}
+\omega.\overrightarrow{z} % w.z
+\\
+\overrightarrow{V_{robot/table}}_O
+\end{array} \right\}_{O}
+%%
+= \left\{ \begin{array}{cc}
+v_x & 0\\
+v_y & 0\\
+0 & \omega_z\\
+\end{array} \right\}_{O}
+%%
+\end{equation}
+
+Déplacement du torseur en $M_1$ :
+\begin{eqnarray}
+\left\{ \nu_{robot/table} \right\} &
+%%
+= & \left\{ \begin{array}{c}
+\omega_z.\overrightarrow{z} % w.z
+\\
+\overrightarrow{V_{robot/table}}_O
+\end{array} \right\}_{O} \\
+%%
+& = & \left\{ \begin{array}{c}
+\omega_z.\overrightarrow{z} % w.z
+\\
+\overrightarrow{V_{robot/table}}_O + \overrightarrow{OM_1} \wedge
+\omega_z.\overrightarrow{z}
+\end{array} \right\}_{M_1}\\
+%%
+& = & \left\{ \begin{array}{c}
+\omega_z.\overrightarrow{z} % w.z
+\\
+\overrightarrow{V_{robot/table}}_O + R.\omega_z.\overrightarrow{u_{M_1}}
+\end{array}\right\}_{M_1}
+\end{eqnarray}
+
+On obtient de même en $M_2$ et $M_3$ :
+\begin{equation}
+\left\{ \nu_{robot/table} \right\} 
+=
+\left\{ \begin{array}{c}
+\omega_z.\overrightarrow{z} % w.z
+\\
+\overrightarrow{V_{robot/table}}_O + R.\omega_z.\overrightarrow{u_{M_2}}
+\end{array}\right\}_{M_2}
+\end{equation}
+
+\begin{equation}
+\left\{ \nu_{robot/table} \right\} 
+=
+\left\{ \begin{array}{c}
+\omega_z.\overrightarrow{z} % w.z
+\\
+\overrightarrow{V_{robot/table}}_O + R.\omega_z.\overrightarrow{u_{M_3}}
+\end{array}\right\}_{M_3}
+\end{equation}
+
+Chaque omniwheel $n$ ne peut fixer la vitesse que suivant l'axe
+$\overrightarrow{u_{M_n}}$, on obtient donc, en notant $\theta_{M_n}$ 
+l'orientation respective de chaque vecteur $u_{Mn}$ :
+\begin{eqnarray}
+v_{M_n} & = & \overrightarrow{V_{robot/table}}_{M_n} .
+\overrightarrow{u_{M_n}}\\
+%%
+        & = & ( \overrightarrow{V_{robot/table}}_O +
+R.\omega_z.\overrightarrow{u_{M_n}} ).\overrightarrow{u_{M_n}}\\
+%%
+        & = & \left(\begin{array}{c}v_x\\v_y\\0\end{array}\right).
+\left(\begin{array}{c}\cos \theta_{M_n}\\\sin \theta_{M_n}\\0\end{array}\right)
++ R.\omega_z\\
+%%
+        & = & v_x.\cos \theta_{M_n} + v_y.\sin \theta_{M_n} + R.\omega_z
+\end{eqnarray}
+
+Ce qui donne le système d'équations suivant :
+\begin{eqnarray}
+v_{M_1} = v_x.\cos \theta_{M_1} + v_y.\sin \theta_{M_1} + R.\omega_z\\
+v_{M_2} = v_x.\cos \theta_{M_2} + v_y.\sin \theta_{M_2} + R.\omega_z\\
+v_{M_3} = v_x.\cos \theta_{M_3} + v_y.\sin \theta_{M_3} + R.\omega_z
+\end{eqnarray}
+
+\subsection{Code}
+
+\subsubsection{Initialisation}
+
+Le module \verb$hrobot_manager$ est initialisé dans le fichier \verb$main.c$
+lignes 205 à 211 :
+\begin{verbatim}
+  printf("# Initializing robot manager : ");
+  hrobot_init(&system);
+  hrobot_set_motors_accessor(&system, motor_cs_update, NULL);
+  printf("# OK\n");
+
+  printf("# Robot manager is GO\n\n");
+\end{verbatim}
+
+\subsubsection{Mise à jour}
+
+Ces transformations sont implémentées dans la fonction \verb$hrobot_set_motors$ 
+du module \verb$hrobot_manager$ aux lignes 62 à 70 :
+\begin{verbatim}
+  // project speed vector on each motor
+  v0 = vx*HROBOT_MOTOR0_COS_COURSE + vy*HROBOT_MOTOR0_SIN_COURSE;
+  v1 = vx*HROBOT_MOTOR1_COS_COURSE + vy*HROBOT_MOTOR1_SIN_COURSE;
+  v2 = vx*HROBOT_MOTOR2_COS_COURSE + vy*HROBOT_MOTOR2_SIN_COURSE;
+  
+  // 
+  v0 += omega;
+  v1 += omega;
+  v2 += omega;
+\end{verbatim}
+
+Notons que dans la version présentée du code aucun effort de mise en conformité
+des unités n'a été effectuée $R$ étant égal à $1$ ici.
+
+
+
+%%-------------------------------------------------------------------------------
+
+\section{Positionnement}
+
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{imgs/hposition.png}
+\end{center}
+
+
+\subsection{Transformation vitesses ADNS vers vitesses robot}
+
+\subsubsection{Théorie}
+
+La carte ADNS6010 donne les vitesses de déplacement de chaque capteur dans son
+repère.
+
+\begin{center}
+\includegraphics[width=0.5\textwidth]{imgs/adns6010.png}
+\end{center}
+
+Soit le vecteur $\left(\begin{array}{c}
+v_{x1}\\v_{y1}\\v_{x2}\\v_{y2}\\v_{x3}\\v_{y3}\end{array}\right)$
+représentant les informations de vitesses renvoyées par le capteur ADNS.\\
+
+Sachant que chaque repère ADNS est une transformation linéaire du repère du robot on
+peut dire, en notant $\left(\begin{array}{c} 
+v_x\\v_y\\\omega_z\end{array}\right)$ la vitesse du robot, qu'il existe une matrice $A$
+telle que :\\
+
+\begin{equation}
+\left(\begin{array}{c} 
+v_x\\v_y\\\omega_z\end{array}\right)
+=A
+\left(\begin{array}{c}
+v_{x1}\\v_{y1}\\v_{x2}\\v_{y2}\\v_{x3}\\v_{y3}\end{array}\right)
+\end{equation}
+
+La matrice $A$ est donc une matrice 3x6 obtenue par identification du capteur
+ADNS.
+\begin{equation}
+A = \left(\begin{array}{cccccc}
+a_{00}& a_{01}& a_{02}& a_{03}& a_{04}& a_{05}\\
+a_{10}& a_{11}& a_{12}& a_{13}& a_{14}& a_{15}\\
+a_{20}& a_{21}& a_{22}& a_{23}& a_{24}& a_{25}\\
+\end{array}
+\right)
+\end{equation}
+
+\subsubsection{Code}
+
+\paragraph{Initialisation}
+
+Le module \verb$hposition_manager$ est initialisé dans le fichier \verb$main.c$
+lignes 216 à 221 :
+\begin{verbatim}
+  printf("# Initializing position manager : ");
+  hposition_init( &position );
+  hposition_set( &position, 0.0, 0.0, 0.0 );
+  printf("# OK\n");
+
+  printf("# Position manager is GO\n\n");
+\end{verbatim}
+
+\paragraph{Mise à jour}
+
+La transformation, réduite à un produit matriciel, est implémenté dans la 
+fonction \verb$hposition_update$ du module \verb$hposition_manager$ aux lignes
+119 à 137.
+
+\begin{verbatim}
+  //----------------------------------------------------------
+  // Transform speed in ADNS coordinates to robot coordinates
+
+  // compute speed in ADNS coordinates
+  for(i=0;i<6;i++)
+    v[i] = hpos->pAdnsVectors[i] - adns6010.vectors[i];
+
+  // update previous ADNS vectors
+  for(i=0;i<6;i++)
+    hpos->pAdnsVectors[i] = adns6010.vectors[i];
+
+  // for each robot coordinate (x,y,a) compute a dx of mouvement
+  for(k=0;k<3;k++)
+  {
+    dp[k] = 0.0;
+    
+    // for each ADNS coordinate (vx1,vy1,vx2,vy2,vx3,vy3) 
+    for(i=0;i<6;i++)
+    {
+      dp[k] += hrobot_adnsMatrix[k][i]*v[i];
+    }
+  }
+\end{verbatim}
+
+\subsection{Intégration des vitesses ADNS}
+
+\subsubsection{Théorie}
+
+L'élément $\left(\begin{array}{c}v_x\\v_y\\\omega_z\end{array}\right)$ calculé
+précédement est donné dans le repère lié au capteur ADNS.\\
+Il convient donc de le transformer par une rotation de $\alpha$, angle du robot
+par rapport à la table.
+
+\subsubsection{Code}
+
+L'intégration de l'élément de position calculé est effectué à la suite dans la
+fonction \verb$hposition_update$ aux lignes 142 à 147.
+
+\begin{verbatim}
+  alpha = hpos->position.alpha;
+
+  x = hpos->position.x + dp[HROBOT_DX]*cos(alpha) - dp[HROBOT_DY]*sin(alpha);
+  y = hpos->position.y + dp[HROBOT_DX]*sin(alpha) + dp[HROBOT_DY]*cos(alpha);
+
+  alpha += dp[HROBOT_DA];
+\end{verbatim}
+
+
+\section{Asservisement en position}
+
+\begin{center}
+\includegraphics[width=0.8\textwidth]{imgs/robot_cs.png}
+\end{center}
+
+Le robot est asservi en position par un régulateur PID sur chaque dimension : 
+translation suivant $\vec{x}$, translation suivant $\vec{y}$, rotation suivant
+$\vec{z}$.
+
+\subsection{Consigne}
+La consigne est une position exprimée en mm et en radians.\\
+
+Un filtre \emph{quadramp} est appliqué à la consigne permettant de limiter ses
+dérivées premières et secondes, limitant ainsi l'accélération et la vitesse du
+robot.
+
+\subsection{Correction}
+La correction de l'asservissement est un vecteur vitesse passé en consigne
+à l'asservissement des moteurs.
+
+\subsection{Feedback}
+L'information de position est récupérée depuis le module
+\verb$hposition_manager$, calculée depuis le retour de la carte ADNS6010.
+
+\subsection{Code}
+
+L'asservissement en position du robot est réalisé dans les fichiers
+\verb$unioc_asserv/robot_cs.c$ et \verb$unioc_asserv/robot_cs.h$.
+
+\subsubsection{Initialisation}
+
+\verb$unioc_asserv/main.c$ ligne 230 :\\
+\begin{verbatim}
+  // Initialize control systems for robot
+  printf("# Initializing robot control systems : ");
+  robot_cs_init(&robot_cs);
+  robot_cs_set_hrobot_manager(&robot_cs,&system);
+  robot_cs_set_hposition_manager(&robot_cs,&position);
+  printf("# OK\n");
+\end{verbatim}
+
+La fonction \verb$robot_cs_init$ assure l'initialisation des
+\verb$control_system_managers$, filtres PID et quadramps.
+
+\subsubsection{Mise à jour}
+
+La mise à jour de l'asservissement est effectuée par la fonction
+\verb$robot_cs_update()$ appellée sur interruption par le module
+\verb$scheduler$ :
+
+\verb$unioc_asserv/main.c$ ligne 324 :\\
+\begin{verbatim}
+ // Unleash control systems
+  scheduler_add_periodical_event_priority(&robot_cs_update, &robot_cs,
+                                            10,100);
+\end{verbatim}
+
+\mychapter{Identification du capteur ADNS}
+
+\section{Théorie}
+
+Le capteur de position constitué de 3 capteurs optiques ADNS6010 n'est pas
+parfaitement ajusté dans les axes de la base roulante et il est, par conséquent,
+difficile de calculer la matrice $A$ vue précédement a partir des mesures du
+capteur.
+
+\begin{equation}
+\left(\begin{array}{c} 
+v_x\\v_y\\\omega_z\end{array}\right)
+=A
+\left(\begin{array}{c}
+v_{x1}\\v_{y1}\\v_{x2}\\v_{y2}\\v_{x3}\\v_{y3}\end{array}\right)
+\end{equation}
+
+
+La méthode est donc d'effectuer une série de mesure de couples $(U,V)$ où 
+$U = \left(\begin{array}{c}v_x\\v_y\\\omega_z\end{array}\right)$ et
+$V = \left(\begin{array}{c}v_{x1}\\v_{y1}\\v_{x2}\\v_{y2}\\v_{x3}\\
+v_{y3}\end{array}\right)$.\\
+
+Par exemple effectuer depuis le point
+$\left(\begin{array}{c}0\\0\\0\end{array}\right)$ 
+une translation de $400 mm$ suivant l'axe $\vec{x}$ donne 
+le couple $(U_0,V_0)$ suivant :
+
+\begin{equation}
+\left(
+\left(\begin{array}{c}400\\0\\0\end{array}\right)
+,
+\left(\begin{array}{c}30110\\-17327\\-30676\\-17198\\972\\35188
+\end{array}\right)
+\right)
+\end{equation}
+
+Il reste à effectuer un grand nombre de mesure sur des
+coordonnées variées et d'ensuite identifier la matrice $A$ au moyen d'un
+algorithme d'identification.
+
+\section{Code}
+
+L'identification est effectuée au moyen de la méthode ARMA sous SciLab
+grâce au script\\\verb$unioc_asserv/scilab/adns_calibration.sci$.
+

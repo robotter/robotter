@@ -1,0 +1,58 @@
+\documentclass[11pt]{report}
+
+%\usepackage{ucs}
+\usepackage[latin1]{inputenc}
+\usepackage[francais]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{fancyhdr}
+\usepackage{fancyvrb}
+\usepackage{wrapfig}
+\usepackage{pdfpages}
+\usepackage{titlesec}
+\usepackage{textcomp}
+\usepackage{eurosym}
+\usepackage{tikz}
+\usepackage{colortbl}
+%\usepackage[pdftex=true,
+%           hyperindex=true,
+%					 colorlinks=false]{hyperref}
+%
+
+
+\usepackage{vmargin}            % redéfinir les marges
+\setmarginsrb{1cm}{1cm}{1cm}{1cm}{1cm}{1cm}{1cm}{1.5cm}
+% Marge gauche, haute, droite, basse- espace entre la marge et le texte à
+% gauche, en  haut, à droite, en bas
+
+
+%% Couleurs des éléments
+
+\definecolor{logo}{rgb}{0.35,0.68,0.38}
+\colorlet{section}{logo!80!black}
+\colorlet{subsection}{logo}
+\colorlet{subsubsection}{green!50!gray}
+\colorlet{chapterfond}{logo}
+\colorlet{titleboxcolor}{logo}
+\colorlet{swot}{logo!30!white}
+
+%\renewcommand{\bottomtitlespace}{15cm}%{.3\textheight}
+
+\usepackage{messections}
+\usepackage{redefinitionsdiverses}
+
+\usepackage{subfig}
+
+\begin{document}
+
+\include{garde}
+
+\pagestyle{normal}
+
+\begin{normalsize}
+
+\include{asserv}
+
+\end{normalsize}
+\end{document}

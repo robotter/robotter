@@ -1,0 +1,103 @@
+
+\newcommand{\mychapter}[1]{\chapter{#1}\markboth{#1}{}}
+\newcommand{\mychapterstar}[1]{\hspace{-2.5em}\fcolorbox{black}{chapterfond}{%
+\parbox{1.03\textwidth}{%
+	\begin{center}\textbf{\huge{#1}}%   % titre du chapitre
+  \end{center}}}%
+	\vspace{0.1\textwidth}\markboth{#1}{}
+\addcontentsline{toc}{chapter}{#1}
+\thispagestyle{plain}}
+
+\renewcommand{\@makechapterhead}[1]{%
+\hspace{-2.5em}\fcolorbox{black}{chapterfond}{%
+\parbox{1.03\textwidth}{%
+	\begin{center}
+	\textsc{\huge{\Roman{chapter}} \hspace{0.1\textwidth}%
+		\textsc\huge{#1}}%
+	\end{center}
+	}}
+\vspace{0.1\textwidth}
+}
+
+%\renewcommand{\@makeschapterhead}[1]{%   
+%\hspace{-2.5em}\fcolorbox{black}{chapterfond}{%
+%\parbox{1.03\textwidth}{%
+%	\begin{center}\textbf{\huge{#1}}%   % titre du chapitre
+%  \end{center}}}%
+%	\vspace{0.1\textwidth}
+%}
+
+
+%% trucs du Guide local
+
+\newlength{\sectiontitleindent}
+\newlength{\subsectiontitleindent}
+\newlength{\subsubsectiontitleindent}
+
+\setlength{\sectiontitleindent}{1cm}
+\setlength{\subsectiontitleindent}{.5cm}
+\setlength{\subsubsectiontitleindent}{.25cm}
+
+\newcommand{\sectionfont}{%
+  \fontencoding{\encodingdefault}%
+  \fontfamily{cmr}%
+  \fontseries{m}%
+  \fontshape{sc}%
+	\color{section}%
+	\selectfont}
+
+\newcommand{\subsectionfont}{%
+  \fontencoding{\encodingdefault}%
+  \fontfamily{cmr}%
+  \fontseries{m}%
+  \fontshape{sc}%
+	\color{subsection}%
+	\selectfont}
+
+\newcommand{\subsubsectionfont}{%
+  \fontencoding{\encodingdefault}%
+  \fontfamily{cmr}%
+  \fontseries{m}%
+  \fontshape{sc}%
+	\color{subsubsection}%
+	\selectfont}
+
+\renewcommand{\section}{%
+  \@startsection% 
+  {section}%
+  {1}%
+  {\sectiontitleindent}%
+  {-3.5ex \@plus -1ex \@minus -.2ex}%
+  {2.3ex \@plus.2ex}%
+  {\sectionfont\Large}}
+
+\renewcommand{\subsection}{%
+  \@startsection%
+  {subsection}%
+  {2}%
+  {\subsectiontitleindent}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\subsectionfont\large}}
+
+\renewcommand{\subsubsection}{%
+  \@startsection%
+  {subsubsection}%
+  {3}%
+  {\subsubsectiontitleindent}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\subsubsectionfont}}
+
+\renewcommand{\paragraph}{%
+  \@startsection%
+  {paragraph}%
+  {4}%
+  {\z@}%
+  {3.25ex \@plus1ex \@minus.2ex}%
+  {.5em}%
+  {\textbf}}
+
+
+
+\endinput
