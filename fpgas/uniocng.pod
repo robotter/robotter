@@ -1,5 +1,8 @@
-# platform
+# project
+!rm -rf uniocng
 project.create uniocng
+
+# platform
 project.selectplatform unioc_ng
 
 # instances
@@ -88,3 +91,5 @@ project.synthesis.selecttoolchain quartus
 project.synthesis.generateproject
 project.synthesis.generatepinout
 project.synthesis.generatetcl
+
+eof

@@ -321,8 +321,7 @@ int main(void)
                                             400, 50);
 
   // Unleash control systems
-  int event =
-    scheduler_add_periodical_event_priority(&robot_cs_update, &robot_cs,
+  scheduler_add_periodical_event_priority(&robot_cs_update, &robot_cs,
                                             10,100);
 
   // remove break
