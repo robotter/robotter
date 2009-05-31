@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: timer_init.c,v 1.3 2007-05-24 13:08:48 zer0 Exp $
+ *  Revision : $Id: timer_init.c,v 1.4 2009-03-15 21:51:19 zer0 Exp $
  *
  */
 
@@ -49,6 +49,14 @@ void timer_init(void)
 #if defined TIMER3_ENABLED && defined TIMER3_AVAILABLE
 	CS30_REG = __timer3_div_to_reg(TIMER3_PRESCALER_DIV) << CS30 ;
 	TCNT3 = 0;
+#endif
+#if defined TIMER4_ENABLED && defined TIMER4_AVAILABLE
+	CS40_REG = __timer4_div_to_reg(TIMER4_PRESCALER_DIV) << CS40 ;
+	TCNT4 = 0;
+#endif
+#if defined TIMER5_ENABLED && defined TIMER5_AVAILABLE
+	CS50_REG = __timer5_div_to_reg(TIMER5_PRESCALER_DIV) << CS50 ;
+	TCNT5 = 0;
 #endif
 	IRQ_UNLOCK(flags);
 }

@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: timer0_register_OC_at_tics.c,v 1.3 2007-05-24 13:08:48 zer0 Exp $
+ *  Revision : $Id: timer0_register_OC_at_tics.c,v 1.4 2009-03-15 21:51:19 zer0 Exp $
  *
  */
 
@@ -32,5 +32,13 @@
 
 #if defined TIMER0_ENABLED && defined SIG_OUTPUT_COMPARE0
 DEFINE_REGISTER_OC_INTR_AT_TICS(0)
+#endif
+
+#if defined TIMER0A_ENABLED && defined SIG_OUTPUT_COMPARE0A
+DEFINE_REGISTER_OC_INTR_AT_TICS(0A)
+#endif
+
+#if defined TIMER0B_ENABLED && defined SIG_OUTPUT_COMPARE0B
+DEFINE_REGISTER_OC_INTR_AT_TICS(0B)
 #endif
 

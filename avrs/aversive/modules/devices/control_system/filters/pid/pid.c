@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: pid.c,v 1.8 2008-05-14 13:27:12 zer0 Exp $
+ *  Revision : $Id: pid.c,v 1.9 2009-03-15 21:51:18 zer0 Exp $
  *
  */
 
@@ -34,7 +34,8 @@ void pid_init(struct pid_filter *p)
 	IRQ_UNLOCK(flags);
 }
 
-/** this function will initialize all fieds of pid structure to 0 */
+/** this function will initialize all fieds of pid structure to 0,
+ *  except configuration */
 void pid_reset(struct pid_filter *p)
 {
 	uint8_t flags;
@@ -197,13 +198,14 @@ int32_t pid_do_filter(void * data, int32_t in)
 	*/
 	
 	prev_index = p->index + 1;
-	prev_index %= p->derivate_nb_samples;
-	derivate = in - p->prev_samples[prev_index];
+	if (prev_index >= p->derivate_nb_samples)
+		prev_index = 0;
 
-	/* saturate input... it influences integral */
+	/* saturate input... it influences integral an derivate */
 	if (p->max_in)
 		S_MAX(in, p->max_in) ;
 
+	derivate = in - p->prev_samples[prev_index];
 	p->integral += in ;
 
 	if (p->max_I)
@@ -225,8 +227,7 @@ int32_t pid_do_filter(void * data, int32_t in)
 
 	/* backup of current error value (for the next calcul of derivate value) */
 	p->prev_samples[p->index] = in ;
-	p->index ++;
-	p->index %= p->derivate_nb_samples;
+	p->index = prev_index; /* next index is prev_index */
 	p->prev_D = derivate ;
 	p->prev_out = command ;
 	

@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: general_errors.h,v 1.6 2008-01-08 20:05:02 zer0 Exp $
+ *  Revision : $Id: general_errors.h,v 1.7 2009-03-15 21:51:18 zer0 Exp $
  *
  */
 
@@ -69,6 +69,10 @@
 #define E_I2C 133
 #define E_BLOCKING_DETECTION_MANAGER 134
 #define E_OA 135
+#define E_SPI 136
+#define E_CC2420 137
+#define E_TIME_EXT 138
+
 /* ... etc TBD */
 
 /* User specific, from > 192 */

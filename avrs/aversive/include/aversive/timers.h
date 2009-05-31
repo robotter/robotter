@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: timers.h,v 1.3 2008-01-08 20:05:02 zer0 Exp $
+ *  Revision : $Id: timers.h,v 1.4 2009-03-15 21:51:14 zer0 Exp $
  *
  */
 
@@ -27,33 +27,10 @@
  * aversive/parts/ATxxxx.h) which are not timer specific.
  */
 
-/* XXX timer 8 and timer 16 is a bad idea. We should use timer0,
- * timer1, ... */
-
+/* XXX won't be needed : use parts.h */
 
 #ifndef _AVERSIVE_TIMERS_H_
 #define _AVERSIVE_TIMERS_H_
-
-// ATMEGA128 ////////////////////////////////////////
-#if defined (__AVR_ATmega128__)
-
-// OCR_BITS
-#define OCR0_DDR DDRB
-#define OCR0_BIT 4
-#define OCR1A_DDR DDRB
-#define OCR1A_BIT 5
-#define OCR1B_DDR DDRB
-#define OCR1B_BIT 6
-#define OCR1C_DDR DDRB
-#define OCR1C_BIT 7
-#define OCR2_DDR DDRB
-#define OCR2_BIT 7
-#define OCR3A_DDR DDRE
-#define OCR3A_BIT 3
-#define OCR3B_DDR DDRE
-#define OCR3B_BIT 4
-#define OCR3C_DDR DDRE
-#define OCR3C_BIT 5
 
 // Timer WGM bits
 #define TIMER_8_MODE_NORMAL      0
@@ -76,6 +53,55 @@
 #define TIMER_16_MODE_CTC2        12 // clear on compare, TOP = ICR
 #define TIMER_16_MODE_PWM_F1      14 // fast PWM
 #define TIMER_16_MODE_PWM_F2      15 // fast PWM
+
+
+// ATMEGA128 ////////////////////////////////////////
+#if defined (__AVR_ATmega128__)
+
+// OCR_BITS
+#define OCR0_DDR DDRB
+#define OCR0_BIT 4
+#define OCR1A_DDR DDRB
+#define OCR1A_BIT 5
+#define OCR1B_DDR DDRB
+#define OCR1B_BIT 6
+#define OCR1C_DDR DDRB
+#define OCR1C_BIT 7
+#define OCR2_DDR DDRB
+#define OCR2_BIT 7
+#define OCR3A_DDR DDRE
+#define OCR3A_BIT 3
+#define OCR3B_DDR DDRE
+#define OCR3B_BIT 4
+#define OCR3C_DDR DDRE
+#define OCR3C_BIT 5
+
+
+
+
+// ATMEGA1281 ////////////////////////////////////////
+#elif defined (__AVR_ATmega1281__)
+
+// OCR_BITS
+#define OCR0A_DDR DDRB
+#define OCR0A_BIT 7
+#define OCR0B_DDR DDRG
+#define OCR0B_BIT 5
+#define OCR1A_DDR DDRB
+#define OCR1A_BIT 5
+#define OCR1B_DDR DDRB
+#define OCR1B_BIT 6
+#define OCR1C_DDR DDRB
+#define OCR1C_BIT 7
+#define OCR2A_DDR DDRB
+#define OCR2A_BIT 4
+#define OCR3A_DDR DDRE
+#define OCR3A_BIT 3
+#define OCR3B_DDR DDRE
+#define OCR3B_BIT 4
+#define OCR3C_DDR DDRE
+#define OCR3C_BIT 5
+
 
 
 // ATMEGA32 ////////////////////////////////////////
@@ -108,29 +134,6 @@
 #define OCR2_DDR DDRD
 #define OCR2_BIT 7
 
-// Timer WGM bits
-#define TIMER_8_MODE_NORMAL      0
-#define TIMER_8_MODE_PWM_PC      1 // phase correct PWM
-#define TIMER_8_MODE_CTC         2
-#define TIMER_8_MODE_PWM         3 // fast PWM
-
-#define TIMER_16_MODE_NORMAL      0
-#define TIMER_16_MODE_PWM_PC_8    1 // phase correct PWM 8 bits
-#define TIMER_16_MODE_PWM_PC_9    2 // phase correct PWM 9 bits
-#define TIMER_16_MODE_PWM_PC_10   3 // phase correct PWM 10 bits
-#define TIMER_16_MODE_CTC1        4 // clear on compare, TOP = OCRA
-#define TIMER_16_MODE_PWM_8       5 // fast PWM 8 bits
-#define TIMER_16_MODE_PWM_9       6 // fast PWM 9 bits
-#define TIMER_16_MODE_PWM_10      7 // fast PWM 10 bits
-#define TIMER_16_MODE_PWM_PFC1    8 // PWM, Phase & Freq Correct
-#define TIMER_16_MODE_PWM_PFC2    9 // PWM, Phase & Freq Correct
-#define TIMER_16_MODE_PWM_PC1     10 // PWM, Phase Correct
-#define TIMER_16_MODE_PWM_PC2     11 // PWM, Phase Correct
-#define TIMER_16_MODE_CTC2        12 // clear on compare, TOP = ICR
-#define TIMER_16_MODE_PWM_F1      14 // fast PWM
-#define TIMER_16_MODE_PWM_F2      15 // fast PWM
-
-
 
 // ATMEGA8 ////////////////////////////////////////
 #elif defined (__AVR_ATmega8__)
@@ -142,90 +145,6 @@
 #define OCR1B_BIT 2
 #define OCR2_DDR DDRB
 #define OCR2_BIT 3
-
-// Timer WGM bits
-#define TIMER_8_MODE_NORMAL      0
-#define TIMER_8_MODE_PWM_PC      1 // phase correct PWM
-#define TIMER_8_MODE_CTC         2
-#define TIMER_8_MODE_PWM         3 // fast PWM
-
-#define TIMER_16_MODE_NORMAL      0
-#define TIMER_16_MODE_PWM_PC_8    1 // phase correct PWM 8 bits
-#define TIMER_16_MODE_PWM_PC_9    2 // phase correct PWM 9 bits
-#define TIMER_16_MODE_PWM_PC_10   3 // phase correct PWM 10 bits
-#define TIMER_16_MODE_CTC1        4 // clear on compare, TOP = OCRA
-#define TIMER_16_MODE_PWM_8       5 // fast PWM 8 bits
-#define TIMER_16_MODE_PWM_9       6 // fast PWM 9 bits
-#define TIMER_16_MODE_PWM_10      7 // fast PWM 10 bits
-#define TIMER_16_MODE_PWM_PFC1    8 // PWM, Phase & Freq Correct
-#define TIMER_16_MODE_PWM_PFC2    9 // PWM, Phase & Freq Correct
-#define TIMER_16_MODE_PWM_PC1     10 // PWM, Phase Correct
-#define TIMER_16_MODE_PWM_PC2     11 // PWM, Phase Correct
-#define TIMER_16_MODE_CTC2        12 // clear on compare, TOP = ICR
-#define TIMER_16_MODE_PWM_F1      14 // fast PWM
-#define TIMER_16_MODE_PWM_F2      15 // fast PWM
-
-
-// ATMEGA16 ////////////////////////////////////////
-#elif defined (__AVR_ATmega16__)
-
-// available pwm
-#define PWM0    0
-#define PWM1A  1
-#define PWM1B  2
-#define PWM2    4
-
-// OCR_BITS
-#define OCR0_DDR DDRB
-#define OCR0_BIT 3
-
-#define OCR1A_DDR DDRD
-#define OCR1A_BIT 5
-#define OCR1B_DDR DDRD
-#define OCR1B_BIT 4
-
-#define OCR2_DDR DDRD
-#define OCR2_BIT 7
-
-
-// Timer WGM bits
-#define TIMER_8_MODE_NORMAL      0
-#define TIMER_8_MODE_PWM_PC      1 // phase correct PWM
-#define TIMER_8_MODE_CTC         2
-#define TIMER_8_MODE_PWM         3 // fast PWM
-
-#define TIMER_16_MODE_NORMAL      0
-#define TIMER_16_MODE_PWM_PC_8    1 // phase correct PWM 8 bits
-#define TIMER_16_MODE_PWM_PC_9    2 // phase correct PWM 9 bits
-#define TIMER_16_MODE_PWM_PC_10   3 // phase correct PWM 10 bits
-#define TIMER_16_MODE_CTC1        4 // clear on compare, TOP = OCRA
-#define TIMER_16_MODE_PWM_8       5 // fast PWM 8 bits
-#define TIMER_16_MODE_PWM_9       6 // fast PWM 9 bits
-#define TIMER_16_MODE_PWM_10      7 // fast PWM 10 bits
-
-
-
-// prescaler options
-
-// timer 0
-#define TIMER_8_PRESCALE_STOP 0
-#define TIMER_8_PRESCALE_1    1
-#define TIMER_8_PRESCALE_8    2
-#define TIMER_8_PRESCALE_64   3
-#define TIMER_8_PRESCALE_256   4
-#define TIMER_8_PRESCALE_1024  5
-#define TIMER_8_PRESCALE_EXT_FALL  6
-#define TIMER_8_PRESCALE_EXT_RISE 7
-
-// timer 1
-#define TIMER_16_PRESCALE_STOP 0
-#define TIMER_16_PRESCALE_1    1
-#define TIMER_16_PRESCALE_8    2
-#define TIMER_16_PRESCALE_64   3
-#define TIMER_16_PRESCALE_256  4
-#define TIMER_16_PRESCALE_1024 5
-#define TIMER_16_PRESCALE_EXT_FALL 6 // falling edge on T0
-#define TIMER_16_PRESCALE_EXT_RISE 7 // rising edge on T0
 
 
 
@@ -249,21 +168,6 @@
 #define OCR2_DDR DDRD
 #define OCR2_BIT 7
 
-// Timer WGM bits
-#define TIMER_8_MODE_NORMAL      0
-#define TIMER_8_MODE_PWM_PC      1 // phase correct PWM
-#define TIMER_8_MODE_CTC         2
-#define TIMER_8_MODE_PWM         3 // fast PWM
-
-#define TIMER_16_MODE_NORMAL      0
-#define TIMER_16_MODE_PWM_PC_8    1 // phase correct PWM 8 bits
-#define TIMER_16_MODE_PWM_PC_9    2 // phase correct PWM 9 bits
-#define TIMER_16_MODE_PWM_PC_10   3 // phase correct PWM 10 bits
-#define TIMER_16_MODE_CTC1        4 // clear on compare, TOP = OCRA
-#define TIMER_16_MODE_PWM_8       5 // fast PWM 8 bits
-#define TIMER_16_MODE_PWM_9       6 // fast PWM 9 bits
-#define TIMER_16_MODE_PWM_10      7 // fast PWM 10 bits
-
 
 // ATMEGAx8 ////////////////////////////////////////
 #elif defined (__AVR_ATmega48__) || defined (__AVR_ATmega88__) || defined (__AVR_ATmega168__)
@@ -284,23 +188,9 @@
 #define OCR2B_DDR DDRD
 #define OCR2B_BIT 3
 
-// Timer WGM bits
-#define TIMER_8_MODE_NORMAL      0
-#define TIMER_8_MODE_PWM_PC      1 // phase correct PWM
-#define TIMER_8_MODE_CTC         2
-#define TIMER_8_MODE_PWM         3 // fast PWM
-
-#define TIMER_16_MODE_NORMAL      0
-#define TIMER_16_MODE_PWM_PC_8    1 // phase correct PWM 8 bits
-#define TIMER_16_MODE_PWM_PC_9    2 // phase correct PWM 9 bits
-#define TIMER_16_MODE_PWM_PC_10   3 // phase correct PWM 10 bits
-#define TIMER_16_MODE_CTC1        4 // clear on compare, TOP = OCRA
-#define TIMER_16_MODE_PWM_8       5 // fast PWM 8 bits
-#define TIMER_16_MODE_PWM_9       6 // fast PWM 9 bits
-#define TIMER_16_MODE_PWM_10      7 // fast PWM 10 bits
 
 #else
-#error No timer/prescaler definitions for your AVR type
+//#error No timer/prescaler definitions for your AVR type
 #endif
 
 #endif

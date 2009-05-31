@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: base64.c,v 1.2 2006-11-03 09:05:12 zer0 Exp $
+ *  Revision : $Id: base64.c,v 1.3 2009-03-15 21:51:19 zer0 Exp $
  *
  */
 
@@ -90,7 +90,7 @@ int raw_to_base64(char *in, int len_in, char * out, int len_out)
 
 	for (n_in=0 ; n_in<len_in && n_out<len_out ; n_in++)	{
 		buf <<= 8;
-		buf += (int)(in[n_in]);
+		buf += (unsigned char)(in[n_in]);
 		counter+=8;
 		
 		while(counter>=6) {

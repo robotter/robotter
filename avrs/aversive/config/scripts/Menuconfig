@@ -504,14 +504,13 @@ function parser(ifile,menu) {
 			return
 		} 
 		else if ($1 == "source") {
-
+			parser($2,menu)
+		}
+		else {
       fshell="eval echo " $2
       fshell | getline fname
       close(fshell)
-			parser(fname,menu)
-		}
-		else {
-			print >>menu
+      parser(fname,menu)
 		}
 	}
 }'

@@ -1,43 +1,29 @@
 #!/bin/sh
 
-DOC_DIR=atmel_docs
-LNK_DIR=links
-PDFLNK_DIR=pdflinks
-CLK_DIR=clocks
 HDR_DIR=headers
 XML_DIR=xml
 
-mkdir -p ${DOC_DIR}
-mkdir -p ${LNK_DIR}
-mkdir -p ${CLK_DIR}
-mkdir -p ${PDFLNK_DIR}
 mkdir -p ${HDR_DIR}
 mkdir -p ${XML_DIR}
 
-./get_docs.sh ${DOC_DIR}
-./convert_to_txt.sh ${DOC_DIR}
-
-rm {LNK_DIR}/* ${PDFLNK_DIR}/*
-./make_links.sh ${DOC_DIR} ${LNK_DIR} ${PDFLNK_DIR}
-./parse_doc.py ${LNK_DIR} ${CLK_DIR}
-
 echo "-- generating header files --"
 
-cd ${LNK_DIR}
-rm ../${HDR_DIR}/*
-for i in * ; do
-    if [ -f ../${XML_DIR}/$i.xml ]; then
-	echo $i
-	../gen_regs.py ../${XML_DIR}/$i.xml ../${CLK_DIR}/$i > ../${HDR_DIR}/aversive/$i.h
-    fi
+rm -rf ${HDR_DIR}
+mkdir -p ${HDR_DIR}/aversive/parts
+
+cd ${XML_DIR}
+for i in *.xml ; do
+    echo $i
+    ../gen_regs.py $i > ../${HDR_DIR}/aversive/parts/${i%.xml}.h
 done
 cd -
 
-cd ${HDR_DIR}
+cd ${HDR_DIR}/aversive/parts
+
 EL=
-cat <<EOF > aversive/parts.h
+cat <<EOF > ../parts.h
 /*  
- *  Copyright Droids Corporation, Microb Technology, Eirbot (2007)
+ *  Copyright Droids Corporation, Microb Technology, Eirbot (2009)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -65,20 +51,21 @@ cat <<EOF > aversive/parts.h
 #define _AVERSIVE_PARTS_H_
 
 EOF
-for i in * ; do
+
+for i in *.h ; do
     part=${i%.h}
     part=${part#aversive_}
     if [ "$part" = "parts" ]; then
 	continue
     fi
-    echo "#${EL}if defined (__AVR_${part}__)" >> aversive/parts.h
-    echo "#include <$i>" >> aversive/parts.h
+    echo "#${EL}if defined (__AVR_${part}__)" >> ../parts.h
+    echo "#include <aversive/parts/$i>" >> ../parts.h
     EL=el
 done
-echo "#else" >> aversive/parts.h
-echo "#error \"This arch is not implemented yet\"" >> aversive/parts.h
-echo "#endif" >> aversive/parts.h
-echo >> aversive/parts.h
-echo "#endif /* _AVERSIVE_PARTS_H_ */" >> aversive/parts.h
+echo "#else" >> ../parts.h
+echo "#error \"This arch is not implemented yet\"" >> ../parts.h
+echo "#endif" >> ../parts.h
+echo >> ../parts.h
+echo "#endif /* _AVERSIVE_PARTS_H_ */" >> ../parts.h
 cd -
 

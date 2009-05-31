@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: scheduler.c,v 1.12 2008-01-08 20:05:02 zer0 Exp $
+ *  Revision : $Id: scheduler.c,v 1.13 2009-03-15 21:51:16 zer0 Exp $
  *
  */
 
@@ -45,10 +45,10 @@ void scheduler_init(void)
 
 #ifdef CONFIG_MODULE_SCHEDULER_TIMER0
 	/* activation of corresponding interrupt */
-	sbi(TIMSK, TOIE0); 
+	TOIE0_REG |= (1<<TOIE0); /* TIMSK */
 
 	TCNT0 = 0; 
-	TCCR0 = SCHEDULER_CK; 
+	CS00_REG = SCHEDULER_CK; /* TCCR0 */
 #endif
 }
 

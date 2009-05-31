@@ -1,5 +1,5 @@
 /*  
- *  Copyright Droids Corporation, Microb Technology, Eirbot (2006)
+ *  Copyright Droids Corporation, Microb Technology, Eirbot (2009)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,65 +25,61 @@
 
 
 /* prescalers timer 0 */
-#define TIMER0_PRESCALER_DIV_0     0
-#define TIMER0_PRESCALER_DIV_1     1
-#define TIMER0_PRESCALER_DIV_8     2
-#define TIMER0_PRESCALER_DIV_64    3
-#define TIMER0_PRESCALER_DIV_256   4
-#define TIMER0_PRESCALER_DIV_1024  5
-#define TIMER0_PRESCALER_EXT_FALL  6
-#define TIMER0_PRESCALER_EXT_RISE  7
+#define TIMER0_PRESCALER_DIV_0          0
+#define TIMER0_PRESCALER_DIV_1          1
+#define TIMER0_PRESCALER_DIV_8          2
+#define TIMER0_PRESCALER_DIV_64         3
+#define TIMER0_PRESCALER_DIV_256        4
+#define TIMER0_PRESCALER_DIV_1024       5
+#define TIMER0_PRESCALER_DIV_FALL       6
+#define TIMER0_PRESCALER_DIV_RISE       7
 
-#define TIMER0_PRESCALER_REG_0     0
-#define TIMER0_PRESCALER_REG_1     1
-#define TIMER0_PRESCALER_REG_2     8
-#define TIMER0_PRESCALER_REG_3     64
-#define TIMER0_PRESCALER_REG_4     256
-#define TIMER0_PRESCALER_REG_5     1024
-#define TIMER0_PRESCALER_REG_6     -1
-#define TIMER0_PRESCALER_REG_7     -2
-
+#define TIMER0_PRESCALER_REG_0          0
+#define TIMER0_PRESCALER_REG_1          1
+#define TIMER0_PRESCALER_REG_2          8
+#define TIMER0_PRESCALER_REG_3          64
+#define TIMER0_PRESCALER_REG_4          256
+#define TIMER0_PRESCALER_REG_5          1024
+#define TIMER0_PRESCALER_REG_6          -1
+#define TIMER0_PRESCALER_REG_7          -2
 
 /* prescalers timer 1 */
-#define TIMER1_PRESCALER_DIV_0     0
-#define TIMER1_PRESCALER_DIV_1     1
-#define TIMER1_PRESCALER_DIV_8     2
-#define TIMER1_PRESCALER_DIV_64    3
-#define TIMER1_PRESCALER_DIV_256   4
-#define TIMER1_PRESCALER_DIV_1024  5
-#define TIMER1_PRESCALER_EXT_FALL  6
-#define TIMER1_PRESCALER_EXT_RISE  7
+#define TIMER1_PRESCALER_DIV_0          0
+#define TIMER1_PRESCALER_DIV_1          1
+#define TIMER1_PRESCALER_DIV_8          2
+#define TIMER1_PRESCALER_DIV_64         3
+#define TIMER1_PRESCALER_DIV_256        4
+#define TIMER1_PRESCALER_DIV_1024       5
+#define TIMER1_PRESCALER_DIV_FALL       6
+#define TIMER1_PRESCALER_DIV_RISE       7
 
-#define TIMER1_PRESCALER_REG_0     0
-#define TIMER1_PRESCALER_REG_1     1
-#define TIMER1_PRESCALER_REG_2     8
-#define TIMER1_PRESCALER_REG_3     64
-#define TIMER1_PRESCALER_REG_4     256
-#define TIMER1_PRESCALER_REG_5     1024
-#define TIMER1_PRESCALER_REG_6     -1
-#define TIMER1_PRESCALER_REG_7     -2
-
+#define TIMER1_PRESCALER_REG_0          0
+#define TIMER1_PRESCALER_REG_1          1
+#define TIMER1_PRESCALER_REG_2          8
+#define TIMER1_PRESCALER_REG_3          64
+#define TIMER1_PRESCALER_REG_4          256
+#define TIMER1_PRESCALER_REG_5          1024
+#define TIMER1_PRESCALER_REG_6          -1
+#define TIMER1_PRESCALER_REG_7          -2
 
 /* prescalers timer 2 */
-#define TIMER2_PRESCALER_DIV_0     0
-#define TIMER2_PRESCALER_DIV_1     1
-#define TIMER2_PRESCALER_DIV_8     2
-#define TIMER2_PRESCALER_DIV_32    3
-#define TIMER2_PRESCALER_DIV_64    4
-#define TIMER2_PRESCALER_DIV_128   5
-#define TIMER2_PRESCALER_DIV_256   6
-#define TIMER2_PRESCALER_DIV_1024  7
+#define TIMER2_PRESCALER_DIV_0          0
+#define TIMER2_PRESCALER_DIV_1          1
+#define TIMER2_PRESCALER_DIV_8          2
+#define TIMER2_PRESCALER_DIV_32         3
+#define TIMER2_PRESCALER_DIV_64         4
+#define TIMER2_PRESCALER_DIV_128        5
+#define TIMER2_PRESCALER_DIV_256        6
+#define TIMER2_PRESCALER_DIV_1024       7
 
-#define TIMER2_PRESCALER_REG_0     0
-#define TIMER2_PRESCALER_REG_1     1
-#define TIMER2_PRESCALER_REG_2     8
-#define TIMER2_PRESCALER_REG_3     32
-#define TIMER2_PRESCALER_REG_4     64
-#define TIMER2_PRESCALER_REG_5     128
-#define TIMER2_PRESCALER_REG_6     256
-#define TIMER2_PRESCALER_REG_7     1024
-
-
+#define TIMER2_PRESCALER_REG_0          0
+#define TIMER2_PRESCALER_REG_1          1
+#define TIMER2_PRESCALER_REG_2          8
+#define TIMER2_PRESCALER_REG_3          32
+#define TIMER2_PRESCALER_REG_4          64
+#define TIMER2_PRESCALER_REG_5          128
+#define TIMER2_PRESCALER_REG_6          256
+#define TIMER2_PRESCALER_REG_7          1024
 
 
 /* available timers */
@@ -180,35 +176,6 @@
 #define SP14_REG             SPH
 #define SP15_REG             SPH
 
-/* UCSRA */
-#define MPCM_REG             UCSRA
-#define U2X_REG              UCSRA
-#define UPE_REG              UCSRA
-#define DOR_REG              UCSRA
-#define FE_REG               UCSRA
-#define UDRE_REG             UCSRA
-#define TXC_REG              UCSRA
-#define RXC_REG              UCSRA
-
-/* UCSRB */
-#define TXB8_REG             UCSRB
-#define RXB8_REG             UCSRB
-#define UCSZ2_REG            UCSRB
-#define TXEN_REG             UCSRB
-#define RXEN_REG             UCSRB
-#define UDRIE_REG            UCSRB
-#define TXCIE_REG            UCSRB
-#define RXCIE_REG            UCSRB
-
-/* UCSRC */
-#define UCPOL_REG            UCSRC
-#define UCSZ0_REG            UCSRC
-#define UCSZ1_REG            UCSRC
-#define USBS_REG             UCSRC
-#define UPM0_REG             UCSRC
-#define UPM1_REG             UCSRC
-#define UMSEL_REG            UCSRC
-
 /* ICR1L */
 #define ICR1L0_REG           ICR1L
 #define ICR1L1_REG           ICR1L
@@ -262,15 +229,14 @@
 #define PORTG3_REG           PORTG
 #define PORTG4_REG           PORTG
 
-/* PORTD */
-#define PORTD0_REG           PORTD
-#define PORTD1_REG           PORTD
-#define PORTD2_REG           PORTD
-#define PORTD3_REG           PORTD
-#define PORTD4_REG           PORTD
-#define PORTD5_REG           PORTD
-#define PORTD6_REG           PORTD
-#define PORTD7_REG           PORTD
+/* UCSR0C */
+#define UCPOL0_REG           UCSR0C
+#define UCSZ00_REG           UCSR0C
+#define UCSZ01_REG           UCSR0C
+#define USBS0_REG            UCSR0C
+#define UPM00_REG            UCSR0C
+#define UPM01_REG            UCSR0C
+#define UMSEL0_REG           UCSR0C
 
 /* PORTE */
 #define PORTE0_REG           PORTE
@@ -311,6 +277,16 @@
 #define PORTA5_REG           PORTA
 #define PORTA6_REG           PORTA
 #define PORTA7_REG           PORTA
+
+/* UDR0 */
+#define UDR00_REG            UDR0
+#define UDR01_REG            UDR0
+#define UDR02_REG            UDR0
+#define UDR03_REG            UDR0
+#define UDR04_REG            UDR0
+#define UDR05_REG            UDR0
+#define UDR06_REG            UDR0
+#define UDR07_REG            UDR0
 
 /* EICRA */
 #define ISC00_REG            EICRA
@@ -599,6 +575,22 @@
 #define WGM20_REG            TCCR2A
 #define FOC2A_REG            TCCR2A
 
+/* UBRR0H */
+#define UBRR8_REG            UBRR0H
+#define UBRR9_REG            UBRR0H
+#define UBRR10_REG           UBRR0H
+#define UBRR11_REG           UBRR0H
+
+/* UBRR0L */
+#define UBRR0_REG            UBRR0L
+#define UBRR1_REG            UBRR0L
+#define UBRR2_REG            UBRR0L
+#define UBRR3_REG            UBRR0L
+#define UBRR4_REG            UBRR0L
+#define UBRR5_REG            UBRR0L
+#define UBRR6_REG            UBRR0L
+#define UBRR7_REG            UBRR0L
+
 /* EEARH */
 #define EEAR8_REG            EEARH
 #define EEAR9_REG            EEARH
@@ -618,6 +610,16 @@
 #define IVCE_REG             MCUCR
 #define IVSEL_REG            MCUCR
 #define PUD_REG              MCUCR
+
+/* PINC */
+#define PINC0_REG            PINC
+#define PINC1_REG            PINC
+#define PINC2_REG            PINC
+#define PINC3_REG            PINC
+#define PINC4_REG            PINC
+#define PINC5_REG            PINC
+#define PINC6_REG            PINC
+#define PINC7_REG            PINC
 
 /* OCDR */
 #define OCDR0_REG            OCDR
@@ -685,15 +687,25 @@
 #define ACBG_REG             ACSR
 #define ACD_REG              ACSR
 
-/* TCNT1L */
-#define TCNT1L0_REG          TCNT1L
-#define TCNT1L1_REG          TCNT1L
-#define TCNT1L2_REG          TCNT1L
-#define TCNT1L3_REG          TCNT1L
-#define TCNT1L4_REG          TCNT1L
-#define TCNT1L5_REG          TCNT1L
-#define TCNT1L6_REG          TCNT1L
-#define TCNT1L7_REG          TCNT1L
+/* UCSR0A */
+#define MPCM0_REG            UCSR0A
+#define U2X0_REG             UCSR0A
+#define UPE0_REG             UCSR0A
+#define DOR0_REG             UCSR0A
+#define FE0_REG              UCSR0A
+#define UDRE0_REG            UCSR0A
+#define TXC0_REG             UCSR0A
+#define RXC0_REG             UCSR0A
+
+/* UCSR0B */
+#define TXB80_REG            UCSR0B
+#define RXB80_REG            UCSR0B
+#define UCSZ02_REG           UCSR0B
+#define TXEN0_REG            UCSR0B
+#define RXEN0_REG            UCSR0B
+#define UDRIE0_REG           UCSR0B
+#define TXCIE0_REG           UCSR0B
+#define RXCIE0_REG           UCSR0B
 
 /* DDRD */
 #define DDD0_REG             DDRD
@@ -705,12 +717,6 @@
 #define DDD6_REG             DDRD
 #define DDD7_REG             DDRD
 
-/* UBRRH */
-#define UBRR8_REG            UBRRH
-#define UBRR9_REG            UBRRH
-#define UBRR10_REG           UBRRH
-#define UBRR11_REG           UBRRH
-
 /* USICR */
 #define USITC_REG            USICR
 #define USICLK_REG           USICR
@@ -721,15 +727,15 @@
 #define USIOIE_REG           USICR
 #define USISIE_REG           USICR
 
-/* UBRRL */
-#define UBRR0_REG            UBRRL
-#define UBRR1_REG            UBRRL
-#define UBRR2_REG            UBRRL
-#define UBRR3_REG            UBRRL
-#define UBRR4_REG            UBRRL
-#define UBRR5_REG            UBRRL
-#define UBRR6_REG            UBRRL
-#define UBRR7_REG            UBRRL
+/* PORTD */
+#define PORTD0_REG           PORTD
+#define PORTD1_REG           PORTD
+#define PORTD2_REG           PORTD
+#define PORTD3_REG           PORTD
+#define PORTD4_REG           PORTD
+#define PORTD5_REG           PORTD
+#define PORTD6_REG           PORTD
+#define PORTD7_REG           PORTD
 
 /* USISR */
 #define USICNT0_REG          USISR
@@ -801,16 +807,6 @@
 #define OCIE1B_REG           TIMSK1
 #define ICIE1_REG            TIMSK1
 
-/* UDR */
-#define UDR00_REG            UDR
-#define UDR01_REG            UDR
-#define UDR02_REG            UDR
-#define UDR03_REG            UDR
-#define UDR04_REG            UDR
-#define UDR05_REG            UDR
-#define UDR06_REG            UDR
-#define UDR07_REG            UDR
-
 /* PINJ */
 #define PINJ0_REG            PINJ
 #define PINJ1_REG            PINJ
@@ -869,15 +865,15 @@
 #define PCINT29_REG          PCMSK3
 #define PCINT30_REG          PCMSK3
 
-/* PINC */
-#define PINC0_REG            PINC
-#define PINC1_REG            PINC
-#define PINC2_REG            PINC
-#define PINC3_REG            PINC
-#define PINC4_REG            PINC
-#define PINC5_REG            PINC
-#define PINC6_REG            PINC
-#define PINC7_REG            PINC
+/* TCNT1L */
+#define TCNT1L0_REG          TCNT1L
+#define TCNT1L1_REG          TCNT1L
+#define TCNT1L2_REG          TCNT1L
+#define TCNT1L3_REG          TCNT1L
+#define TCNT1L4_REG          TCNT1L
+#define TCNT1L5_REG          TCNT1L
+#define TCNT1L6_REG          TCNT1L
+#define TCNT1L7_REG          TCNT1L
 
 /* PINB */
 #define PINB0_REG            PINB
@@ -973,3 +969,6 @@
 #define USIDR5_REG           USIDR
 #define USIDR6_REG           USIDR
 #define USIDR7_REG           USIDR
+
+/* pins mapping */
+

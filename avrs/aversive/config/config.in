@@ -47,9 +47,12 @@ choice 'Avr type' "\
  ATmega645 CONFIG_MCU_ATMEGA645 \
  ATmega6450 CONFIG_MCU_ATMEGA6450 \
  ATmega128 CONFIG_MCU_ATMEGA128 \
+ ATmega1281 CONFIG_MCU_ATMEGA1281 \
  AT90can128 CONFIG_MCU_AT90CAN128 \
  AT94k CONFIG_MCU_AT94K \
  AT90s1200 CONFIG_MCU_AT90S1200 \
+ ATmega2560 CONFIG_MCU_ATMEGA2560 \
+ ATmega256 CONFIG_MCU_ATMEGA256 \
 " ATmega128
 
 int 'Quartz Frequency (Hz)' CONFIG_QUARTZ '12000000'
@@ -150,6 +153,14 @@ dep_bool 'Time' CONFIG_MODULE_TIME \
 dep_bool '  |-- Create Default time config' CONFIG_MODULE_TIME_CREATE_CONFIG \
 	$CONFIG_MODULE_TIME
 
+#### TIME_EXT
+bool 'Time - reloaded' CONFIG_MODULE_TIME_EXT
+
+dep_bool '  |-- Create Default time_ext config' CONFIG_MODULE_TIME_EXT_CREATE_CONFIG \
+	$CONFIG_MODULE_TIME_EXT
+
+
+
 endmenu
 
 #############################################################################
@@ -163,11 +174,20 @@ comment 'uart needs circular buffer, mf2 client may need scheduler'
 dep_bool 'Uart' CONFIG_MODULE_UART \
 	$CONFIG_MODULE_CIRBUF
 
+dep_bool '  |-- Allow 9 bits operations' CONFIG_MODULE_UART_9BITS \
+	$CONFIG_MODULE_UART
+
 dep_bool '  |-- Create Default uart config' CONFIG_MODULE_UART_CREATE_CONFIG \
 	$CONFIG_MODULE_UART
 
+#### SPI
+bool 'spi (very EXPERIMENTAL)' CONFIG_MODULE_SPI
+
+dep_bool '  |-- Create Default spi config' CONFIG_MODULE_SPI_CREATE_CONFIG \
+	$CONFIG_MODULE_SPI
+
 #### I2C
-bool 'i2c (very EXPERIMENTAL)' CONFIG_MODULE_I2C
+bool 'i2c' CONFIG_MODULE_I2C
 
 dep_bool '  |-- Allow master mode' CONFIG_MODULE_I2C_MASTER \
 	$CONFIG_MODULE_I2C
@@ -219,6 +239,9 @@ dep_bool '  |-- Create Default pwm config' CONFIG_MODULE_PWM_CREATE_CONFIG \
 	$CONFIG_MODULE_PWM
 
 
+#### PWM_NG
+bool 'PWM_ng' CONFIG_MODULE_PWM_NG
+
 #### ADC
 bool 'ADC' CONFIG_MODULE_ADC
 
@@ -255,6 +278,8 @@ dep_bool '  |-- Enable history' CONFIG_MODULE_RDLINE_HISTORY \
 #### parse
 
 bool 'Parse' CONFIG_MODULE_PARSE
+dep_bool '  |-- Do not parse float' CONFIG_MODULE_PARSE_NO_FLOAT \
+	$CONFIG_MODULE_PARSE
 
 endmenu
 
@@ -274,6 +299,11 @@ bool 'Multiservo' CONFIG_MODULE_MULTISERVO
 
 dep_bool '  |-- Create Default servo config' CONFIG_MODULE_MULTISERVO_CREATE_CONFIG \
 	$CONFIG_MODULE_MULTISERVO
+
+bool 'AX-12' CONFIG_MODULE_AX12
+
+dep_bool '  |-- Create Default AX-12 config' CONFIG_MODULE_AX12_CREATE_CONFIG\
+	$CONFIG_MODULE_AX12
 
 mainmenu_option next_comment
 comment 'Brushless motor drivers (you should enable pwm modules to see all)'
@@ -295,7 +325,7 @@ dep_bool ' Create Default brushless_3phase_digital_hall_double config' CONFIG_MO
 endmenu # (brushless)
 
 mainmenu_option next_comment
-comment 'Encoders'
+comment 'Encoders (you need comm/spi for encoders_spi)'
 
 #### ENCODERS
 bool 'Encoders (microb)' CONFIG_MODULE_ENCODERS_MICROB
@@ -308,6 +338,13 @@ bool 'Encoders (eirbot)' CONFIG_MODULE_ENCODERS_EIRBOT
 
 dep_bool '  |-- Create Default encoders_eirbot config' CONFIG_MODULE_ENCODERS_EIRBOT_CREATE_CONFIG \
 	$CONFIG_MODULE_ENCODERS_EIRBOT
+
+#### ENCODERS
+dep_bool 'Encoders_spi (microb)' CONFIG_MODULE_ENCODERS_SPI \
+	 $CONFIG_MODULE_SPI
+
+dep_bool '  |-- Create Default encoders_spi config' CONFIG_MODULE_ENCODERS_SPI_CREATE_CONFIG \
+	$CONFIG_MODULE_ENCODERS_SPI
 
 endmenu # (encoders)
 
@@ -370,6 +407,20 @@ dep_bool 'Biquad' CONFIG_MODULE_BIQUAD \
 	$CONFIG_MODULE_UTILS
 
 endmenu # (control system)
+
+
+mainmenu_option next_comment
+comment 'Radio devices'
+comment 'Some radio devices require SPI to be activated'
+#### RADIO DEVICES
+dep_bool 'CC2420 Radio Device (IEEE 802.15.4) (VERY EXPERIMENTAL)' CONFIG_MODULE_CC2420 \
+	$CONFIG_MODULE_SPI
+
+dep_bool '  |-- Create Default CC2420 config' CONFIG_MODULE_CC2420_CREATE_CONFIG \
+	$CONFIG_MODULE_CC2420
+
+endmenu # radio
+
 
 endmenu # (devices)
 
@@ -466,6 +517,7 @@ choice 'Programmer type' "futurlec CONFIG_AVRDUDE_PROG_FUTURELEC\
  bsd CONFIG_AVRDUDE_PROG_BSD\
  dapa CONFIG_AVRDUDE_PROG_DAPA\
  jtag1 CONFIG_AVRDUDE_PROG_JTAG1\
+ avr109 CONFIG_AVRDUDE_PROG_AVR109\
 " stk200
 
 string 'Port device' CONFIG_AVRDUDE_PORT '/dev/parport0'

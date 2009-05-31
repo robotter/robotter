@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: angle_distance.c,v 1.6 2008-04-13 16:55:31 zer0 Exp $
+ *  Revision : $Id: angle_distance.c,v 1.7 2009-03-15 21:51:18 zer0 Exp $
  *
  */
 
@@ -25,7 +25,7 @@
  * convert the values of wheels encoders (left, right) into (distance,
  * angle)
  */
-void rs_get_polar_from_wheels(struct rs_polar * p_dst, struct rs_wheels * w_src)
+void rs_get_polar_from_wheels(struct rs_polar *p_dst, struct rs_wheels *w_src)
 {
 	p_dst->distance = (w_src->right + w_src->left) / 2;
 	p_dst->angle    = (w_src->right - w_src->left) / 2;
@@ -34,7 +34,7 @@ void rs_get_polar_from_wheels(struct rs_polar * p_dst, struct rs_wheels * w_src)
 /**
  * convert (distance, angle) into (left, right)
  */
-void rs_get_wheels_from_polar(struct rs_wheels * w_dst, struct rs_polar * p_src)
+void rs_get_wheels_from_polar(struct rs_wheels *w_dst, struct rs_polar *p_src)
 {
 	w_dst->left  = p_src->distance - p_src->angle;
 	w_dst->right = p_src->distance + p_src->angle;

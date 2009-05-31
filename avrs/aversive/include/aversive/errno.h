@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: errno.h,v 1.2 2007-05-24 13:08:44 zer0 Exp $
+ *  Revision : $Id: errno.h,v 1.3 2009-03-15 21:51:14 zer0 Exp $
  *
  */
 
@@ -54,10 +54,16 @@
 #define EBUSY    16
 /** Invalid argument */
 #define EINVAL   22
+/** Domain error */
+/* #define EDOM       33 */ /* in libc */
+/** Range error */
+/* #define ERANGE     34 */ /* in libc */
+/** Not supported */
+#define ENOTSUP  126 /* the correct number is 128 */
 /** Unkwow error */
 #define EUNKNOW  127
-/** Not supported */
-#define ENOTSUP  128
+
+/* must not be > 127 because it can be stored on an int8_t */
 
 #else /* HOST_VERSION */
 #include <sys/errno.h>

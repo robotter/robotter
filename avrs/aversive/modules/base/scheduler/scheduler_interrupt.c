@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: scheduler_interrupt.c,v 1.4 2008-01-08 20:05:02 zer0 Exp $
+ *  Revision : $Id: scheduler_interrupt.c,v 1.5 2009-03-15 21:51:16 zer0 Exp $
  *
  */
 
@@ -31,6 +31,18 @@ static volatile uint8_t priority_running=0;
 /** number of imbricated scheduler interruptions */
 static volatile uint8_t nb_stacking=0;
 	
+uint8_t scheduler_disable_save(void)
+{
+	uint8_t ret;
+	ret = priority_running;
+	priority_running = 255;
+	return ret;
+}
+
+void scheduler_enable_restore(uint8_t old_prio)
+{
+	priority_running = old_prio;
+}
 
 /** 
  *  this function is called from a timer interruption. If an event has
@@ -52,9 +64,9 @@ scheduler_interrupt(void)
 	struct event_t *e, *next_e, *prev_e=NULL;
 
 	/* maximize the number of imbrications */
-	if (nb_stacking >= SCHEDULER_NB_STACKING_MAX) {
+	if (nb_stacking >= SCHEDULER_NB_STACKING_MAX)
 		return;
-	}
+	
 	nb_stacking ++;
 	sei();
 
@@ -109,8 +121,15 @@ scheduler_interrupt(void)
 		   this should be quite fast since the list is
 		   expected to be small. */
 
+		e = SLIST_FIRST(&event_list);
 		/* easy case : list is empty */
-		if (SLIST_FIRST(&event_list) == NULL) {
+		if (e == NULL) {
+			SLIST_INSERT_HEAD(&event_list, &g_tab_event[i], next);
+			continue;
+		}
+
+		/* insert at head if it's the event with highest prio */
+		if (g_tab_event[i].priority >= e->priority) {
 			SLIST_INSERT_HEAD(&event_list, &g_tab_event[i], next);
 			continue;
 		}

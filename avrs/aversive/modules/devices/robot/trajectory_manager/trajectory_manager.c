@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: trajectory_manager.c,v 1.9 2008-05-14 13:27:12 zer0 Exp $
+ *  Revision : $Id: trajectory_manager.c,v 1.10 2009-03-15 21:51:18 zer0 Exp $
  *
  */
 
@@ -42,7 +42,7 @@
 #define DEG(x) ((x) * (180.0 / M_PI))
 #define RAD(x) ((x) * (M_PI / 180.0))
 
-static void trajectory_manager_event(void * param);
+static void trajectory_manager_event(void *param);
 
 /************ INIT FUNCS */
 
@@ -59,8 +59,8 @@ void trajectory_init(struct trajectory *traj)
 }
 
 /** structure initialization */
-void trajectory_set_cs(struct trajectory *traj, struct cs * cs_d, 
-		       struct cs * cs_a)
+void trajectory_set_cs(struct trajectory *traj, struct cs *cs_d, 
+		       struct cs *cs_a)
 {
 	uint8_t flags;
 
@@ -72,8 +72,8 @@ void trajectory_set_cs(struct trajectory *traj, struct cs * cs_d,
 
 /** structure initialization */
 void trajectory_set_robot_params(struct trajectory *traj, 
-				 struct robot_system * rs, 
-				 struct robot_position * pos) 
+				 struct robot_system *rs, 
+				 struct robot_position *pos) 
 {
 	uint8_t flags;
 	IRQ_LOCK(flags);

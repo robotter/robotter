@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: f64_sqrt.c,v 1.7 2008-05-14 13:27:12 zer0 Exp $
+ *  Revision : $Id: f64_sqrt.c,v 1.8 2009-03-15 21:51:16 zer0 Exp $
  *
  */
 
@@ -29,6 +29,9 @@ static uint64_t u64_sqrt(uint64_t number) {
 	uint64_t n  = 1;
 	uint64_t n1 = NEXT(n, number);
 	
+	if (number == 0)
+		return 0;
+
 	while(ABS(n1 - n) > 1) {
 		n  = n1;
 		n1 = NEXT(n, number);

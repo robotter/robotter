@@ -16,7 +16,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: rdline.c,v 1.3 2008-04-13 16:55:31 zer0 Exp $
+ *  Revision : $Id: rdline.c,v 1.4 2009-03-15 21:51:20 zer0 Exp $
  *
  *
  */
@@ -43,10 +43,10 @@ static uint8_t rdline_get_history_size(struct rdline * rdl);
 #endif /* CONFIG_MODULE_RDLINE_HISTORY */
 
 
-void rdline_init(struct rdline * rdl, void (*write_char)(char),
-		 void (*validate)(const char *, uint8_t size),
-		 int8_t (*complete)(const char *, char * dstbuf,
-				    uint8_t dstsize, int16_t * state))
+void rdline_init(struct rdline *rdl, 
+		 rdline_write_char_t *write_char,
+		 rdline_validate_t *validate,
+		 rdline_complete_t *complete)
 {
 	memset(rdl, 0, sizeof(*rdl));
 	rdl->validate = validate;
@@ -311,16 +311,6 @@ rdline_char_in(struct rdline * rdl, char c)
 				else
 					complete_state = -1;
 
-				/* complete() retourne < 0 en cas d'erreur
-				 * * 2 si ca complete (1 choix possible), dans ce cas les lettres 
-				 *   a ajouter sont dans le buffer dst
-				 * * 1 si la fonction itere chaque token (complet) a chaque appel 
-				 * * 0 lorsque l'iteration est terminee (l'appel retournant 0 ne
-				 *   contient pas de buffer valide  				
-				 *
-				 *  le buffer se termine par 0
-				 */
-				
 				ret = rdl->complete(rdl->left_buf, tmp_buf, sizeof(tmp_buf), 
 						    &complete_state);
 				/* no completion or error */
@@ -328,7 +318,6 @@ rdline_char_in(struct rdline * rdl, char c)
 					return 2;
 				}
 
-				
 				tmp_size = strlen(tmp_buf);
 				/* add chars */
 				if (ret == 2) {
@@ -557,15 +546,9 @@ static void
 rdline_puts_P(struct rdline * rdl, const prog_char * buf)
 {
 	char c;
-#ifdef HOST_VERSION
-	while ( (c = *(buf++)) != '\0' ) {
-		rdl->write_char(c);
-	}
-#else
 	while ( (c=pgm_read_byte(buf++)) != '\0' ) {
 		rdl->write_char(c);
 	}
-#endif
 }
 
 /* a very very basic printf with one arg and one format 'u' */
@@ -574,17 +557,10 @@ rdline_miniprintf_P(struct rdline * rdl, const prog_char * buf, uint8_t val)
 {
 	char c, started=0, div=100;
 
-#ifdef HOST_VERSION
-	while ( (c=*(buf++)) ) {
-#else
 	while ( (c=pgm_read_byte(buf++)) ) {
-#endif
 		if (c=='%') {
-#ifdef HOST_VERSION
-			c = *(buf++);
-#else
 			c = pgm_read_byte(buf++);
-#endif
+
 			if (c=='u') { /* val is never more than 255 */
 				while (div) {
 					c = val / div;

@@ -1,5 +1,5 @@
 /*  
- *  Copyright Droids Corporation, Microb Technology, Eirbot (2006)
+ *  Copyright Droids Corporation, Microb Technology, Eirbot (2009)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,81 +25,61 @@
 
 
 /* prescalers timer 0 */
-#define TIMER0_PRESCALER_DIV_0     0
-#define TIMER0_PRESCALER_DIV_1     1
-#define TIMER0_PRESCALER_DIV_8     2
-#define TIMER0_PRESCALER_DIV_64    3
-#define TIMER0_PRESCALER_DIV_256   4
-#define TIMER0_PRESCALER_DIV_1024  5
+#define TIMER0_PRESCALER_DIV_0          0
+#define TIMER0_PRESCALER_DIV_1          1
+#define TIMER0_PRESCALER_DIV_8          2
+#define TIMER0_PRESCALER_DIV_64         3
+#define TIMER0_PRESCALER_DIV_256        4
+#define TIMER0_PRESCALER_DIV_1024       5
+#define TIMER0_PRESCALER_DIV_FALL       6
+#define TIMER0_PRESCALER_DIV_RISE       7
 
-#define TIMER0_PRESCALER_REG_0     0
-#define TIMER0_PRESCALER_REG_1     1
-#define TIMER0_PRESCALER_REG_2     8
-#define TIMER0_PRESCALER_REG_3     64
-#define TIMER0_PRESCALER_REG_4     256
-#define TIMER0_PRESCALER_REG_5     1024
-
+#define TIMER0_PRESCALER_REG_0          0
+#define TIMER0_PRESCALER_REG_1          1
+#define TIMER0_PRESCALER_REG_2          8
+#define TIMER0_PRESCALER_REG_3          64
+#define TIMER0_PRESCALER_REG_4          256
+#define TIMER0_PRESCALER_REG_5          1024
+#define TIMER0_PRESCALER_REG_6          -1
+#define TIMER0_PRESCALER_REG_7          -2
 
 /* prescalers timer 1 */
-#define TIMER1_PRESCALER_DIV_0     0
-#define TIMER1_PRESCALER_DIV_1     1
-#define TIMER1_PRESCALER_DIV_8     2
-#define TIMER1_PRESCALER_DIV_64    3
-#define TIMER1_PRESCALER_DIV_256   4
-#define TIMER1_PRESCALER_DIV_1024  5
-#define TIMER1_PRESCALER_EXT_FALL  6
-#define TIMER1_PRESCALER_EXT_RISE  7
+#define TIMER1_PRESCALER_DIV_0          0
+#define TIMER1_PRESCALER_DIV_1          1
+#define TIMER1_PRESCALER_DIV_8          2
+#define TIMER1_PRESCALER_DIV_64         3
+#define TIMER1_PRESCALER_DIV_256        4
+#define TIMER1_PRESCALER_DIV_1024       5
+#define TIMER1_PRESCALER_DIV_FALL       6
+#define TIMER1_PRESCALER_DIV_RISE       7
 
-#define TIMER1_PRESCALER_REG_0     0
-#define TIMER1_PRESCALER_REG_1     1
-#define TIMER1_PRESCALER_REG_2     8
-#define TIMER1_PRESCALER_REG_3     64
-#define TIMER1_PRESCALER_REG_4     256
-#define TIMER1_PRESCALER_REG_5     1024
-#define TIMER1_PRESCALER_REG_6     -1
-#define TIMER1_PRESCALER_REG_7     -2
-
+#define TIMER1_PRESCALER_REG_0          0
+#define TIMER1_PRESCALER_REG_1          1
+#define TIMER1_PRESCALER_REG_2          8
+#define TIMER1_PRESCALER_REG_3          64
+#define TIMER1_PRESCALER_REG_4          256
+#define TIMER1_PRESCALER_REG_5          1024
+#define TIMER1_PRESCALER_REG_6          -1
+#define TIMER1_PRESCALER_REG_7          -2
 
 /* prescalers timer 2 */
-#define TIMER2_PRESCALER_DIV_0     0
-#define TIMER2_PRESCALER_DIV_1     1
-#define TIMER2_PRESCALER_DIV_8     2
-#define TIMER2_PRESCALER_DIV_32    3
-#define TIMER2_PRESCALER_DIV_64    4
-#define TIMER2_PRESCALER_DIV_128   5
-#define TIMER2_PRESCALER_DIV_256   6
-#define TIMER2_PRESCALER_DIV_1024  7
+#define TIMER2_PRESCALER_DIV_0          0
+#define TIMER2_PRESCALER_DIV_1          1
+#define TIMER2_PRESCALER_DIV_8          2
+#define TIMER2_PRESCALER_DIV_32         3
+#define TIMER2_PRESCALER_DIV_64         4
+#define TIMER2_PRESCALER_DIV_128        5
+#define TIMER2_PRESCALER_DIV_256        6
+#define TIMER2_PRESCALER_DIV_1024       7
 
-#define TIMER2_PRESCALER_REG_0     0
-#define TIMER2_PRESCALER_REG_1     1
-#define TIMER2_PRESCALER_REG_2     8
-#define TIMER2_PRESCALER_REG_3     32
-#define TIMER2_PRESCALER_REG_4     64
-#define TIMER2_PRESCALER_REG_5     128
-#define TIMER2_PRESCALER_REG_6     256
-#define TIMER2_PRESCALER_REG_7     1024
-
-
-/* prescalers timer 3 */
-#define TIMER3_PRESCALER_DIV_0     0
-#define TIMER3_PRESCALER_DIV_1     1
-#define TIMER3_PRESCALER_DIV_8     2
-#define TIMER3_PRESCALER_DIV_64    3
-#define TIMER3_PRESCALER_DIV_256   4
-#define TIMER3_PRESCALER_DIV_1024  5
-#define TIMER3_PRESCALER_EXT_FALL  6
-#define TIMER3_PRESCALER_EXT_RISE  7
-
-#define TIMER3_PRESCALER_REG_0     0
-#define TIMER3_PRESCALER_REG_1     1
-#define TIMER3_PRESCALER_REG_2     8
-#define TIMER3_PRESCALER_REG_3     64
-#define TIMER3_PRESCALER_REG_4     256
-#define TIMER3_PRESCALER_REG_5     1024
-#define TIMER3_PRESCALER_REG_6     -1
-#define TIMER3_PRESCALER_REG_7     -2
-
-
+#define TIMER2_PRESCALER_REG_0          0
+#define TIMER2_PRESCALER_REG_1          1
+#define TIMER2_PRESCALER_REG_2          8
+#define TIMER2_PRESCALER_REG_3          32
+#define TIMER2_PRESCALER_REG_4          64
+#define TIMER2_PRESCALER_REG_5          128
+#define TIMER2_PRESCALER_REG_6          256
+#define TIMER2_PRESCALER_REG_7          1024
 
 
 /* available timers */
@@ -182,38 +162,43 @@
 #define ACBG_REG             ACSR
 #define ACD_REG              ACSR
 
-/* SPCR0 */
-#define SPR00_REG            SPCR0
-#define SPR10_REG            SPCR0
-#define CPHA0_REG            SPCR0
-#define CPOL0_REG            SPCR0
-#define MSTR0_REG            SPCR0
-#define DORD0_REG            SPCR0
-#define SPE0_REG             SPCR0
-#define SPIE0_REG            SPCR0
-
 /* RAMPZ */
 #define RAMPZ0_REG           RAMPZ
 
 /* OCR2B */
-/* #define OCR2_0_REG           OCR2B */ /* dup in OCR2A */
-/* #define OCR2_1_REG           OCR2B */ /* dup in OCR2A */
-/* #define OCR2_2_REG           OCR2B */ /* dup in OCR2A */
-/* #define OCR2_3_REG           OCR2B */ /* dup in OCR2A */
-/* #define OCR2_4_REG           OCR2B */ /* dup in OCR2A */
-/* #define OCR2_5_REG           OCR2B */ /* dup in OCR2A */
-/* #define OCR2_6_REG           OCR2B */ /* dup in OCR2A */
-/* #define OCR2_7_REG           OCR2B */ /* dup in OCR2A */
+#define OCR2B_0_REG          OCR2B
+#define OCR2B_1_REG          OCR2B
+#define OCR2B_2_REG          OCR2B
+#define OCR2B_3_REG          OCR2B
+#define OCR2B_4_REG          OCR2B
+#define OCR2B_5_REG          OCR2B
+#define OCR2B_6_REG          OCR2B
+#define OCR2B_7_REG          OCR2B
 
 /* OCR2A */
-/* #define OCR2_0_REG           OCR2A */ /* dup in OCR2B */
-/* #define OCR2_1_REG           OCR2A */ /* dup in OCR2B */
-/* #define OCR2_2_REG           OCR2A */ /* dup in OCR2B */
-/* #define OCR2_3_REG           OCR2A */ /* dup in OCR2B */
-/* #define OCR2_4_REG           OCR2A */ /* dup in OCR2B */
-/* #define OCR2_5_REG           OCR2A */ /* dup in OCR2B */
-/* #define OCR2_6_REG           OCR2A */ /* dup in OCR2B */
-/* #define OCR2_7_REG           OCR2A */ /* dup in OCR2B */
+#define OCR2A_0_REG          OCR2A
+#define OCR2A_1_REG          OCR2A
+#define OCR2A_2_REG          OCR2A
+#define OCR2A_3_REG          OCR2A
+#define OCR2A_4_REG          OCR2A
+#define OCR2A_5_REG          OCR2A
+#define OCR2A_6_REG          OCR2A
+#define OCR2A_7_REG          OCR2A
+
+/* SPDR */
+#define SPDR0_REG            SPDR
+#define SPDR1_REG            SPDR
+#define SPDR2_REG            SPDR
+#define SPDR3_REG            SPDR
+#define SPDR4_REG            SPDR
+#define SPDR5_REG            SPDR
+#define SPDR6_REG            SPDR
+#define SPDR7_REG            SPDR
+
+/* SPSR */
+#define SPI2X_REG            SPSR
+#define WCOL_REG             SPSR
+#define SPIF_REG             SPSR
 
 /* SPH */
 #define SP8_REG              SPH
@@ -231,6 +216,15 @@
 #define ICR1L5_REG           ICR1L
 #define ICR1L6_REG           ICR1L
 #define ICR1L7_REG           ICR1L
+
+/* PRR */
+#define PRADC_REG            PRR
+#define PRUSART0_REG         PRR
+#define PRSPI_REG            PRR
+#define PRTIM1_REG           PRR
+#define PRTIM0_REG           PRR
+#define PRTIM2_REG           PRR
+#define PRTWI_REG            PRR
 
 /* TWSR */
 #define TWPS0_REG            TWSR
@@ -333,16 +327,6 @@
 #define AIN0D_REG            DIDR1
 #define AIN1D_REG            DIDR1
 
-/* SPDR0 */
-#define SPDRB0_REG           SPDR0
-#define SPDRB1_REG           SPDR0
-#define SPDRB2_REG           SPDR0
-#define SPDRB3_REG           SPDR0
-#define SPDRB4_REG           SPDR0
-#define SPDRB5_REG           SPDR0
-#define SPDRB6_REG           SPDR0
-#define SPDRB7_REG           SPDR0
-
 /* ASSR */
 #define TCR2BUB_REG          ASSR
 #define TCR2AUB_REG          ASSR
@@ -357,7 +341,7 @@
 #define CLKPS1_REG           CLKPR
 #define CLKPS2_REG           CLKPR
 #define CLKPS3_REG           CLKPR
-#define CPKPCE_REG           CLKPR
+#define CLKPCE_REG           CLKPR
 
 /* SREG */
 #define C_REG                SREG
@@ -459,11 +443,6 @@
 #define GPIOR25_REG          GPIOR2
 #define GPIOR26_REG          GPIOR2
 #define GPIOR27_REG          GPIOR2
-
-/* SPSR0 */
-#define SPI2X0_REG           SPSR0
-#define WCOL0_REG            SPSR0
-#define SPIF0_REG            SPSR0
 
 /* PCICR */
 #define PCIE0_REG            PCICR
@@ -734,15 +713,6 @@
 #define ADTS1_REG            ADCSRB
 #define ADTS2_REG            ADCSRB
 
-/* PRR0 */
-#define PRADC_REG            PRR0
-#define PRUSART0_REG         PRR0
-#define PRSPI_REG            PRR0
-#define PRTIM1_REG           PRR0
-#define PRTIM0_REG           PRR0
-#define PRTIM2_REG           PRR0
-#define PRTWI_REG            PRR0
-
 /* OCR0A */
 #define OCROA_0_REG          OCR0A
 #define OCROA_1_REG          OCR0A
@@ -947,3 +917,188 @@
 /* #define OCR1AL5_REG          OCR1AL */ /* dup in OCR1BL */
 /* #define OCR1AL6_REG          OCR1AL */ /* dup in OCR1BL */
 /* #define OCR1AL7_REG          OCR1AL */ /* dup in OCR1BL */
+
+/* SPCR */
+#define SPR0_REG             SPCR
+#define SPR1_REG             SPCR
+#define CPHA_REG             SPCR
+#define CPOL_REG             SPCR
+#define MSTR_REG             SPCR
+#define DORD_REG             SPCR
+#define SPE_REG              SPCR
+#define SPIE_REG             SPCR
+
+/* pins mapping */
+#define ADC0_PORT PORTA
+#define ADC0_BIT 0
+#define PCINT0_PORT PORTA
+#define PCINT0_BIT 0
+
+#define ADC1_PORT PORTA
+#define ADC1_BIT 1
+#define PCINT1_PORT PORTA
+#define PCINT1_BIT 1
+
+#define ADC2_PORT PORTA
+#define ADC2_BIT 2
+#define PCINT2_PORT PORTA
+#define PCINT2_BIT 2
+
+#define ADC3_PORT PORTA
+#define ADC3_BIT 3
+#define PCINT3_PORT PORTA
+#define PCINT3_BIT 3
+
+#define ADC4_PORT PORTA
+#define ADC4_BIT 4
+#define PCINT4_PORT PORTA
+#define PCINT4_BIT 4
+
+#define ADC5_PORT PORTA
+#define ADC5_BIT 5
+#define PCINT5_PORT PORTA
+#define PCINT5_BIT 5
+
+#define ADC6_PORT PORTA
+#define ADC6_BIT 6
+#define PCINT6_PORT PORTA
+#define PCINT6_BIT 6
+
+#define ADC7_PORT PORTA
+#define ADC7_BIT 7
+#define PCINT7_PORT PORTA
+#define PCINT7_BIT 7
+
+#define XCK_PORT PORTB
+#define XCK_BIT 0
+#define T0_PORT PORTB
+#define T0_BIT 0
+#define PCINT9_PORT PORTB
+#define PCINT9_BIT 0
+
+#define T1_PORT PORTB
+#define T1_BIT 1
+#define CLKO_PORT PORTB
+#define CLKO_BIT 1
+#define PCINT9_PORT PORTB
+#define PCINT9_BIT 1
+
+#define AIN0_PORT PORTB
+#define AIN0_BIT 2
+#define INT2_PORT PORTB
+#define INT2_BIT 2
+#define PCINT10_PORT PORTB
+#define PCINT10_BIT 2
+
+#define AIN1_PORT PORTB
+#define AIN1_BIT 3
+#define OC0A_PORT PORTB
+#define OC0A_BIT 3
+#define PCINT11_PORT PORTB
+#define PCINT11_BIT 3
+
+#define SS_PORT PORTB
+#define SS_BIT 4
+#define OC0B_PORT PORTB
+#define OC0B_BIT 4
+#define PCINT12_PORT PORTB
+#define PCINT12_BIT 4
+
+#define MOSI_PORT PORTB
+#define MOSI_BIT 5
+#define PCINT13_PORT PORTB
+#define PCINT13_BIT 5
+
+#define MISO_PORT PORTB
+#define MISO_BIT 6
+#define PCINT14_PORT PORTB
+#define PCINT14_BIT 6
+
+#define SCK_PORT PORTB
+#define SCK_BIT 7
+#define PCINT15_PORT PORTB
+#define PCINT15_BIT 7
+
+#define SCL_PORT PORTC
+#define SCL_BIT 0
+#define PCINT16_PORT PORTC
+#define PCINT16_BIT 0
+
+#define SDA_PORT PORTC
+#define SDA_BIT 1
+#define PCINT17_PORT PORTC
+#define PCINT17_BIT 1
+
+#define TCK_PORT PORTC
+#define TCK_BIT 2
+#define PCINT18_PORT PORTC
+#define PCINT18_BIT 2
+
+#define TMS_PORT PORTC
+#define TMS_BIT 3
+#define PCINT19_PORT PORTC
+#define PCINT19_BIT 3
+
+#define TDO_PORT PORTC
+#define TDO_BIT 4
+#define PCINT20_PORT PORTC
+#define PCINT20_BIT 4
+
+#define TDI_PORT PORTC
+#define TDI_BIT 5
+#define PCINT21_PORT PORTC
+#define PCINT21_BIT 5
+
+#define TOSC1_PORT PORTC
+#define TOSC1_BIT 6
+#define PCINT22_PORT PORTC
+#define PCINT22_BIT 6
+
+#define TOSC2_PORT PORTC
+#define TOSC2_BIT 7
+#define PCINT23_PORT PORTC
+#define PCINT23_BIT 7
+
+#define RXD_PORT PORTD
+#define RXD_BIT 0
+#define PCINT24_PORT PORTD
+#define PCINT24_BIT 0
+
+#define TXD_PORT PORTD
+#define TXD_BIT 1
+#define PCINT25_PORT PORTD
+#define PCINT25_BIT 1
+
+#define INT0_PORT PORTD
+#define INT0_BIT 2
+#define PCINT26_PORT PORTD
+#define PCINT26_BIT 2
+
+#define INT1_PORT PORTD
+#define INT1_BIT 3
+#define PCINT27_PORT PORTD
+#define PCINT27_BIT 3
+
+#define OC1B_PORT PORTD
+#define OC1B_BIT 4
+#define PCINT28_PORT PORTD
+#define PCINT28_BIT 4
+
+#define OC1A_PORT PORTD
+#define OC1A_BIT 5
+#define PCINT29_PORT PORTD
+#define PCINT29_BIT 5
+
+#define ICP_PORT PORTD
+#define ICP_BIT 6
+#define OC2B_PORT PORTD
+#define OC2B_BIT 6
+#define PCINT30_PORT PORTD
+#define PCINT30_BIT 6
+
+#define OC2A_PORT PORTD
+#define OC2A_BIT 7
+#define PCINT31_PORT PORTD
+#define PCINT31_BIT 7
+
+

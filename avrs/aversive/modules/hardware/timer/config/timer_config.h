@@ -15,11 +15,12 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: timer_config.h,v 1.2 2007-05-01 15:35:53 zer0 Exp $
+ *  Revision : $Id: timer_config.h,v 1.3 2009-03-15 21:51:20 zer0 Exp $
  *
  */
 
 #define TIMER0_ENABLED
+/* some archs have TIMER0A_ENABLED or TIMER0B_ENABLED */
 
 #define TIMER1_ENABLED
 #define TIMER1A_ENABLED
@@ -27,13 +28,26 @@
 #define TIMER1C_ENABLED
 
 #define TIMER2_ENABLED
+/* some archs have TIMER2A_ENABLED or TIMER2B_ENABLED */
 
 #define TIMER3_ENABLED
 #define TIMER3A_ENABLED
 #define TIMER3B_ENABLED
 #define TIMER3C_ENABLED
 
+#define TIMER4_ENABLED
+#define TIMER4A_ENABLED
+#define TIMER4B_ENABLED
+#define TIMER4C_ENABLED
+
+#define TIMER5_ENABLED
+#define TIMER5A_ENABLED
+#define TIMER5B_ENABLED
+#define TIMER5C_ENABLED
+
 #define TIMER0_PRESCALER_DIV 1
 #define TIMER1_PRESCALER_DIV 1
 #define TIMER2_PRESCALER_DIV 1
 #define TIMER3_PRESCALER_DIV 1
+#define TIMER4_PRESCALER_DIV 1
+#define TIMER5_PRESCALER_DIV 1

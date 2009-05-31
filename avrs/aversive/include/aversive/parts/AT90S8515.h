@@ -1,5 +1,5 @@
 /*  
- *  Copyright Droids Corporation, Microb Technology, Eirbot (2006)
+ *  Copyright Droids Corporation, Microb Technology, Eirbot (2009)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,44 +25,25 @@
 
 
 /* prescalers timer 0 */
-#define TIMER0_PRESCALER_DIV_0     0
-#define TIMER0_PRESCALER_DIV_1     1
-#define TIMER0_PRESCALER_DIV_8     2
-#define TIMER0_PRESCALER_DIV_64    3
-#define TIMER0_PRESCALER_DIV_256   4
-#define TIMER0_PRESCALER_DIV_1024  5
-#define TIMER0_PRESCALER_EXT_FALL  6
-#define TIMER0_PRESCALER_EXT_RISE  7
+#define TIMER0_PRESCALER_DIV_0          0
+#define TIMER0_PRESCALER_DIV_1          1
+#define TIMER0_PRESCALER_DIV_8          2
+#define TIMER0_PRESCALER_DIV_64         3
+#define TIMER0_PRESCALER_DIV_256        4
+#define TIMER0_PRESCALER_DIV_1024       5
+#define TIMER0_PRESCALER_DIV_FALL       6
+#define TIMER0_PRESCALER_DIV_RISE       7
 
-#define TIMER0_PRESCALER_REG_0     0
-#define TIMER0_PRESCALER_REG_1     1
-#define TIMER0_PRESCALER_REG_2     8
-#define TIMER0_PRESCALER_REG_3     64
-#define TIMER0_PRESCALER_REG_4     256
-#define TIMER0_PRESCALER_REG_5     1024
-#define TIMER0_PRESCALER_REG_6     -1
-#define TIMER0_PRESCALER_REG_7     -2
-
+#define TIMER0_PRESCALER_REG_0          0
+#define TIMER0_PRESCALER_REG_1          1
+#define TIMER0_PRESCALER_REG_2          8
+#define TIMER0_PRESCALER_REG_3          64
+#define TIMER0_PRESCALER_REG_4          256
+#define TIMER0_PRESCALER_REG_5          1024
+#define TIMER0_PRESCALER_REG_6          -1
+#define TIMER0_PRESCALER_REG_7          -2
 
 /* prescalers timer 1 */
-#define TIMER1_PRESCALER_DIV_0     0
-#define TIMER1_PRESCALER_DIV_1     1
-#define TIMER1_PRESCALER_DIV_8     2
-#define TIMER1_PRESCALER_DIV_64    3
-#define TIMER1_PRESCALER_DIV_256   4
-#define TIMER1_PRESCALER_DIV_1024  5
-#define TIMER1_PRESCALER_EXT_FALL  6
-#define TIMER1_PRESCALER_EXT_RISE  7
-
-#define TIMER1_PRESCALER_REG_0     0
-#define TIMER1_PRESCALER_REG_1     1
-#define TIMER1_PRESCALER_REG_2     8
-#define TIMER1_PRESCALER_REG_3     64
-#define TIMER1_PRESCALER_REG_4     256
-#define TIMER1_PRESCALER_REG_5     1024
-#define TIMER1_PRESCALER_REG_6     -1
-#define TIMER1_PRESCALER_REG_7     -2
-
 
 
 
@@ -489,3 +470,100 @@
 #define DORD_REG             SPCR
 #define SPE_REG              SPCR
 #define SPIE_REG             SPCR
+
+/* pins mapping */
+#define AD0_PORT PORTA
+#define AD0_BIT 0
+
+#define AD1_PORT PORTA
+#define AD1_BIT 1
+
+#define AD2_PORT PORTA
+#define AD2_BIT 2
+
+#define AD3_PORT PORTA
+#define AD3_BIT 3
+
+#define AD4_PORT PORTA
+#define AD4_BIT 4
+
+#define AD5_PORT PORTA
+#define AD5_BIT 5
+
+#define AD6_PORT PORTA
+#define AD6_BIT 6
+
+#define AD7_PORT PORTA
+#define AD7_BIT 7
+
+#define T0_PORT PORTB
+#define T0_BIT 0
+
+#define T1_PORT PORTB
+#define T1_BIT 1
+
+#define AIN0_PORT PORTB
+#define AIN0_BIT 2
+
+#define AIN1_PORT PORTB
+#define AIN1_BIT 3
+
+#define SS_PORT PORTB
+#define SS_BIT 4
+
+#define MOSI_PORT PORTB
+#define MOSI_BIT 5
+
+#define MISO_PORT PORTB
+#define MISO_BIT 6
+
+#define SCK_PORT PORTB
+#define SCK_BIT 7
+
+#define A8_PORT PORTC
+#define A8_BIT 0
+
+#define A9_PORT PORTC
+#define A9_BIT 1
+
+#define A10_PORT PORTC
+#define A10_BIT 2
+
+#define A11_PORT PORTC
+#define A11_BIT 3
+
+#define A12_PORT PORTC
+#define A12_BIT 4
+
+#define A13_PORT PORTC
+#define A13_BIT 5
+
+#define A14_PORT PORTC
+#define A14_BIT 6
+
+#define A15_PORT PORTC
+#define A15_BIT 7
+
+#define RXD_PORT PORTD
+#define RXD_BIT 0
+
+#define TXD_PORT PORTD
+#define TXD_BIT 1
+
+#define INT0_PORT PORTD
+#define INT0_BIT 2
+
+#define INT1_PORT PORTD
+#define INT1_BIT 3
+
+
+#define OC1A_PORT PORTD
+#define OC1A_BIT 5
+
+#define WR_PORT PORTD
+#define WR_BIT 6
+
+#define RD_PORT PORTD
+#define RD_BIT 7
+
+

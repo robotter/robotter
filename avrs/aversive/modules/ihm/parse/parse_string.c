@@ -133,7 +133,7 @@ int8_t complete_get_elt_string(parse_pgm_token_hdr_t * tk, int8_t idx,
 		return -1;
 
 	len = get_token_len(s);
-	if (len > size)
+	if (len > size - 1)
 		return -1;
 
 	memcpy_P(dstbuf, s, len);

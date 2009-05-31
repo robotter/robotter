@@ -16,7 +16,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: cirbuf.h,v 1.2 2008-01-08 20:05:02 zer0 Exp $
+ *  Revision : $Id: cirbuf.h,v 1.3 2009-03-15 21:51:16 zer0 Exp $
  *
  *
  */
@@ -48,11 +48,11 @@ typedef unsigned char cirbuf_uint;
  * This structure is the header of a cirbuf type.
  */
 struct cirbuf {
-	cirbuf_uint maxlen;     /**< total len of the fifo (number of elements) */
-	cirbuf_uint start;      /**< indice of the first elt */
-	cirbuf_uint end;        /**< indice of the last elt */
-	cirbuf_uint len;        /**< current len of fifo */
-	char *  buf;
+	cirbuf_uint maxlen;             /**< total len of the fifo (number of elements) */
+	volatile cirbuf_uint start;     /**< indice of the first elt */
+	volatile cirbuf_uint end;       /**< indice of the last elt */
+	volatile cirbuf_uint len;       /**< current len of fifo */
+	char *buf;
 };
 
 /* #define CIRBUF_DEBUG */
@@ -67,7 +67,7 @@ struct cirbuf {
 /**
  * Init the circular buffer
  */
-void cirbuf_init(struct cirbuf * cbuf, char * buf, cirbuf_uint start, cirbuf_uint maxlen);
+void cirbuf_init(struct cirbuf *cbuf, char *buf, cirbuf_uint start, cirbuf_uint maxlen);
 
 
 /**
@@ -111,61 +111,61 @@ void cirbuf_init(struct cirbuf * cbuf, char * buf, cirbuf_uint start, cirbuf_uin
  * Add a character at head of the circular buffer. Return 0 on success, or
  * a negative value on error.
  */
-cirbuf_int cirbuf_add_head_safe(struct cirbuf * cbuf, char c);
+cirbuf_int cirbuf_add_head_safe(struct cirbuf *cbuf, char c);
 
 /** 
  * Add a character at head of the circular buffer. You _must_ check that you
  * have enough free space in the buffer before calling this func.
  */
-void cirbuf_add_head(struct cirbuf * cbuf, char c);
+void cirbuf_add_head(struct cirbuf *cbuf, char c);
 
 /** 
  * Add a character at tail of the circular buffer. Return 0 on success, or
  * a negative value on error.
  */
-cirbuf_int cirbuf_add_tail_safe(struct cirbuf * cbuf, char c);
+cirbuf_int cirbuf_add_tail_safe(struct cirbuf *cbuf, char c);
 
 /** 
  * Add a character at tail of the circular buffer. You _must_ check that you
  * have enough free space in the buffer before calling this func.
  */
-void cirbuf_add_tail(struct cirbuf * cbuf, char c);
+void cirbuf_add_tail(struct cirbuf *cbuf, char c);
 
 /** 
  * Remove a char at the head of the circular buffer. Return 0 on
  * success, or a negative value on error.
  */
-cirbuf_int cirbuf_del_head_safe(struct cirbuf * cbuf);
+cirbuf_int cirbuf_del_head_safe(struct cirbuf *cbuf);
 
 /** 
  * Remove a char at the head of the circular buffer. You _must_ check
  * that buffer is not empty before calling the function.
  */
-void cirbuf_del_head(struct cirbuf * cbuf);
+void cirbuf_del_head(struct cirbuf *cbuf);
 
 /** 
  * Remove a char at the tail of the circular buffer. Return 0 on
  * success, or a negative value on error.
  */
-cirbuf_int cirbuf_del_tail_safe(struct cirbuf * cbuf);
+cirbuf_int cirbuf_del_tail_safe(struct cirbuf *cbuf);
 
 /** 
  * Remove a char at the tail of the circular buffer. You _must_ check
  * that buffer is not empty before calling the function.
  */
-void cirbuf_del_tail(struct cirbuf * cbuf);
+void cirbuf_del_tail(struct cirbuf *cbuf);
 
 /**
  * Return the head of the circular buffer. You _must_ check that
  * buffer is not empty before calling the function.
  */
-char cirbuf_get_head(struct cirbuf * cbuf);
+char cirbuf_get_head(struct cirbuf *cbuf);
 
 /**
  * Return the tail of the circular buffer. You _must_ check that
  * buffer is not empty before calling the function.
  */
-char cirbuf_get_tail(struct cirbuf * cbuf);
+char cirbuf_get_tail(struct cirbuf *cbuf);
 
 
 
@@ -174,50 +174,50 @@ char cirbuf_get_tail(struct cirbuf * cbuf);
  * buffer, and n is the number of char to add. Return the number of
  * copied bytes on success, or a negative value on error.
  */
-cirbuf_int cirbuf_add_buf_head(struct cirbuf * cbuf, const char * c, cirbuf_uint n);
+cirbuf_int cirbuf_add_buf_head(struct cirbuf *cbuf, const char *c, cirbuf_uint n);
 
 /** 
  * Add a buffer at tail of the circular buffer. 'c' is a pointer to a
  * buffer, and n is the number of char to add. Return the number of
  * copied bytes on success, or a negative value on error.
  */
-cirbuf_int cirbuf_add_buf_tail(struct cirbuf * cbuf, const char * c, cirbuf_uint n);
+cirbuf_int cirbuf_add_buf_tail(struct cirbuf *cbuf, const char *c, cirbuf_uint n);
 
 /** 
  * Remove chars at the head of the circular buffer. Return 0 on
  * success, or a negative value on error.
  */
-cirbuf_int cirbuf_del_buf_head(struct cirbuf * cbuf, cirbuf_uint size);
+cirbuf_int cirbuf_del_buf_head(struct cirbuf *cbuf, cirbuf_uint size);
 
 /** 
  * Remove chars at the tail of the circular buffer. Return 0 on
  * success, or a negative value on error.
  */
-cirbuf_int cirbuf_del_buf_tail(struct cirbuf * cbuf, cirbuf_uint size);
+cirbuf_int cirbuf_del_buf_tail(struct cirbuf *cbuf, cirbuf_uint size);
 
 /** 
  * Copy a maximum of 'size' characters from the head of the circular
  * buffer to a flat one pointed by 'c'. Return the number of copied
  * chars.
  */
-cirbuf_int cirbuf_get_buf_head(struct cirbuf * cbuf, char * c, cirbuf_uint size);
+cirbuf_int cirbuf_get_buf_head(struct cirbuf *cbuf, char *c, cirbuf_uint size);
 
 /** 
  * Copy a maximum of 'size' characters from the tail of the circular
  * buffer to a flat one pointed by 'c'. Return the number of copied
  * chars.
  */
-cirbuf_int cirbuf_get_buf_tail(struct cirbuf * cbuf, char * c, cirbuf_uint size);
+cirbuf_int cirbuf_get_buf_tail(struct cirbuf *cbuf, char *c, cirbuf_uint size);
 
 
 /** 
  * Set the start of the data to the index 0 of the internal buffer.
  */
-void cirbuf_align_left(struct cirbuf * cbuf);
+void cirbuf_align_left(struct cirbuf *cbuf);
 
 /** 
  * Set the end of the data to the last index of the internal buffer.
  */
-void cirbuf_align_right(struct cirbuf * cbuf);
+void cirbuf_align_right(struct cirbuf *cbuf);
 
 #endif /* _CIRBUF_H_ */

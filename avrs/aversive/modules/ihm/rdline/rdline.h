@@ -16,41 +16,20 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: rdline.h,v 1.2 2008-01-08 20:05:04 zer0 Exp $
+ *  Revision : $Id: rdline.h,v 1.3 2009-03-15 21:51:20 zer0 Exp $
  *
  *
  */
+
+#ifndef _RDLINE_H_
+#define _RDLINE_H_
 
 /**
  * This library is a small equivalent to the GNU readline library, but
  * it is designed for small systems, like Atmel AVR microcontrollers
  * (8 bits). Indeed, we don't use any malloc that is sometimes not
  * implemented on such systems.
- * 
- * Obviously, it does not support as many things as the GNU readline,
- * but at least it supports some interresting features like a kill
- * buffer and an history.
- *
- * It also have a feature that does not have the GNU readline: we can
- * have several instances of it running at the same time, even on a
- * monothread program, since it works with callbacks.
- *
- * The lib is designed for a client-side or a server-side use:
- * - server-side: the server receives all data from a socket, including 
- *   control chars, like arrows, tabulations, ... The client is 
- *   very simple, it can be a telnet or a minicom through a serial line.
- * - client-side: the client receives its data through its stdin for
- *   instance. The client and the server communicate with a socket, but
- *   they only speak together when there is a validation or a completion.
  */
-
-
-/*
- * TODO : 
- * - uint8_t -> int ?
- * - use cirbuf_for_each ? optimze ?
- */ 
-
 
 #include <cirbuf.h>
 #include <vt100.h>
@@ -89,6 +68,13 @@ enum rdline_status {
 	RDLINE_RUNNING,
 };
 
+struct rdline;
+
+typedef void (rdline_write_char_t)(char);
+typedef void (rdline_validate_t)(const char *buf, uint8_t size);
+typedef int8_t (rdline_complete_t)(const char *buf, char *dstbuf,
+				uint8_t dstsize, int16_t *state);
+
 struct rdline {
 	enum rdline_status status;
 	/* rdline bufs */
@@ -113,10 +99,9 @@ struct rdline {
 #endif
 
 	/* callbacks and func pointers */
-	void (*write_char)(char);
-	void (*validate)(const char *, uint8_t size);
-	int8_t (*complete)(const char *, char * dstbuf, 
-			   uint8_t dstsize, int16_t * state);
+	rdline_write_char_t *write_char;
+	rdline_validate_t *validate;
+	rdline_complete_t *complete;
 
 	/* vt100 parser */
 	struct vt100 vt100;
@@ -132,10 +117,10 @@ struct rdline {
  * \param complete A pointer to the function to execute when the 
  *                 user completes the buffer.
  */
-void rdline_init(struct rdline * rdl, void (*write_char)(char),
-		 void (*validate)(const char *, uint8_t size),
-		 int8_t (*complete)(const char *, char * dstbuf,
-				    uint8_t dstsize, int16_t * state));
+void rdline_init(struct rdline *rdl, 
+		 rdline_write_char_t *write_char,
+		 rdline_validate_t *validate,
+		 rdline_complete_t *complete);
 
 
 /**
@@ -143,31 +128,31 @@ void rdline_init(struct rdline * rdl, void (*write_char)(char),
  * \param rdl A pointer to a struct rdline
  * \param prompt A string containing the prompt
  */
-void rdline_newline(struct rdline * rdl, const char * prompt);
+void rdline_newline(struct rdline *rdl, const char *prompt);
 
 /**
  * Call it and all received chars will be ignored.
  * \param rdl A pointer to a struct rdline
  */
-void rdline_stop(struct rdline * rdl);
+void rdline_stop(struct rdline *rdl);
 
 /**
  * Restart after a call to rdline_stop()
  * \param rdl A pointer to a struct rdline
  */
-void rdline_restart(struct rdline * rdl);
+void rdline_restart(struct rdline *rdl);
 
 /**
  * Redisplay the current buffer
  * \param rdl A pointer to a struct rdline
  */
-void rdline_redisplay(struct rdline * rdl);
+void rdline_redisplay(struct rdline *rdl);
 
 
 /**
  * append a char to the readline buffer. 
  * Return 1 when the line has been validated.
- * Return 2 when the asked to complete the buffer.
+ * Return 2 when the user asked to complete the buffer.
  * Return -1 if it is not running.
  * Return -2 if EOF (ctrl-d on an empty line).
  * Else return 0.
@@ -182,7 +167,7 @@ int8_t rdline_char_in(struct rdline * rdl, char c);
  * Return the current buffer, terminated by '\0'.
  * \param rdl A pointer to a struct rdline
  */
-const char * rdline_get_buffer(struct rdline * rdl);
+const char *rdline_get_buffer(struct rdline *rdl);
 
 
 /**
@@ -191,16 +176,17 @@ const char * rdline_get_buffer(struct rdline * rdl);
  * \param rdl A pointer to a struct rdline
  * \param buf A buffer that is terminated by '\0'
  */
-int8_t rdline_add_history(struct rdline * rdl, const char * buf);
+int8_t rdline_add_history(struct rdline *rdl, const char *buf);
 
 /**
  * Clear current history
  * \param rdl A pointer to a struct rdline
  */
-void rdline_clear_history(struct rdline * rdl);
+void rdline_clear_history(struct rdline *rdl);
 
 /**
  * Get the i-th history item
  */
-char * rdline_get_history_item(struct rdline * rdl, uint8_t i);
+char *rdline_get_history_item(struct rdline *rdl, uint8_t i);
 
+#endif /* _RDLINE_H_ */

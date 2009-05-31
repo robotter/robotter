@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: timer_prescaler.h,v 1.2 2007-05-01 15:35:53 zer0 Exp $
+ *  Revision : $Id: timer_prescaler.h,v 1.3 2009-03-15 21:51:19 zer0 Exp $
  *
  */
 
@@ -742,6 +742,366 @@ static inline int16_t __timer3_reg_to_div(uint8_t reg)
 
 #if defined TIMER3_PRESCALER_DIV_16384
 	case TIMER3_PRESCALER_DIV_16384:
+		return 16384;
+#endif
+
+	default:
+		return -1;
+	}
+}
+
+/* return <0 on error, else return reg value */ 
+/* This static inline function is very optimized if div is
+ * a constant */
+static inline int16_t __timer4_div_to_reg(uint16_t div)
+{
+	switch(div) {
+#if defined TIMER4_PRESCALER_REG_0 && TIMER4_PRESCALER_REG_0 >= 0
+	case TIMER4_PRESCALER_REG_0:
+		return 0;
+#endif
+
+#if defined TIMER4_PRESCALER_REG_1 && TIMER4_PRESCALER_REG_1 >= 0
+	case TIMER4_PRESCALER_REG_1:
+		return 1;
+#endif
+
+#if defined TIMER4_PRESCALER_REG_2 && TIMER4_PRESCALER_REG_2 >= 0
+	case TIMER4_PRESCALER_REG_2:
+		return 2;
+#endif
+
+#if defined TIMER4_PRESCALER_REG_3 && TIMER4_PRESCALER_REG_3 >= 0
+	case TIMER4_PRESCALER_REG_3:
+		return 3;
+#endif
+
+#if defined TIMER4_PRESCALER_REG_4 && TIMER4_PRESCALER_REG_4 >= 0
+	case TIMER4_PRESCALER_REG_4:
+		return 4;
+#endif
+
+#if defined TIMER4_PRESCALER_REG_5 && TIMER4_PRESCALER_REG_5 >= 0
+	case TIMER4_PRESCALER_REG_5:
+		return 5;
+#endif
+
+#if defined TIMER4_PRESCALER_REG_6 && TIMER4_PRESCALER_REG_6 >= 0
+	case TIMER4_PRESCALER_REG_6:
+		return 6;
+#endif
+
+#if defined TIMER4_PRESCALER_REG_7 && TIMER4_PRESCALER_REG_7 >= 0
+	case TIMER4_PRESCALER_REG_7:
+		return 7;
+#endif
+
+#if defined TIMER4_PRESCALER_REG_8 && TIMER4_PRESCALER_REG_8 >= 0
+	case TIMER4_PRESCALER_REG_8:
+		return 8;
+#endif
+
+#if defined TIMER4_PRESCALER_REG_9 && TIMER4_PRESCALER_REG_9 >= 0
+	case TIMER4_PRESCALER_REG_9:
+		return 9;
+#endif
+
+#if defined TIMER4_PRESCALER_REG_10 && TIMER4_PRESCALER_REG_10 >= 0
+	case TIMER4_PRESCALER_REG_10:
+		return 10;
+#endif
+
+#if defined TIMER4_PRESCALER_REG_11 && TIMER4_PRESCALER_REG_11 >= 0
+	case TIMER4_PRESCALER_REG_11:
+		return 11;
+#endif
+
+#if defined TIMER4_PRESCALER_REG_12 && TIMER4_PRESCALER_REG_12 >= 0
+	case TIMER4_PRESCALER_REG_12:
+		return 12;
+#endif
+
+#if defined TIMER4_PRESCALER_REG_13 && TIMER4_PRESCALER_REG_13 >= 0
+	case TIMER4_PRESCALER_REG_13:
+		return 13;
+#endif
+#if defined TIMER4_PRESCALER_REG_14 && TIMER4_PRESCALER_REG_14 >= 0
+	case TIMER4_PRESCALER_REG_14:
+		return 14;
+#endif
+
+#if defined TIMER4_PRESCALER_REG_15 && TIMER4_PRESCALER_REG_15 >= 0
+	case TIMER4_PRESCALER_REG_15:
+		return 15;
+#endif
+	default:
+		return -1;
+	}
+}
+
+/* return <0 on error, else return div value */ 
+/* This static inline function is very optimized if reg is
+ * a constant */
+static inline int16_t __timer4_reg_to_div(uint8_t reg)
+{
+	switch(reg) {
+#if defined TIMER4_PRESCALER_DIV_0
+	case TIMER4_PRESCALER_DIV_0:
+		return 0;
+#endif
+
+#if defined TIMER4_PRESCALER_DIV_1
+	case TIMER4_PRESCALER_DIV_1:
+		return 1;
+#endif
+
+#if defined TIMER4_PRESCALER_DIV_2
+	case TIMER4_PRESCALER_DIV_2:
+		return 2;
+#endif
+
+#if defined TIMER4_PRESCALER_DIV_4
+	case TIMER4_PRESCALER_DIV_4:
+		return 4;
+#endif
+
+#if defined TIMER4_PRESCALER_DIV_8
+	case TIMER4_PRESCALER_DIV_8:
+		return 8;
+#endif
+
+#if defined TIMER4_PRESCALER_DIV_16
+	case TIMER4_PRESCALER_DIV_16:
+		return 16;
+#endif
+
+#if defined TIMER4_PRESCALER_DIV_32
+	case TIMER4_PRESCALER_DIV_32:
+		return 32;
+#endif
+
+#if defined TIMER4_PRESCALER_DIV_64
+	case TIMER4_PRESCALER_DIV_64:
+		return 64;
+#endif
+
+#if defined TIMER4_PRESCALER_DIV_128
+	case TIMER4_PRESCALER_DIV_128:
+		return 128;
+#endif
+
+#if defined TIMER4_PRESCALER_DIV_256
+	case TIMER4_PRESCALER_DIV_256:
+		return 256;
+#endif
+
+#if defined TIMER4_PRESCALER_DIV_512
+	case TIMER4_PRESCALER_DIV_512:
+		return 512;
+#endif
+
+#if defined TIMER4_PRESCALER_DIV_1024
+	case TIMER4_PRESCALER_DIV_1024:
+		return 1024;
+#endif
+
+#if defined TIMER4_PRESCALER_DIV_2048
+	case TIMER4_PRESCALER_DIV_2048:
+		return 2048;
+#endif
+
+#if defined TIMER4_PRESCALER_DIV_4096
+	case TIMER4_PRESCALER_DIV_4096:
+		return 4096;
+#endif
+
+#if defined TIMER4_PRESCALER_DIV_8192
+	case TIMER4_PRESCALER_DIV_8192:
+		return 8192;
+#endif
+
+#if defined TIMER4_PRESCALER_DIV_16384
+	case TIMER4_PRESCALER_DIV_16384:
+		return 16384;
+#endif
+
+	default:
+		return -1;
+	}
+}
+
+/* return <0 on error, else return reg value */ 
+/* This static inline function is very optimized if div is
+ * a constant */
+static inline int16_t __timer5_div_to_reg(uint16_t div)
+{
+	switch(div) {
+#if defined TIMER5_PRESCALER_REG_0 && TIMER5_PRESCALER_REG_0 >= 0
+	case TIMER5_PRESCALER_REG_0:
+		return 0;
+#endif
+
+#if defined TIMER5_PRESCALER_REG_1 && TIMER5_PRESCALER_REG_1 >= 0
+	case TIMER5_PRESCALER_REG_1:
+		return 1;
+#endif
+
+#if defined TIMER5_PRESCALER_REG_2 && TIMER5_PRESCALER_REG_2 >= 0
+	case TIMER5_PRESCALER_REG_2:
+		return 2;
+#endif
+
+#if defined TIMER5_PRESCALER_REG_3 && TIMER5_PRESCALER_REG_3 >= 0
+	case TIMER5_PRESCALER_REG_3:
+		return 3;
+#endif
+
+#if defined TIMER5_PRESCALER_REG_4 && TIMER5_PRESCALER_REG_4 >= 0
+	case TIMER5_PRESCALER_REG_4:
+		return 4;
+#endif
+
+#if defined TIMER5_PRESCALER_REG_5 && TIMER5_PRESCALER_REG_5 >= 0
+	case TIMER5_PRESCALER_REG_5:
+		return 5;
+#endif
+
+#if defined TIMER5_PRESCALER_REG_6 && TIMER5_PRESCALER_REG_6 >= 0
+	case TIMER5_PRESCALER_REG_6:
+		return 6;
+#endif
+
+#if defined TIMER5_PRESCALER_REG_7 && TIMER5_PRESCALER_REG_7 >= 0
+	case TIMER5_PRESCALER_REG_7:
+		return 7;
+#endif
+
+#if defined TIMER5_PRESCALER_REG_8 && TIMER5_PRESCALER_REG_8 >= 0
+	case TIMER5_PRESCALER_REG_8:
+		return 8;
+#endif
+
+#if defined TIMER5_PRESCALER_REG_9 && TIMER5_PRESCALER_REG_9 >= 0
+	case TIMER5_PRESCALER_REG_9:
+		return 9;
+#endif
+
+#if defined TIMER5_PRESCALER_REG_10 && TIMER5_PRESCALER_REG_10 >= 0
+	case TIMER5_PRESCALER_REG_10:
+		return 10;
+#endif
+
+#if defined TIMER5_PRESCALER_REG_11 && TIMER5_PRESCALER_REG_11 >= 0
+	case TIMER5_PRESCALER_REG_11:
+		return 11;
+#endif
+
+#if defined TIMER5_PRESCALER_REG_12 && TIMER5_PRESCALER_REG_12 >= 0
+	case TIMER5_PRESCALER_REG_12:
+		return 12;
+#endif
+
+#if defined TIMER5_PRESCALER_REG_13 && TIMER5_PRESCALER_REG_13 >= 0
+	case TIMER5_PRESCALER_REG_13:
+		return 13;
+#endif
+#if defined TIMER5_PRESCALER_REG_14 && TIMER5_PRESCALER_REG_14 >= 0
+	case TIMER5_PRESCALER_REG_14:
+		return 14;
+#endif
+
+#if defined TIMER5_PRESCALER_REG_15 && TIMER5_PRESCALER_REG_15 >= 0
+	case TIMER5_PRESCALER_REG_15:
+		return 15;
+#endif
+	default:
+		return -1;
+	}
+}
+
+/* return <0 on error, else return div value */ 
+/* This static inline function is very optimized if reg is
+ * a constant */
+static inline int16_t __timer5_reg_to_div(uint8_t reg)
+{
+	switch(reg) {
+#if defined TIMER5_PRESCALER_DIV_0
+	case TIMER5_PRESCALER_DIV_0:
+		return 0;
+#endif
+
+#if defined TIMER5_PRESCALER_DIV_1
+	case TIMER5_PRESCALER_DIV_1:
+		return 1;
+#endif
+
+#if defined TIMER5_PRESCALER_DIV_2
+	case TIMER5_PRESCALER_DIV_2:
+		return 2;
+#endif
+
+#if defined TIMER5_PRESCALER_DIV_4
+	case TIMER5_PRESCALER_DIV_4:
+		return 4;
+#endif
+
+#if defined TIMER5_PRESCALER_DIV_8
+	case TIMER5_PRESCALER_DIV_8:
+		return 8;
+#endif
+
+#if defined TIMER5_PRESCALER_DIV_16
+	case TIMER5_PRESCALER_DIV_16:
+		return 16;
+#endif
+
+#if defined TIMER5_PRESCALER_DIV_32
+	case TIMER5_PRESCALER_DIV_32:
+		return 32;
+#endif
+
+#if defined TIMER5_PRESCALER_DIV_64
+	case TIMER5_PRESCALER_DIV_64:
+		return 64;
+#endif
+
+#if defined TIMER5_PRESCALER_DIV_128
+	case TIMER5_PRESCALER_DIV_128:
+		return 128;
+#endif
+
+#if defined TIMER5_PRESCALER_DIV_256
+	case TIMER5_PRESCALER_DIV_256:
+		return 256;
+#endif
+
+#if defined TIMER5_PRESCALER_DIV_512
+	case TIMER5_PRESCALER_DIV_512:
+		return 512;
+#endif
+
+#if defined TIMER5_PRESCALER_DIV_1024
+	case TIMER5_PRESCALER_DIV_1024:
+		return 1024;
+#endif
+
+#if defined TIMER5_PRESCALER_DIV_2048
+	case TIMER5_PRESCALER_DIV_2048:
+		return 2048;
+#endif
+
+#if defined TIMER5_PRESCALER_DIV_4096
+	case TIMER5_PRESCALER_DIV_4096:
+		return 4096;
+#endif
+
+#if defined TIMER5_PRESCALER_DIV_8192
+	case TIMER5_PRESCALER_DIV_8192:
+		return 8192;
+#endif
+
+#if defined TIMER5_PRESCALER_DIV_16384
+	case TIMER5_PRESCALER_DIV_16384:
 		return 16384;
 #endif
 

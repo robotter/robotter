@@ -15,10 +15,10 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: obstacle_avoidance.c,v 1.3 2008-05-14 13:27:12 zer0 Exp $
+ *  Revision : $Id: obstacle_avoidance.c,v 1.4 2009-03-15 21:51:18 zer0 Exp $
  *
- *  Fabrice DESCLAUX <serpilliere@droids-corp.org>
- *  Olivier MATZ <zer0@droids-corp.org>
+ *  Main code and algorithm: Fabrice DESCLAUX <serpilliere@droids-corp.org>
+ *  Integration in Aversive: Olivier MATZ <zer0@droids-corp.org>
  */
 
 #include <aversive.h>
@@ -33,24 +33,12 @@
 
 #define debug_printf(args...)
 
-struct obstacle_avoidance {
-	oa_poly_t polys[MAX_POLY];  /* tab of polygons (obstacles) */
-	oa_ext_point_t points[MAX_PTS]; /* tab of points, referenced by polys */
-	
-	uint8_t ray_n;
-	uint8_t cur_poly_idx;
-	uint8_t cur_pt_idx;
-
-	uint16_t weight[MAX_RAYS];
-	union {
-		uint8_t rays[MAX_RAYS*2];
-		oa_point_t res[MAX_CHKPOINTS];
-	} u;
-};
 
 static struct obstacle_avoidance oa;
 
-/** Init the oa structure */
+/** Init the oa structure. Note: In the algorithm, the first polygon
+ * is a dummy one, and is used to represent the START and END points
+ * (so it has 2 vertices) */
 void oa_init(void)
 {
 	memset(&oa, 0, sizeof(oa));
@@ -70,6 +58,13 @@ void oa_start_end_points(int32_t st_x, int32_t st_y, int32_t en_x, int32_t en_y)
 	/* we always use the first 2 points of the table for start and end */
 	oa.points[0].x = en_x;
 	oa.points[0].y = en_y;
+
+        /* Each point processed by Dijkstra is marked as valid. If we
+	 * have unreachable points (out of playground or points inside
+	 * polygons) Disjkstra won't mark them as valid. At the end of
+	 * the algorithm, if the destination point is not marked as
+	 * valid, there's no valid path to reach it. */
+
 	oa.points[0].valid = 0;
 	/* the real dest is the start point for the algorithm */
 	oa.points[0].weight = 1;
@@ -173,7 +168,17 @@ quick_norm_vect(int32_t x, int32_t y)
 
 
 #define MAX_COEF 5000
-/* convert 2 points to a line */
+
+/* Convert 2 points to a line. 
+ * As we are working with intergers, we need to take care with
+ * coefficient of line equation:
+ *    a*x +   b*y +   c = 0 can be represented by:
+ *  3*a*x + 3*b*y + 3*c = 0 
+ *
+ *  So we try here to reduce coef in order to avoid overflow for
+ *  future points calculations. You have to set MAX_COEF in order to
+ *  have a precise line equation, but to avoid overflow when replacing
+ *  (x, y) with points in the area. */
 void 
 pts2line(const oa_ext_point_t *p1, const oa_ext_point_t *p2, oa_line_t *l)
 {
@@ -195,6 +200,9 @@ pts2line(const oa_ext_point_t *p1, const oa_ext_point_t *p2, oa_line_t *l)
  *  0 dont cross
  *  1 cross
  *  2 parallel crossing
+ *
+ *  p argument is the crossing point coordinates (dummy for 0 or 2
+ *  result)
  */
 uint8_t 
 intersect_line(const oa_line_t *l1, const oa_line_t *l2, oa_ext_point_t *p)
@@ -253,6 +261,9 @@ intersect_line(const oa_line_t *l1, const oa_line_t *l2, oa_ext_point_t *p)
  *  1 cross 
  *  2 cross on point
  *  3 parallel and one point in
+ *
+ *  p argument is the crossing point coordinates (dummy for 0 1 or 3
+ *  result)
  */
 uint8_t 
 intersect_segment(const oa_ext_point_t *s1, const oa_ext_point_t *s2, 
@@ -313,10 +324,10 @@ intersect_segment(const oa_ext_point_t *s1, const oa_ext_point_t *s2,
 
 }
 
-/* test if a point is in a polygon (including)
+/* Test if a point is in a polygon (including edges)
  *  0 not inside
  *  1 inside
- *  2 on bord
+ *  2 on edge
  */
 static uint8_t 
 is_in_poly(const oa_ext_point_t *p, oa_poly_t *pol)
@@ -355,11 +366,12 @@ uint8_t is_point_in_poly(oa_poly_t *pol, int16_t x, int16_t y)
 	return is_in_poly(&p, pol);
 }
 
-/* is segment crossing polygon? (including)
- *  0 no cross
+/* Is segment crossing polygon? (including edges)
+ *  0 don't cross
  *  1 cross
- *  2 on side
- *  3 touch out
+ *  2 on a side
+ *  3 touch out (a segment boundary is on a polygon edge, 
+ *  and the second segment boundary is out of the polygon)
  */
 uint8_t 
 is_crossing_poly(oa_ext_point_t p1, oa_ext_point_t p2, oa_poly_t *pol)
@@ -433,6 +445,22 @@ is_crossing_poly(oa_ext_point_t p1, oa_ext_point_t p2, oa_poly_t *pol)
 		(pt).y >= PLAYGROUND_Y_MIN && (pt).y<=PLAYGROUND_Y_MAX )
 
 
+/* Giving the list of poygons, compute the graph of "visibility rays".
+ * This rays array is composed of indexes representing 2 polygon
+ * vertices that can "see" each others:
+ *
+ *  i  : the first polygon number in the input polygon list
+ *  i+1: the vertex index of this polygon (vertex 1)
+ *  i+2: the second polygon number in the input polygon list
+ *  i+3: the vertex index of this polygon (vertex 2)
+ *
+ *  Here, vertex 1 can "see" vertex 2 in our visibility graph
+ *
+ *  As the first polygon is not a real polygon but the start/stop
+ *  point, the polygon is NOT an ocluding polygon (but its vertices
+ *  are used to compute visibility to start/stop points)
+ */
+
 uint8_t 
 calc_rays(oa_poly_t *polys, uint8_t npolys, uint8_t *rays)
 {
@@ -444,7 +472,10 @@ calc_rays(oa_poly_t *polys, uint8_t npolys, uint8_t *rays)
 
 	/* !\\first poly is the start stop point */
 
-	/* 1: calc inner polygon rays */
+	/* 1: calc inner polygon rays 
+	 * compute for each polygon edges, if the vertices can see each others 
+	 * (usefull if interlaced polygons)
+	 */
 	
 	for (i=0; i<npolys; i++) {
 		debug_printf("%d/%d\n", i, npolys);
@@ -483,8 +514,10 @@ calc_rays(oa_poly_t *polys, uint8_t npolys, uint8_t *rays)
 	}
 
 
-	/* 2: calc inter polygon rays */
-	/* for all poly */
+	/* 2: calc inter polygon rays.
+	 * Visibility of inter-polygon vertices.*/
+
+	/* For all poly */
 	for (i=0; i<npolys-1; i++) {
 		for (pt1=0;pt1<polys[i].l;pt1++) {
 
@@ -506,7 +539,7 @@ calc_rays(oa_poly_t *polys, uint8_t npolys, uint8_t *rays)
 							break;
 						}
 					}
-					/* if not crossed */
+					/* if not crossed, we found a vilisity ray */
 					if (is_ok) {
 						rays[ray_n++] = i;
 						rays[ray_n++] = pt1;
@@ -522,7 +555,12 @@ calc_rays(oa_poly_t *polys, uint8_t npolys, uint8_t *rays)
 	return ray_n;
 }
 
-
+/* Compute the weight of every rays: the length of the rays is used
+ * here. 
+ *
+ * Note the +1 is a little hack to introduce a preference between to
+ * possiblity path: If we have 3 checpoint aligned in a path (say A,
+ * B, C) the algorithm will prefer (A, C) instead of (A, B, C) */
 void 
 calc_rays_weight(oa_poly_t *polys, uint8_t npolys, uint8_t *rays, 
 		 uint8_t ray_n, uint16_t *weight)
@@ -534,6 +572,23 @@ calc_rays_weight(oa_poly_t *polys, uint8_t npolys, uint8_t *rays,
 	}	
 }
 
+
+/* Iterative Dijkstra algorithm: The valid filed is used to determine if:
+ *   1: this point has been visited, his weight is correct.
+ *   2: the point must be visited.
+ *
+ * The algorithm does: find a point that must be visited (2) update
+ * his weight, mark it as (1) and update all his neightbours has 2.
+ *
+ * The algorithm ends when no (2) points are found
+ *
+ * A point with weight 0 is a point that has not been visited (so
+ * weight is not affected yet); This explain why first point must have
+ * a start weight different than 0.
+ *
+ * When the algo finds a shorter path to reach a point B from point A,
+ * it will store in (p, pt) the parent point. This is important to
+ * remenber and extract the solution path. */
 void 
 dijkstra(uint8_t start_p, uint8_t start)
 {
@@ -555,7 +610,22 @@ dijkstra(uint8_t start_p, uint8_t start)
 				if (oa.polys[start_p].pts[start].valid != 2)
 					continue;
 				add = -2;		
+
+			        /* For all points that must be
+				 * visited, we look for rays that
+				 * start or stop at this point.  As
+				 * ray array is (poly_num, point_num)
+				 * we wtep 2 by 2. */
 				for (i=0 ; i<oa.ray_n ; i+=2) {
+
+					/* If index is even in the
+					 * aray, we have a start point
+					 * ray, so connected point is
+					 * i+2;
+					 *
+					 * If index is odd, we are in stop
+					 * point and ray start point is at
+					 * i-2 pos */
 					add = -add;					
 					
 					if (start_p == oa.u.rays[i] && start == oa.u.rays[i+1]) {
@@ -619,6 +689,7 @@ oa_process(void)
 	uint8_t ret;
 	uint8_t i;
 
+	/* First we compute the visibility graph */
 	ret = calc_rays(oa.polys, oa.cur_poly_idx, oa.u.rays);
 	DEBUG(E_OA, "nb_rays = %d", ret);
 
@@ -628,6 +699,7 @@ oa_process(void)
 		      oa.u.rays[i+2], oa.u.rays[i+3]);
 	}
 	
+	/* Then we affect the rays lengths to their weights */
 	calc_rays_weight(oa.polys, oa.cur_poly_idx, 
 			 oa.u.rays, ret, oa.weight);
 	
@@ -641,10 +713,13 @@ oa_process(void)
 		       oa.weight[i/4]);
 	}
 	
-	
+	/* We aplly dijkstra on the visibility graph from the start
+	 * point (point 0 of the polygon 0) */
 	oa.ray_n = ret;
 	DEBUG(E_OA, "dijkstra ray_n = %d", ret);
 	dijkstra(0, 0);
 
+	/* As dijkstra sets the parent points in the resulting graph,
+	 * we can backtrack the solution path. */
 	return get_path(oa.polys, oa.u.rays);
 }

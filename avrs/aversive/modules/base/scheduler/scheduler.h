@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: scheduler.h,v 1.12 2008-01-08 20:05:02 zer0 Exp $
+ *  Revision : $Id: scheduler.h,v 1.13 2009-03-15 21:51:16 zer0 Exp $
  *
  */
 
@@ -178,5 +178,16 @@ int8_t scheduler_del_event(int8_t num);
  *  don't have to do anything with this function, it is called
  *  automatilcally by the timer interruption. */
 void scheduler_interrupt(void);
+
+/**
+ * Temporarily disable scheduler events. You may loose precision in
+ * events schedule. It returns the current priority of the scheduler.
+ */
+uint8_t scheduler_disable_save(void);
+
+/**
+ * Re-enable scheduler after a call to scheduler_disable_save().
+ */
+void scheduler_enable_restore(uint8_t old_prio);
 
 #endif

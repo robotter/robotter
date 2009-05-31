@@ -1,5 +1,5 @@
 /*  
- *  Copyright DroidsDEFINE_STATIC_CONVERSIONS_FUNCSion, Microb Technology, Eirbot (2006)
+ *  Copyright Droids-corporation, Microb Technology, Eirbot (2006)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: timer0_prescaler.c,v 1.3 2007-05-24 13:08:48 zer0 Exp $
+ *  Revision : $Id: timer0_prescaler.c,v 1.4 2009-03-15 21:51:19 zer0 Exp $
  *
  */
 

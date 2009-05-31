@@ -17,7 +17,11 @@ struct token_string {
 	struct token_string_data string_data;
 };
 typedef struct token_string parse_token_string_t;
-typedef PROGMEM parse_token_string_t parse_pgm_token_string_t;
+struct token_string_pgm {
+	struct token_hdr hdr;
+	struct token_string_data string_data;
+} PROGMEM;
+typedef struct token_string_pgm parse_pgm_token_string_t;
 
 extern struct token_ops token_string_ops;
 

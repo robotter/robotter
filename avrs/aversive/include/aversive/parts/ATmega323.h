@@ -1,5 +1,5 @@
 /*  
- *  Copyright Droids Corporation, Microb Technology, Eirbot (2006)
+ *  Copyright Droids Corporation, Microb Technology, Eirbot (2009)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,67 +25,61 @@
 
 
 /* prescalers timer 0 */
-#define TIMER0_PRESCALER_DIV_0     0
-#define TIMER0_PRESCALER_DIV_1     1
-#define TIMER0_PRESCALER_DIV_8     2
-#define TIMER0_PRESCALER_DIV_64    3
-#define TIMER0_PRESCALER_DIV_256   4
-#define TIMER0_PRESCALER_DIV_1024  5
-#define TIMER0_PRESCALER_EXT_FALL  6
-#define TIMER0_PRESCALER_EXT_RISE  7
+#define TIMER0_PRESCALER_DIV_0          0
+#define TIMER0_PRESCALER_DIV_1          1
+#define TIMER0_PRESCALER_DIV_8          2
+#define TIMER0_PRESCALER_DIV_64         3
+#define TIMER0_PRESCALER_DIV_256        4
+#define TIMER0_PRESCALER_DIV_1024       5
+#define TIMER0_PRESCALER_DIV_FALL       6
+#define TIMER0_PRESCALER_DIV_RISE       7
 
-#define TIMER0_PRESCALER_REG_0     0
-#define TIMER0_PRESCALER_REG_1     1
-#define TIMER0_PRESCALER_REG_2     8
-#define TIMER0_PRESCALER_REG_3     64
-#define TIMER0_PRESCALER_REG_4     256
-#define TIMER0_PRESCALER_REG_5     1024
-#define TIMER0_PRESCALER_REG_6     -1
-#define TIMER0_PRESCALER_REG_7     -2
-
+#define TIMER0_PRESCALER_REG_0          0
+#define TIMER0_PRESCALER_REG_1          1
+#define TIMER0_PRESCALER_REG_2          8
+#define TIMER0_PRESCALER_REG_3          64
+#define TIMER0_PRESCALER_REG_4          256
+#define TIMER0_PRESCALER_REG_5          1024
+#define TIMER0_PRESCALER_REG_6          -1
+#define TIMER0_PRESCALER_REG_7          -2
 
 /* prescalers timer 1 */
-#define TIMER1_PRESCALER_DIV_0     0
-#define TIMER1_PRESCALER_DIV_1     1
-#define TIMER1_PRESCALER_DIV_8     2
-#define TIMER1_PRESCALER_DIV_64    3
-#define TIMER1_PRESCALER_DIV_256   4
-#define TIMER1_PRESCALER_DIV_1024  5
-#define TIMER1_PRESCALER_EXT_FALL  6
-#define TIMER1_PRESCALER_EXT_RISE  7
+#define TIMER1_PRESCALER_DIV_0          0
+#define TIMER1_PRESCALER_DIV_1          1
+#define TIMER1_PRESCALER_DIV_8          2
+#define TIMER1_PRESCALER_DIV_64         3
+#define TIMER1_PRESCALER_DIV_256        4
+#define TIMER1_PRESCALER_DIV_1024       5
+#define TIMER1_PRESCALER_DIV_FALL       6
+#define TIMER1_PRESCALER_DIV_RISE       7
 
-#define TIMER1_PRESCALER_REG_0     0
-#define TIMER1_PRESCALER_REG_1     1
-#define TIMER1_PRESCALER_REG_2     8
-#define TIMER1_PRESCALER_REG_3     64
-#define TIMER1_PRESCALER_REG_4     256
-#define TIMER1_PRESCALER_REG_5     1024
-#define TIMER1_PRESCALER_REG_6     -1
-#define TIMER1_PRESCALER_REG_7     -2
-
+#define TIMER1_PRESCALER_REG_0          0
+#define TIMER1_PRESCALER_REG_1          1
+#define TIMER1_PRESCALER_REG_2          8
+#define TIMER1_PRESCALER_REG_3          64
+#define TIMER1_PRESCALER_REG_4          256
+#define TIMER1_PRESCALER_REG_5          1024
+#define TIMER1_PRESCALER_REG_6          -1
+#define TIMER1_PRESCALER_REG_7          -2
 
 /* prescalers timer 2 */
-#define TIMER2_PRESCALER_DIV_0     0
-#define TIMER2_PRESCALER_DIV_1     1
-#define TIMER2_PRESCALER_DIV_2     2
-#define TIMER2_PRESCALER_DIV_8     3
-#define TIMER2_PRESCALER_DIV_32    4
-#define TIMER2_PRESCALER_DIV_64    5
-#define TIMER2_PRESCALER_DIV_128   6
-#define TIMER2_PRESCALER_DIV_256   7
-#define TIMER2_PRESCALER_DIV_1024  8
+#define TIMER2_PRESCALER_DIV_0          0
+#define TIMER2_PRESCALER_DIV_1          1
+#define TIMER2_PRESCALER_DIV_8          2
+#define TIMER2_PRESCALER_DIV_32         3
+#define TIMER2_PRESCALER_DIV_64         4
+#define TIMER2_PRESCALER_DIV_128        5
+#define TIMER2_PRESCALER_DIV_256        6
+#define TIMER2_PRESCALER_DIV_1024       7
 
-#define TIMER2_PRESCALER_REG_0     0
-#define TIMER2_PRESCALER_REG_1     1
-#define TIMER2_PRESCALER_REG_2     2
-#define TIMER2_PRESCALER_REG_3     8
-#define TIMER2_PRESCALER_REG_4     32
-#define TIMER2_PRESCALER_REG_5     64
-#define TIMER2_PRESCALER_REG_6     128
-#define TIMER2_PRESCALER_REG_7     256
-#define TIMER2_PRESCALER_REG_8     1024
-
-
+#define TIMER2_PRESCALER_REG_0          0
+#define TIMER2_PRESCALER_REG_1          1
+#define TIMER2_PRESCALER_REG_2          8
+#define TIMER2_PRESCALER_REG_3          32
+#define TIMER2_PRESCALER_REG_4          64
+#define TIMER2_PRESCALER_REG_5          128
+#define TIMER2_PRESCALER_REG_6          256
+#define TIMER2_PRESCALER_REG_7          1024
 
 
 /* available timers */
@@ -718,3 +712,106 @@
 #define ICR1L5_REG           ICR1L
 #define ICR1L6_REG           ICR1L
 #define ICR1L7_REG           ICR1L
+
+/* pins mapping */
+#define ADC0_PORT PORTA
+#define ADC0_BIT 0
+
+#define ADC1_PORT PORTA
+#define ADC1_BIT 1
+
+#define ADC2_PORT PORTA
+#define ADC2_BIT 2
+
+#define ADC3_PORT PORTA
+#define ADC3_BIT 3
+
+#define ADC4_PORT PORTA
+#define ADC4_BIT 4
+
+#define ADc5_PORT PORTA
+#define ADc5_BIT 5
+
+#define ADC6_PORT PORTA
+#define ADC6_BIT 6
+
+#define ADC7_PORT PORTA
+#define ADC7_BIT 7
+
+#define XCK_PORT PORTB
+#define XCK_BIT 0
+#define T0_PORT PORTB
+#define T0_BIT 0
+
+#define T1_PORT PORTB
+#define T1_BIT 1
+
+#define AIN0_PORT PORTB
+#define AIN0_BIT 2
+#define INT2_PORT PORTB
+#define INT2_BIT 2
+
+#define AIN1_PORT PORTB
+#define AIN1_BIT 3
+#define OC0_PORT PORTB
+#define OC0_BIT 3
+
+#define SS_PORT PORTB
+#define SS_BIT 4
+
+#define MOSI_PORT PORTB
+#define MOSI_BIT 5
+
+#define MISO_PORT PORTB
+#define MISO_BIT 6
+
+
+#define SCL_PORT PORTC
+#define SCL_BIT 0
+
+#define SDA_PORT PORTC
+#define SDA_BIT 1
+
+#define TMS_PORT PORTC
+#define TMS_BIT 2
+
+#define TCK_PORT PORTC
+#define TCK_BIT 3
+
+#define TDO_PORT PORTC
+#define TDO_BIT 4
+
+#define TDI_PORT PORTC
+#define TDI_BIT 5
+
+#define TOSC1_PORT PORTC
+#define TOSC1_BIT 6
+
+#define TOSC2_PORT PORTC
+#define TOSC2_BIT 7
+
+#define RXD_PORT PORTD
+#define RXD_BIT 0
+
+#define TXD_PORT PORTD
+#define TXD_BIT 1
+
+#define INT0_PORT PORTD
+#define INT0_BIT 2
+
+#define INT1_PORT PORTD
+#define INT1_BIT 3
+
+#define OC1B_PORT PORTD
+#define OC1B_BIT 4
+
+#define OC1A_PORT PORTD
+#define OC1A_BIT 5
+
+#define ICP_PORT PORTD
+#define ICP_BIT 6
+
+#define OC2_PORT PORTD
+#define OC2_BIT 7
+
+

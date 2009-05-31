@@ -107,11 +107,21 @@ endif
 LDFLAGS += $(MATH_LIB)
 
 
+# AVRDUDE does not know the ATMEGA1281 for now, consider it a 128.
+ifeq ($(MCU),atmega1281)
+AVRDUDE_MCU = atmega128
+else
+AVRDUDE_MCU = $(MCU)
+endif
 
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).$(FORMAT_EXTENSION)
 #AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep
 
-AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
+# Optional AVRDUDE flags can be added in the makefile of the project
+# (to adjust the baud rate, ...)
+AVRDUDE_FLAGS_OPT +=
+
+AVRDUDE_FLAGS = -p $(AVRDUDE_MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) $(AVRDUDE_FLAGS_OPT)
 
 ifneq ($(AVRDUDE_DELAY),)
 AVRDUDE_FLAGS += -i $(AVRDUDE_DELAY)

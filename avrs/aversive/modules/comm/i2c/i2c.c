@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: i2c.c,v 1.4 2008-04-13 16:55:30 zer0 Exp $
+ *  Revision : $Id: i2c.c,v 1.5 2009-03-15 21:51:17 zer0 Exp $
  *
  */
 
@@ -194,7 +194,7 @@ i2c_register_send_event(void (*event)(int8_t))
 
 /**
  * Send a buffer. Return 0 if xmit starts correctly.
- * On error, return != 0.
+ * On error, return < 0.
  * - If mode is slave, dest_add should be I2C_ADD_MASTER, and transmission 
  *   starts when the master transmits a clk. 
  * - If mode is master and if dest_add != I2C_ADD_MASTER, it will transmit 
@@ -216,7 +216,7 @@ i2c_send(uint8_t dest_add, uint8_t *buf, uint8_t size, uint8_t ctrl)
 	IRQ_LOCK(flags);
 	if (g_mode == I2C_MODE_UNINIT) {
 		IRQ_UNLOCK(flags);
-		return ENXIO;
+		return -ENXIO;
 	}
 	
 	if (g_status & (I2C_STATUS_MASTER_XMIT |
@@ -224,25 +224,25 @@ i2c_send(uint8_t dest_add, uint8_t *buf, uint8_t size, uint8_t ctrl)
 			I2C_STATUS_SLAVE_XMIT_WAIT |
 			I2C_STATUS_SLAVE_XMIT)) {
 		IRQ_UNLOCK(flags);
-		return EBUSY;
+		return -EBUSY;
 	}
 
 	if (size > I2C_SEND_BUFFER_SIZE) { /* XXX is size==0 ok ? */
 		IRQ_UNLOCK(flags);
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	/* bad dest_address */
 	if (g_mode == I2C_MODE_SLAVE) {
 		if (dest_add != I2C_ADD_MASTER) {
 			IRQ_UNLOCK(flags);
-			return EINVAL;
+			return -EINVAL;
 		}
 	}
 	else {
 		if (dest_add >= I2C_ADD_MASTER) {
 			IRQ_UNLOCK(flags);
-			return EINVAL;
+			return -EINVAL;
 		}
 	}
 
@@ -284,10 +284,12 @@ i2c_send(uint8_t dest_add, uint8_t *buf, uint8_t size, uint8_t ctrl)
 			IRQ_UNLOCK(flags);
 		}
 		IRQ_UNLOCK(flags);
+		if (g_sync_res == size)
+			return 0;
 		return g_sync_res;
 	}
 	
-	return ESUCCESS;
+	return -ESUCCESS;
 }
 
 
@@ -331,9 +333,11 @@ i2c_reset(void)
 	IRQ_LOCK(flags);
 	TWCR = 0;
 	g_status = I2C_STATUS_READY;
+#ifdef CONFIG_MODULE_I2C_MASTER
 	if (g_mode == I2C_MODE_MASTER) 
 		TWCR = (1<<TWINT) | (1<<TWEN) | (1<<TWIE);
 	else
+#endif
 		TWCR = (1<<TWINT) | (1<<TWEN) | (1<<TWIE) | 
 			(1<<TWSTO) | (1<<TWEA);
 	IRQ_UNLOCK(flags);
@@ -348,29 +352,29 @@ i2c_reset(void)
 int8_t i2c_recv(uint8_t dest_add, uint8_t size, uint8_t ctrl)
 {
 #ifndef CONFIG_MODULE_I2C_MASTER
-	return EINVAL;
+	return -EINVAL;
 #else
 	uint8_t flags;
 
 	IRQ_LOCK(flags);
 	if (g_mode == I2C_MODE_UNINIT) {
 		IRQ_UNLOCK(flags);
-		return ENXIO;
+		return -ENXIO;
 	}
 	
 	if (g_status != I2C_STATUS_READY) {
 		IRQ_UNLOCK(flags);
-		return EBUSY;
+		return -EBUSY;
 	}
 
 	if (size > I2C_SEND_BUFFER_SIZE) { /* XXX is size=0 ok ? */
 		IRQ_UNLOCK(flags);
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	if (g_mode == I2C_MODE_SLAVE || dest_add >= I2C_ADD_MASTER) {
 		IRQ_UNLOCK(flags);
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	g_ctrl = ctrl;
@@ -381,7 +385,28 @@ int8_t i2c_recv(uint8_t dest_add, uint8_t size, uint8_t ctrl)
 
 	IRQ_UNLOCK(flags);
 
-	return ESUCCESS;
+	/* If it is sync mode, wait op_finished. Here we will reset
+	 * the status flag to ready */
+	if (ctrl & I2C_CTRL_SYNC) {
+		while ( 1 ) {
+			IRQ_LOCK(flags);
+			if (g_status & I2C_STATUS_OP_FINISHED) {
+				g_status &= ~(I2C_STATUS_MASTER_XMIT |
+					      I2C_STATUS_MASTER_RECV |
+					      I2C_STATUS_SLAVE_XMIT |
+					      I2C_STATUS_SLAVE_RECV |
+					      I2C_STATUS_OP_FINISHED);
+				break;
+			}
+			IRQ_UNLOCK(flags);
+		}
+		IRQ_UNLOCK(flags);
+		if (g_sync_res == size)
+			return 0;
+		return g_sync_res;
+	}
+	
+	return -ESUCCESS;
 #endif
 }
 
@@ -398,13 +423,13 @@ int8_t i2c_flush(void)
 	IRQ_LOCK(flags);
 	if ( ! (g_status & I2C_STATUS_SLAVE_XMIT_WAIT) ) {
 		IRQ_UNLOCK(flags);
-		return EBUSY;
+		return -EBUSY;
 	}
 
 	g_status &= ~(I2C_STATUS_SLAVE_XMIT_WAIT);
 	IRQ_UNLOCK(flags);
 	
-	return ESUCCESS;
+	return -ESUCCESS;
 }
 
 
@@ -428,7 +453,7 @@ uint8_t i2c_set_recv_size(uint8_t size)
 	/* check that we are in reveiver mode */
 	if (! (g_status & I2C_STATUS_MASTER_RECV)) {
 		IRQ_UNLOCK(flags);
-		return EBUSY;
+		return -EBUSY;
 	}
 
 	/* check that specified size is not greater than
@@ -437,13 +462,13 @@ uint8_t i2c_set_recv_size(uint8_t size)
 	/* XXX ? +1 ? */
 	if (size > I2C_SEND_BUFFER_SIZE || size <= g_recv_nbytes) {
 		IRQ_UNLOCK(flags);
-		return EINVAL;
+		return -EINVAL;
 	}
 	
 	g_recv_size = size;
 
 	IRQ_UNLOCK(flags);
-	return ESUCCESS;
+	return -ESUCCESS;
 }
 
 
@@ -465,7 +490,7 @@ uint8_t i2c_status(void)
 
 /**
  * Copy the received buffer in the buffer given as parameter. Return
- * number of copied bytes or -1 on error.
+ * number of copied bytes or < 0 on error.
  */
 uint8_t i2c_get_recv_buffer(uint8_t *buf, uint8_t size)
 {
@@ -549,7 +574,7 @@ SIGNAL(SIG_2WIRE_SERIAL)
 
 	case TW_MT_SLA_NACK:
 		/* the slave does not answer, send a stop condition */
-		g_send_nbytes = -1;
+		g_send_nbytes = -ENOENT;
 		g_status |= (I2C_STATUS_OP_FINISHED | I2C_STATUS_NEED_XMIT_EVT);
 		break;
 
@@ -584,7 +609,7 @@ SIGNAL(SIG_2WIRE_SERIAL)
 		
 	case TW_MR_SLA_NACK:
 		/* the slave does not answer, send a stop condition */
-		g_recv_nbytes = -1;
+		g_recv_nbytes = -ENOENT;
 		g_status |= (I2C_STATUS_OP_FINISHED | I2C_STATUS_NEED_RECV_EVT);
 		break;
 
@@ -623,11 +648,11 @@ SIGNAL(SIG_2WIRE_SERIAL)
 		/* arbitration lost, notify application */
 		/* XXX here we may have to change status flags ? */
 		if (g_status & I2C_STATUS_MASTER_XMIT) {
-			g_recv_nbytes = -2;
+			g_recv_nbytes = -EAGAIN;
 			g_status |= I2C_STATUS_NEED_RECV_EVT;
 		}
 		else if (g_status & I2C_STATUS_MASTER_RECV) {
-			g_send_nbytes = -2;
+			g_send_nbytes = -EAGAIN;
 			g_status |= I2C_STATUS_NEED_XMIT_EVT;		
 		}
 		/* g_status |= I2C_STATUS_OP_FINISHED; */ /* ?? or not ? */

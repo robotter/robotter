@@ -15,31 +15,18 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: quadramp.c,v 1.8 2008-01-08 20:05:03 zer0 Exp $
+ *  Revision : $Id: quadramp.c,v 1.9 2009-03-15 21:51:18 zer0 Exp $
  *
  */
 
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #include <aversive.h>
 #include <quadramp.h>
 
 #define NEXT(n, i)  (((n) + (i)/(n)) >> 1)
-
-static uint32_t u32_sqrt(uint32_t number) {
-	uint32_t n  = 1;
-	uint32_t n1 = NEXT(n, number);
-	
-	while(ABS(n1 - n) > 1) {
-		n  = n1;
-		n1 = NEXT(n, number);
-	}
-	while((n1*n1) > number) {
-		n1 -= 1;
-	}
-	return n1;
-}
 
 void quadramp_init(struct quadramp_filter * q)
 {
@@ -118,7 +105,7 @@ int32_t quadramp_do_filter(void * data, int32_t in)
 		int32_t ramp_pos;
 		/* var_2nd_ord_neg < 0 */
 		/* real EQ : sqrt( var_2nd_ord_neg^2/4 - 2.d.var_2nd_ord_neg ) + var_2nd_ord_neg/2 */
-		ramp_pos = u32_sqrt( (var_2nd_ord_neg*var_2nd_ord_neg)/4 - 2*d*var_2nd_ord_neg ) + var_2nd_ord_neg/2;
+		ramp_pos = sqrt( (var_2nd_ord_neg*var_2nd_ord_neg)/4 - 2*d*var_2nd_ord_neg ) + var_2nd_ord_neg/2;
 
 		if(ramp_pos < var_1st_ord_pos)
 			var_1st_ord_pos = ramp_pos ;
@@ -129,7 +116,7 @@ int32_t quadramp_do_filter(void * data, int32_t in)
     
 		/* var_2nd_ord_pos > 0 */
 		/* real EQ : sqrt( var_2nd_ord_pos^2/4 - 2.d.var_2nd_ord_pos ) - var_2nd_ord_pos/2 */
-		ramp_neg = -u32_sqrt( (var_2nd_ord_pos*var_2nd_ord_pos)/4 - 2*d*var_2nd_ord_pos ) - var_2nd_ord_pos/2;
+		ramp_neg = -sqrt( (var_2nd_ord_pos*var_2nd_ord_pos)/4 - 2*d*var_2nd_ord_pos ) - var_2nd_ord_pos/2;
 	
 		/* ramp_neg < 0 */
 		if(ramp_neg > var_1st_ord_neg)

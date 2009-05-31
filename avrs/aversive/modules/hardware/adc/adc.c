@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: adc.c,v 1.11 2008-01-08 20:05:04 zer0 Exp $
+ *  Revision : $Id: adc.c,v 1.12 2009-03-15 21:51:19 zer0 Exp $
  *
  */
 
@@ -37,8 +37,10 @@ static void (*adc_event)(int16_t) = NULL;
  */
 void adc_init(void)
 {
-#ifdef PRADC
+#if defined(PRADC) && defined(PRR)
 	cbi(PRR, PRADC);
+#elif defined(PRADC) && defined(PRR0)
+	cbi(PRR0, PRADC);
 #endif
 
 	ADCSRA =  (1<<ADEN) | (ADC_PRESCALE << ADPS0);
@@ -55,8 +57,10 @@ void adc_shutdown(void)
 {
 	ADCSRA = 0; // erases all the register
 
-#ifdef PRADC
+#if defined(PRADC) && defined(PRR)
 	sbi(PRR, PRADC);
+#elif defined(PRADC) && defined(PRR0)
+	sbi(PRR0, PRADC);
 #endif
 }
 
@@ -80,23 +84,23 @@ void adc_register_event(void (*f)(int16_t))
  */
 SIGNAL(SIG_ADC)
 {
-	if (adc_event) {
-		int16_t result;
+	int16_t result;
 
-		result = ADC;
+	if (!adc_event)
+		return;
 
-		/* sign extension to fill the 16 bits when negative
-		 * (for the 16 bits output format, the output is
-		 * already right.) */
-		if(  ( g_adc_previous_config & ADC_RESULT_SIGNED )
-		     && !(g_adc_previous_config & ADC_MODE_16_BITS)
-		     && (result & 0x0200) )
-			result |= 0xFE00;
-
-		adc_event(result);
-	}
+	result = ADC;
+	
+	/* sign extension to fill the 16 bits when negative
+	 * (for the 16 bits output format, the output is
+	 * already right.) */
+	if ( ( g_adc_previous_config & ADC_RESULT_SIGNED)
+	     && !(g_adc_previous_config & ADC_MODE_16_BITS)
+	     && (result & 0x0200) )
+		result |= 0xFE00;
+	
+	adc_event(result);
 }
-
 
 
 /**
@@ -106,10 +110,9 @@ SIGNAL(SIG_ADC)
 */
 void adc_launch(uint16_t conversion_config)
 {
-	/* configure multiplexer : done first, so the maxium time is
+	/* configure multiplexer : done first, so the maximum time is
 	 * left before the real conversion launch */
 	ADMUX = conversion_config & 0xFF ;
-
 	/**
 	 * This disables and reenables the ADC when a different
 	 * channel is selected AND the new channel is a differential
@@ -134,20 +137,20 @@ void adc_launch(uint16_t conversion_config)
 
 	/* for some devices, one additionnal MUX bit is in ADCSRB */
 #ifdef MUX5_IN_ADCSRB
-	if( conversion_config & MUX5_MASK_IN_CONFIG )
-		sbi(ACSRB, MUX5);
+	if (conversion_config & MUX5_MASK_IN_CONFIG)
+		sbi(ADCSRB, MUX5);
 	else
-		cbi(ACSRB, MUX5);
+		cbi(ADCSRB, MUX5);
 #endif // MUX5_IN_ADCSRB
 
 	/* Enable free run or not (triggered mode) */
-	if( conversion_config  & ADC_MODE_TRIGGERED )
+	if (conversion_config  & ADC_MODE_TRIGGERED)
 		sbi(ADCSRA, ADFR);
 	else
 		cbi(ADCSRA, ADFR);
 
 	/* Start conversion, with or without enabling interrupts */
-	if ( conversion_config & ADC_MODE_INT ) {
+	if (conversion_config & ADC_MODE_INT) {
 		/* Clear flag from previous intr (in case of previous
 		 * conversion was not using intr), and enable
 		 * interrupt */
@@ -192,17 +195,17 @@ int16_t adc_get_value(uint16_t conversion_config)
 		cbi(ADCSRA, ADFR);
 		cbi(ADCSRA, ADIE);
 
-		/* waitig for the previous conv to finish, result will
+		/* waiting for the previous conv to finish, result will
 		 * be lost */
-		while(bit_is_set(ADCSRA, ADSC));
+		while (bit_is_set(ADCSRA, ADSC));
 
 		/* launch new one */
 		adc_launch(conversion_config);
 	}
 
-	/* waitig for the result, works even in triggered mode, then
+	/* waiting for the result, works even in triggered mode, then
 	 * clear the flag. */
-	while(bit_is_clear(ADCSRA, ADIF));
+	while (bit_is_clear(ADCSRA, ADIF));
 	sbi(ADCSRA, ADIF);
 
 	result = ADC;
@@ -223,7 +226,7 @@ int16_t adc_get_value(uint16_t conversion_config)
  * Just a int32_t version for compatibility with control_system
  * function prototypes.
  */
-int32_t adc_get_value32(void * conversion_config)
+int32_t adc_get_value32(void *conversion_config)
 {
 	return adc_get_value((uint16_t)conversion_config);
 }

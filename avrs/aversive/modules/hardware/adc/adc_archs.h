@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: adc_archs.h,v 1.5 2008-01-08 20:05:04 zer0 Exp $
+ *  Revision : $Id: adc_archs.h,v 1.6 2009-03-15 21:51:19 zer0 Exp $
  *
  */
 #ifndef _ADC_ARCHS_
@@ -132,7 +132,7 @@ ATMEGA406 : completely different, 12bits, not implemented
     || defined (__AVR_ATmega2560__)  || defined (__AVR_ATmega2561__)   )
     
 #  define MUX5_IN_ADCSRB
-  
+
 #  undef MUX5_MASK_IN_CONFIG
 #  define MUX5_MASK_IN_CONFIG 0x0100
 #endif // ...
@@ -204,17 +204,17 @@ no gain and no differential stages : ATM48 ATM88 ATM168 ATM8
 /* 0x20 + 0x0-0x7 : individual channel 8 to 15 (ATM640 ATM1280 ATM1281 ATM2561 only !!) */
 
 #if ( defined (__AVR_ATmega640__) || defined (__AVR_ATmega1280__) || defined (__AVR_ATmega1281__) \
-    || defined (__AVR_ATmega2561__) )
+    || defined (__AVR_ATmega2561__) || defined (__AVR_ATmega2560__) )
 
 
-#  define MUX_ADC8   ((0 <<MUX0) | (1<< MUX5_MASK_IN_CONFIG))
-#  define MUX_ADC9   ((1 <<MUX0) | (1<< MUX5_MASK_IN_CONFIG))
-#  define MUX_ADC10  ((2 <<MUX0) | (1<< MUX5_MASK_IN_CONFIG))
-#  define MUX_ADC11  ((3 <<MUX0) | (1<< MUX5_MASK_IN_CONFIG))
-#  define MUX_ADC12  ((4 <<MUX0) | (1<< MUX5_MASK_IN_CONFIG))
-#  define MUX_ADC13  ((5 <<MUX0) | (1<< MUX5_MASK_IN_CONFIG))
-#  define MUX_ADC14  ((6 <<MUX0) | (1<< MUX5_MASK_IN_CONFIG))
-#  define MUX_ADC15  ((7 <<MUX0) | (1<< MUX5_MASK_IN_CONFIG))
+#  define MUX_ADC8   ((0 <<MUX0) | MUX5_MASK_IN_CONFIG)
+#  define MUX_ADC9   ((1 <<MUX0) | MUX5_MASK_IN_CONFIG)
+#  define MUX_ADC10  ((2 <<MUX0) | MUX5_MASK_IN_CONFIG)
+#  define MUX_ADC11  ((3 <<MUX0) | MUX5_MASK_IN_CONFIG)
+#  define MUX_ADC12  ((4 <<MUX0) | MUX5_MASK_IN_CONFIG)
+#  define MUX_ADC13  ((5 <<MUX0) | MUX5_MASK_IN_CONFIG)
+#  define MUX_ADC14  ((6 <<MUX0) | MUX5_MASK_IN_CONFIG)
+#  define MUX_ADC15  ((7 <<MUX0) | MUX5_MASK_IN_CONFIG)
   
 #endif // ...
 
@@ -235,7 +235,7 @@ AT30PWM2 &3 : only 4 MUX bits, as follow :
 #  define MUX_NO_DIFF
   
 #  define MUX_AMP0 (0xB<<MUX0)
-#  define MUX_AMP1 (0xc<<MUX0)
+#  define MUX_AMP1 (0xC<<MUX0)
   
 #endif // ...
 
@@ -348,8 +348,8 @@ MUX4-0 bits :
 #    define MUX_VBG (0x1E <<MUX0)
 #    define MUX_GND (0x1F <<MUX0)
 #  else
-#    define MUX_VBG ((0x1E <<MUX0) | (1<< MUX5_MASK_IN_CONFIG))
-#    define MUX_GND ((0x1F <<MUX0) | (1<< MUX5_MASK_IN_CONFIG))
+#    define MUX_VBG ((0x1E <<MUX0) | MUX5_MASK_IN_CONFIG)
+#    define MUX_GND ((0x1F <<MUX0) | MUX5_MASK_IN_CONFIG)
 #  endif // MUX5
 
 #endif // MUX_NON_STD

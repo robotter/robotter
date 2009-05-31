@@ -10,7 +10,9 @@ enum numtype {
 	INT8,
 	INT16,
 	INT32,
+#ifndef CONFIG_MODULE_PARSE_NO_FLOAT
 	FLOAT,
+#endif
 };
 
 struct token_num_data {
@@ -22,7 +24,11 @@ struct token_num {
 	struct token_num_data num_data;
 };
 typedef struct token_num parse_token_num_t;
-typedef PROGMEM parse_token_num_t parse_pgm_token_num_t;
+struct token_num_pgm {
+	struct token_hdr hdr;
+	struct token_num_data num_data;
+} PROGMEM;
+typedef struct token_num_pgm parse_pgm_token_num_t;
 
 extern struct token_ops token_num_ops;
 

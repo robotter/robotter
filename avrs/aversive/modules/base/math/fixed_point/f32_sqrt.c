@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: f32_sqrt.c,v 1.7 2008-05-14 13:27:12 zer0 Exp $
+ *  Revision : $Id: f32_sqrt.c,v 1.8 2009-03-15 21:51:16 zer0 Exp $
  *
  */
 
@@ -25,10 +25,14 @@
 
 #define NEXT(n, i)  (((n) + (i)/(n)) >> 1)
 
-static uint32_t u32_sqrt(uint32_t number) {
+static uint32_t u32_sqrt(uint32_t number)
+{
 	uint32_t n  = 1;
 	uint32_t n1 = NEXT(n, number);
 	
+	if (number == 0)
+		return 0;
+
 	while(ABS(n1 - n) > 1) {
 		n  = n1;
 		n1 = NEXT(n, number);

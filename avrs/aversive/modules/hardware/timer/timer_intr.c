@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: timer_intr.c,v 1.3 2007-05-24 13:08:48 zer0 Exp $
+ *  Revision : $Id: timer_intr.c,v 1.4 2009-03-15 21:51:19 zer0 Exp $
  *
  */
 
@@ -41,6 +41,14 @@ DEFINE_OV_INTR(SIG_OVERFLOW0)
 
 #if defined TIMER0_ENABLED && defined SIG_OUTPUT_COMPARE0
 DEFINE_OC_INTR(SIG_OUTPUT_COMPARE0)
+#endif
+
+#if defined TIMER0_ENABLED && defined SIG_OUTPUT_COMPARE0A
+DEFINE_OC_INTR(SIG_OUTPUT_COMPARE0A)
+#endif
+
+#if defined TIMER0_ENABLED && defined SIG_OUTPUT_COMPARE0B
+DEFINE_OC_INTR(SIG_OUTPUT_COMPARE0B)
 #endif
 
 /*************************/
@@ -71,6 +79,14 @@ DEFINE_OV_INTR(SIG_OVERFLOW2)
 DEFINE_OC_INTR(SIG_OUTPUT_COMPARE2)
 #endif
 
+#if defined TIMER2_ENABLED && defined SIG_OUTPUT_COMPARE2A
+DEFINE_OC_INTR(SIG_OUTPUT_COMPARE2A)
+#endif
+
+#if defined TIMER2_ENABLED && defined SIG_OUTPUT_COMPARE2B
+DEFINE_OC_INTR(SIG_OUTPUT_COMPARE2B)
+#endif
+
 /*************************/
 
 #if defined TIMER3_ENABLED && defined SIG_OVERFLOW3
@@ -87,6 +103,42 @@ DEFINE_OC_INTR(SIG_OUTPUT_COMPARE3B)
 
 #if defined TIMER3C_ENABLED && defined SIG_OUTPUT_COMPARE3C
 DEFINE_OC_INTR(SIG_OUTPUT_COMPARE3C)
+#endif
+
+/*************************/
+
+#if defined TIMER4_ENABLED && defined SIG_OVERFLOW4
+DEFINE_OV_INTR(SIG_OVERFLOW4)
+#endif
+
+#if defined TIMER4A_ENABLED && defined SIG_OUTPUT_COMPARE4A
+DEFINE_OC_INTR(SIG_OUTPUT_COMPARE4A)
+#endif
+
+#if defined TIMER4B_ENABLED && defined SIG_OUTPUT_COMPARE4B
+DEFINE_OC_INTR(SIG_OUTPUT_COMPARE4B)
+#endif
+
+#if defined TIMER4C_ENABLED && defined SIG_OUTPUT_COMPARE4C
+DEFINE_OC_INTR(SIG_OUTPUT_COMPARE4C)
+#endif
+
+/*************************/
+
+#if defined TIMER5_ENABLED && defined SIG_OVERFLOW5
+DEFINE_OV_INTR(SIG_OVERFLOW5)
+#endif
+
+#if defined TIMER5A_ENABLED && defined SIG_OUTPUT_COMPARE5A
+DEFINE_OC_INTR(SIG_OUTPUT_COMPARE5A)
+#endif
+
+#if defined TIMER5B_ENABLED && defined SIG_OUTPUT_COMPARE5B
+DEFINE_OC_INTR(SIG_OUTPUT_COMPARE5B)
+#endif
+
+#if defined TIMER5C_ENABLED && defined SIG_OUTPUT_COMPARE5C
+DEFINE_OC_INTR(SIG_OUTPUT_COMPARE5C)
 #endif
 
 /*************************/

@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: uart.h,v 1.24 2008-01-08 20:05:02 zer0 Exp $
+ *  Revision : $Id: uart.h,v 1.25 2009-03-15 21:51:17 zer0 Exp $
  *
  */
 
@@ -46,7 +46,6 @@
 #ifndef _UART_H_
 #define _UART_H_
 
-
 #include <stdio.h>
 #include <aversive.h>
 #include <uart_config.h>
@@ -74,62 +73,63 @@ struct uart_config {
  */
 void uart_init(void);
 
-/** Configure the uart with the given configuration. Returns 0 on
-    success */
-int8_t uart0_setconf(struct uart_config * u);
+/** 
+ * Configure the uart 'num' with the given configuration. Returns 0 on
+ * success.
+ */
+int8_t uart_setconf(uint8_t num, struct uart_config *u);
 
-/** Get the current configuration of the uart */
-void uart0_getconf(struct uart_config * u);
-
-
+/** Get the current configuration of the uart 'num' */
+void uart_getconf(uint8_t num, struct uart_config *u);
 
 /** 
- * uart0_recv returns the next character, taken from the fifo (if
+ * uart_recv returns the next character, taken from the fifo (if
  * any). If there is nothing to read, the function waits until
  * something come on the uart.
  */
-int uart0_recv(void);
+int uart_recv(uint8_t num);
 
 /** 
- * uart0_recv returns the next character, taken from the fifo (if
- * any). If there is nothing to read, the function returns -1. Note
- * that if nbits is 9, this function is also used.
+ * uart_recv returns the next character, taken from the fifo (if
+ * any). If there is nothing to read, the function returns -1.
  */
-int uart0_recv_nowait(void);
+int uart_recv_nowait(uint8_t num);
 
 /**
- * same that uart0_recv with 9 bits
+ * same than uart_recv with 9 bits.
  */
-int uart0_9bits_recv(void);
+int uart_9bits_recv(uint8_t num);
 
 /** 
- * smae that uart0_recv_nowait() with 9 bits
+ * same than uart_recv_nowait() with 9 bits.
  */
-int uart0_9bits_recv_nowait(void);
+int uart_9bits_recv_nowait(uint8_t num);
 
 /**
- * uart0_send_nowait is used to send data to the uart 0.  The data is first
- * stored in the FIFO before beeing sent. If the FIFO is full, data is
- * dropped and the function returns -1, else it returns c.
+ * uart_send_nowait is used to send data to the uart 'num'. The data
+ * is first stored in the FIFO before beeing sent. If the FIFO is
+ * full, data is dropped and the function returns -1, else it returns
+ * the character c.
  */
-int uart0_send_nowait(char c);
+int uart_send_nowait(uint8_t num, char c);
 
 /**
- * uart0_send is used to send data to the uart 0.  The data is first
+ * uart_send is used to send data to the uart 'num'. The data is first
  * stored in the FIFO before beeing sent. If the FIFO is full, the
  * function wait until the uart is ready. The function returns c.
  */
-int uart0_send(char c);
+int uart_send(uint8_t num, char c);
 
-/* uart0_send_9bits is the same that uart0_send but arg is 16 bits so
+/**
+ * uart_send_9bits is the same that uart_send but arg is 16 bits so
  * data can be 9 bits wide.
  */
-int uart0_send_9bits_nowait(int c);
+int uart_send_9bits_nowait(uint8_t num, int c);
 
-/* uart0_send_9bits_wait is the same that uart0_send_wait but arg is
+/* uart_send_9bits_wait is the same that uart_send_wait but arg is
  * 16 bits so data can be 9 bits wide.
  */
-int uart0_send_9bits(int c);
+int uart_send_9bits(uint8_t num, int c);
 
 
 
@@ -137,13 +137,13 @@ int uart0_send_9bits(int c);
  * This function is used to register another function which will be
  * executed at each byte transmission (5, 6 ,7 ,8 bits)
  */
-void uart0_register_tx_event(void (*f)(char));
+void uart_register_tx_event(uint8_t num, void (*f)(char));
 
 /**
  * This function is used to register another function which will be
  * executed at each byte reception (5, 6 ,7 ,8 bits)
  */
-void uart0_register_rx_event(void (*f)(char));
+void uart_register_rx_event(uint8_t num, void (*f)(char));
 
 
 /**
@@ -152,7 +152,7 @@ void uart0_register_rx_event(void (*f)(char));
  * same internal pointer that the 8 bits event, so be carreful to 
  * unregister 8 bits events when doing 9 bits and vice versa.
  */
-void uart0_register_tx_9bits_event(void (*f)(int));
+void uart_register_tx_9bits_event(uint8_t num, void (*f)(int));
 
 /**
  * This function is used to register another function which will be
@@ -160,7 +160,7 @@ void uart0_register_tx_9bits_event(void (*f)(int));
  * same internal pointer that the 8 bits event, so be carreful to 
  * unregister 8 bits events when doing 9 bits and vice versa.
  */
-void uart0_register_rx_9bits_event(void (*f)(int));
+void uart_register_rx_9bits_event(uint8_t num, void (*f)(int));
 
 /* funcs for use with fdevopen (avrlibc > 1.4.0) */
 int uart0_dev_send_nowait(char c, FILE* f);
@@ -168,68 +168,21 @@ int uart0_dev_send(char c, FILE* f);
 int uart0_dev_recv_nowait(FILE* f);
 int uart0_dev_recv(FILE* f);
 
-/* uart 1 */
-
-int8_t uart1_setconf(struct uart_config * u);
-void uart1_getconf(struct uart_config * u);
-int uart1_recv(void);
-int uart1_9bits_recv(void);
-int uart1_recv_nowait(void);
-int uart1_9bits_recv_nowait(void);
-int uart1_send_nowait(char c);
-int uart1_send(char c);
-int uart1_send_9bits_nowait(int c);
-int uart1_send_9bits(int c);
-void uart1_register_tx_event(void (*f)(char));
-void uart1_register_rx_event(void (*f)(char));
-void uart1_register_tx_9bits_event(void (*f)(int));
-void uart1_register_rx_9bits_event(void (*f)(int));
 int uart1_dev_send_nowait(char c, FILE* f);
 int uart1_dev_send(char c, FILE* f);
 int uart1_dev_recv_nowait(FILE* f);
 int uart1_dev_recv(FILE* f);
 
-/* uart 2 */
-
-int8_t uart2_setconf(struct uart_config * u);
-void uart2_getconf(struct uart_config * u);
-int uart2_recv(void);
-int uart2_9bits_recv(void);
-int uart2_recv_nowait(void);
-int uart2_9bits_recv_nowait(void);
-int uart2_send_nowait(char c);
-int uart2_send(char c);
-int uart2_send_9bits_nowait(int c);
-int uart2_send_9bits(int c);
-void uart2_register_tx_event(void (*f)(char));
-void uart2_register_rx_event(void (*f)(char));
-void uart2_register_tx_9bits_event(void (*f)(int));
-void uart2_register_rx_9bits_event(void (*f)(int));
 int uart2_dev_send_nowait(char c, FILE* f);
 int uart2_dev_send(char c, FILE* f);
 int uart2_dev_recv_nowait(FILE* f);
 int uart2_dev_recv(FILE* f);
 
-/* uart 3 */
-
-int8_t uart3_setconf(struct uart_config * u);
-void uart3_getconf(struct uart_config * u);
-int uart3_recv(void);
-int uart3_9bits_recv(void);
-int uart3_recv_nowait(void);
-int uart3_9bits_recv_nowait(void);
-int uart3_send_nowait(char c);
-int uart3_send(char c);
-int uart3_send_9bits_nowait(int c);
-int uart3_send_9bits(int c);
-void uart3_register_tx_event(void (*f)(char));
-void uart3_register_rx_event(void (*f)(char));
-void uart3_register_tx_9bits_event(void (*f)(int));
-void uart3_register_rx_9bits_event(void (*f)(int));
 int uart3_dev_send_nowait(char c, FILE* f);
 int uart3_dev_send(char c, FILE* f);
 int uart3_dev_recv_nowait(FILE* f);
 int uart3_dev_recv(FILE* f);
 
 
-#endif //_UART_H_
+#endif /* _UART_H_ */
+

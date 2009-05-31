@@ -1,5 +1,5 @@
 /*  
- *  Copyright Droids Corporation, Microb Technology, Eirbot (2006)
+ *  Copyright Droids Corporation, Microb Technology, Eirbot (2009)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,23 +25,23 @@
 
 
 /* prescalers timer 0 */
-#define TIMER0_PRESCALER_DIV_0     0
-#define TIMER0_PRESCALER_DIV_1     1
-#define TIMER0_PRESCALER_DIV_64    2
-#define TIMER0_PRESCALER_DIV_256   3
-#define TIMER0_PRESCALER_DIV_1024  4
-#define TIMER0_PRESCALER_EXT_FALL  5
-#define TIMER0_PRESCALER_EXT_RISE  6
+#define TIMER0_PRESCALER_DIV_0          0
+#define TIMER0_PRESCALER_DIV_1          1
+#define TIMER0_PRESCALER_DIV_-3         2
+#define TIMER0_PRESCALER_DIV_64         3
+#define TIMER0_PRESCALER_DIV_256        4
+#define TIMER0_PRESCALER_DIV_1024       5
+#define TIMER0_PRESCALER_DIV_FALL       6
+#define TIMER0_PRESCALER_DIV_RISE       7
 
-#define TIMER0_PRESCALER_REG_0     0
-#define TIMER0_PRESCALER_REG_1     1
-#define TIMER0_PRESCALER_REG_2     64
-#define TIMER0_PRESCALER_REG_3     256
-#define TIMER0_PRESCALER_REG_4     1024
-#define TIMER0_PRESCALER_REG_5     -1
-#define TIMER0_PRESCALER_REG_6     -2
-
-
+#define TIMER0_PRESCALER_REG_0          0
+#define TIMER0_PRESCALER_REG_1          1
+#define TIMER0_PRESCALER_REG_2          -3
+#define TIMER0_PRESCALER_REG_3          64
+#define TIMER0_PRESCALER_REG_4          256
+#define TIMER0_PRESCALER_REG_5          1024
+#define TIMER0_PRESCALER_REG_6          -1
+#define TIMER0_PRESCALER_REG_7          -2
 
 
 /* available timers */
@@ -203,3 +203,23 @@
 #define WDP2_REG             WDTCR
 #define WDE_REG              WDTCR
 #define WDTOE_REG            WDTCR
+
+/* pins mapping */
+
+
+#define IR_PORT PORTA
+#define IR_BIT 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+

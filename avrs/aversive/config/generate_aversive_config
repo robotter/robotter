@@ -9,25 +9,21 @@
 #
 MODULES_LIST="CONFIG_MODULE_BRUSHLESS_3PHASE_DIGITAL_HALL,/devices/brushless_motors/brushless_3phase_digital_hall
               CONFIG_MODULE_BRUSHLESS_3PHASE_DIGITAL_HALL_DOUBLE,/devices/brushless_motors/brushless_3phase_digital_hall_double
-              CONFIG_MODULE_UART,comm/uart
-              CONFIG_MODULE_I2C,comm/i2c
-              CONFIG_MODULE_MF2_CLIENT,comm/mf2_client
-              CONFIG_MODULE_MF2_SERVER,comm/mf2_server
-              CONFIG_MODULE_PWM,hardware/pwm
-              CONFIG_MODULE_ADC,hardware/adc
               CONFIG_MODULE_MENU,ihm/menu
               CONFIG_MODULE_PARSE,ihm/parse
               CONFIG_MODULE_RDLINE,ihm/rdline
               CONFIG_MODULE_VT100,ihm/vt100
               CONFIG_MODULE_LCD,devices/ihm/lcd
               CONFIG_MODULE_MULTISERVO,devices/servo/multiservo
+              CONFIG_MODULE_AX12,devices/servo/ax12
+              CONFIG_MODULE_ENCODERS_SPI,devices/encoders/encoders_spi
               CONFIG_MODULE_ENCODERS_MICROB,devices/encoders/encoders_microb
               CONFIG_MODULE_ENCODERS_EIRBOT,devices/encoders/encoders_eirbot
               CONFIG_MODULE_TRAJECTORY_MANAGER,devices/robot/trajectory_manager
               CONFIG_MODULE_BLOCKING_DETECTION_MANAGER,devices/robot/blocking_detection_manager
               CONFIG_MODULE_OBSTACLE_AVOIDANCE,devices/robot/obstacle_avoidance
-              CONFIG_MODULE_ROBOT_SYSTEM,devices/robot/robot_system
               CONFIG_MODULE_POSITION_MANAGER,devices/robot/position_manager
+              CONFIG_MODULE_ROBOT_SYSTEM,devices/robot/robot_system
               CONFIG_MODULE_PID,devices/control_system/filters/pid
               CONFIG_MODULE_RAMP,devices/control_system/filters/ramp
               CONFIG_MODULE_QUADRAMP,devices/control_system/filters/quadramp
@@ -36,6 +32,15 @@ MODULES_LIST="CONFIG_MODULE_BRUSHLESS_3PHASE_DIGITAL_HALL,/devices/brushless_mot
               CONFIG_MODULE_CONTROL_SYSTEM_MANAGER,devices/control_system/control_system_manager
               CONFIG_MODULE_TIME,base/time
               CONFIG_MODULE_SCHEDULER,base/scheduler
+              CONFIG_MODULE_SPI,comm/spi
+              CONFIG_MODULE_CC2420,devices/radio/cc2420
+              CONFIG_MODULE_UART,comm/uart
+              CONFIG_MODULE_I2C,comm/i2c
+              CONFIG_MODULE_MF2_CLIENT,comm/mf2_client
+              CONFIG_MODULE_MF2_SERVER,comm/mf2_server
+              CONFIG_MODULE_PWM,hardware/pwm
+              CONFIG_MODULE_PWM_NG,hardware/pwm_ng
+              CONFIG_MODULE_ADC,hardware/adc
               CONFIG_MODULE_AES,crypto/aes
               CONFIG_MODULE_MD5,crypto/md5
               CONFIG_MODULE_RC4,crypto/rc4
@@ -46,6 +51,7 @@ MODULES_LIST="CONFIG_MODULE_BRUSHLESS_3PHASE_DIGITAL_HALL,/devices/brushless_mot
               CONFIG_MODULE_DIAGNOSTIC,debug/diagnostic
               CONFIG_MODULE_ERROR,debug/error
               CONFIG_MODULE_FIXED_POINT,base/math/fixed_point
+              CONFIG_MODULE_TIME_EXT,base/time_ext
               CONFIG_MODULE_VECT2,base/math/vect2"
 
 echo

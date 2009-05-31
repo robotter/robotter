@@ -15,7 +15,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: i2c.h,v 1.5 2008-04-13 16:55:30 zer0 Exp $
+ *  Revision : $Id: i2c.h,v 1.6 2009-03-15 21:51:17 zer0 Exp $
  *
  */
 
@@ -151,7 +151,7 @@ void i2c_register_send_event(void (*event)(int8_t));
 
 /**
  * Send a buffer. Return 0 if xmit starts correctly.
- * On error, return != 0.
+ * On error, return < 0.
  * - If mode is slave, dest_add should be I2C_ADD_MASTER, and transmission 
  *   starts when the master transmits a clk. 
  * - If mode is master and if dest_add != I2C_ADD_MASTER, it will transmit 
@@ -183,16 +183,6 @@ int8_t i2c_rerecv(void);
  * release the bus
  */
 void i2c_release_bus(void);
-
-/**
- * Same than send, but error code is returned instead of beeing sent
- * as a callback. Note that the send_event callback is _not_ called
- * if it is registered. This functions waits and only returns when the
- * transmission is finished or if it failed. Note that there is no
- * timeout, so it can loop forever...
- * WARNING : irq MUST be enabled !
- */
-int8_t i2c_send_sync(uint8_t dest_add, uint8_t *buf, uint8_t size);
 
 /**
  * In slave mode, it returns error and is useless (all data is
@@ -238,7 +228,7 @@ uint8_t i2c_status(void);
 
 /**
  * Copy the received buffer in the buffer given as parameter. Return
- * number of copied bytes or -1 on error.
+ * number of copied bytes or < 0 on error.
  */
 uint8_t i2c_get_recv_buffer(uint8_t *buf, uint8_t size);
 

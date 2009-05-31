@@ -16,7 +16,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: parse.c,v 1.2 2008-01-08 20:05:04 zer0 Exp $
+ *  Revision : $Id: parse.c,v 1.3 2009-03-15 21:51:20 zer0 Exp $
  *
  *
  */
@@ -89,7 +89,8 @@ match_inst(parse_pgm_inst_t *inst, const char * buf, uint8_t nb_match_token,
 	struct token_hdr token_hdr;
 
 	token_p = (parse_pgm_token_hdr_t *)pgm_read_word(&inst->tokens[token_num]);
-	memcpy_P(&token_hdr, token_p, sizeof(token_hdr));
+	if (token_p)
+		memcpy_P(&token_hdr, token_p, sizeof(token_hdr));
 	
 	/* check if we match all tokens of inst */
 	while (token_p && (!nb_match_token || i<nb_match_token)) {
@@ -112,7 +113,8 @@ match_inst(parse_pgm_inst_t *inst, const char * buf, uint8_t nb_match_token,
 		
 		token_num ++;
 		token_p = (parse_pgm_token_hdr_t *)pgm_read_word(&inst->tokens[token_num]);
-		memcpy_P(&token_hdr, token_p, sizeof(token_hdr));
+		if (token_p)
+			memcpy_P(&token_hdr, token_p, sizeof(token_hdr));
 	}
 	
 	/* does not match */
@@ -202,7 +204,7 @@ parse(parse_pgm_ctx_t ctx[], const char * buf)
 #endif
 
 	/* parse it !! */
-	inst = (struct inst *)pgm_read_word(ctx+inst_num);
+	inst = (parse_pgm_inst_t *)pgm_read_word(ctx+inst_num);
 	while (inst) {
 		debug_printf("INST\n");
 
@@ -236,7 +238,7 @@ parse(parse_pgm_ctx_t ctx[], const char * buf)
 		}
 			
 		inst_num ++;
-		inst = (struct inst *)pgm_read_word(ctx+inst_num);
+		inst = (parse_pgm_inst_t *)pgm_read_word(ctx+inst_num);
 	}
 	
 	/* call func */
@@ -259,8 +261,8 @@ complete(parse_pgm_ctx_t ctx[], const char *buf, int16_t *state,
 {
 	const char * incomplete_token = buf;
 	uint8_t inst_num = 0;
-	struct inst * inst;
-	parse_pgm_token_hdr_t * token_p;
+	parse_pgm_inst_t *inst;
+	parse_pgm_token_hdr_t *token_p;
 	struct token_hdr token_hdr;
 	char tmpbuf[64], completion_buf[64];
 	uint8_t incomplete_token_len;
@@ -271,7 +273,7 @@ complete(parse_pgm_ctx_t ctx[], const char *buf, int16_t *state,
 	uint8_t nb_completable;
 	uint8_t nb_non_completable;
 	uint16_t local_state=0;
-	prog_char * help_str;
+	prog_char *help_str;
 
 	debug_printf("%s called\n", __FUNCTION__);
 	/* count the number of complete token to parse */
@@ -291,7 +293,7 @@ complete(parse_pgm_ctx_t ctx[], const char *buf, int16_t *state,
 		nb_completable = 0;
 		nb_non_completable = 0;
 		
-		inst = (struct inst *)pgm_read_word(ctx+inst_num);
+		inst = (parse_pgm_inst_t *)pgm_read_word(ctx+inst_num);
 		while (inst) {
 			/* parse the first tokens of the inst */
 			if (nb_token && match_inst(inst, buf, nb_token, NULL))
@@ -299,7 +301,8 @@ complete(parse_pgm_ctx_t ctx[], const char *buf, int16_t *state,
 			
 			debug_printf("instruction match \n");
 			token_p = (parse_pgm_token_hdr_t *) pgm_read_word(&inst->tokens[nb_token]);
-			memcpy_P(&token_hdr, token_p, sizeof(token_hdr));
+			if (token_p)
+				memcpy_P(&token_hdr, token_p, sizeof(token_hdr));
 
 			/* non completable */
 			if (!token_p || 
@@ -312,7 +315,7 @@ complete(parse_pgm_ctx_t ctx[], const char *buf, int16_t *state,
 
 			debug_printf("%d choices for this token\n", n);
 			for (i=0 ; i<n ; i++) {
-				if (token_hdr.ops->complete_get_elt(token_p, i, tmpbuf, sizeof(tmpbuf)-1) < 0)
+				if (token_hdr.ops->complete_get_elt(token_p, i, tmpbuf, sizeof(tmpbuf)) < 0)
 					continue;
 				strcat_P(tmpbuf, PSTR(" ")); /* we have at least room for one char */
 				debug_printf("   choice <%s>\n", tmpbuf);
@@ -333,7 +336,7 @@ complete(parse_pgm_ctx_t ctx[], const char *buf, int16_t *state,
 			}		
 		next:
 			inst_num ++;
-			inst = (struct inst *)pgm_read_word(ctx+inst_num);
+			inst = (parse_pgm_inst_t *)pgm_read_word(ctx+inst_num);
 		}
 
 		debug_printf("total choices %d for this completion\n", nb_completable);
@@ -363,16 +366,17 @@ complete(parse_pgm_ctx_t ctx[], const char *buf, int16_t *state,
 	debug_printf("Multiple choice STATE=%d\n", *state);
 
 	inst_num = 0;
-	inst = (struct inst *)pgm_read_word(ctx+inst_num);
+	inst = (parse_pgm_inst_t *)pgm_read_word(ctx+inst_num);
 	while (inst) {
 		/* we need to redo it */
-		inst = (struct inst *)pgm_read_word(ctx+inst_num);
+		inst = (parse_pgm_inst_t *)pgm_read_word(ctx+inst_num);
 		
 		if (nb_token && match_inst(inst, buf, nb_token, NULL))
 			goto next2;
 		
 		token_p = (parse_pgm_token_hdr_t *)pgm_read_word(&inst->tokens[nb_token]);
-		memcpy_P(&token_hdr, token_p, sizeof(token_hdr));
+		if (token_p)
+			memcpy_P(&token_hdr, token_p, sizeof(token_hdr));
 
 		/* one choice for this token */
 		if (!token_p || 
@@ -400,7 +404,7 @@ complete(parse_pgm_ctx_t ctx[], const char *buf, int16_t *state,
 
 		/* several choices */
 		for (i=0 ; i<n ; i++) {
-			if (token_hdr.ops->complete_get_elt(token_p, i, tmpbuf, sizeof(tmpbuf)-1) < 0)
+			if (token_hdr.ops->complete_get_elt(token_p, i, tmpbuf, sizeof(tmpbuf)) < 0)
 				continue;
 			strcat_P(tmpbuf, PSTR(" ")); /* we have at least room for one char */
 			debug_printf("   choice <%s>\n", tmpbuf);
@@ -426,9 +430,8 @@ complete(parse_pgm_ctx_t ctx[], const char *buf, int16_t *state,
 		}
 	next2:
 		inst_num ++;
-		inst = (struct inst *)pgm_read_word(ctx+inst_num);
+		inst = (parse_pgm_inst_t *)pgm_read_word(ctx+inst_num);
 	}
-
 	return 0;
 }
 

@@ -1,5 +1,5 @@
 /*  
- *  Copyright Droids Corporation, Microb Technology, Eirbot (2006)
+ *  Copyright Droids Corporation, Microb Technology, Eirbot (2009)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,21 +25,23 @@
 
 
 /* prescalers timer 0 */
-#define TIMER0_PRESCALER_DIV_0     0
-#define TIMER0_PRESCALER_DIV_1     1
-#define TIMER0_PRESCALER_DIV_8     2
-#define TIMER0_PRESCALER_DIV_64    3
-#define TIMER0_PRESCALER_DIV_256   4
-#define TIMER0_PRESCALER_DIV_1024  5
+#define TIMER0_PRESCALER_DIV_0          0
+#define TIMER0_PRESCALER_DIV_1          1
+#define TIMER0_PRESCALER_DIV_8          2
+#define TIMER0_PRESCALER_DIV_64         3
+#define TIMER0_PRESCALER_DIV_256        4
+#define TIMER0_PRESCALER_DIV_1024       5
+#define TIMER0_PRESCALER_DIV_FALL       6
+#define TIMER0_PRESCALER_DIV_RISE       7
 
-#define TIMER0_PRESCALER_REG_0     0
-#define TIMER0_PRESCALER_REG_1     1
-#define TIMER0_PRESCALER_REG_2     8
-#define TIMER0_PRESCALER_REG_3     64
-#define TIMER0_PRESCALER_REG_4     256
-#define TIMER0_PRESCALER_REG_5     1024
-
-
+#define TIMER0_PRESCALER_REG_0          0
+#define TIMER0_PRESCALER_REG_1          1
+#define TIMER0_PRESCALER_REG_2          8
+#define TIMER0_PRESCALER_REG_3          64
+#define TIMER0_PRESCALER_REG_4          256
+#define TIMER0_PRESCALER_REG_5          1024
+#define TIMER0_PRESCALER_REG_6          -1
+#define TIMER0_PRESCALER_REG_7          -2
 
 
 /* available timers */
@@ -155,24 +157,24 @@
 #define ACME_REG             ADCSRB
 
 /* OCR0A */
-/* #define OCR0_0_REG           OCR0A */ /* dup in OCR0B */
-/* #define OCR0_1_REG           OCR0A */ /* dup in OCR0B */
-/* #define OCR0_2_REG           OCR0A */ /* dup in OCR0B */
-/* #define OCR0_3_REG           OCR0A */ /* dup in OCR0B */
-/* #define OCR0_4_REG           OCR0A */ /* dup in OCR0B */
-/* #define OCR0_5_REG           OCR0A */ /* dup in OCR0B */
-/* #define OCR0_6_REG           OCR0A */ /* dup in OCR0B */
-/* #define OCR0_7_REG           OCR0A */ /* dup in OCR0B */
+#define OCR0A_0_REG          OCR0A
+#define OCR0A_1_REG          OCR0A
+#define OCR0A_2_REG          OCR0A
+#define OCR0A_3_REG          OCR0A
+#define OCR0A_4_REG          OCR0A
+#define OCR0A_5_REG          OCR0A
+#define OCR0A_6_REG          OCR0A
+#define OCR0A_7_REG          OCR0A
 
 /* OCR0B */
-/* #define OCR0_0_REG           OCR0B */ /* dup in OCR0A */
-/* #define OCR0_1_REG           OCR0B */ /* dup in OCR0A */
-/* #define OCR0_2_REG           OCR0B */ /* dup in OCR0A */
-/* #define OCR0_3_REG           OCR0B */ /* dup in OCR0A */
-/* #define OCR0_4_REG           OCR0B */ /* dup in OCR0A */
-/* #define OCR0_5_REG           OCR0B */ /* dup in OCR0A */
-/* #define OCR0_6_REG           OCR0B */ /* dup in OCR0A */
-/* #define OCR0_7_REG           OCR0B */ /* dup in OCR0A */
+#define OCR0B_0_REG          OCR0B
+#define OCR0B_1_REG          OCR0B
+#define OCR0B_2_REG          OCR0B
+#define OCR0B_3_REG          OCR0B
+#define OCR0B_4_REG          OCR0B
+#define OCR0B_5_REG          OCR0B
+#define OCR0B_6_REG          OCR0B
+#define OCR0B_7_REG          OCR0B
 
 /* SPL */
 #define SP0_REG              SPL
@@ -318,3 +320,41 @@
 #define TOV0_REG             TIFR0
 #define OCF0A_REG            TIFR0
 #define OCF0B_REG            TIFR0
+
+/* pins mapping */
+#define MOSI_PORT PORTB
+#define MOSI_BIT 0
+#define AIN0_PORT PORTB
+#define AIN0_BIT 0
+#define OC0A_PORT PORTB
+#define OC0A_BIT 0
+#define TXD_PORT PORTB
+#define TXD_BIT 0
+#define PCINT0_PORT PORTB
+#define PCINT0_BIT 0
+
+#define MISO_PORT PORTB
+#define MISO_BIT 1
+#define INT0_PORT PORTB
+#define INT0_BIT 1
+#define AIN1_PORT PORTB
+#define AIN1_BIT 1
+#define OC0B_PORT PORTB
+#define OC0B_BIT 1
+#define INT0_PORT PORTB
+#define INT0_BIT 1
+#define RXD_PORT PORTB
+#define RXD_BIT 1
+#define PCINT1_PORT PORTB
+#define PCINT1_BIT 1
+
+#define SCK_PORT PORTB
+#define SCK_BIT 2
+#define ADC1_PORT PORTB
+#define ADC1_BIT 2
+#define T0_PORT PORTB
+#define T0_BIT 2
+#define PCINT2_PORT PORTB
+#define PCINT2_BIT 2
+
+

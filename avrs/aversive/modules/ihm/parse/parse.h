@@ -16,7 +16,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  Revision : $Id: parse.h,v 1.2 2008-01-08 20:05:04 zer0 Exp $
+ *  Revision : $Id: parse.h,v 1.3 2009-03-15 21:51:20 zer0 Exp $
  *
  *
  */
@@ -45,7 +45,12 @@ struct token_hdr {
 	uint8_t offset;
 };
 typedef struct token_hdr parse_token_hdr_t;
-typedef PROGMEM parse_token_hdr_t parse_pgm_token_hdr_t;
+
+struct token_hdr_pgm {
+	struct token_ops *ops;
+	uint8_t offset;
+} PROGMEM;
+typedef struct token_hdr_pgm parse_pgm_token_hdr_t;
 
 /**
  * A token is defined by this structure.
@@ -90,7 +95,14 @@ struct inst {
 	prog_void * tokens[];
 };
 typedef struct inst parse_inst_t;
-typedef PROGMEM parse_inst_t parse_pgm_inst_t;
+struct inst_pgm {
+	/* f(parsed_struct, data) */
+	void (*f)(void *, void *);
+	void * data;
+	char * help_str;
+	prog_void * tokens[];
+} PROGMEM;
+typedef struct inst_pgm parse_pgm_inst_t;
 
 /**
  * A context is identified by its name, and contains a list of

@@ -59,11 +59,15 @@ static const prog_char help3[] = "UINT32";
 static const prog_char help4[] = "INT8";
 static const prog_char help5[] = "INT16";
 static const prog_char help6[] = "INT32";
+#ifndef CONFIG_MODULE_PARSE_NO_FLOAT
 static const prog_char help7[] = "FLOAT";
-
+#endif
 static const prog_char * num_help[] = {
 	help1, help2, help3, help4,
-	help5, help6, help7,
+	help5, help6,
+#ifndef CONFIG_MODULE_PARSE_NO_FLOAT
+	help7,
+#endif
 };
 
 static inline int8_t 
@@ -101,10 +105,12 @@ parse_num(parse_pgm_token_hdr_t * tk, const char * srcbuf, void * res)
 			else if (c == '0') {
 				st = ZERO_OK;
 			}
+#ifndef CONFIG_MODULE_PARSE_NO_FLOAT
 			else if (c == '.') {
 				st = FLOAT_POS;
 				res1 = 0;
 			}
+#endif
 			else if (c >= '1' && c <= '9') {
 				if (add_to_res(c - '0', &res1, 10) < 0)
 					st = ERROR;
@@ -123,10 +129,12 @@ parse_num(parse_pgm_token_hdr_t * tk, const char * srcbuf, void * res)
 			else if (c == 'b') {
 				st = BIN;
 			}
+#ifndef CONFIG_MODULE_PARSE_NO_FLOAT
 			else if (c == '.') {
 				st = FLOAT_POS;
 				res1 = 0;
 			}
+#endif
 			else if (c >= '0' && c <= '7') {
 				if (add_to_res(c - '0', &res1, 10) < 0)
 					st = ERROR;
@@ -145,10 +153,12 @@ parse_num(parse_pgm_token_hdr_t * tk, const char * srcbuf, void * res)
 				else
 					st = DEC_NEG_OK;
 			}
+#ifndef CONFIG_MODULE_PARSE_NO_FLOAT
 			else if (c == '.') {
 				res1 = 0;
 				st = FLOAT_NEG;
 			}
+#endif
 			else {
 				st = ERROR;
 			}
@@ -159,9 +169,11 @@ parse_num(parse_pgm_token_hdr_t * tk, const char * srcbuf, void * res)
 				if (add_to_res(c - '0', &res1, 10) < 0)
 					st = ERROR;
 			}
+#ifndef CONFIG_MODULE_PARSE_NO_FLOAT
 			else if (c == '.') {
 				st = FLOAT_NEG;
 			}
+#endif
 			else {
 				st = ERROR;
 			}
@@ -172,9 +184,11 @@ parse_num(parse_pgm_token_hdr_t * tk, const char * srcbuf, void * res)
 				if (add_to_res(c - '0', &res1, 10) < 0)
 					st = ERROR;
 			}
+#ifndef CONFIG_MODULE_PARSE_NO_FLOAT
 			else if (c == '.') {
 				st = FLOAT_POS;
 			}
+#endif
 			else {
 				st = ERROR;
 			}
@@ -225,6 +239,7 @@ parse_num(parse_pgm_token_hdr_t * tk, const char * srcbuf, void * res)
 			}
 			break;
 
+#ifndef CONFIG_MODULE_PARSE_NO_FLOAT
 		case FLOAT_POS:
 			if (c >= '0' && c <= '9') {
 				if (add_to_res(c - '0', &res2, 10) < 0)
@@ -274,6 +289,7 @@ parse_num(parse_pgm_token_hdr_t * tk, const char * srcbuf, void * res)
 				st = ERROR;
 			}
 			break;
+#endif
 
 		default:
 			debug_printf("not impl ");
@@ -327,11 +343,13 @@ parse_num(parse_pgm_token_hdr_t * tk, const char * srcbuf, void * res)
 				*(uint32_t *)res = (uint32_t) res1;
 			return (buf-srcbuf);
 		}
+#ifndef CONFIG_MODULE_PARSE_NO_FLOAT
 		else if ( nd.type == FLOAT ) {
 			if (res)
 				*(float *)res = (float)res1;
 			return (buf-srcbuf);
 		}
+#endif
 		else {
 			return -1;
 		}
@@ -353,16 +371,19 @@ parse_num(parse_pgm_token_hdr_t * tk, const char * srcbuf, void * res)
 				*(int32_t *)res = - (int32_t) res1;
 			return (buf-srcbuf);
 		}
+#ifndef CONFIG_MODULE_PARSE_NO_FLOAT
 		else if ( nd.type == FLOAT ) {
 			if (res)
 				*(float *)res = - (float)res1;
 			return (buf-srcbuf);
 		}
+#endif
 		else {
 			return -1;
 		}
 		break;
 
+#ifndef CONFIG_MODULE_PARSE_NO_FLOAT
 	case FLOAT_POS:
 	case FLOAT_POS_OK:
 		if ( nd.type == FLOAT ) {
@@ -388,7 +409,7 @@ parse_num(parse_pgm_token_hdr_t * tk, const char * srcbuf, void * res)
 			return -1;
 		}
 		break;
-
+#endif
 	default:
 		debug_printf("error\n");
 		return -1;

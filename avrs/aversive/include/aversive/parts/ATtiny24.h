@@ -1,5 +1,5 @@
 /*  
- *  Copyright Droids Corporation, Microb Technology, Eirbot (2006)
+ *  Copyright Droids Corporation, Microb Technology, Eirbot (2009)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,49 +25,45 @@
 
 
 /* prescalers timer 0 */
-#define TIMER0_PRESCALER_DIV_0     0
-#define TIMER0_PRESCALER_DIV_1     1
-#define TIMER0_PRESCALER_DIV_8     2
-#define TIMER0_PRESCALER_DIV_64    3
-#define TIMER0_PRESCALER_DIV_256   4
-#define TIMER0_PRESCALER_DIV_1024  5
-#define TIMER0_PRESCALER_EXT_FALL  6
-#define TIMER0_PRESCALER_EXT_RISE  7
+#define TIMER0_PRESCALER_DIV_0          0
+#define TIMER0_PRESCALER_DIV_1          1
+#define TIMER0_PRESCALER_DIV_8          2
+#define TIMER0_PRESCALER_DIV_64         3
+#define TIMER0_PRESCALER_DIV_256        4
+#define TIMER0_PRESCALER_DIV_1024       5
+#define TIMER0_PRESCALER_DIV_FALL       6
+#define TIMER0_PRESCALER_DIV_RISE       7
 
-#define TIMER0_PRESCALER_REG_0     0
-#define TIMER0_PRESCALER_REG_1     1
-#define TIMER0_PRESCALER_REG_2     8
-#define TIMER0_PRESCALER_REG_3     64
-#define TIMER0_PRESCALER_REG_4     256
-#define TIMER0_PRESCALER_REG_5     1024
-#define TIMER0_PRESCALER_REG_6     -1
-#define TIMER0_PRESCALER_REG_7     -2
-
+#define TIMER0_PRESCALER_REG_0          0
+#define TIMER0_PRESCALER_REG_1          1
+#define TIMER0_PRESCALER_REG_2          8
+#define TIMER0_PRESCALER_REG_3          64
+#define TIMER0_PRESCALER_REG_4          256
+#define TIMER0_PRESCALER_REG_5          1024
+#define TIMER0_PRESCALER_REG_6          -1
+#define TIMER0_PRESCALER_REG_7          -2
 
 /* prescalers timer 1 */
-#define TIMER1_PRESCALER_DIV_0     0
-#define TIMER1_PRESCALER_DIV_1     1
-#define TIMER1_PRESCALER_DIV_8     2
-#define TIMER1_PRESCALER_DIV_64    3
-#define TIMER1_PRESCALER_DIV_256   4
-#define TIMER1_PRESCALER_DIV_1024  5
-#define TIMER1_PRESCALER_EXT_FALL  6
-#define TIMER1_PRESCALER_EXT_RISE  7
+#define TIMER1_PRESCALER_DIV_0          0
+#define TIMER1_PRESCALER_DIV_1          1
+#define TIMER1_PRESCALER_DIV_8          2
+#define TIMER1_PRESCALER_DIV_64         3
+#define TIMER1_PRESCALER_DIV_256        4
+#define TIMER1_PRESCALER_DIV_1024       5
+#define TIMER1_PRESCALER_DIV_FALL       6
+#define TIMER1_PRESCALER_DIV_RISE       7
 
-#define TIMER1_PRESCALER_REG_0     0
-#define TIMER1_PRESCALER_REG_1     1
-#define TIMER1_PRESCALER_REG_2     8
-#define TIMER1_PRESCALER_REG_3     64
-#define TIMER1_PRESCALER_REG_4     256
-#define TIMER1_PRESCALER_REG_5     1024
-#define TIMER1_PRESCALER_REG_6     -1
-#define TIMER1_PRESCALER_REG_7     -2
-
-
+#define TIMER1_PRESCALER_REG_0          0
+#define TIMER1_PRESCALER_REG_1          1
+#define TIMER1_PRESCALER_REG_2          8
+#define TIMER1_PRESCALER_REG_3          64
+#define TIMER1_PRESCALER_REG_4          256
+#define TIMER1_PRESCALER_REG_5          1024
+#define TIMER1_PRESCALER_REG_6          -1
+#define TIMER1_PRESCALER_REG_7          -2
 
 
 /* available timers */
-#define TIMER1_AVAILABLE
 
 /* overflow interrupt number */
 #define SIG_OVERFLOW_TOTAL_NUM 0
@@ -79,8 +75,7 @@
 #define PWM_TOTAL_NUM 0
 
 /* input capture interrupt number */
-#define SIG_INPUT_CAPTURE1_NUM 0
-#define SIG_INPUT_CAPTURE_TOTAL_NUM 1
+#define SIG_INPUT_CAPTURE_TOTAL_NUM 0
 
 
 /* CLKPR */
@@ -104,16 +99,6 @@
 #define PCIE0_REG            GIMSK
 #define PCIE1_REG            GIMSK
 #define INT0_REG             GIMSK
-
-/* ICR1H */
-#define ICR1H0_REG           ICR1H
-#define ICR1H1_REG           ICR1H
-#define ICR1H2_REG           ICR1H
-#define ICR1H3_REG           ICR1H
-#define ICR1H4_REG           ICR1H
-#define ICR1H5_REG           ICR1H
-#define ICR1H6_REG           ICR1H
-#define ICR1H7_REG           ICR1H
 
 /* ADMUX */
 #define MUX0_REG             ADMUX
@@ -245,9 +230,15 @@
 /* #define OCR0_6_REG           OCR0B */ /* dup in OCR0A */
 /* #define OCR0_7_REG           OCR0B */ /* dup in OCR0A */
 
-/* SPH */
-#define SP8_REG              SPH
-#define SP9_REG              SPH
+/* ICR1H */
+#define ICR1H0_REG           ICR1H
+#define ICR1H1_REG           ICR1H
+#define ICR1H2_REG           ICR1H
+#define ICR1H3_REG           ICR1H
+#define ICR1H4_REG           ICR1H
+#define ICR1H5_REG           ICR1H
+#define ICR1H6_REG           ICR1H
+#define ICR1H7_REG           ICR1H
 
 /* OCR1BL */
 /* #define OCR1AL0_REG          OCR1BL */ /* dup in OCR1AL */
@@ -576,3 +567,104 @@
 #define OCF1A_REG            TIFR1
 #define OCF1B_REG            TIFR1
 #define ICF1_REG             TIFR1
+
+/* pins mapping */
+#define ADC0_PORT PORTA
+#define ADC0_BIT 0
+#define AREF_PORT PORTA
+#define AREF_BIT 0
+#define PCINT0_PORT PORTA
+#define PCINT0_BIT 0
+
+#define ADC1_PORT PORTA
+#define ADC1_BIT 1
+#define AIN0_PORT PORTA
+#define AIN0_BIT 1
+#define PCINT1_PORT PORTA
+#define PCINT1_BIT 1
+
+#define ADC2_PORT PORTA
+#define ADC2_BIT 2
+#define AIN1_PORT PORTA
+#define AIN1_BIT 2
+#define PCINT2_PORT PORTA
+#define PCINT2_BIT 2
+
+#define ADC3_PORT PORTA
+#define ADC3_BIT 3
+#define T0_PORT PORTA
+#define T0_BIT 3
+#define PCINT3_PORT PORTA
+#define PCINT3_BIT 3
+
+#define ADC4_PORT PORTA
+#define ADC4_BIT 4
+#define USCK_PORT PORTA
+#define USCK_BIT 4
+#define SCL_PORT PORTA
+#define SCL_BIT 4
+#define T1_PORT PORTA
+#define T1_BIT 4
+#define PCINT4_PORT PORTA
+#define PCINT4_BIT 4
+
+#define ADC5_PORT PORTA
+#define ADC5_BIT 5
+#define DO_PORT PORTA
+#define DO_BIT 5
+#define MISO_PORT PORTA
+#define MISO_BIT 5
+#define OC1B_PORT PORTA
+#define OC1B_BIT 5
+#define PCINT5_PORT PORTA
+#define PCINT5_BIT 5
+
+#define PCINT6_PORT PORTA
+#define PCINT6_BIT 6
+#define OC1A_PORT PORTA
+#define OC1A_BIT 6
+#define DI_PORT PORTA
+#define DI_BIT 6
+#define SDA_PORT PORTA
+#define SDA_BIT 6
+#define MOSI_PORT PORTA
+#define MOSI_BIT 6
+#define ADC6_PORT PORTA
+#define ADC6_BIT 6
+
+#define PCINT7_PORT PORTA
+#define PCINT7_BIT 7
+#define ICP1_PORT PORTA
+#define ICP1_BIT 7
+#define OC0B_PORT PORTA
+#define OC0B_BIT 7
+#define ADC7_PORT PORTA
+#define ADC7_BIT 7
+
+#define PCINT8_PORT PORTB
+#define PCINT8_BIT 0
+#define XTAL1_PORT PORTB
+#define XTAL1_BIT 0
+
+#define PCINT9_PORT PORTB
+#define PCINT9_BIT 1
+#define XTAL2_PORT PORTB
+#define XTAL2_BIT 1
+
+#define PCINT10_PORT PORTB
+#define PCINT10_BIT 2
+#define INT0_PORT PORTB
+#define INT0_BIT 2
+#define OC0A_PORT PORTB
+#define OC0A_BIT 2
+#define CKOUT_PORT PORTB
+#define CKOUT_BIT 2
+
+#define PCINT11_PORT PORTB
+#define PCINT11_BIT 3
+#define RESET_PORT PORTB
+#define RESET_BIT 3
+#define dW_PORT PORTB
+#define dW_BIT 3
+
+

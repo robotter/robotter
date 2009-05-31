@@ -83,6 +83,18 @@ CONFIG_MODULE_TIME_CREATE_CONFIG
   configuration.
 
 
+CONFIG_TIME_EXT
+  This module can be used to have a very precise, yet human-readable,
+  time. It uses TIMER2 in asynchronous mode, you MUST have a 32.768kHz
+  quartz connected to TOSC1 and TOSC2 pins.
+  Provides a global time value (instant 0 is the initialization of the
+  module). Warning: this module uses some hardcoded values for
+  timer 2 configuration, it may not work on all AVR.
+
+CONFIG_MODULE_TIME_EXT_CREATE_CONFIG
+  Create a time_ext_config.h file if it does not exist, with a default
+  configuration.
+
 CONFIG_MODULE_UART
   This module provide functions to use the embedded UART or USART in
   the AVR. With this module, it is more easy to configure it, and
@@ -91,6 +103,14 @@ CONFIG_MODULE_UART
 
 CONFIG_MODULE_UART_CREATE_CONFIG
   Create a uart_config.h file if it does not exist, with a default
+  configuration.
+
+CONFIG_MODULE_SPI
+  This module provide functions to use the embedded SPI in
+  the AVR.
+
+CONFIG_MODULE_SPI_CREATE_CONFIG
+  Create a spi_config.h file if it does not exist, with a default
   configuration.
 
 CONFIG_MODULE_I2C
@@ -134,11 +154,16 @@ CONFIG_MODULE_TIMER_CREATE_CONFIG
 CONFIG_MODULE_PWM
   This module provide a driver to use the PWM (Pulse Width Modulation) 
   hardware of the AVR : the configuration can be statically or dynamically
-  defined.
+  defined. This module can be replaced by PWM_NG.
 
 CONFIG_MODULE_PWM_CREATE_CONFIG
   Create a pwm_config.h file if it does not exist, with a default
   configuration.
+
+CONFIG_MODULE_PWM_NG
+  This module provide a driver to use the PWM (Pulse Width Modulation) 
+  hardware of the AVR : the configuration is set dynamically.
+
 
 
 CONFIG_MODULE_BRUSHLESS_3PHASE_DIGITAL_HALL
@@ -154,6 +179,11 @@ CONFIG_MODULE_BRUSHLESS_3PHASE_DIGITAL_HALL_DOUBLE
   The controller polls these sensors, and updates 3 PWM outputs to drive
   the 3 phases of each motor
 
+CONFIG_MODULE_CC2420
+  This modules implements the protocol to use a CC2420 radio chip.
+  This radio chip is IEEE 802.15.4 compliant and is widely used
+  in wireless sensors.
+  This modules requires SPI to be activated.
 
 CONFIG_MODULE_MENU
   The menu module provides some helpers to create a human-machine
@@ -205,6 +235,10 @@ CONFIG_MODULE_MULTISERVO_CREATE_CONFIG
 CONFIG_MODULE_ENCODERS_MICROB
   Provide an interface for reading values from encoders. The electric
   scheme is provided in the file encoders_microb.h
+
+CONFIG_MODULE_ENCODERS_SPI
+  Provide an interface for reading values from encoders. This module
+  uses the SPI interface to update values.
 
 CONFIG_MODULE_ENCODERS_EIRBOT
   Provide an interface for reading values from encoders. The electric

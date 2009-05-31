@@ -1,5 +1,5 @@
 /*  
- *  Copyright Droids Corporation, Microb Technology, Eirbot (2006)
+ *  Copyright Droids Corporation, Microb Technology, Eirbot (2009)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,85 +25,80 @@
 
 
 /* prescalers timer 0 */
-#define TIMER0_PRESCALER_DIV_0     0
-#define TIMER0_PRESCALER_DIV_1     1
-#define TIMER0_PRESCALER_DIV_8     2
-#define TIMER0_PRESCALER_DIV_32    3
-#define TIMER0_PRESCALER_DIV_64    4
-#define TIMER0_PRESCALER_DIV_128   5
-#define TIMER0_PRESCALER_DIV_256   6
-#define TIMER0_PRESCALER_DIV_1024  7
+#define TIMER0_PRESCALER_DIV_0          0
+#define TIMER0_PRESCALER_DIV_1          1
+#define TIMER0_PRESCALER_DIV_8          2
+#define TIMER0_PRESCALER_DIV_32         3
+#define TIMER0_PRESCALER_DIV_64         4
+#define TIMER0_PRESCALER_DIV_128        5
+#define TIMER0_PRESCALER_DIV_256        6
+#define TIMER0_PRESCALER_DIV_1024       7
 
-#define TIMER0_PRESCALER_REG_0     0
-#define TIMER0_PRESCALER_REG_1     1
-#define TIMER0_PRESCALER_REG_2     8
-#define TIMER0_PRESCALER_REG_3     32
-#define TIMER0_PRESCALER_REG_4     64
-#define TIMER0_PRESCALER_REG_5     128
-#define TIMER0_PRESCALER_REG_6     256
-#define TIMER0_PRESCALER_REG_7     1024
-
+#define TIMER0_PRESCALER_REG_0          0
+#define TIMER0_PRESCALER_REG_1          1
+#define TIMER0_PRESCALER_REG_2          8
+#define TIMER0_PRESCALER_REG_3          32
+#define TIMER0_PRESCALER_REG_4          64
+#define TIMER0_PRESCALER_REG_5          128
+#define TIMER0_PRESCALER_REG_6          256
+#define TIMER0_PRESCALER_REG_7          1024
 
 /* prescalers timer 1 */
-#define TIMER1_PRESCALER_DIV_0     0
-#define TIMER1_PRESCALER_DIV_1     1
-#define TIMER1_PRESCALER_DIV_8     2
-#define TIMER1_PRESCALER_DIV_64    3
-#define TIMER1_PRESCALER_DIV_256   4
-#define TIMER1_PRESCALER_DIV_1024  5
-#define TIMER1_PRESCALER_EXT_FALL  6
-#define TIMER1_PRESCALER_EXT_RISE  7
+#define TIMER1_PRESCALER_DIV_0          0
+#define TIMER1_PRESCALER_DIV_1          1
+#define TIMER1_PRESCALER_DIV_8          2
+#define TIMER1_PRESCALER_DIV_64         3
+#define TIMER1_PRESCALER_DIV_256        4
+#define TIMER1_PRESCALER_DIV_1024       5
+#define TIMER1_PRESCALER_DIV_FALL       6
+#define TIMER1_PRESCALER_DIV_RISE       7
 
-#define TIMER1_PRESCALER_REG_0     0
-#define TIMER1_PRESCALER_REG_1     1
-#define TIMER1_PRESCALER_REG_2     8
-#define TIMER1_PRESCALER_REG_3     64
-#define TIMER1_PRESCALER_REG_4     256
-#define TIMER1_PRESCALER_REG_5     1024
-#define TIMER1_PRESCALER_REG_6     -1
-#define TIMER1_PRESCALER_REG_7     -2
-
+#define TIMER1_PRESCALER_REG_0          0
+#define TIMER1_PRESCALER_REG_1          1
+#define TIMER1_PRESCALER_REG_2          8
+#define TIMER1_PRESCALER_REG_3          64
+#define TIMER1_PRESCALER_REG_4          256
+#define TIMER1_PRESCALER_REG_5          1024
+#define TIMER1_PRESCALER_REG_6          -1
+#define TIMER1_PRESCALER_REG_7          -2
 
 /* prescalers timer 2 */
-#define TIMER2_PRESCALER_DIV_0     0
-#define TIMER2_PRESCALER_DIV_1     1
-#define TIMER2_PRESCALER_DIV_8     2
-#define TIMER2_PRESCALER_DIV_64    3
-#define TIMER2_PRESCALER_DIV_256   4
-#define TIMER2_PRESCALER_DIV_1024  5
-#define TIMER2_PRESCALER_EXT_FALL  6
-#define TIMER2_PRESCALER_EXT_RISE  7
+#define TIMER2_PRESCALER_DIV_0          0
+#define TIMER2_PRESCALER_DIV_1          1
+#define TIMER2_PRESCALER_DIV_8          2
+#define TIMER2_PRESCALER_DIV_64         3
+#define TIMER2_PRESCALER_DIV_256        4
+#define TIMER2_PRESCALER_DIV_1024       5
+#define TIMER2_PRESCALER_DIV_FALL       6
+#define TIMER2_PRESCALER_DIV_RISE       7
 
-#define TIMER2_PRESCALER_REG_0     0
-#define TIMER2_PRESCALER_REG_1     1
-#define TIMER2_PRESCALER_REG_2     8
-#define TIMER2_PRESCALER_REG_3     64
-#define TIMER2_PRESCALER_REG_4     256
-#define TIMER2_PRESCALER_REG_5     1024
-#define TIMER2_PRESCALER_REG_6     -1
-#define TIMER2_PRESCALER_REG_7     -2
-
+#define TIMER2_PRESCALER_REG_0          0
+#define TIMER2_PRESCALER_REG_1          1
+#define TIMER2_PRESCALER_REG_2          8
+#define TIMER2_PRESCALER_REG_3          64
+#define TIMER2_PRESCALER_REG_4          256
+#define TIMER2_PRESCALER_REG_5          1024
+#define TIMER2_PRESCALER_REG_6          -1
+#define TIMER2_PRESCALER_REG_7          -2
 
 /* prescalers timer 3 */
-#define TIMER3_PRESCALER_DIV_0     0
-#define TIMER3_PRESCALER_DIV_1     1
-#define TIMER3_PRESCALER_DIV_8     2
-#define TIMER3_PRESCALER_DIV_64    3
-#define TIMER3_PRESCALER_DIV_256   4
-#define TIMER3_PRESCALER_DIV_1024  5
-#define TIMER3_PRESCALER_EXT_FALL  6
-#define TIMER3_PRESCALER_EXT_RISE  7
+#define TIMER3_PRESCALER_DIV_0          0
+#define TIMER3_PRESCALER_DIV_1          1
+#define TIMER3_PRESCALER_DIV_8          2
+#define TIMER3_PRESCALER_DIV_64         3
+#define TIMER3_PRESCALER_DIV_256        4
+#define TIMER3_PRESCALER_DIV_1024       5
+#define TIMER3_PRESCALER_DIV_FALL       6
+#define TIMER3_PRESCALER_DIV_RISE       7
 
-#define TIMER3_PRESCALER_REG_0     0
-#define TIMER3_PRESCALER_REG_1     1
-#define TIMER3_PRESCALER_REG_2     8
-#define TIMER3_PRESCALER_REG_3     64
-#define TIMER3_PRESCALER_REG_4     256
-#define TIMER3_PRESCALER_REG_5     1024
-#define TIMER3_PRESCALER_REG_6     -1
-#define TIMER3_PRESCALER_REG_7     -2
-
-
+#define TIMER3_PRESCALER_REG_0          0
+#define TIMER3_PRESCALER_REG_1          1
+#define TIMER3_PRESCALER_REG_2          8
+#define TIMER3_PRESCALER_REG_3          64
+#define TIMER3_PRESCALER_REG_4          256
+#define TIMER3_PRESCALER_REG_5          1024
+#define TIMER3_PRESCALER_REG_6          -1
+#define TIMER3_PRESCALER_REG_7          -2
 
 
 /* available timers */
@@ -1127,3 +1122,207 @@
 #define OCR2_5_REG           OCR2
 #define OCR2_6_REG           OCR2
 #define OCR2_7_REG           OCR2
+
+/* pins mapping */
+#define AD0_PORT PORTA
+#define AD0_BIT 0
+
+#define AD1_PORT PORTA
+#define AD1_BIT 1
+
+#define AD2_PORT PORTA
+#define AD2_BIT 2
+
+#define AD3_PORT PORTA
+#define AD3_BIT 3
+
+#define AD4_PORT PORTA
+#define AD4_BIT 4
+
+#define AD5_PORT PORTA
+#define AD5_BIT 5
+
+#define AD6_PORT PORTA
+#define AD6_BIT 6
+
+#define AD7_PORT PORTA
+#define AD7_BIT 7
+
+#define SS_PORT PORTB
+#define SS_BIT 0
+
+#define SCK_PORT PORTB
+#define SCK_BIT 1
+
+#define MOSI_PORT PORTB
+#define MOSI_BIT 2
+
+#define MISO_PORT PORTB
+#define MISO_BIT 3
+
+#define OC0_PORT PORTB
+#define OC0_BIT 4
+#define PWM0_PORT PORTB
+#define PWM0_BIT 4
+
+#define OC1A_PORT PORTB
+#define OC1A_BIT 5
+#define PWM1A_PORT PORTB
+#define PWM1A_BIT 5
+
+#define OC1B_PORT PORTB
+#define OC1B_BIT 6
+#define PWM1B_PORT PORTB
+#define PWM1B_BIT 6
+
+#define OC2_PORT PORTB
+#define OC2_BIT 7
+#define PWM2_PORT PORTB
+#define PWM2_BIT 7
+#define OC1C_PORT PORTB
+#define OC1C_BIT 7
+
+#define A8_PORT PORTC
+#define A8_BIT 0
+
+#define A9_PORT PORTC
+#define A9_BIT 1
+
+#define A10_PORT PORTC
+#define A10_BIT 2
+
+#define A11_PORT PORTC
+#define A11_BIT 3
+
+#define A12_PORT PORTC
+#define A12_BIT 4
+
+#define A13_PORT PORTC
+#define A13_BIT 5
+
+#define A14_PORT PORTC
+#define A14_BIT 6
+
+#define A15_PORT PORTC
+#define A15_BIT 7
+
+#define SCL_PORT PORTD
+#define SCL_BIT 0
+#define INT0_PORT PORTD
+#define INT0_BIT 0
+
+#define SDA_PORT PORTD
+#define SDA_BIT 1
+#define INT1_PORT PORTD
+#define INT1_BIT 1
+
+#define RXD1_PORT PORTD
+#define RXD1_BIT 2
+#define INT2_PORT PORTD
+#define INT2_BIT 2
+
+#define TXD1_PORT PORTD
+#define TXD1_BIT 3
+#define INT3_PORT PORTD
+#define INT3_BIT 3
+
+#define IC1_PORT PORTD
+#define IC1_BIT 4
+
+#define XCK1_PORT PORTD
+#define XCK1_BIT 5
+
+#define T1_PORT PORTD
+#define T1_BIT 6
+
+#define T2_PORT PORTD
+#define T2_BIT 7
+
+#define RXD0_PORT PORTE
+#define RXD0_BIT 0
+#define PDI_PORT PORTE
+#define PDI_BIT 0
+
+#define TXD0_PORT PORTE
+#define TXD0_BIT 1
+#define PDO_PORT PORTE
+#define PDO_BIT 1
+
+#define XCK0_PORT PORTE
+#define XCK0_BIT 2
+#define AIN0_PORT PORTE
+#define AIN0_BIT 2
+
+#define OC3A_PORT PORTE
+#define OC3A_BIT 3
+#define AIN1_PORT PORTE
+#define AIN1_BIT 3
+
+#define OC3B_PORT PORTE
+#define OC3B_BIT 4
+#define INT4_PORT PORTE
+#define INT4_BIT 4
+
+#define OC3C_PORT PORTE
+#define OC3C_BIT 5
+#define INT5_PORT PORTE
+#define INT5_BIT 5
+
+#define T3_PORT PORTE
+#define T3_BIT 6
+#define INT6_PORT PORTE
+#define INT6_BIT 6
+
+#define IC3_PORT PORTE
+#define IC3_BIT 7
+#define INT7_PORT PORTE
+#define INT7_BIT 7
+
+#define ADC0_PORT PORTF
+#define ADC0_BIT 0
+
+#define ADC1_PORT PORTF
+#define ADC1_BIT 1
+
+#define ADC2_PORT PORTF
+#define ADC2_BIT 2
+
+#define ADC3_PORT PORTF
+#define ADC3_BIT 3
+
+#define ADC4_PORT PORTF
+#define ADC4_BIT 4
+#define TCK_PORT PORTF
+#define TCK_BIT 4
+
+#define ADC5_PORT PORTF
+#define ADC5_BIT 5
+#define TMS_PORT PORTF
+#define TMS_BIT 5
+
+#define ADC6_PORT PORTF
+#define ADC6_BIT 6
+#define TD0_PORT PORTF
+#define TD0_BIT 6
+
+#define ADC7_PORT PORTF
+#define ADC7_BIT 7
+#define TDI_PORT PORTF
+#define TDI_BIT 7
+
+#define WR_PORT PORTG
+#define WR_BIT 0
+
+#define RD_PORT PORTG
+#define RD_BIT 1
+
+#define ALE_PORT PORTG
+#define ALE_BIT 2
+
+#define TOSC2_PORT PORTG
+#define TOSC2_BIT 3
+
+#define TOSC1_PORT PORTG
+#define TOSC1_BIT 4
+
+
