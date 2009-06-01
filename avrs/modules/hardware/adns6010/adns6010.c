@@ -23,6 +23,7 @@
   */
 
 #include <aversive.h>
+#include <aversive/error.h>
 #include <aversive/wait.h>
 #include <util/delay.h>
 
@@ -107,7 +108,9 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
     {
       // Set CS inactive
       adns6010_spi_cs(0);
-      return ADNS6010_RV_ADNS1_SROMIDFAIL + it - 1;
+
+      // Throw error
+      ERROR(ADNS6010_ERROR,"ADNS6010 #%d : SROMID doesn't match firmware ID",it);
     }
 
     //------------------------------------------------
@@ -144,7 +147,9 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
     {
       // Set CS inactive
       adns6010_spi_cs(0);
-      return ADNS6010_RV_ADNS1_SROMCRCFAIL + it - 1;
+      ERROR(ADNS6010_ERROR,
+              "ADNS6010 #%d : firmware CRC fail, lo=0x%X hi=0x%X",
+              it, lbyte, hbyte);
     }
 
     //------------------------------------------------
@@ -193,7 +198,7 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
 
       default:
         adns6010_spi_cs(0);
-        return ADNS6010_RV_BAD_CONFIGURATION;
+        ERROR(ADNS6010_ERROR,"ADNS6010 #%d : bad resolution configuration",it);
     }
   
     // Constant bits in register
@@ -296,14 +301,18 @@ uint8_t adns6010_checks()
     if( bit_is_set(byte,ADNS6010_MOTION_BIT_FAULT) )
     {
       adns6010_spi_cs(0);
-      return ADNS6010_RV_ADNS1_FAULTFAIL + it - 1;
+      ERROR(ADNS6010_ERROR,
+              "ADNS6010 #%d : ADNS is fault, motion=0x%X",
+              it,byte);
     }
 
     // Check LP_CFG* consistency, if not, error.
     if( !bit_is_set(byte,ADNS6010_MOTION_BIT_LPVALID) )
     {
       adns6010_spi_cs(0);
-      return ADNS6010_RV_ADNS1_LPVALIDFAIL + it - 1;
+      ERROR(ADNS6010_ERROR,
+              "ADNS6010 #%d : LP_CFG* inconsistent, motion=0x%X",
+              it,byte);
     }
 
     //-------------------------------
@@ -321,10 +330,6 @@ uint8_t adns6010_checks()
     _delay_us(ADNS6010_TIMINGS_FRAME_PERIOD);
     _delay_us(ADNS6010_TIMINGS_FRAME_PERIOD);
     
-    //XXX 
-    wait_ms(1);
-    //XXX
-
     // Read register current value
     adns6010_spi_send(ADNS6010_SPIREGISTER_OBSERVATION);
     _delay_us(ADNS6010_TIMINGS_SRAD);
@@ -334,14 +339,18 @@ uint8_t adns6010_checks()
     if( !bit_is_set(byte,ADNS6010_OBSERVATION_BIT_OB7) )
     {
       adns6010_spi_cs(0);
-      return ADNS6010_RV_ADNS1_SROMCODEFAIL + it - 1;
+      ERROR(ADNS6010_ERROR,
+              "ADNS6010 #%d : ADNS is not running on SROM code, observation=0x%X",
+              it,byte);
     }
  
     // Check if NPD pulse was detected, if true, error.
     if( bit_is_set(byte,ADNS6010_OBSERVATION_BIT_OB5) )
     {
       adns6010_spi_cs(0);
-      return ADNS6010_RV_ADNS1_NPDPULSEFAIL + it - 1;
+      ERROR(ADNS6010_ERROR,
+              "ADNS6010 #%d : NPD pulse detected, observation=0x%X",
+              it,byte);
     }   
 
     //------------------------------------------------
@@ -478,9 +487,9 @@ uint8_t adns6010_checkFirmware()
   
   // Check if CRC value is the correct one
   if( crc == ADNS6010_FIRMWARE_CRC )
-    return 1;
-  else
-    return 0;
+    ERROR(ADNS6010_ERROR,"ADNS6010 : flash firmware corrupted, CRC=0x%X",crc);
+
+  return ADNS6010_RV_OK;
 }
 
 
@@ -516,7 +525,9 @@ uint8_t adns6010_checkSPI(void)
     if( byte_pid != (uint8_t)(~byte_ipid) )
     {  
       adns6010_spi_cs(0);
-      return (ADNS6010_RV_ADNS1_SPICOMMFAIL + it - 1);
+      ERROR(ADNS6010_ERROR,
+              "ADNS6010 #%d : SPI communication fail, pid=0x%X ipid=0x%X",
+              it, byte_pid, byte_ipid);
     }
     
     adns6010_spi_cs(0);

@@ -31,6 +31,10 @@
 #include "adns6010_timings.h"
 #include "adns6010_returns.h"
 
+
+//@ ADNS6010 error code
+#define ADNS6010_ERROR 0x10
+
 //@ Number of ADNS
 #define ADNS6010_NUM 3
 
