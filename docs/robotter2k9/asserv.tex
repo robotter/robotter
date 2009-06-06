@@ -416,6 +416,48 @@ La mise à jour de l'asservissement est effectuée par la fonction
                                             10,100);
 \end{verbatim}
 
+
+\section{Fonctionnement nominal}
+
+\subsection{Initialisation}
+
+La fonction \verb$hposition_update$ assurant la mise à jour de la position du
+robot à partir des informations retournées par les ADNS est appellée sur
+interruption, par le biais du module scheduler.\\
+L'appel est initialisé dans \verb$main.c$ :\\
+\begin{verbatim}
+scheduler_add_periodical_event_priority(&hposition_update, &position, 400, 50);
+\end{verbatim}
+
+\vskip 0.5cm
+
+La fonction \verb$robot_cs_update$ assurant la mise à jour de l'asservissement
+est appellée elle aussi sur interuption, l'appel est initialisé dans
+\verb$main.c$ :\\
+\begin{verbatim}
+scheduler_add_periodical_event_priority(&robot_cs_update, &robot_cs, 10, 100);
+\end{verbatim}
+
+
+\subsection{Mise à jour de l'asservissement}
+
+La mise à jour de l'asservissement se déroule de la manière suivante :
+\begin{itemize}
+\item appel de \verb$robot_cs_update$, mise à jour des asservissements en
+translation suivant $\vec{x}$, translation suivant $\vec{y}$ et angle selon
+$\vec{z}$;
+\item appel de \verb$hrobot_set_motors$ avec les valeurs calculées par les 3
+asservissements en position, afin de transformer une consigne en vitesse dans le
+repère du robot vers une consigne en vitesse sur chaque moteur;
+\item appel de \verb$motor_cs_update$  avec les consignes en vitesse de chaque
+moteur, mise à jour des asservissement en vitesses des 3 moteurs;
+\item mise à jour des PWMs avec les valeurs calculées par les asservissements en
+vitesse.
+\end{itemize}
+
+
+%%-----------------------------------------------------------------------------
+
 \mychapter{Identification du capteur ADNS}
 
 \section{Théorie}
