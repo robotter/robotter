@@ -367,23 +367,27 @@ fonction \verb$hposition_update$ aux lignes 142 à 147.
 Le robot est asservi en position par un régulateur PID sur chaque dimension : 
 translation suivant $\vec{x}$, translation suivant $\vec{y}$, rotation suivant
 $\vec{z}$.
+La dernière étape consiste en une rotation du vecteur afin de le passer du
+repère $R_{table}$ au repère $R_{robot}$.
 
-\subsection{Consigne}
+\subsection{Boucles d'asservissement}
+
+\subsubsection{Consigne}
 La consigne est une position exprimée en mm et en radians.\\
 
 Un filtre \emph{quadramp} est appliqué à la consigne permettant de limiter ses
 dérivées premières et secondes, limitant ainsi l'accélération et la vitesse du
 robot.
 
-\subsection{Correction}
+\subsubsection{Correction}
 La correction de l'asservissement est un vecteur vitesse passé en consigne
 à l'asservissement des moteurs.
 
-\subsection{Feedback}
+\subsubsection{Feedback}
 L'information de position est récupérée depuis le module
 \verb$hposition_manager$, calculée depuis le retour de la carte ADNS6010.
 
-\subsection{Code}
+\subsubsection{Code}
 
 L'asservissement en position du robot est réalisé dans les fichiers
 \verb$unioc_asserv/robot_cs.c$ et \verb$unioc_asserv/robot_cs.h$.
@@ -416,6 +420,73 @@ La mise à jour de l'asservissement est effectuée par la fonction
                                             10,100);
 \end{verbatim}
 
+\subsection{Changement de repère}
+
+\subsubsection{Théorie}
+
+La correction calculée par l'asservissement en position est exprimée dans le
+repère lié à la table de jeu $R_{table}$.\\
+Avant de l'envoyer aux asservissements moteurs il faut effecteur un changement
+de repère de $R_{table}$ vers $R_{robot}$.\\
+
+\begin{center}
+\includegraphics[width=0.25\textwidth]{imgs/rep.png}
+\end{center}
+
+On a :
+
+\begin{equation}
+\left(\begin{array}{c}
+v_x\\v_y\\\omega_z
+\end{array}
+\right)_{R_{table}}
+=
+\left(\begin{array}{ccc}
+\cos(\theta)&-\sin(\theta)&0\\
+\sin(\theta)&\cos(\theta)&0\\
+0&0&1\\
+\end{array}
+\right)
+\left(\begin{array}{c}
+v_x\\v_y\\\omega_z
+\end{array}
+\right)_{R_{robot}}
+\end{equation}
+
+\begin{equation}
+\left(\begin{array}{c}
+v_x\\v_y\\\omega_z
+\end{array}
+\right)_{R_{robot}}
+=
+\left(\begin{array}{ccc}
+\cos(\theta)&\sin(\theta)&0\\
+-\sin(\theta)&\cos(\theta)&0\\
+0&0&1\\
+\end{array}
+\right)
+\left(\begin{array}{c}
+v_x\\v_y\\\omega_z
+\end{array}
+\right)_{R_{table}}
+\end{equation}
+
+\subsubsection{Code}
+
+Le changement de repère est effectué dans la fonction \verb$robot_cs_update()$
+:\\
+\begin{verbatim}
+  vx_t     = cs_get_out(&csm_x);
+  vy_t     = cs_get_out(&csm_y);
+  omegaz_t = cs_get_out(&csm_angle);
+
+  hposition_get(rcs->hpm, &hvec);
+
+  alpha = -hvec.alpha;
+ 
+  vx_r = vx_t*cos(alpha) - vy_t*sin(alpha);
+  vy_r = vx_t*sin(alpha) + vy_t*cos(alpha);
+\end{verbatim}
 
 \section{Fonctionnement nominal}
 

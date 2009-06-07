@@ -14,9 +14,25 @@
    sodipodi:version="0.32"
    inkscape:version="0.46"
    sodipodi:docname="robot_cs.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="/home/jdam/robotter/eurobot/docs/robotter2k9/imgs/robot_cs.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs20517">
+    <marker
+       inkscape:stockid="DotM"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="DotM"
+       style="overflow:visible">
+      <path
+         id="path3483"
+         d="M -2.5,-1.0 C -2.5,1.7600000 -4.7400000,4.0 -7.5,4.0 C -10.260000,4.0 -12.5,1.7600000 -12.5,-1.0 C -12.5,-3.7600000 -10.260000,-6.0 -7.5,-6.0 C -4.7400000,-6.0 -2.5,-3.7600000 -2.5,-1.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;marker-end:none"
+         transform="scale(0.4) translate(7.4, 1)" />
+    </marker>
     <marker
        inkscape:stockid="Arrow2Lstart"
        orient="auto"
@@ -61,16 +77,16 @@
      objecttolerance="10"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.49497475"
-     inkscape:cx="506.82747"
-     inkscape:cy="605.73515"
+     inkscape:zoom="0.9899495"
+     inkscape:cx="662.88328"
+     inkscape:cy="593.66556"
      inkscape:document-units="px"
-     inkscape:current-layer="layer6"
+     inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:window-width="1022"
      inkscape:window-height="719"
-     inkscape:window-x="1"
-     inkscape:window-y="1">
+     inkscape:window-x="3"
+     inkscape:window-y="3">
     <inkscape:grid
        type="xygrid"
        id="grid20525" />
@@ -89,9 +105,10 @@
   <g
      inkscape:groupmode="layer"
      id="layer6"
-     inkscape:label="bkg">
+     inkscape:label="bkg"
+     sodipodi:insensitive="true">
     <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.50000000000000000;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect20604"
        width="1040"
        height="580"
@@ -105,7 +122,7 @@
     <rect
        style="fill:#d2e5e3;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline"
        id="rect17229"
-       width="680"
+       width="940"
        height="360"
        x="59.999996"
        y="212.36218" />
@@ -119,103 +136,47 @@
          id="tspan18693"
          x="80"
          y="252.36218">robot_cs</tspan></text>
-    <rect
-       style="fill:#c0c2e5;fill-opacity:1;stroke:#000000;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline"
-       id="rect4344"
-       width="160.09999"
-       height="49.774384"
-       x="530"
-       y="282.58777" />
-    <text
-       xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
-       x="570.09998"
-       y="312.58777"
-       id="text4346"><tspan
-         sodipodi:role="line"
-         id="tspan4348"
-         x="570.09998"
-         y="312.58777">filtre PID</tspan></text>
-    <rect
-       style="fill:#c0c2e5;fill-opacity:1;stroke:#000000;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline"
-       id="rect4350"
-       width="160.09999"
-       height="49.774384"
-       x="529.90002"
-       y="372.58777" />
-    <text
-       xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
-       x="570"
-       y="402.58777"
-       id="text4352"><tspan
-         sodipodi:role="line"
-         id="tspan4354"
-         x="570"
-         y="402.58777">filtre PID</tspan></text>
-    <rect
-       style="fill:#c0c2e5;fill-opacity:1;stroke:#000000;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline"
-       id="rect4356"
-       width="160.09999"
-       height="49.774384"
-       x="530"
-       y="462.36218" />
-    <text
-       xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
-       x="570.09998"
-       y="492.36218"
-       id="text4358"><tspan
-         sodipodi:role="line"
-         id="tspan4360"
-         x="570.09998"
-         y="492.36218">filtre PID</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Lend);stroke-opacity:1;display:inline"
-       d="M 690,312.36217 L 890,312.36218"
+       d="M 850,402.36218 L 1050,402.36219"
        id="path4362"
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Lend);stroke-opacity:1;display:inline"
-       d="M 690,402.36217 L 890,402.36218"
-       id="path4364"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Lend);stroke-opacity:1;display:inline"
-       d="M 690,492.36217 L 890,492.36218"
+       d="M 850,382.36218 L 1050,382.36219"
        id="path4366"
        sodipodi:nodetypes="cc" />
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
-       x="710"
-       y="302.36218"
+       x="875"
+       y="377.36218"
        id="text5913"><tspan
          sodipodi:role="line"
-         x="710"
-         y="302.36218"
+         x="875"
+         y="377.36218"
          style="font-size:14px"
          id="tspan5915">vitesse robot / X</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
-       x="710"
-       y="392.36218"
+       x="875"
+       y="397.36218"
        id="text5917"><tspan
          sodipodi:role="line"
-         x="710"
-         y="392.36218"
+         x="875"
+         y="397.36218"
          style="font-size:14px"
          id="tspan5919">vitesse robot / Y</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
-       x="710"
-       y="482.36218"
+       x="875"
+       y="417.36218"
        id="text5921"><tspan
          sodipodi:role="line"
-         x="710"
-         y="482.36218"
+         x="875"
+         y="417.36218"
          style="font-size:14px"
          id="tspan5923">vitesse rotation robot</tspan></text>
     <rect
@@ -503,5 +464,138 @@
          y="482.36218"
          style="font-size:14px"
          id="tspan17226">azimut robot</tspan></text>
+    <rect
+       style="fill:#c0c2e5;fill-opacity:1;stroke:#000000;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline"
+       id="rect4997"
+       width="160.09999"
+       height="49.774384"
+       x="529.90009"
+       y="282.5878" />
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="570.00006"
+       y="312.81339"
+       id="text4999"><tspan
+         sodipodi:role="line"
+         id="tspan5001"
+         x="570.00006"
+         y="312.81339">filtre PID</tspan></text>
+    <rect
+       style="fill:#c0c2e5;fill-opacity:1;stroke:#000000;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline"
+       id="rect5003"
+       width="160.09999"
+       height="49.774384"
+       x="529.80011"
+       y="372.81339" />
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="569.90009"
+       y="402.81339"
+       id="text5005"><tspan
+         sodipodi:role="line"
+         id="tspan5007"
+         x="569.90009"
+         y="402.81339">filtre PID</tspan></text>
+    <rect
+       style="fill:#c0c2e5;fill-opacity:1;stroke:#000000;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline"
+       id="rect5009"
+       width="160.09999"
+       height="49.774384"
+       x="529.90009"
+       y="462.5878" />
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="570.00006"
+       y="492.5878"
+       id="text5011"><tspan
+         sodipodi:role="line"
+         id="tspan5013"
+         x="570.00006"
+         y="492.5878">filtre PID</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Lend);stroke-opacity:1;display:inline"
+       d="M 690,312.36218 L 710,312.36218 L 710,382.36218 L 750,382.36218"
+       id="path5015"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Lend);stroke-opacity:1;display:inline"
+       d="M 690,402.36218 L 750,402.36218"
+       id="path5017"
+       sodipodi:nodetypes="cc" />
+    <rect
+       style="fill:#a7ffb8;fill-opacity:1;stroke:#000000;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:inline"
+       id="rect5049"
+       width="100"
+       height="59.571411"
+       x="750.00006"
+       y="362.7908" />
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="755.00006"
+       y="392.36221"
+       id="text5051"><tspan
+         sodipodi:role="line"
+         x="755.00006"
+         y="392.36221"
+         id="tspan5053"
+         style="font-size:24px">R</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="775.00006"
+       y="392.36221"
+       id="text5055"><tspan
+         sodipodi:role="line"
+         id="tspan5057"
+         x="775.00006"
+         y="392.36221"
+         style="font-size:12px">table</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="810.00006"
+       y="402.36221"
+       id="text5059"><tspan
+         sodipodi:role="line"
+         id="tspan5061"
+         x="810.00006"
+         y="402.36221"
+         style="font-size:12px">robot</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="805.00006"
+       y="397.36221"
+       id="text5063"><tspan
+         sodipodi:role="line"
+         id="tspan5065"
+         x="805.00006"
+         y="397.36221"
+         style="font-size:16px">/</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:url(#DotM);marker-end:url(#Arrow2Lend);stroke-opacity:1;display:inline"
+       d="M 420,552.36218 C 430,552.36218 790,552.36218 790,552.36218 L 790,422.36218"
+       id="path2631"
+       sodipodi:nodetypes="ccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Bitstream Vera Sans"
+       x="690.00006"
+       y="542.36224"
+       id="text4740"><tspan
+         sodipodi:role="line"
+         x="690.00006"
+         y="542.36224"
+         style="font-size:14px"
+         id="tspan4742">azimut robot</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Lend);stroke-opacity:1;display:inline"
+       d="M 690,492.36218 L 870,492.36218 L 870,422.36218 L 1050,422.36218"
+       id="path5070"
+       sodipodi:nodetypes="cccc" />
   </g>
 </svg>
