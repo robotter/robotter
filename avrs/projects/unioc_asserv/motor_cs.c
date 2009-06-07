@@ -28,6 +28,7 @@
 
 #include <avr/interrupt.h>
 #include <aversive/wait.h>
+#include <aversive/error.h>
 #include <pwm.h>
 
 // control system managers
@@ -162,7 +163,7 @@ void motor_cs_update(void* dummy, int32_t m1, int32_t m2, int32_t m3)
 	cs_manage(&csm_motor2);
 	cs_manage(&csm_motor3);
 
-	return;
+ 	return;
 }
 
 void motor_cs_break(uint8_t state)
@@ -210,6 +211,9 @@ void set_pwm_motor1(void* dummy, int32_t pwm)
 {
   S_MAX(pwm,4095);
 
+  if( (pwm == 4095)||(pwm ==  -4095))
+    DEBUG(MOTORCS_ERROR,"PWM#1 saturated pwm=%d",pwm);
+
   if(pwm>0)
   {
     pwm_set_1C(4095-pwm);
@@ -230,6 +234,9 @@ void set_pwm_motor2(void* dummy, int32_t pwm)
 {
   S_MAX(pwm,4095);
 
+  if( (pwm == 4095)||(pwm ==  -4095))
+    DEBUG(MOTORCS_ERROR,"PWM#2 saturated pwm=%d",pwm);
+
   if(pwm>0)
   {
     pwm_set_1B(4095-pwm);
@@ -249,6 +256,9 @@ void set_pwm_motor2(void* dummy, int32_t pwm)
 void set_pwm_motor3(void* dummy, int32_t pwm)
 {
   S_MAX(pwm,4095);
+
+  if( (pwm == 4095)||(pwm ==  -4095))
+    DEBUG(MOTORCS_ERROR,"PWM#3 saturated pwm=%d",pwm);
 
 	if(pwm>0)
   {

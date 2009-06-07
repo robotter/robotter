@@ -30,6 +30,8 @@
 #include <pid.h>
 #include "pid_config.h"
 
+#define MOTORCS_ERROR 0x20
+
 /**@brief Initialize motor-level control systems
   */
 void motor_cs_init(void);

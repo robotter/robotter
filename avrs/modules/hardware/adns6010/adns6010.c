@@ -72,6 +72,8 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
   // Wait OP + IN-RST for ADNS GO
   _delay_us(ADNS6010_TIMINGS_OP + ADNS6010_TIMINGS_INRST);
 
+  DEBUG(ADNS6010_ERROR,"Performing reset of ADNS");
+
   // perform reset on all adns during pw-reset
   adns6010_setReset(1);
   _delay_us(ADNS6010_TIMINGS_PWRESET);
@@ -87,6 +89,7 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
     // Load FIRMWARE on current ADNS
     //------------------------------------------------
     
+    DEBUG(ADNS6010_ERROR,"Uploading firmware on ADNS6010 #%d",it);
     adns6010_uploadFirmware(it);
 
     //------------------------------------------------
@@ -102,6 +105,8 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
     adns6010_spi_send(ADNS6010_SPIREGISTER_SROMID);
     _delay_us(ADNS6010_TIMINGS_SRAD);
     byte = adns6010_spi_recv();
+
+    DEBUG(ADNS6010_ERROR,"ADNS6010 #%d SROM register=0x%X",it,byte);
 
     // Check if SROMID is the expected value
     if( byte != ADNS6010_FIRMWARE_ID )
@@ -140,6 +145,7 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
     _delay_us(ADNS6010_TIMINGS_SRAD);
     hbyte = adns6010_spi_recv();
     
+    DEBUG(ADNS6010_ERROR,"ADNS6010 #%d SROM CRC hbyte=0x%X lbyte=0x%X",it,hbyte,lbyte);
 
     // Check CRC value
     if( !((lbyte == ADNS6010_FIRMWARE_CRCLO)
@@ -166,6 +172,8 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
     adns6010_spi_send(ADNS6010_SPIREGISTER_CONFIGURATION);
     _delay_us(ADNS6010_TIMINGS_SRAD);
     byte = adns6010_spi_recv();
+
+    DEBUG(ADNS6010_ERROR,"ADNS6010 #%d configuration=0x%X",it,byte);
 
     // Set laser shutter
     if(config->shutter == ADNS6010_SHUTTER_ON)
@@ -214,6 +222,8 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
     //-------------------------------
     // Load ConfigurationII register
 
+    DEBUG(ADNS6010_ERROR,"ADNS6010 #%d loading configurationII register",it);
+
     // delay write-read
     _delay_us(ADNS6010_TIMINGS_SWR);
 
@@ -244,6 +254,8 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
     // LP_CFG1 shall be LP_CFG0 complement
     byte = ~lpcfg;
 
+    DEBUG(ADNS6010_ERROR,"ADNS6010 #%d setting LPCFG0 register",it);
+
     // delay write-write
     _delay_us(ADNS6010_TIMINGS_SWW);
     // Write value to register 
@@ -252,6 +264,8 @@ uint8_t adns6010_boot(adns6010_configuration_t* config)
 
     //------------------------------
     // Set LASER power / load LP_CFG1 register
+
+    DEBUG(ADNS6010_ERROR,"ADNS6010 #%d setting LPCFG1 register",it);
 
     // delay write-write
     _delay_us(ADNS6010_TIMINGS_SWW);
@@ -297,6 +311,8 @@ uint8_t adns6010_checks()
     _delay_us(ADNS6010_TIMINGS_SRAD);
     byte = adns6010_spi_recv();
    
+    DEBUG(ADNS6010_ERROR,"ADNS6010 #%d motion=0x%X",it,byte);
+
     // Check if ADNS is Fault, if true, error.
     if( bit_is_set(byte,ADNS6010_MOTION_BIT_FAULT) )
     {
@@ -334,6 +350,8 @@ uint8_t adns6010_checks()
     adns6010_spi_send(ADNS6010_SPIREGISTER_OBSERVATION);
     _delay_us(ADNS6010_TIMINGS_SRAD);
     byte = adns6010_spi_recv();
+
+    DEBUG(ADNS6010_ERROR,"ADNS6010 #%d observation=0x%X",it,byte);
 
     // Check if ADNS is running on SROM code, if not, error.
     if( !bit_is_set(byte,ADNS6010_OBSERVATION_BIT_OB7) )
@@ -376,6 +394,8 @@ void adns6010_setMode(adns6010_behaviour_t behaviour)
         ADNS6010_ENABLE = 1;
       break;
   }
+
+  DEBUG(ADNS6010_ERROR,"ADNS6010 system behaviour = 0x%X",behaviour);
 
   return;
 }
@@ -486,7 +506,7 @@ uint8_t adns6010_checkFirmware()
   crc = adns6010_computeFirmwareCRC();
   
   // Check if CRC value is the correct one
-  if( crc == ADNS6010_FIRMWARE_CRC )
+  if( crc != ADNS6010_FIRMWARE_CRC )
     ERROR(ADNS6010_ERROR,"ADNS6010 : flash firmware corrupted, CRC=0x%X",crc);
 
   return ADNS6010_RV_OK;
@@ -520,6 +540,9 @@ uint8_t adns6010_checkSPI(void)
     _delay_us(ADNS6010_TIMINGS_SRAD);
     
     byte_ipid = adns6010_spi_recv();
+
+    DEBUG(ADNS6010_ERROR,"ADNS6010 #%d checking SPI pid=0x%X ipid=0x%X",
+                            it, byte_pid, byte_ipid);
 
     // Test if productID and inverse productID are consistents
     if( byte_pid != (uint8_t)(~byte_ipid) )

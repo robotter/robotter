@@ -30,6 +30,8 @@
 #include <hposition_manager.h>
 #include <hrobot_manager.h>
 
+#define ROBOTCS_ERROR 0x40
+
 #define RCS_MM_TO_CSUNIT 1000
 #define RCS_RAD_TO_CSUNIT 10000
 

@@ -29,6 +29,10 @@
 #include "robot_cs.h"
 #include <hposition_manager.h>
 
+#define HTRAJECTORY_ERROR 0x50
+
+#define HTRAJECTORY_DT 100
+
 typedef struct
 {
   robot_cs_t *rcs;
@@ -39,16 +43,37 @@ typedef struct
 
   double tx,ty,ta;
 
+	uint8_t event;
+
+	uint8_t in_position;
+
+	struct quadramp_filter *qr_x;
+	struct quadramp_filter *qr_y;
+	struct quadramp_filter *qr_a;
+
 }htrajectory_t;
 
 void htrajectory_init(htrajectory_t *htj,
                         robot_cs_t *rcs,
-                        hrobot_position_t *hps);
+                        hrobot_position_t *hps,
+												struct quadramp_filter* qr_x,
+												struct quadramp_filter* qr_y,
+												struct quadramp_filter* qr_a);
+
+void htrajectory_set_xy_speed(htrajectory_t *htj, double v, double a);
+
+void htrajectory_set_a_speed(htrajectory_t *htj, double v, double a);
 
 void htrajectory_set_precision(htrajectory_t *htj, double d, double a);
 
+void htrajectory_manage_xya(void *dummy);
+
 void htrajectory_goto_xya(htrajectory_t *htj, double x, double y, double a);
 
+void htrajectory_goto_xya_wait(htrajectory_t *htj, double x, double y, double a);
+
 uint8_t htrajectory_in_position(htrajectory_t *htj);
+
+uint8_t htrajectory_done(htrajectory_t *htj);
 
 #endif/*HTRAJECTORY_H*/

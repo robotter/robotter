@@ -25,12 +25,13 @@
 
 #include "robot_cs.h"
 
+#include <aversive/error.h>
+#include <math.h>
 #include <control_system_manager.h>
 #include <pid.h>
 #include "pid_config.h"
 #include <quadramp.h>
 
-#include <stdio.h>
 
 // control system managers
 struct cs csm_x;
@@ -62,11 +63,11 @@ void robot_cs_init(robot_cs_t* rcs)
 	pid_init(&pid_angle);
 
 	pid_set_gains(&pid_x, 120, 1, 0) ;
-  pid_set_maximums(&pid_x, 20000, 10, 0);
+  pid_set_maximums(&pid_x, 50000, 10, 0);
   pid_set_out_shift(&pid_x, 10);
  
   pid_set_gains(&pid_y, 120, 1, 0) ;
-  pid_set_maximums(&pid_y, 20000, 10, 0);
+  pid_set_maximums(&pid_y, 50000, 10, 0);
   pid_set_out_shift(&pid_y, 10);
  
   pid_set_gains(&pid_angle, 1000, 10, 0) ;
@@ -78,14 +79,14 @@ void robot_cs_init(robot_cs_t* rcs)
   quadramp_init(&qramp_y);
   quadramp_init(&qramp_angle);
 
-  quadramp_set_1st_order_vars(&qramp_x, 1000, 1000);
-  quadramp_set_2nd_order_vars(&qramp_x, 5, 5);
+  quadramp_set_1st_order_vars(&qramp_x, 5000, 5000);
+  quadramp_set_2nd_order_vars(&qramp_x, 30, 30);
 
-  quadramp_set_1st_order_vars(&qramp_y, 1000, 1000);
-  quadramp_set_2nd_order_vars(&qramp_y, 5, 5);
+  quadramp_set_1st_order_vars(&qramp_y, 5000, 5000);
+  quadramp_set_2nd_order_vars(&qramp_y, 30, 30);
 
-  quadramp_set_1st_order_vars(&qramp_angle, 200, 200);
-  quadramp_set_2nd_order_vars(&qramp_angle, 20, 20);
+  quadramp_set_1st_order_vars(&qramp_angle, 100, 100);
+  quadramp_set_2nd_order_vars(&qramp_angle, 10, 10);
 
 	// setup CSMs
 	cs_init(&csm_x);
@@ -128,6 +129,10 @@ void robot_cs_set_hrobot_manager(robot_cs_t* rcs,
 
 void robot_cs_update(void* dummy)
 {
+  double vx_t,vy_t,omegaz_t;
+  double vx_r,vy_r;
+  double alpha;
+  hrobot_vector_t hvec;
 	robot_cs_t *rcs = dummy;
  
   if(!rcs->active)
@@ -141,16 +146,38 @@ void robot_cs_update(void* dummy)
   cs_manage(&csm_y);
   cs_manage(&csm_angle);
 /*
-  printf("%ld %ld %ld %ld\n",
-            cs_get_consign(&csm_x),
-            cs_get_filtered_consign(&csm_x),
-            cs_get_filtered_feedback(&csm_x),
-            cs_get_error(&csm_x));
+  static uint8_t t=0;t++;
+  if(!(t%10))
+    printf("PLOT %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld\n",
+              cs_get_consign(&csm_x),
+              cs_get_filtered_consign(&csm_x),
+              cs_get_filtered_feedback(&csm_x),
+              cs_get_out(&csm_x),
+              cs_get_consign(&csm_y),
+              cs_get_filtered_consign(&csm_y),
+              cs_get_filtered_feedback(&csm_y),
+              cs_get_out(&csm_y),
+              cs_get_consign(&csm_angle),
+              cs_get_filtered_consign(&csm_angle),
+              cs_get_filtered_feedback(&csm_angle),
+              cs_get_out(&csm_angle));
 */
+  // transform output vector from table coords to robot coords
+  vx_t     = cs_get_out(&csm_x);
+  vy_t     = cs_get_out(&csm_y);
+  omegaz_t = cs_get_out(&csm_angle);
+
+  hposition_get(rcs->hpm, &hvec);
+
+  alpha = -hvec.alpha;
+ 
+  vx_r = vx_t*cos(alpha) - vy_t*sin(alpha);
+  vy_r = vx_t*sin(alpha) + vy_t*cos(alpha);
+
   // set second level consigns
-  hrobot_set_motors(rcs->hrs, cs_get_out(&csm_x),
-                                cs_get_out(&csm_y),
-                                cs_get_out(&csm_angle));
+  hrobot_set_motors(rcs->hrs, vx_r, vy_r, omegaz_t);
+                              
+                              
 }
 
 void robot_cs_set_consigns( robot_cs_t *rcs,

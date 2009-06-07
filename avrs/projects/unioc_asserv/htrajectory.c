@@ -23,19 +23,49 @@
   *
   */
 
+#include <aversive/wait.h>
+#include <aversive/error.h>
+#include <scheduler.h>
+#include <quadramp.h>
+#include <math.h>
+
 #include "htrajectory.h"
 
-#include <math.h>
 
 
 void htrajectory_init(htrajectory_t *htj,
                         robot_cs_t *rcs, 
-                        hrobot_position_t *hps)
+                        hrobot_position_t *hps,
+												struct quadramp_filter* qr_x,
+												struct quadramp_filter* qr_y,
+												struct quadramp_filter* qr_a)
 {
   htj->rcs = rcs;
   htj->hps = hps;
+	htj->qr_x = qr_x;
+	htj->qr_y = qr_y;
+	htj->qr_a = qr_a;
+
   htj->mind = 1.0;
   htj->mina = 1.0;
+
+	htj->event = 0;
+
+	htj->in_position = 1;
+}
+
+void htrajectory_set_xy_speed(htrajectory_t *htj, double v, double a)
+{
+  quadramp_set_1st_order_vars(htj->qr_x, v, v);
+  quadramp_set_2nd_order_vars(htj->qr_x, a, a);
+  quadramp_set_1st_order_vars(htj->qr_y, v, v);
+  quadramp_set_2nd_order_vars(htj->qr_y, a, a);
+}
+
+void htrajectory_set_a_speed(htrajectory_t *htj, double v, double a)
+{
+  quadramp_set_1st_order_vars(htj->qr_a, v, v);
+  quadramp_set_2nd_order_vars(htj->qr_a, a, a);
 }
 
 void htrajectory_set_precision(htrajectory_t *htj, double d, double a)
@@ -46,18 +76,49 @@ void htrajectory_set_precision(htrajectory_t *htj, double d, double a)
 
 void htrajectory_goto_xya(htrajectory_t *htj, double x, double y, double a)
 {
-  double diff_a;
-  hrobot_vector_t vector;
-
   // save target position
   htj->tx = x;
   htj->ty = y;
   htj->ta = a;
 
-  // set consign to high level cs
-  robot_cs_set_consigns(htj->rcs, x*RCS_MM_TO_CSUNIT,
-                                  y*RCS_MM_TO_CSUNIT,
-                                  a*RCS_RAD_TO_CSUNIT);
+	htj->in_position = 0;
+
+	// start a scheduler task
+	htj->event =
+		scheduler_add_periodical_event_priority(&htrajectory_manage_xya, htj,
+																							HTRAJECTORY_DT,110);
+
+	DEBUG(0,"trajectory task %d : goto XYA (%2.1f,%2.1f,%2.2f)",htj->event,x,y,a);
+}
+
+void htrajectory_goto_xya_wait(htrajectory_t *htj, double x, double y, double a)
+{
+  htrajectory_goto_xya(htj,x,y,a);
+	
+  while(!htrajectory_done(htj))
+		NOTICE(0,"done %d",htj->in_position);
+}
+
+void htrajectory_manage_xya(void *dummy)
+{
+	htrajectory_t *htj = (htrajectory_t*)dummy;
+
+	if(!htj)
+		ERROR(HTRAJECTORY_ERROR,"%s received a null pointer",__func__);
+	
+	// set consign to high level cs
+  robot_cs_set_consigns(htj->rcs, (htj->tx)*RCS_MM_TO_CSUNIT,
+                                  (htj->ty)*RCS_MM_TO_CSUNIT,
+                                  (htj->ta)*RCS_RAD_TO_CSUNIT);
+
+	if(htrajectory_in_position(htj))
+	{
+		DEBUG(0,"trajectory task %d : in position",htj->event);
+
+		scheduler_del_event(htj->event);
+
+		htj->in_position = 1;
+	}
 }
 
 uint8_t htrajectory_in_position(htrajectory_t *htj)
@@ -74,4 +135,9 @@ uint8_t htrajectory_in_position(htrajectory_t *htj)
     return 1;
   else
     return 0;
+}
+
+uint8_t htrajectory_done(htrajectory_t *htj)
+{
+	return htj->in_position;
 }

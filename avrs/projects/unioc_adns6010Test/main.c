@@ -66,7 +66,7 @@ int main(void)
   printf("Checking ADNS6010 firmware on FLASH : ");
   rv = adns6010_checkFirmware();
 
-  if(!rv)
+  if(rv)
   {
     printf("KO -- Firmware stored on ATMEGA FLASH is not valid\n");
 

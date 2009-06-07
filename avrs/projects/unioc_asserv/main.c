@@ -32,13 +32,92 @@
 #include <hposition_manager.h>
 #include <hrobot_manager.h>
 
+#include "cs.h"
 #include "motor_cs.h"
 #include "robot_cs.h"
 #include "htrajectory.h"
 #include "logging.h"
+#include "cli.h"
+
+// error code
+#define MAIN_ERROR 0x30
 
 // log level
 extern uint8_t log_level;
+
+// trajectory management 
+// XXX TBMoved to a strat dedicated source file
+extern htrajectory_t trajectory;
+
+// manual control
+// XXX TBMoved to a manual control dedicated source file
+extern robot_cs_t robot_cs;
+
+uint8_t event_position;
+uint8_t event_cs;
+
+void manual_control(void)
+{
+  uint8_t key;
+  double x = 0.0;
+  double y = 0.0;
+  double a = 0.0;
+
+  NOTICE(0,"Entering manual control");
+
+  while(1)
+  {
+    key = cli_getkey();
+
+    if(key=='x')
+      ERROR(0,"safe key 'x' pressed");
+
+    switch(key)
+    {
+      case 'z':
+        x=0.0; y=0.0; a=0.0;
+        break;
+
+      case 'j':
+        x+=10.0;
+        break;
+
+      case 'l':
+        x-=10.0;
+        break;
+
+      case 'k':
+        y-=10.0;
+        break;
+
+      case 'i':
+        y+=10.0;
+        break;
+
+      case 'u':
+        a+=0.05*M_PI;
+        break;
+
+      case 'o':
+        a-=0.05*M_PI;
+        break;
+    }
+
+    NOTICE(0,"manual control : (%2.2f, %2.2f, %2.2f)",x,y,a);
+
+    robot_cs_set_consigns(&robot_cs, x*RCS_MM_TO_CSUNIT,
+                                    y*RCS_MM_TO_CSUNIT,
+                                    a*RCS_RAD_TO_CSUNIT);
+
+
+  } 
+}
+
+void safe_key_pressed(void* dummy)
+{
+  if(cli_getkey_nowait() == 'x') 
+    ERROR(MAIN_ERROR,"safe key 'x' pressed");
+}
 
 int main(void)
 {
@@ -46,18 +125,6 @@ int main(void)
 
 	// ADNS configuration
 	adns6010_configuration_t adns_config;
-
-  // Robot position
-  hrobot_position_t position;
-
-  // Robot system
-  hrobot_system_t system;
-
-  // Robot control systems
-  robot_cs_t robot_cs;
-
-  // Trajectory management
-  htrajectory_t trajectory;
 
 	//--------------------------------------------------------------------------
 	// Booting
@@ -69,11 +136,6 @@ int main(void)
   uart_init();
   fdevopen(uart1_dev_send, uart1_dev_recv);
 
-  // Some advertisment :p
-  printf("\n\n# Robotter 2009 - Galipeur - UNIOC POSITION TEST\n");
-  printf("# Compiled "__DATE__" at "__TIME__"\n\n");
-
-
   //--------------------------------------------------------
   // Error configuration
   error_register_emerg(log_event);
@@ -82,8 +144,17 @@ int main(void)
   error_register_notice(log_event);
   error_register_debug(log_event);
 
+  //log_level = ERROR_SEVERITY_NOTICE;
   log_level = ERROR_SEVERITY_DEBUG;
-  
+
+  // Clear screen
+  printf("%c[2J",0x1B);
+  printf("%c[0;0H",0x1B);
+
+  // Some advertisment :p
+  NOTICE(0,"Robotter 2009 - Galipeur - UNIOC-NG PROPULSION");
+  NOTICE(0,"Compiled "__DATE__" at "__TIME__".");
+ 
   //--------------------------------------------------------
   // Initialize scheduler
   scheduler_init();
@@ -121,34 +192,14 @@ int main(void)
   //--------------------------------------------------------
   // CS
   //--------------------------------------------------------
-  // Initialize robot manager
-  NOTICE(0,"Initializing robot manager");
-  hrobot_init(&system);
-  hrobot_set_motors_accessor(&system, motor_cs_update, NULL);
 
-  // Initialize position manager
-  NOTICE(0,"Initializing position manager");
-  hposition_init( &position );
-  hposition_set( &position, 0.0, 0.0, 0.0 );
-
-  // Initialize control systems for motors
-  NOTICE(0,"Initializing motors control systems");
-  motor_cs_init();
-
-  // Initialize control systems for robot
-  NOTICE(0,"Initializing robot control systems");
-  robot_cs_init(&robot_cs);
-  robot_cs_set_hrobot_manager(&robot_cs,&system);
-  robot_cs_set_hposition_manager(&robot_cs,&position);
-  
-  // Initialize trajectory management
-  NOTICE(0,"Initializing trajectory management");
-  htrajectory_init(&trajectory,&robot_cs,&position);
-  htrajectory_set_precision(&trajectory,3.0,0.1*M_PI);
+  NOTICE(0,"Initializing CS");
+  cs_initialize();
 
   //--------------------------------------------------------
 
   // Wait for *tirette*
+  /*
   NOTICE(0,"Waiting for tirette");
   
   // tirette to Z
@@ -170,46 +221,131 @@ int main(void)
     twilite = !twilite;
     wait_ms(100);
   }
-  
+  */
   // switch led off
   _SFR_MEM8(0x1800) = 0;
 
-  printf("# GO !\n");
-  
   //--------------------------------------------------------
 
   NOTICE(0,"Initializing ADCs");
   adc_init();
+  
+  // For ploting purposes
+  NOTICE(0,"<PLOTMARK>");
 
   // Set ADNS6010 system to automatic
   adns6010_setMode(ADNS6010_BHVR_MODE_AUTOMATIC);
 
-  // Fire up position management
-  scheduler_add_periodical_event_priority(&hposition_update, &position,
-                                            400, 50);
-
   // Unleash control systems
-  scheduler_add_periodical_event_priority(&robot_cs_update, &robot_cs,
-                                            10,100);
+
+  event_cs = 
+    scheduler_add_periodical_event_priority(&cs_update, NULL, 20,100);
+
+
+  // Safe key event
+  scheduler_add_periodical_event_priority(&safe_key_pressed, NULL, 100, 50);
 
   // remove break
   motor_cs_break(0);
 
   //----------------------------------------------------------------------
+
+  NOTICE(0,"Strike 'c' for manual control / any other key to go");
+  
+  uint8_t c;
+  while(0)
+  {
+    c = cli_getkey();
+
+    if(c == 'c')
+      manual_control();
+    
+    if(c != -1)
+      break;
+  }
+
   //----------------------------------------------------------------------
+  //----------------------------------------------------------------------
+
+  NOTICE(0,"Go");
+
+  double sx=3.5, sy=3.5;
+
+  htrajectory_set_xy_speed(&trajectory, 5000, 20);
+  htrajectory_set_a_speed(&trajectory, 200, 20);
+
 
   while(1)
   {
-    htrajectory_goto_xya(&trajectory,0,300,0);
-    while(!htrajectory_in_position(&trajectory))
-      nop();
-    wait_ms(100);
-    
-    htrajectory_goto_xya(&trajectory,0,0,0);
-    while(!htrajectory_in_position(&trajectory))
-      nop();
-    wait_ms(100);
+    htrajectory_goto_xya_wait(&trajectory, 1000, 0, 0);
+    htrajectory_goto_xya_wait(&trajectory, 1000, -400, 0);
+    htrajectory_goto_xya_wait(&trajectory, 800, -200, 0);
+    htrajectory_goto_xya_wait(&trajectory, 600, 0, 0);
+    htrajectory_goto_xya_wait(&trajectory, 0, 0, 0);
   }
+
+  while(1);
 
   return 0;
 }
+
+/*
+  htrajectory_goto_xya_wait(&trajectory, sx*0, sy*50,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*20, sy*50,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*20, sy*30,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*0, sy*30,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*20, sy*10,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*20, sy*0,0);
+  
+  htrajectory_goto_xya_wait(&trajectory, sx*30, sy*0,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*30, sy*20,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*50, sy*20,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*50, sy*0,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*30, sy*0,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*60, sy*0,0);
+
+  htrajectory_goto_xya_wait(&trajectory, sx*60, sy*0,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*60, sy*50,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*60, sy*20,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*80, sy*20,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*80, sy*0,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*60, sy*0,0);
+
+  htrajectory_goto_xya_wait(&trajectory, sx*90, sy*0,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*90, sy*50,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*110, sy*50,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*110, sy*0,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*90, sy*0,0);
+
+  htrajectory_goto_xya_wait(&trajectory, sx*120, sy*0,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*120, sy*40,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*120, sy*20,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*130, sy*20,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*120, sy*20,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*120, sy*0,0);
+  
+  htrajectory_goto_xya_wait(&trajectory, sx*140, sy*0,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*140, sy*40,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*140, sy*20,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*150, sy*20,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*140, sy*20,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*140, sy*0,0);
+
+  htrajectory_goto_xya_wait(&trajectory, sx*160, sy*0,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*160, sy*20,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*170, sy*20,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*170, sy*10,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*160, sy*10,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*160, sy*0,0);
+
+  htrajectory_goto_xya_wait(&trajectory, sx*180, sy*0,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*180, sy*50,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*200, sy*50,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*200, sy*30,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*180, sy*30,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*200, sy*10,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*200, sy*0,0);
+
+  htrajectory_goto_xya_wait(&trajectory, sx*250, sy*0,0);
+  htrajectory_goto_xya_wait(&trajectory, sx*250, sy*60,0);
+*/

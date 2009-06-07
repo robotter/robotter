@@ -38,7 +38,10 @@ void adns6010_spi_init()
 
 uint8_t adns6010_spi_sendrecv(uint8_t send)
 {
+  uint8_t flags;
 	uint8_t recv;
+
+  IRQ_LOCK(flags);
 
 	while( bit_is_set(ADNS6010_SPI_CTRL,ADNS6010_SPICTRL_BIT_BUSY) );
   
@@ -60,6 +63,8 @@ uint8_t adns6010_spi_sendrecv(uint8_t send)
 
 	// Read received data
 	recv = ADNS6010_SPI_DATA;
+  
+  IRQ_UNLOCK(flags);
 
 	return recv;
 }
