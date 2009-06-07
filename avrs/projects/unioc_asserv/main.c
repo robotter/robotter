@@ -70,7 +70,7 @@ void manual_control(void)
     key = cli_getkey();
 
     if(key=='x')
-      ERROR(0,"safe key 'x' pressed");
+      EMERGENCY(MAIN_ERROR,"safe key 'x' pressed");
 
     switch(key)
     {
@@ -116,7 +116,7 @@ void manual_control(void)
 void safe_key_pressed(void* dummy)
 {
   if(cli_getkey_nowait() == 'x') 
-    ERROR(MAIN_ERROR,"safe key 'x' pressed");
+    EMERGENCY(MAIN_ERROR,"safe key 'x' pressed");
 }
 
 int main(void)

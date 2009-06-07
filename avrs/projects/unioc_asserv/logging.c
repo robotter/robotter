@@ -79,7 +79,8 @@ void log_event(struct error * e, ...)
 
 
   // dead end
-  if(e->severity == ERROR_SEVERITY_ERROR)
+  if( (e->severity == ERROR_SEVERITY_ERROR)
+    ||(e->severity == ERROR_SEVERITY_EMERGENCY) )
   {
     printf_P(PSTR("\nprogram stopped, strike a key other than 'x' to reset\n"));
     
