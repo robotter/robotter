@@ -1,0 +1,48 @@
+%%-----------------------------------------------------------------------------
+
+\mychapter{Identification du capteur ADNS}
+
+\section{Théorie}
+
+Le capteur de position constitué de 3 capteurs optiques ADNS6010 n'est pas
+parfaitement ajusté dans les axes de la base roulante et il est, par conséquent,
+difficile de calculer la matrice $A$ vue précédement a partir des mesures du
+capteur.
+
+\begin{equation}
+\left(\begin{array}{c} 
+v_x\\v_y\\\omega_z\end{array}\right)
+=A
+\left(\begin{array}{c}
+v_{x1}\\v_{y1}\\v_{x2}\\v_{y2}\\v_{x3}\\v_{y3}\end{array}\right)
+\end{equation}
+
+
+La méthode est donc d'effectuer une série de mesure de couples $(U,V)$ où 
+$U = \left(\begin{array}{c}v_x\\v_y\\\omega_z\end{array}\right)$ et
+$V = \left(\begin{array}{c}v_{x1}\\v_{y1}\\v_{x2}\\v_{y2}\\v_{x3}\\
+v_{y3}\end{array}\right)$.\\
+
+Par exemple effectuer depuis le point
+$\left(\begin{array}{c}0\\0\\0\end{array}\right)$ 
+une translation de $400 mm$ suivant l'axe $\vec{x}$ donne 
+le couple $(U_0,V_0)$ suivant :
+
+\begin{equation}
+\left(
+\left(\begin{array}{c}400\\0\\0\end{array}\right)
+,
+\left(\begin{array}{c}30110\\-17327\\-30676\\-17198\\972\\35188
+\end{array}\right)
+\right)
+\end{equation}
+
+Il reste à effectuer un grand nombre de mesure sur des
+coordonnées variées et d'ensuite identifier la matrice $A$ au moyen d'un
+algorithme d'identification.
+
+\section{Code}
+
+L'identification est effectuée au moyen de la méthode ARMA sous SciLab
+grâce au script\\\verb$unioc_asserv/scilab/adns_calibration.sci$.
+
