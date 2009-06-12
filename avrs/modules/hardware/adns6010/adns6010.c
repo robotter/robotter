@@ -35,24 +35,6 @@
 
 void adns6010_init()
 {
-  // Initialize external memory over FPGA
-
-  // enable ATmega external SRAM operation
-  sbi(MCUCR,SRE);
-
-  // set low timings on SRAM
-  sbi(MCUCR,SRW10);
-  sbi(XMCRA,SRW11);
-  sbi(XMCRA,SRW00);
-  sbi(XMCRA,SRW01);
-
-  sbi(XMCRA,SRL0);
-  sbi(XMCRA,SRL1);
-  sbi(XMCRA,SRL2);
-
-  // FPGA need some time to boot
-  wait_ms(1000);
-
   // Initialize SPI
   adns6010_spi_init();
 

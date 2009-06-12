@@ -32,6 +32,7 @@
 #include <hposition_manager.h>
 #include <hrobot_manager.h>
 
+#include "fpga.h"
 #include "cs.h"
 #include "motor_cs.h"
 #include "robot_cs.h"
@@ -41,6 +42,13 @@
 
 // error code
 #define MAIN_ERROR 0x30
+
+//-----
+
+void manual_control(void);
+void safe_key_pressed(void* dummy);
+
+//-----
 
 // log level
 extern uint8_t log_level;
@@ -53,76 +61,13 @@ extern htrajectory_t trajectory;
 // XXX TBMoved to a manual control dedicated source file
 extern robot_cs_t robot_cs;
 
+// scheduler events
 uint8_t event_position;
 uint8_t event_cs;
 
-void manual_control(void)
-{
-  uint8_t key;
-  double x = 0.0;
-  double y = 0.0;
-  double a = 0.0;
-
-  NOTICE(0,"Entering manual control");
-
-  while(1)
-  {
-    key = cli_getkey();
-
-    if(key=='x')
-      EMERGENCY(MAIN_ERROR,"safe key 'x' pressed");
-
-    switch(key)
-    {
-      case 'z':
-        x=0.0; y=0.0; a=0.0;
-        break;
-
-      case 'j':
-        x+=10.0;
-        break;
-
-      case 'l':
-        x-=10.0;
-        break;
-
-      case 'k':
-        y-=10.0;
-        break;
-
-      case 'i':
-        y+=10.0;
-        break;
-
-      case 'u':
-        a+=0.05*M_PI;
-        break;
-
-      case 'o':
-        a-=0.05*M_PI;
-        break;
-    }
-
-    NOTICE(0,"manual control : (%2.2f, %2.2f, %2.2f)",x,y,a);
-
-    robot_cs_set_consigns(&robot_cs, x*RCS_MM_TO_CSUNIT,
-                                    y*RCS_MM_TO_CSUNIT,
-                                    a*RCS_RAD_TO_CSUNIT);
-
-
-  } 
-}
-
-void safe_key_pressed(void* dummy)
-{
-  if(cli_getkey_nowait() == 'x') 
-    EMERGENCY(MAIN_ERROR,"safe key 'x' pressed");
-}
 
 int main(void)
 {
-  uint8_t rv = 0x00;
-
 	// ADNS configuration
 	adns6010_configuration_t adns_config;
 
@@ -162,6 +107,11 @@ int main(void)
   //--------------------------------------------------------
   // Initialize time
   time_init(160);
+
+
+  //--------------------------------------------------------
+  // Initialize FPGA
+  fpga_init();
 
   //--------------------------------------------------------
   // ADNS6010
@@ -269,8 +219,6 @@ int main(void)
 
   NOTICE(0,"Go");
 
-  double sx=3.5, sy=3.5;
-
   htrajectory_set_xy_speed(&trajectory, 5000, 20);
   htrajectory_set_a_speed(&trajectory, 200, 20);
 
@@ -288,6 +236,70 @@ int main(void)
 
   return 0;
 }
+
+void manual_control(void)
+{
+  uint8_t key;
+  double x = 0.0;
+  double y = 0.0;
+  double a = 0.0;
+
+  NOTICE(0,"Entering manual control");
+
+  while(1)
+  {
+    key = cli_getkey();
+
+    if(key=='x')
+      EMERG(MAIN_ERROR,"safe key 'x' pressed");
+
+    switch(key)
+    {
+      case 'z':
+        x=0.0; y=0.0; a=0.0;
+        break;
+
+      case 'j':
+        x+=10.0;
+        break;
+
+      case 'l':
+        x-=10.0;
+        break;
+
+      case 'k':
+        y-=10.0;
+        break;
+
+      case 'i':
+        y+=10.0;
+        break;
+
+      case 'u':
+        a+=0.05*M_PI;
+        break;
+
+      case 'o':
+        a-=0.05*M_PI;
+        break;
+    }
+
+    NOTICE(0,"manual control : (%2.2f, %2.2f, %2.2f)",x,y,a);
+
+    robot_cs_set_consigns(&robot_cs, x*RCS_MM_TO_CSUNIT,
+                                    y*RCS_MM_TO_CSUNIT,
+                                    a*RCS_RAD_TO_CSUNIT);
+
+
+  } 
+}
+
+void safe_key_pressed(void* dummy)
+{
+  if(cli_getkey_nowait() == 'x') 
+    EMERG(MAIN_ERROR,"safe key 'x' pressed");
+}
+
 
 /*
   htrajectory_goto_xya_wait(&trajectory, sx*0, sy*50,0);

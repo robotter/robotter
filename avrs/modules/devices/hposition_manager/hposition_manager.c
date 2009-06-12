@@ -24,6 +24,7 @@
   */
 
 #include <aversive.h>
+#include <aversive/error.h>
 #include <stdlib.h>
 #include <math.h>
 #include <adns6010.h>
@@ -35,9 +36,6 @@ void hposition_init( hrobot_position_t* hpos )
 {
   uint8_t flags;
   int i;
-
-  if(hpos == NULL)
-    return;
 
   IRQ_LOCK(flags);
   hpos->position.x = 0.0; 
@@ -57,9 +55,6 @@ void hposition_set( hrobot_position_t* hpos, double x, double y, double alpha)
 {
   uint8_t flags;
 
-  if(hpos == NULL)
-    return;
-
   IRQ_LOCK(flags);
   hpos->position.x = x;
   hpos->position.y = y;
@@ -73,8 +68,8 @@ void hposition_get( hrobot_position_t* hpos, hrobot_vector_t* hvec)
 {
   uint8_t flags;
 
-  if( (hpos == NULL) || (hvec == NULL) )
-    return;
+  if(hvec == NULL)
+    ERROR(HROBOT_ERROR,"%s received a null pointer",__func__);
 
   IRQ_LOCK(flags);
   hvec->x = hpos->position.x;
@@ -96,13 +91,15 @@ void hposition_update(void *dummy)
 
   adns6010_encoders_t adns6010;
 
-  if(hpos == NULL)
-    return;
-
   //------------------------
   // Access ADNS6010 values
   adns6010_encoders_get_value(&adns6010);
  
+  // FAULT register is set
+  if( adns6010.fault )
+    WARNING(HROBOT_ERROR, "ADNS6010 FAULT register is set : fault=0x%X",
+                            adns6010.fault);
+
   // first time update => update vector, quit
   if( hpos->firstUpdate )
   {

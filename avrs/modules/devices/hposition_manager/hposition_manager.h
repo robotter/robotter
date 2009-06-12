@@ -30,6 +30,8 @@
 #define HROBOT_DY 1 
 #define HROBOT_DA 2
 
+#define HROBOT_ERROR 0x60
+
 typedef struct
 {
   // Robot cartesian position

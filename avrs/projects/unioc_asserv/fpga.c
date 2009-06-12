@@ -1,5 +1,5 @@
 /*  
- *  Copyright Droids Corporation, Microb Technology, Eirbot (2005)
+ *  Copyright RobOtter (2009) 
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,18 +14,39 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *  Revision : $Id: error_config.h,v 1.4 2006-02-21 23:05:18 zer0 Exp $
- *
  */
 
-#ifndef _ERROR_CONFIG_
-#define _ERROR_CONFIG_
+/** \file fpga.c
+  * \author JD
+  */
 
-/** enable the dump of the comment */
-#define ERROR_DUMP_TEXTLOG 
+#include <aversive.h>
+#include <aversive/wait.h>
+#include "fpga.h"
 
-/** enable the dump of filename and line number */
-#define ERROR_DUMP_FILE_LINE
+void fpga_init()
+{
+  // Initialize external memory over FPGA
 
-#endif
+  // enable ATmega external SRAM operation
+  sbi(MCUCR,SRE);
+
+  // set low timings on SRAM
+  sbi(MCUCR,SRW10);
+  sbi(XMCRA,SRW11);
+  sbi(XMCRA,SRW00);
+  sbi(XMCRA,SRW01);
+
+  sbi(XMCRA,SRL0);
+  sbi(XMCRA,SRL1);
+  sbi(XMCRA,SRL2);
+
+  // FPGA need some time to boot
+  wait_ms(1000);
+
+}
+
+void fpga_reset()
+{
+  // TODO 
+}
