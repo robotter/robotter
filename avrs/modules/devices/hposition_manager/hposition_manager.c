@@ -72,9 +72,7 @@ void hposition_get( hrobot_position_t* hpos, hrobot_vector_t* hvec)
     ERROR(HROBOT_ERROR,"%s received a null pointer",__func__);
 
   IRQ_LOCK(flags);
-  hvec->x = hpos->position.x;
-  hvec->y = hpos->position.y;
-  hvec->alpha = hpos->position.alpha;
+  *hvec = hpos->position;
   IRQ_UNLOCK(flags);
 
   return;
@@ -84,8 +82,9 @@ void hposition_update(void *dummy)
 {
   uint8_t flags;
   int i,k;
-  int32_t v[6];
-  double dp[3],alpha,x,y;
+  int32_t v;
+  double dp[3];
+  hrobot_vector_t vec;
   double _ca,_sa;
 
   hrobot_position_t* hpos  = dummy;
@@ -114,45 +113,39 @@ void hposition_update(void *dummy)
   //----------------------------------------------------------
   // Transform speed in ADNS coordinates to robot coordinates
 
-  // compute speed in ADNS coordinates
-  for(i=0;i<6;i++)
-    v[i] = hpos->pAdnsVectors[i] - adns6010.vectors[i];
+  for(k=0;k<3;k++)
+    dp[k] = 0.0;
 
-  // update previous ADNS vectors
+  // for each ADNS coordinate (vx1,vy1,vx2,vy2,vx3,vy3) 
   for(i=0;i<6;i++)
+  {
+    // compute speed in ADNS coordinates
+    v = hpos->pAdnsVectors[i] - adns6010.vectors[i];
+    // update previous ADNS vectors
     hpos->pAdnsVectors[i] = adns6010.vectors[i];
 
-  // for each robot coordinate (x,y,a) compute a dx of mouvement
-  for(k=0;k<3;k++)
-  {
-    dp[k] = 0.0;
-    
-    // for each ADNS coordinate (vx1,vy1,vx2,vy2,vx3,vy3) 
-    for(i=0;i<6;i++)
-    {
-      dp[k] += hrobot_adnsMatrix[k][i]*v[i];
-    }
+    // for each robot coordinate (x,y,a) compute a dx of mouvement
+    for(k=0;k<3;k++)
+      dp[k] += hrobot_adnsMatrix[k][i]*v;
   }
+
 
   //--------------------------------------------------
   // Integrate speed in robot coordinates to position
  
-  alpha = hpos->position.alpha;
+  vec.alpha = hpos->position.alpha;
 
-  _ca = cos(alpha);
-  _sa = sin(alpha);
+  _ca = cos(vec.alpha);
+  _sa = sin(vec.alpha);
+  vec.alpha += dp[HROBOT_DA];
 
-  x = hpos->position.x + dp[HROBOT_DX]*_ca - dp[HROBOT_DY]*_sa;
-  y = hpos->position.y + dp[HROBOT_DX]*_sa + dp[HROBOT_DY]*_ca;
-
-  alpha += dp[HROBOT_DA];
+  vec.x = hpos->position.x + dp[HROBOT_DX]*_ca - dp[HROBOT_DY]*_sa;
+  vec.y = hpos->position.y + dp[HROBOT_DX]*_sa + dp[HROBOT_DY]*_ca;
 
   //------------------------------------
   // Latch computed values to accessors
   IRQ_LOCK(flags);
-  hpos->position.x = x;
-  hpos->position.y = y;
-  hpos->position.alpha = alpha;
+  hpos->position = vec;
   IRQ_UNLOCK(flags);
 
   return;
