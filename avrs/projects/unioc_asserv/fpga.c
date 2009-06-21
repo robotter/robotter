@@ -26,8 +26,10 @@
 
 void fpga_init()
 {
-  // Initialize external memory over FPGA
+  sbi(FPGA_RESET_DDR,FPGA_RESET_PIN);
+  sbi(FPGA_RESET_PORT,FPGA_RESET_PIN);
 
+  // Initialize external memory over FPGA
   // enable ATmega external SRAM operation
   sbi(MCUCR,SRE);
 
@@ -41,12 +43,18 @@ void fpga_init()
   sbi(XMCRA,SRL1);
   sbi(XMCRA,SRL2);
 
-  // FPGA need some time to boot
+  // FPGA needs time to boot (load flash)
   wait_ms(1000);
+
+  // perform FPGA reset
+  fpga_reset();
+
 
 }
 
 void fpga_reset()
 {
-  // TODO 
+  cbi(FPGA_RESET_PORT,FPGA_RESET_PIN);
+  wait_ms(10);
+  sbi(FPGA_RESET_PORT,FPGA_RESET_PIN);
 }

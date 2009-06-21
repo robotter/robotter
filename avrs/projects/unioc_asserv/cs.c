@@ -80,6 +80,11 @@ void cs_initialize(void)
 
 void cs_update(void* dummy)
 {
+  static uint8_t led = 0;
+
+  // some LED feedback on UNIOC-NG
+  _SFR_MEM8(0x1800) = (led+=10)>50;
+
 	// update robot position 
 	hposition_update(&position);
 

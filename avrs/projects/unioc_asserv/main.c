@@ -89,8 +89,8 @@ int main(void)
   error_register_notice(log_event);
   error_register_debug(log_event);
 
-  //log_level = ERROR_SEVERITY_NOTICE;
-  log_level = ERROR_SEVERITY_DEBUG;
+  log_level = ERROR_SEVERITY_NOTICE;
+  //log_level = ERROR_SEVERITY_DEBUG;
 
   // Clear screen
   printf("%c[2J",0x1B);
@@ -99,7 +99,7 @@ int main(void)
   // Some advertisment :p
   NOTICE(0,"Robotter 2009 - Galipeur - UNIOC-NG PROPULSION");
   NOTICE(0,"Compiled "__DATE__" at "__TIME__".");
- 
+
   //--------------------------------------------------------
   // Initialize scheduler
   scheduler_init();
@@ -108,10 +108,12 @@ int main(void)
   // Initialize time
   time_init(160);
 
-
   //--------------------------------------------------------
   // Initialize FPGA
   fpga_init();
+
+  // turn off led
+  _SFR_MEM8(0x1800) = 1;
 
   //--------------------------------------------------------
   // ADNS6010
@@ -173,7 +175,6 @@ int main(void)
   }
   */
   // switch led off
-  _SFR_MEM8(0x1800) = 0;
 
   //--------------------------------------------------------
 
@@ -187,10 +188,8 @@ int main(void)
   adns6010_setMode(ADNS6010_BHVR_MODE_AUTOMATIC);
 
   // Unleash control systems
-
   event_cs = 
-    scheduler_add_periodical_event_priority(&cs_update, NULL, 20,100);
-
+    scheduler_add_periodical_event_priority(&cs_update, NULL, 25,100);
 
   // Safe key event
   scheduler_add_periodical_event_priority(&safe_key_pressed, NULL, 100, 50);
@@ -200,10 +199,14 @@ int main(void)
 
   //----------------------------------------------------------------------
 
+  // Set CS speeds
+  htrajectory_set_xy_speed(&trajectory, 5000, 20);
+  htrajectory_set_a_speed(&trajectory, 200, 10);
+
   NOTICE(0,"Strike 'c' for manual control / any other key to go");
-  
+ 
   uint8_t c;
-  while(0)
+  while(1)
   {
     c = cli_getkey();
 
@@ -216,21 +219,12 @@ int main(void)
 
   //----------------------------------------------------------------------
   //----------------------------------------------------------------------
+  
+  uint16_t value;
 
   NOTICE(0,"Go");
-
-  htrajectory_set_xy_speed(&trajectory, 5000, 20);
-  htrajectory_set_a_speed(&trajectory, 200, 20);
-
-
-  while(1)
-  {
-    htrajectory_goto_xya_wait(&trajectory, 1000, 0, 0);
-    htrajectory_goto_xya_wait(&trajectory, 1000, -400, 0);
-    htrajectory_goto_xya_wait(&trajectory, 800, -200, 0);
-    htrajectory_goto_xya_wait(&trajectory, 600, 0, 0);
-    htrajectory_goto_xya_wait(&trajectory, 0, 0, 0);
-  }
+  
+  
 
   while(1);
 
@@ -260,11 +254,11 @@ void manual_control(void)
         break;
 
       case 'j':
-        x+=10.0;
+        x-=10.0;
         break;
 
       case 'l':
-        x-=10.0;
+        x+=10.0;
         break;
 
       case 'k':

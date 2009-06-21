@@ -86,6 +86,7 @@ void hposition_update(void *dummy)
   int i,k;
   int32_t v[6];
   double dp[3],alpha,x,y;
+  double _ca,_sa;
 
   hrobot_position_t* hpos  = dummy;
 
@@ -135,11 +136,14 @@ void hposition_update(void *dummy)
 
   //--------------------------------------------------
   // Integrate speed in robot coordinates to position
-  
+ 
   alpha = hpos->position.alpha;
 
-  x = hpos->position.x + dp[HROBOT_DX]*cos(alpha) - dp[HROBOT_DY]*sin(alpha);
-  y = hpos->position.y + dp[HROBOT_DX]*sin(alpha) + dp[HROBOT_DY]*cos(alpha);
+  _ca = cos(alpha);
+  _sa = sin(alpha);
+
+  x = hpos->position.x + dp[HROBOT_DX]*_ca - dp[HROBOT_DY]*_sa;
+  y = hpos->position.y + dp[HROBOT_DX]*_sa + dp[HROBOT_DY]*_ca;
 
   alpha += dp[HROBOT_DA];
 

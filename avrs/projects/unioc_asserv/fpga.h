@@ -23,6 +23,10 @@
 #ifndef _FPGA_H_
 #define _FPGA_H_
 
+#define FPGA_RESET_DDR  DDRE
+#define FPGA_RESET_PORT PORTE
+#define FPGA_RESET_PIN  6
+
 /**@brief Initialize FPGA communicatin through direct access memory.
   */
 void fpga_init(void);

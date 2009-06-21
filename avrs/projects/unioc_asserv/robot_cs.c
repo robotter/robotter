@@ -132,6 +132,7 @@ void robot_cs_update(void* dummy)
   double vx_t,vy_t,omegaz_t;
   double vx_r,vy_r;
   double alpha;
+  double _ca,_sa;
   hrobot_vector_t hvec;
 	robot_cs_t *rcs = dummy;
  
@@ -145,23 +146,7 @@ void robot_cs_update(void* dummy)
   cs_manage(&csm_x);
   cs_manage(&csm_y);
   cs_manage(&csm_angle);
-/*
-  static uint8_t t=0;t++;
-  if(!(t%10))
-    printf("PLOT %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld\n",
-              cs_get_consign(&csm_x),
-              cs_get_filtered_consign(&csm_x),
-              cs_get_filtered_feedback(&csm_x),
-              cs_get_out(&csm_x),
-              cs_get_consign(&csm_y),
-              cs_get_filtered_consign(&csm_y),
-              cs_get_filtered_feedback(&csm_y),
-              cs_get_out(&csm_y),
-              cs_get_consign(&csm_angle),
-              cs_get_filtered_consign(&csm_angle),
-              cs_get_filtered_feedback(&csm_angle),
-              cs_get_out(&csm_angle));
-*/
+
   // transform output vector from table coords to robot coords
   vx_t     = cs_get_out(&csm_x);
   vy_t     = cs_get_out(&csm_y);
@@ -171,12 +156,14 @@ void robot_cs_update(void* dummy)
 
   alpha = -hvec.alpha;
  
-  vx_r = vx_t*cos(alpha) - vy_t*sin(alpha);
-  vy_r = vx_t*sin(alpha) + vy_t*cos(alpha);
+  _ca = cos(alpha);
+  _sa = sin(alpha);
+
+  vx_r = vx_t*_ca - vy_t*_sa;
+  vy_r = vx_t*_sa + vy_t*_ca;
 
   // set second level consigns
   hrobot_set_motors(rcs->hrs, vx_r, vy_r, omegaz_t);
-                              
                               
 }
 

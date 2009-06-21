@@ -91,12 +91,27 @@ void htrajectory_goto_xya(htrajectory_t *htj, double x, double y, double a)
 	DEBUG(0,"trajectory task %d : goto XYA (%2.1f,%2.1f,%2.2f)",htj->event,x,y,a);
 }
 
+
+void htrajectory_gotor_xya(htrajectory_t *htj, double x, double y, double a)
+{
+  hrobot_vector_t vector;
+
+  hposition_get(htj->hps, &vector);
+  htrajectory_goto_xya(htj, x + vector.x, y + vector.y, a + vector.alpha );
+}
+
 void htrajectory_goto_xya_wait(htrajectory_t *htj, double x, double y, double a)
 {
   htrajectory_goto_xya(htj,x,y,a);
 	
-  while(!htrajectory_done(htj))
-		NOTICE(0,"done %d",htj->in_position);
+  while(!htrajectory_done(htj));
+}
+
+void htrajectory_gotor_xya_wait(htrajectory_t *htj, double x, double y, double a)
+{
+  htrajectory_gotor_xya(htj,x,y,a);
+
+  while(!htrajectory_done(htj));
 }
 
 void htrajectory_manage_xya(void *dummy)
@@ -116,7 +131,6 @@ void htrajectory_manage_xya(void *dummy)
 		DEBUG(0,"trajectory task %d : in position",htj->event);
 
 		scheduler_del_event(htj->event);
-
 		htj->in_position = 1;
 	}
 }

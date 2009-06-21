@@ -58,7 +58,7 @@ void hrobot_set_motors( hrobot_system_t* hrs,
 
 	if(!hrs)
 		return;
-
+  
   // project speed vector on each motor
   v0 = vx*HROBOT_MOTOR0_COS_COURSE + vy*HROBOT_MOTOR0_SIN_COURSE;
   v1 = vx*HROBOT_MOTOR1_COS_COURSE + vy*HROBOT_MOTOR1_SIN_COURSE;

@@ -51,7 +51,7 @@ void log_event(struct error * e, ...)
   tv = time_get_time();
   
   // print timestamp
-  printf_P(PSTR("%ld.%3.ld | "), tv.s, (tv.us/1000UL));
+  printf_P(PSTR("%ld.%3.3ld | "), tv.s, (tv.us/1000UL));
   
   // print severity
   switch(e->severity)

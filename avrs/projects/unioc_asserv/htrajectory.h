@@ -31,7 +31,7 @@
 
 #define HTRAJECTORY_ERROR 0x50
 
-#define HTRAJECTORY_DT 100
+#define HTRAJECTORY_DT 200
 
 typedef struct
 {
@@ -45,7 +45,7 @@ typedef struct
 
 	uint8_t event;
 
-	uint8_t in_position;
+	volatile uint8_t in_position;
 
 	struct quadramp_filter *qr_x;
 	struct quadramp_filter *qr_y;
@@ -69,8 +69,10 @@ void htrajectory_set_precision(htrajectory_t *htj, double d, double a);
 void htrajectory_manage_xya(void *dummy);
 
 void htrajectory_goto_xya(htrajectory_t *htj, double x, double y, double a);
+void htrajectory_gotor_xya(htrajectory_t *htj, double x, double y, double a);
 
 void htrajectory_goto_xya_wait(htrajectory_t *htj, double x, double y, double a);
+void htrajectory_gotor_xya_wait(htrajectory_t *htj, double x, double y, double a);
 
 uint8_t htrajectory_in_position(htrajectory_t *htj);
 
