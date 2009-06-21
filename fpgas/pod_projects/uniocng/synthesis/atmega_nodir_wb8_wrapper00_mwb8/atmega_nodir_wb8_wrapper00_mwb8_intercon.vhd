@@ -188,13 +188,15 @@ begin
             else
                 encoder_inc02_swb8_cs <= '0';
             end if;
-
+			
+			-- adress 0x1700 : compass
             if atmega_nodir_wb8_wrapper00_wbm_address(14 downto 2)="0010111000000" and atmega_nodir_wb8_wrapper00_wbm_strobe='1' then
                 compass00_swb8_cs <= '1';
             else
                 compass00_swb8_cs <= '0';
             end if;
 
+			-- adress 0x1800 : compass
             if atmega_nodir_wb8_wrapper00_wbm_address(14 downto 1)="00110000000000" and atmega_nodir_wb8_wrapper00_wbm_strobe='1' then
                 led00_swb8_cs <= '1';
             else

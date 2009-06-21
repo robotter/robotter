@@ -83,8 +83,23 @@ architecture compass_1 of compass is
       angle_i   : in  natural range 0 to 3599
     );
   end component compass_wbs;
+  
+  component filter is 
+    generic (
+    taille_filtre_c : natural range 0 to 1000 := 2
+  );
+  port (
+    clk_i   : in  std_logic;
+    reset_i : in  std_logic;
+    in_i   : in  std_logic;
+    
+    out_o : out std_logic
+  );
+  end component filter;
+  
   for compass_wbs_0 : compass_wbs use entity work.compass_wbs;
 
+	signal s_compass : std_logic;
 begin
 
   compass_reader_0 : compass_reader
@@ -94,7 +109,7 @@ begin
   port map (
     clk_i   => wbs_clk_i,
     reset_i => wbs_rst_i,
-    pwm_i   => pwm_i,
+    pwm_i   => s_compass,
     angle_o => angle_s
   );
 
@@ -112,6 +127,15 @@ begin
     angle_i   => angle_s
   );
 
+  compass_filter : filter
+  generic map(
+    taille_filtre_c => 20)
+  port map(
+    clk_i   => wbs_clk_i,
+    reset_i => wbs_rst_i,
+    in_i   => pwm_i,
+    
+    out_o => s_compass);
 end architecture compass_1;
 
 

@@ -18,14 +18,19 @@ entity top_uniocng is
 
     port
     (
+    int1_i : in std_logic;
+    int2_i : in std_logic;
+	sda_i : in std_logic;
+	scl_i : in std_logic;
     clk_mega_i : in std_logic;
-    sclk_debug : in std_logic;
+    sclk_debug : in std_logic; -- ne pas enlever : pins connectees
     encoder_inc02_ch_a_i : in std_logic;
     encoder_inc00_ch_a_i : in std_logic;
     encoder_inc01_ch_b_i : in std_logic;
     encoder_inc00_ch_b_i : in std_logic;
     encoder_inc01_ch_a_i : in std_logic;
     rstext_syscon00_ext_rst_n : in std_logic;
+    rstext_syscon00_atm_rst_n : in std_logic; -- reset atmega
     atmega_nodir_wb8_wrapper00_DA : inout std_logic_vector(7 downto 0);
     atmega_nodir_wb8_wrapper00_ALE : in std_logic;
     atmega_nodir_wb8_wrapper00_Address_H : in std_logic_vector(6 downto 0);
@@ -219,7 +224,8 @@ architecture top_uniocng_1 of top_uniocng is
 
     component compass
         generic(
-            id : natural := 5
+			id         : natural := 9;    --! module ID
+			clk_freq_c : natural := 50000 --! FPGA clock frequency, in kHz
         );
         port (
             -- clock
@@ -570,7 +576,8 @@ begin
 
     compass00 : compass
     generic map (
-            id => 5
+            id => 5,
+            clk_freq_c => 50000
         )
     port map (
             -- clock
@@ -808,5 +815,7 @@ begin
         -- rstext_syscon00_atmega_nodir_wb8_wrapper00
         atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_clk <= rstext_syscon00_gls_clk;
         atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_reset <= rstext_syscon00_gls_reset;
+
+
 
 end architecture top_uniocng_1;
