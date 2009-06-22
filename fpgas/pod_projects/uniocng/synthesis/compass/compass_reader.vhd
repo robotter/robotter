@@ -48,7 +48,7 @@ end entity compass_reader;
 architecture compass_reader_1 of compass_reader is
 
   --! number of ticks per angle unit value
-  constant angle_period_c : natural := clk_freq_c/200; -- 100 is the sampling frequency (100kHz)
+  constant angle_period_c : natural := clk_freq_c/100; -- 100 is the sampling frequency (100kHz)
 
   --! angle value ticks (0.1 deg every 0.01 ms), down counted
   signal angle_ticks_s  : natural range 0 to angle_period_c-1;

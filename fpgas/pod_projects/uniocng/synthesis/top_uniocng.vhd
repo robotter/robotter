@@ -16,6 +16,9 @@ use IEEE.numeric_std.all;
 
 entity top_uniocng is
 
+    generic (
+      freq_fpga_c : natural := 25000
+      );
     port
     (
     int1_i : in std_logic;
@@ -116,7 +119,8 @@ architecture top_uniocng_1 of top_uniocng is
     component adns6010
         generic(
             id : natural := 1;
-            wb_size_c : natural := 8
+            wb_size_c : natural := 8;
+            freq_fpga_c : natural := 50000
         );
         port (
             -- clock
@@ -490,7 +494,8 @@ begin
     adns601000 : adns6010
     generic map (
             id => 1,
-            wb_size_c => 8
+            wb_size_c => 8,
+            freq_fpga_c => freq_fpga_c
         )
     port map (
             -- clock
@@ -577,7 +582,7 @@ begin
     compass00 : compass
     generic map (
             id => 5,
-            clk_freq_c => 50000
+            clk_freq_c => freq_fpga_c
         )
     port map (
             -- clock

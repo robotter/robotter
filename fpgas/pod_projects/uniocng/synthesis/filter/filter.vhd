@@ -26,12 +26,12 @@ use ieee.numeric_std.all;
 entity filter is
 
   generic (
-    taille_filtre_c : natural range 0 to 1000 := 2
+    filter_size_c : natural range 0 to 1000 := 2
   );
   port (
     clk_i   : in  std_logic;
     reset_i : in  std_logic;
-    in_i   : in  std_logic;
+    in_i    : in  std_logic;
     
     out_o : out std_logic
   );
@@ -48,28 +48,30 @@ architecture filter_1 of filter is
 
 begin
 
-	filter_p: process (clk_i, reset_i)
+  filter_p: process (clk_i, reset_i)
 
-    variable v_high : std_logic_vector(taille_filtre_c-1 downto 0);
-	variable v_low  : std_logic_vector(taille_filtre_c-1 downto 0);
-	variable v_sig_mem: std_logic_vector(taille_filtre_c-1 downto 0); -- signal memory
+    variable high_v    : std_logic_vector(filter_size_c-1 downto 0);
+    variable low_v     : std_logic_vector(filter_size_c-1 downto 0);
+    variable sig_mem_v : std_logic_vector(filter_size_c-1 downto 0); -- signal memory
+
   begin
 
     if reset_i = '1' then
-		v_sig_mem := (OTHERS => '0');
-		v_low := (OTHERS => '0');
-		v_high := (OTHERS => '1');
-		out_o <= '0';
-		
+      sig_mem_v := (others => '0');
+      low_v     := (others => '0');
+      high_v    := (others => '1');
+      out_o <= '0';
+
     elsif rising_edge(clk_i) then
 
-		v_sig_mem := v_sig_mem(taille_filtre_c-2 downto 0)& in_i;
-		if v_sig_mem = v_low THEN
-			out_o <= '0';
-		elsif v_sig_mem = v_high then
-			out_o <= '1';
-		end if;
-	end if;
+      sig_mem_v := sig_mem_v(filter_size_c-2 downto 0) & in_i;
+      if sig_mem_v = low_v then
+        out_o <= '0';
+      elsif sig_mem_v = high_v then
+        out_o <= '1';
+      end if;
+    end if;
+
   end process filter_p;
 
 end architecture filter_1;
