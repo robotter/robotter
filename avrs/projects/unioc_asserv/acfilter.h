@@ -16,21 +16,34 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** \file hposition_manager_config.h
+/** \file acfilter.h
   * \author JD
   *
-  * Manage holonomic robot encoders to calculate robot position
+  * Filter ADNS and compass headings 
   *
   */
 
-#ifndef _HPOSITION_MANAGER_CONFIG_H_
-#define _HPOSITION_MANAGER_CONFIG_H_
+#ifndef ACFILTER_H
+#define ACFILTER_H
 
-//@ matrix transforming coordinates in ADNS system to (x,y,a) robot coordinate system
-double hrobot_adnsMatrix[3][6] = {
-{ 0.0000897,  0.0041783, -0.0032225, -0.0021137,  0.0034996, -0.0021684},
-{ 0.0039630,  0.0002610, -0.0019085,  0.0035498, -0.0022024, -0.0034904},
-{-0.0000009, -0.0000343,  0.0000008, -0.0000338,  0.0000017, -0.0000336}
-};
+typedef struct 
+{
+	double igain;
 
-#endif/*_HPOSITION_MANAGER_CONFIG_H_*/
+	double feedback;
+	double accumulator;
+
+	double output;
+
+}acfilter_t;
+
+/**@brief initialize ADNS/Compass filter 
+	*@param igain filter integral gain
+*/
+void acfilter_init(acfilter_t*, double igain);
+
+/**@brief update filter
+*/
+double acfilter_do(acfilter_t*, double adns_heading, double compass_heading);
+
+#endif/*ACFILTER_H*/

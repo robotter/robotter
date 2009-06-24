@@ -32,22 +32,6 @@ dep_bool '  |-- Create Default i2c config' CONFIG_MODULE_I2C_ROBOTTER_CREATE_CON
 
 #
 
-dep_bool 'holonomic position manager' CONFIG_MODULE_HPOSITION_MANAGER_ROBOTTER \
-  $CONFIG_MODULE_ADNS6010_ROBOTTER
-
-dep_bool '  |-- Create Default hposition_manager config' CONFIG_MODULE_HPOSITION_MANAGER_ROBOTTER_CREATE_CONFIG \
-	$CONFIG_MODULE_HPOSITION_MANAGER_ROBOTTER
-
-#
-
-dep_bool 'holonomic robot manager' CONFIG_MODULE_HROBOT_MANAGER_ROBOTTER \
-  $CONFIG_MODULE_PWM
-
-dep_bool '  |-- Create Default hposition_manager config' CONFIG_MODULE_HROBOT_MANAGER_ROBOTTER_CREATE_CONFIG \
-	$CONFIG_MODULE_HROBOT_MANAGER_ROBOTTER
-
-#
-
 dep_bool 'AX12' CONFIG_MODULE_AX12_ROBOTTER
 
 dep_bool '  |-- Create Default ax12 config' CONFIG_MODULE_AX12_ROBOTTER_CREATE_CONFIG \

@@ -19,7 +19,7 @@
 /** \file hposition_manager.c
   * \author JD
   *
-  * Manages holonomic robot encoders to calculate robot position
+  * Manages holonomic robot encoders to compute robot position
   *
   */
 
@@ -28,9 +28,17 @@
 #include <stdlib.h>
 #include <math.h>
 #include <adns6010.h>
+#include "acfilter.h"
+#include "compass.h"
 
-#include <hposition_manager.h>
+#include "hposition_manager.h"
 #include "hposition_manager_config.h"
+
+// compass 
+extern compass_t compass;
+
+// ADNS/compass filter
+extern acfilter_t acfilter;
 
 void hposition_init( hrobot_position_t* hpos )
 {
@@ -47,6 +55,8 @@ void hposition_init( hrobot_position_t* hpos )
     hpos->pAdnsVectors[i] = 0;
 
   hpos->firstUpdate = 1;
+
+  hpos->adns_alpha = 0.0;
 
   return;
 }
@@ -86,6 +96,7 @@ void hposition_update(void *dummy)
   double dp[3];
   hrobot_vector_t vec;
   double _ca,_sa;
+	double compass_a;
 
   hrobot_position_t* hpos  = dummy;
 
@@ -129,16 +140,22 @@ void hposition_update(void *dummy)
       dp[k] += hrobot_adnsMatrix[k][i]*v;
   }
 
+	// apply ADNS/Compass filtering
+	compass_a = compass_get_heading_rad(&compass);
+	
+	// compute filtered alpha
+	vec.alpha = acfilter_do(&acfilter, hpos->adns_alpha, compass_a);
 
-  //--------------------------------------------------
-  // Integrate speed in robot coordinates to position
- 
-  vec.alpha = hpos->position.alpha;
-
+	// transform ADNS position to table  
   _ca = cos(vec.alpha);
   _sa = sin(vec.alpha);
-  vec.alpha += dp[HROBOT_DA];
+ 
+  //--------------------------------------------------
+  // Integrate speed in robot coordinates to position
 
+	// update ADNS angular position
+	hpos->adns_alpha += dp[HROBOT_DA];
+ 
   vec.x = hpos->position.x + dp[HROBOT_DX]*_ca - dp[HROBOT_DY]*_sa;
   vec.y = hpos->position.y + dp[HROBOT_DX]*_sa + dp[HROBOT_DY]*_ca;
 

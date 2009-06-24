@@ -32,7 +32,6 @@
 #include "pid_config.h"
 #include <quadramp.h>
 
-
 // control system managers
 struct cs csm_x;
 struct cs csm_y;
@@ -71,7 +70,7 @@ void robot_cs_init(robot_cs_t* rcs)
   pid_set_out_shift(&pid_y, 10);
  
   pid_set_gains(&pid_angle, 1000, 10, 0) ;
-  pid_set_maximums(&pid_angle, 2000, 200, 0);
+  pid_set_maximums(&pid_angle, 4000, 200, 0);
   pid_set_out_shift(&pid_angle, 10);
 
   // setup quadramps
@@ -85,7 +84,7 @@ void robot_cs_init(robot_cs_t* rcs)
   quadramp_set_1st_order_vars(&qramp_y, 5000, 5000);
   quadramp_set_2nd_order_vars(&qramp_y, 30, 30);
 
-  quadramp_set_1st_order_vars(&qramp_angle, 100, 100);
+  quadramp_set_1st_order_vars(&qramp_angle, 70, 70);
   quadramp_set_2nd_order_vars(&qramp_angle, 10, 10);
 
 	// setup CSMs
@@ -211,6 +210,6 @@ int32_t get_robot_a(void* dummy)
   robot_cs_t* rcs = dummy;
 
   hposition_get(rcs->hpm, &hvec);
-  
+
   return (hvec.alpha * RCS_RAD_TO_CSUNIT);
 }

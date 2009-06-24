@@ -30,6 +30,8 @@
 #include "motor_cs.h"
 #include "robot_cs.h"
 #include "htrajectory.h"
+#include "acfilter.h"
+#include "compass.h"
 
 // Robot position
 hrobot_position_t position;
@@ -43,14 +45,28 @@ robot_cs_t robot_cs;
 // Trajectory management
 htrajectory_t trajectory;
 
+// Compass 
+compass_t compass;
+
+// ADNS/Compass filter
+acfilter_t acfilter;
+
 // robot_cs quadramps
 extern struct quadramp_filter qramp_x;
 extern struct quadramp_filter qramp_y;
 extern struct quadramp_filter qramp_angle;
 
-
 void cs_initialize(void)
 {
+  // Initialize compass
+  NOTICE(0,"Initializing compass");
+  compass_init(&compass, 0x1700);
+  compass_set_heading_rad(&compass, 0.0);
+
+   // Initializing ADNS/Compass filter
+  NOTICE(0,"Initializing ADNS / Compass filter");
+  acfilter_init(&acfilter, 0.02);
+  
   // Initialize robot manager
   NOTICE(0,"Initializing robot manager");
   hrobot_init(&system);
@@ -85,9 +101,16 @@ void cs_update(void* dummy)
   // some LED feedback on UNIOC-NG
   _SFR_MEM8(0x1800) = (led+=10)>50;
 
+  sbi(PORTD,1);
+
+  // update compass filtering
+  compass_update(&compass);
+
 	// update robot position 
 	hposition_update(&position);
 
 	// update control systems
 	robot_cs_update(&robot_cs);
+
+  cbi(PORTD,1);
 }

@@ -29,8 +29,6 @@
 #include <time.h>
 
 #include <adns6010.h>
-#include <hposition_manager.h>
-#include <hrobot_manager.h>
 
 #include "fpga.h"
 #include "cs.h"
@@ -68,6 +66,8 @@ uint8_t event_cs;
 
 int main(void)
 {
+	uint8_t tirette = 0;
+
 	// ADNS configuration
 	adns6010_configuration_t adns_config;
 
@@ -161,6 +161,8 @@ int main(void)
   uint8_t twilite=0;
   while(1)
   {
+		tirette = 1;
+
     if(PINF&0x02)
       tircpt++;
     else
@@ -173,7 +175,7 @@ int main(void)
     twilite = !twilite;
     wait_ms(100);
   }
-  */
+ */ 
   // switch led off
 
   //--------------------------------------------------------
@@ -201,12 +203,15 @@ int main(void)
 
   // Set CS speeds
   htrajectory_set_xy_speed(&trajectory, 5000, 20);
-  htrajectory_set_a_speed(&trajectory, 200, 10);
+  htrajectory_set_a_speed(&trajectory, 70, 10);
+
+  sbi(DDRD,1);
+  cbi(PORTD,1);
 
   NOTICE(0,"Strike 'c' for manual control / any other key to go");
  
   uint8_t c;
-  while(1)
+  while(!tirette)
   {
     c = cli_getkey();
 
@@ -220,13 +225,15 @@ int main(void)
   //----------------------------------------------------------------------
   //----------------------------------------------------------------------
   
-  uint16_t value;
-
   NOTICE(0,"Go");
   
-  
+	htrajectory_gotor_xya_wait(&trajectory, 0, 500, 0);
 
-  while(1);
+	htrajectory_gotor_xya_wait(&trajectory, 0, 0, 5*2*M_PI);
+
+	htrajectory_goto_xya_wait(&trajectory, 0, 0, 5*2*M_PI);
+
+	while(1);
 
   return 0;
 }

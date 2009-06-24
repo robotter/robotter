@@ -16,31 +16,47 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** \file hrobot_manager_config.h
+/** \file compass.h
   * \author JD
   *
-  * Abstract robot hardware
+  * Manage magnetic compass sensor
   *
   */
 
-#ifndef _HROBOT_MANAGER_CONFIG_H_
-#define _HROBOT_MANAGER_CONFIG_H_
+#ifndef COMPASS_H
+#define COMPASS_H
 
-#include <math.h>
+#include <aversive.h>
 
-// Motors course
-// Warning : Those values defines the motors COURSES in radians,
-// meaning the direction of the force applied
-// on the table by the motor.
+#define COMPASS_DELTA_MAX 1800
+#define COMPASS_TENTH_DEGREES_2PI 3600
+#define COMPASS_TDEG_TO_RADS 0.001745329251994
 
-//       0
-//      / 
-//     /  
-//    1-----2
-//         
+typedef struct
+{
+	uint16_t address;
 
-#define HROBOT_MOTOR0_COURSE 0.0
-#define HROBOT_MOTOR1_COURSE 2.094395 // ~ 2*M_PI/3
-#define HROBOT_MOTOR2_COURSE 4.188790 // ~ 4*M_PI/3
+	double heading;
+	double offset;
 
-#endif/*_HROBOT_MANAGER_CONFIG_H_*/
+	int k;
+	int32_t praw_heading;
+}compass_t;
+
+/**@brief Initialize compass structure
+	*@param address compass address on FPGA wishbone bus
+	*/
+void compass_init(compass_t*, uint16_t address);
+
+/**@brief Update compass filter
+	*/
+void compass_update(compass_t*);
+
+/**@brief Set compass value */
+void compass_set_heading_rad(compass_t*, double heading);
+
+/**@brief Return robot heading in radians
+	*/
+double compass_get_heading_rad(compass_t*);
+
+#endif/*COMPASS_H*/

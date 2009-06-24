@@ -27,7 +27,7 @@
 #define ROBOT_CS_H
 
 #include <aversive.h>
-#include <hposition_manager.h>
+#include "hposition_manager.h"
 #include <hrobot_manager.h>
 
 #define ROBOTCS_ERROR 0x40

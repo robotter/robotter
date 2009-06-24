@@ -46,6 +46,8 @@ typedef struct
   // Robot position
   hrobot_vector_t position;
 
+  // ADNS angular position
+  double adns_alpha;
   // Previous step ADNS vectors
   int32_t pAdnsVectors[6];
   // Is it first time update 

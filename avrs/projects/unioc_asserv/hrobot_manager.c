@@ -28,7 +28,7 @@
 #include <aversive.h>
 #include <stdlib.h>
 
-#include <hrobot_manager.h>
+#include "hrobot_manager.h"
 #include "hrobot_manager_config.h"
 
 void hrobot_init( hrobot_system_t* hrs )
