@@ -14,11 +14,11 @@
 \end{center}
 
 Chaque moteur est individuellement asservi en vitesse par un régulateur PD
-(Proportionnel,Dérivée) et une codeur incrémental HEDS5540 fixé à l'axe moteur.
+(Proportionnel,Dérivée) et un codeur incrémental HEDS5540 fixé à l'axe moteur.
 
 \subsection{Consigne}
 La consigne est ici une vitesse moteur exprimée en \emph{pas
-codeurs}/\emph{tick asservissement}.
+codeur}/\emph{tick asservissement}.
 
 \subsection{Correction}
 La correction de l'asservissement est appliquée sous la forme d'une PWM + signe
@@ -41,13 +41,11 @@ L'asservissement en vitesse des moteurs est réalisé  dans les fichiers
 
 \subsubsection{Initialisation}
 
-\verb$unioc_asserv/main.c$ ligne 224 :\\
+\verb$unioc_asserv/cs.c$ ligne 80 :\\
 \begin{verbatim}
-  //--------------------------------------------------------
   // Initialize control systems for motors
-  printf("# Initializing motors control systems : ");
+  NOTICE(0,"Initializing motors control systems");
   motor_cs_init();
-  printf("# OK\n");
 \end{verbatim}
 
 La fonction \verb$motor_cs_init$ assure l'initialisation des
@@ -59,7 +57,7 @@ La mise à jour de l'asservissement est effectuée par la fonction
 \verb$motor_cs_update()$ appellée par la fonction \verb$hrobot_set_motors()$ 
 du module \verb$hrobot_manager$ lors de l'envoi des consignes aux moteurs.
 
-\verb$modules/devices/hrobot_manager/hrobot_manager.c$ ligne 74 :\\
+\verb$unioc_asserv/hrobot_manager.c$ ligne 66 :\\
 \begin{verbatim}
   // set motors speeds
 	if(hrs->motors_accessor)
@@ -67,7 +65,7 @@ du module \verb$hrobot_manager$ lors de l'envoi des consignes aux moteurs.
 \end{verbatim}
 
 Le pointeur \verb$hrs->motors_accessor$ est assigné à \verb$motor_cs_update()$ 
-dans \verb$unioc_asserv/main.c$ ligne 208 :\\
+dans \verb$unioc_asserv/cs.c$ ligne 73 :\\
 
 \begin{verbatim}
   hrobot_set_motors_accessor(&system, motor_cs_update, NULL);
@@ -83,12 +81,81 @@ dans \verb$unioc_asserv/main.c$ ligne 208 :\\
 \includegraphics[width=0.6\textwidth]{imgs/hrobot.png}
 \end{center}
 
+\subsection{Changement de repère}
+
+\subsubsection{Théorie}
+
+La correction calculée par l'asservissement en position est exprimée dans le
+repère lié à la table de jeu $R_{table}$.\\
+Avant de l'envoyer aux asservissements moteurs il faut effecteur un changement
+de repère de $R_{table}$ vers $R_{robot}$.\\
+
+\begin{center}
+\includegraphics[width=0.25\textwidth]{imgs/rep.png}
+\end{center}
+
+On a :
+
+\begin{equation}
+\left(\begin{array}{c}
+v_x\\v_y\\\omega
+\end{array}
+\right)_{R_{table}}
+=
+\left(\begin{array}{ccc}
+\cos(\theta)&-\sin(\theta)&0\\
+\sin(\theta)&\cos(\theta)&0\\
+0&0&1\\
+\end{array}
+\right)
+\left(\begin{array}{c}
+v_x\\v_y\\\omega
+\end{array}
+\right)_{R_{robot}}
+\end{equation}
+
+\begin{equation}
+\left(\begin{array}{c}
+v_x\\v_y\\\omega
+\end{array}
+\right)_{R_{robot}}
+=
+\left(\begin{array}{ccc}
+\cos(\theta)&\sin(\theta)&0\\
+-\sin(\theta)&\cos(\theta)&0\\
+0&0&1\\
+\end{array}
+\right)
+\left(\begin{array}{c}
+v_x\\v_y\\\omega
+\end{array}
+\right)_{R_{table}}
+\end{equation}
+
+\subsubsection{Code}
+
+Le changement de repère est effectué dans la fonction \verb$robot_cs_update()$
+:\\
+\begin{verbatim}
+  vx_t     = cs_get_out(&csm_x);
+  vy_t     = cs_get_out(&csm_y);
+  omegaz_t = cs_get_out(&csm_angle);
+
+  hposition_get(rcs->hpm, &hvec);
+
+  alpha = -hvec.alpha;
+ 
+  vx_r = vx_t*cos(alpha) - vy_t*sin(alpha);
+  vy_r = vx_t*sin(alpha) + vy_t*cos(alpha);
+\end{verbatim}
+
+
 \subsection{Théorie}
 
 La propulsion vectorielle permet de transformer une consigne en vitesse exprimée
 dans le repère lié au robot $R_{robot}$ :
 \begin{equation}
-\left(\begin{array}{c} v_x\\v_y\\\omega_z\end{array}\right)_{R_{robot}}
+\left(\begin{array}{c} v_x\\v_y\\\omega\end{array}\right)_{R_{robot}}
 \end{equation}
 
 En une consigne en vitesse sur chaque moteur :
@@ -129,7 +196,7 @@ Au point $O$ le torseur cinématique du robot est :
 = \left\{ \begin{array}{cc}
 v_x & 0\\
 v_y & 0\\
-0 & \omega_z\\
+0 & \omega\\
 \end{array} \right\}_{O}
 %%
 \end{equation}
@@ -139,22 +206,22 @@ Déplacement du torseur en $M_1$ :
 \left\{ \nu_{robot/table} \right\} &
 %%
 = & \left\{ \begin{array}{c}
-\omega_z.\overrightarrow{z} % w.z
+\omega.\overrightarrow{z} % w.z
 \\
 \overrightarrow{V_{robot/table}}_O
 \end{array} \right\}_{O} \\
 %%
 & = & \left\{ \begin{array}{c}
-\omega_z.\overrightarrow{z} % w.z
+\omega.\overrightarrow{z} % w.z
 \\
 \overrightarrow{V_{robot/table}}_O + \overrightarrow{OM_1} \wedge
-\omega_z.\overrightarrow{z}
+\omega.\overrightarrow{z}
 \end{array} \right\}_{M_1}\\
 %%
 & = & \left\{ \begin{array}{c}
-\omega_z.\overrightarrow{z} % w.z
+\omega.\overrightarrow{z} % w.z
 \\
-\overrightarrow{V_{robot/table}}_O + R.\omega_z.\overrightarrow{u_{M_1}}
+\overrightarrow{V_{robot/table}}_O + R.\omega.\overrightarrow{u_{M_1}}
 \end{array}\right\}_{M_1}
 \end{eqnarray}
 
@@ -163,9 +230,9 @@ On obtient de même en $M_2$ et $M_3$ :
 \left\{ \nu_{robot/table} \right\} 
 =
 \left\{ \begin{array}{c}
-\omega_z.\overrightarrow{z} % w.z
+\omega.\overrightarrow{z} % w.z
 \\
-\overrightarrow{V_{robot/table}}_O + R.\omega_z.\overrightarrow{u_{M_2}}
+\overrightarrow{V_{robot/table}}_O + R.\omega.\overrightarrow{u_{M_2}}
 \end{array}\right\}_{M_2}
 \end{equation}
 
@@ -173,9 +240,9 @@ On obtient de même en $M_2$ et $M_3$ :
 \left\{ \nu_{robot/table} \right\} 
 =
 \left\{ \begin{array}{c}
-\omega_z.\overrightarrow{z} % w.z
+\omega.\overrightarrow{z} % w.z
 \\
-\overrightarrow{V_{robot/table}}_O + R.\omega_z.\overrightarrow{u_{M_3}}
+\overrightarrow{V_{robot/table}}_O + R.\omega.\overrightarrow{u_{M_3}}
 \end{array}\right\}_{M_3}
 \end{equation}
 
@@ -187,21 +254,30 @@ v_{M_n} & = & \overrightarrow{V_{robot/table}}_{M_n} .
 \overrightarrow{u_{M_n}}\\
 %%
         & = & ( \overrightarrow{V_{robot/table}}_O +
-R.\omega_z.\overrightarrow{u_{M_n}} ).\overrightarrow{u_{M_n}}\\
+R.\omega.\overrightarrow{u_{M_n}} ).\overrightarrow{u_{M_n}}\\
 %%
         & = & \left(\begin{array}{c}v_x\\v_y\\0\end{array}\right).
 \left(\begin{array}{c}\cos \theta_{M_n}\\\sin \theta_{M_n}\\0\end{array}\right)
-+ R.\omega_z\\
++ R.\omega\\
 %%
-        & = & v_x.\cos \theta_{M_n} + v_y.\sin \theta_{M_n} + R.\omega_z
+        & = & v_x.\cos \theta_{M_n} + v_y.\sin \theta_{M_n} + R.\omega
 \end{eqnarray}
 
 Ce qui donne le système d'équations suivant :
 \begin{eqnarray}
-v_{M_1} = v_x.\cos \theta_{M_1} + v_y.\sin \theta_{M_1} + R.\omega_z\\
-v_{M_2} = v_x.\cos \theta_{M_2} + v_y.\sin \theta_{M_2} + R.\omega_z\\
-v_{M_3} = v_x.\cos \theta_{M_3} + v_y.\sin \theta_{M_3} + R.\omega_z
+v_{M_1} = v_x.\cos \theta_{M_1} + v_y.\sin \theta_{M_1} + R.\omega\\
+v_{M_2} = v_x.\cos \theta_{M_2} + v_y.\sin \theta_{M_2} + R.\omega\\
+v_{M_3} = v_x.\cos \theta_{M_3} + v_y.\sin \theta_{M_3} + R.\omega
 \end{eqnarray}
+
+Soit, sous forme matricielle, la matrice $P$ :
+\begin{equation}
+P = \left(\begin{array}{ccc}
+\cos \theta_{M_1}&\sin \theta_{M_1}&R\\
+\cos \theta_{M_2}&\sin \theta_{M_2}&R\\
+\cos \theta_{M_3}&\sin \theta_{M_3}&R
+\end{array}\right)
+\end{equation}
 
 \subsection{Code}
 
@@ -235,19 +311,37 @@ du module \verb$hrobot_manager$ aux lignes 62 à 70 :
 \end{verbatim}
 
 Notons que dans la version présentée du code aucun effort de mise en conformité
-des unités n'a été effectuée $R$ étant égal à $1$ ici.
+des unités n'a été effectuée $R$ étant ici unitaire.
 
 
 
 %%-------------------------------------------------------------------------------
 
-\section{Positionnement}
-
+\section{Compass}
 
 \begin{center}
-\includegraphics[width=0.7\textwidth]{imgs/hposition.png}
+\includegraphics[width=0.3\textwidth]{imgs/compass.png}
 \end{center}
 
+La boussole électronique a été ajoutée afin de palier à la dérive du capteur
+ADNS en angle.\\
+
+Un simple filtre a été ajouté afin que l'angle renvoyé par le capteur,
+appartenant initialement à $[0;2\pi[$, devienne continu.
+
+\section{ACFilter}
+
+\begin{center}
+\includegraphics[width=0.5\textwidth]{imgs/acfilter.png}
+\end{center}
+
+*TO BE DONE*
+
+\section{Positionnement}
+
+\begin{center}
+\includegraphics[width=0.9\textwidth]{imgs/hposition.png}
+\end{center}
 
 \subsection{Transformation vitesses ADNS vers vitesses robot}
 
@@ -266,12 +360,12 @@ représentant les informations de vitesses renvoyées par le capteur ADNS.\\
 
 Sachant que chaque repère ADNS est une transformation linéaire du repère du robot on
 peut dire, en notant $\left(\begin{array}{c} 
-v_x\\v_y\\\omega_z\end{array}\right)_{R_{robot}}$ la vitesse du robot, qu'il existe une matrice $A$
+v_x\\v_y\\\omega\end{array}\right)_{R_{robot}}$ la vitesse du robot, qu'il existe une matrice $A$
 telle que :\\
 
 \begin{equation}
 \left(\begin{array}{c} 
-v_x\\v_y\\\omega_z\end{array}\right)_{R_{robot}}
+v_x\\v_y\\\omega\end{array}\right)_{R_{robot}}
 =A
 \left(\begin{array}{c}
 v_{x1}\\v_{y1}\\v_{x2}\\v_{y2}\\v_{x3}\\v_{y3}\end{array}\right)
@@ -295,12 +389,9 @@ a_{20}& a_{21}& a_{22}& a_{23}& a_{24}& a_{25}\\
 Le module \verb$hposition_manager$ est initialisé dans le fichier \verb$main.c$
 lignes 216 à 221 :
 \begin{verbatim}
-  printf("# Initializing position manager : ");
+  NOTICE(0,"Initializing position manager");
   hposition_init( &position );
   hposition_set( &position, 0.0, 0.0, 0.0 );
-  printf("# OK\n");
-
-  printf("# Position manager is GO\n\n");
 \end{verbatim}
 
 \paragraph{Mise à jour}
@@ -339,12 +430,22 @@ fonction \verb$hposition_update$ du module \verb$hposition_manager$ aux lignes
 \subsubsection{Théorie}
 
 L'élément
-$\left(\begin{array}{c}v_x\\v_y\\\omega_z\end{array}\right)_{R_{robot}}$ calculé
-précédement est donné dans le repère lié au capteur ADNS donc à $R_{robot}$
-repère lié au robot.\\
+$\left(\begin{array}{c}v_x\\v_y\\\omega_{ADNS}\end{array}\right)_{R_{robot}}$ est
+donc obtenu à partir du capteur ADNS.\\
 
-Il convient donc de le transformer par une rotation de $\alpha$, angle du robot
-par rapport à la table.
+L'idée générale est d'intégrer cet élement afin d'obtenir le vecteur position
+du robot $\left(\begin{array}{c}x\\y\\\theta\end{array}\right)_{R_{table}}$ dans
+le repère lié à la table.
+La première étape est de calculer $\theta$, or les tests ont montrés
+qu'effectuer une simple intégration de $\omega_{ADNS}$ pour obtenir
+$\theta_{ADNS}$ ne donne pas une
+information fiable sur l'angle car soumise à une importante dérive.
+Pour palier à ce phénomène une boussole électronique et un filtre on été mis en
+place (voir sections dédiés).\\
+
+Le vecteur $\left(\begin{array}{c}v_x\\v_y\end{array}\right)_{R_{robot}}$ est
+alors transformé d'une rotation de $-\theta$ afin de l'exprimer dans le repère 
+$R_{table}$ lié à la table.
 
 \subsubsection{Code}
 
@@ -359,7 +460,6 @@ fonction \verb$hposition_update$ aux lignes 142 à 147.
 
   alpha += dp[HROBOT_DA];
 \end{verbatim}
-
 
 \section{Asservisement en position}
 
@@ -421,74 +521,6 @@ La mise à jour de l'asservissement est effectuée par la fonction
  // Unleash control systems
   scheduler_add_periodical_event_priority(&robot_cs_update, &robot_cs,
                                             10,100);
-\end{verbatim}
-
-\subsection{Changement de repère}
-
-\subsubsection{Théorie}
-
-La correction calculée par l'asservissement en position est exprimée dans le
-repère lié à la table de jeu $R_{table}$.\\
-Avant de l'envoyer aux asservissements moteurs il faut effecteur un changement
-de repère de $R_{table}$ vers $R_{robot}$.\\
-
-\begin{center}
-\includegraphics[width=0.25\textwidth]{imgs/rep.png}
-\end{center}
-
-On a :
-
-\begin{equation}
-\left(\begin{array}{c}
-v_x\\v_y\\\omega_z
-\end{array}
-\right)_{R_{table}}
-=
-\left(\begin{array}{ccc}
-\cos(\theta)&-\sin(\theta)&0\\
-\sin(\theta)&\cos(\theta)&0\\
-0&0&1\\
-\end{array}
-\right)
-\left(\begin{array}{c}
-v_x\\v_y\\\omega_z
-\end{array}
-\right)_{R_{robot}}
-\end{equation}
-
-\begin{equation}
-\left(\begin{array}{c}
-v_x\\v_y\\\omega_z
-\end{array}
-\right)_{R_{robot}}
-=
-\left(\begin{array}{ccc}
-\cos(\theta)&\sin(\theta)&0\\
--\sin(\theta)&\cos(\theta)&0\\
-0&0&1\\
-\end{array}
-\right)
-\left(\begin{array}{c}
-v_x\\v_y\\\omega_z
-\end{array}
-\right)_{R_{table}}
-\end{equation}
-
-\subsubsection{Code}
-
-Le changement de repère est effectué dans la fonction \verb$robot_cs_update()$
-:\\
-\begin{verbatim}
-  vx_t     = cs_get_out(&csm_x);
-  vy_t     = cs_get_out(&csm_y);
-  omegaz_t = cs_get_out(&csm_angle);
-
-  hposition_get(rcs->hpm, &hvec);
-
-  alpha = -hvec.alpha;
- 
-  vx_r = vx_t*cos(alpha) - vy_t*sin(alpha);
-  vy_r = vx_t*sin(alpha) + vy_t*cos(alpha);
 \end{verbatim}
 
 \section{Fonctionnement nominal}
