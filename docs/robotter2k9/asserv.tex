@@ -283,15 +283,13 @@ P = \left(\begin{array}{ccc}
 
 \subsubsection{Initialisation}
 
-Le module \verb$hrobot_manager$ est initialisé dans le fichier \verb$main.c$
-lignes 205 à 211 :
+Le module \verb$hrobot_manager$ est initialisé dans le fichier \verb$cs.c$
+ligne 70 :
 \begin{verbatim}
-  printf("# Initializing robot manager : ");
+  // Initialize robot manager
+  NOTICE(0,"Initializing robot manager");
   hrobot_init(&system);
   hrobot_set_motors_accessor(&system, motor_cs_update, NULL);
-  printf("# OK\n");
-
-  printf("# Robot manager is GO\n\n");
 \end{verbatim}
 
 \subsubsection{Mise à jour}
@@ -335,7 +333,37 @@ appartenant initialement à $[0;2\pi[$, devienne continu.
 \includegraphics[width=0.5\textwidth]{imgs/acfilter.png}
 \end{center}
 
-*TO BE DONE*
+\subsection{Théorie}
+
+Ce filtre permet de gérer 2 capteurs différents : boussole et capteur ADNS
+sur une seul et même grandeur :
+l'azimut du robot.\\
+
+Or les mesures ont montrés que la mesure de cet azimut par intégration de la
+vitesse de rotation mesurée par le capteur ADNS montre un temps de réponse 
+rapide mais une importante dérive.\\
+
+À l'inverse, la boussole, ne présente aucune dérive mais un temps de réponse
+élevé et une résolution faible.\\
+
+Le filtre est réglable par la valeur de $K_i$ gain intégral du filtre où pour
+$K_i=0$ seul le capteur ADNS est pris en compte et pour $K_i\rightarrow1$ l'influence
+de la boussole est maximum.\\
+
+Une valeur de gain de $K_i=0.02$ est actuellement utilisé sur l'asservissement
+du robot.
+
+\subsection{Code}
+
+Le filtre est implémenté dans les fichiers \verb$acfilter.c$ et
+\verb$acfilter.h$.\\
+
+Le filtre est initialisé à la ligne 66 du fichier \verb$cs.c$ :
+\begin{verbatim}
+   // Initializing ADNS/Compass filter
+  NOTICE(0,"Initializing ADNS / Compass filter");
+  acfilter_init(&acfilter, 0.02);
+\end{verbatim}
 
 \section{Positionnement}
 
@@ -397,32 +425,31 @@ lignes 216 à 221 :
 \paragraph{Mise à jour}
 
 La transformation, réduite à un produit matriciel, est implémenté dans la 
-fonction \verb$hposition_update$ du module \verb$hposition_manager$ aux lignes
-119 à 137.
+fonction \verb$hposition_update$ du module \verb$hposition_manager$ ligne 125.
 
 \begin{verbatim}
   //----------------------------------------------------------
   // Transform speed in ADNS coordinates to robot coordinates
 
-  // compute speed in ADNS coordinates
-  for(i=0;i<6;i++)
-    v[i] = hpos->pAdnsVectors[i] - adns6010.vectors[i];
+  for(k=0;k<3;k++)
+    dp[k] = 0.0;
 
-  // update previous ADNS vectors
+  // for each ADNS coordinate (vx1,vy1,vx2,vy2,vx3,vy3) 
   for(i=0;i<6;i++)
+  {
+    // compute speed in ADNS coordinates
+    v = hpos->pAdnsVectors[i] - adns6010.vectors[i];
+    // update previous ADNS vectors
     hpos->pAdnsVectors[i] = adns6010.vectors[i];
 
-  // for each robot coordinate (x,y,a) compute a dx of mouvement
-  for(k=0;k<3;k++)
-  {
-    dp[k] = 0.0;
-    
-    // for each ADNS coordinate (vx1,vy1,vx2,vy2,vx3,vy3) 
-    for(i=0;i<6;i++)
-    {
-      dp[k] += hrobot_adnsMatrix[k][i]*v[i];
-    }
+    // for each robot coordinate (x,y,a) compute a dx of mouvement
+    for(k=0;k<3;k++)
+      dp[k] += hrobot_adnsMatrix[k][i]*v;
   }
+
+  // convert d(movement) from (2^14mm) to (mm)
+  for(k=0;k<3;k++)
+    dp[k] = dp[k]/(double)(1<<HPOSITION_MANAGER_ADNSMATRIX_UNITPOW);
 \end{verbatim}
 
 \subsection{Intégration des vitesses ADNS}
@@ -450,15 +477,16 @@ $R_{table}$ lié à la table.
 \subsubsection{Code}
 
 L'intégration de l'élément de position calculé est effectué à la suite dans la
-fonction \verb$hposition_update$ aux lignes 142 à 147.
+fonction \verb$hposition_update$ ligne 153.
 
 \begin{verbatim}
-  alpha = hpos->position.alpha;
+  _ca = cos(vec.alpha);
+  _sa = sin(vec.alpha);
+ 
+  [...]
 
-  x = hpos->position.x + dp[HROBOT_DX]*cos(alpha) - dp[HROBOT_DY]*sin(alpha);
-  y = hpos->position.y + dp[HROBOT_DX]*sin(alpha) + dp[HROBOT_DY]*cos(alpha);
-
-  alpha += dp[HROBOT_DA];
+  vec.x = hpos->position.x + dp[HROBOT_DX]*_ca - dp[HROBOT_DY]*_sa;
+  vec.y = hpos->position.y + dp[HROBOT_DX]*_sa + dp[HROBOT_DY]*_ca;
 \end{verbatim}
 
 \section{Asservisement en position}
@@ -497,14 +525,13 @@ L'asservissement en position du robot est réalisé dans les fichiers
 
 \subsubsection{Initialisation}
 
-\verb$unioc_asserv/main.c$ ligne 230 :\\
+\verb$unioc_asserv/cs.c$ ligne 85 :\\
 \begin{verbatim}
   // Initialize control systems for robot
-  printf("# Initializing robot control systems : ");
+  NOTICE(0,"Initializing robot control systems");
   robot_cs_init(&robot_cs);
   robot_cs_set_hrobot_manager(&robot_cs,&system);
   robot_cs_set_hposition_manager(&robot_cs,&position);
-  printf("# OK\n");
 \end{verbatim}
 
 La fonction \verb$robot_cs_init$ assure l'initialisation des
@@ -513,14 +540,14 @@ La fonction \verb$robot_cs_init$ assure l'initialisation des
 \subsubsection{Mise à jour}
 
 La mise à jour de l'asservissement est effectuée par la fonction
-\verb$robot_cs_update()$ appellée sur interruption par le module
-\verb$scheduler$ :
+\verb$robot_cs_update()$ appellée par \verb$cs_update()$, fonction appellée 
+sur interruption par le module \verb$scheduler$ :
 
-\verb$unioc_asserv/main.c$ ligne 324 :\\
+\verb$unioc_asserv/main.c$ ligne 192 :\\
 \begin{verbatim}
- // Unleash control systems
-  scheduler_add_periodical_event_priority(&robot_cs_update, &robot_cs,
-                                            10,100);
+  // Unleash control systems
+  event_cs = 
+    scheduler_add_periodical_event_priority(&cs_update, NULL, 25,100);
 \end{verbatim}
 
 \section{Fonctionnement nominal}
@@ -529,26 +556,15 @@ La mise à jour de l'asservissement est effectuée par la fonction
 
 La fonction \verb$hposition_update$ assurant la mise à jour de la position du
 robot à partir des informations retournées par les ADNS est appellée sur
-interruption, par le biais du module scheduler.\\
-L'appel est initialisé dans \verb$main.c$ :\\
-\begin{verbatim}
-scheduler_add_periodical_event_priority(&hposition_update, &position, 400, 50);
-\end{verbatim}
-
-\vskip 0.5cm
-
-La fonction \verb$robot_cs_update$ assurant la mise à jour de l'asservissement
-est appellée elle aussi sur interuption, l'appel est initialisé dans
-\verb$main.c$ :\\
-\begin{verbatim}
-scheduler_add_periodical_event_priority(&robot_cs_update, &robot_cs, 10, 100);
-\end{verbatim}
-
+interruption depuis la fonction \verb$cs_update()$.
 
 \subsection{Mise à jour de l'asservissement}
 
 La mise à jour de l'asservissement se déroule de la manière suivante :
 \begin{itemize}
+
+\item mise à jour de la boussole par appel à \verb$compass_update()$.
+\item mise à jour de la position par appel à \verb$hposition_update()$.
 \item appel de \verb$robot_cs_update$, mise à jour des asservissements en
 translation suivant $\vec{x}$, translation suivant $\vec{y}$ et angle selon
 $\vec{z}$;
