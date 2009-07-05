@@ -140,6 +140,10 @@ void hposition_update(void *dummy)
       dp[k] += hrobot_adnsMatrix[k][i]*v;
   }
 
+  // convert d(movement) from (2^14mm) to (mm)
+  for(k=0;k<3;k++)
+    dp[k] = dp[k]/(double)(1<<HPOSITION_MANAGER_ADNSMATRIX_UNITPOW);
+
 	// apply ADNS/Compass filtering
 	compass_a = compass_get_heading_rad(&compass);
 	

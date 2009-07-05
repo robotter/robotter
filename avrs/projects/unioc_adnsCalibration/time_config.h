@@ -1,5 +1,5 @@
 /*  
- *  Copyright RobOtter (2009) 
+ *  Copyright Droids Corporation, Microb Technology, Eirbot (2005)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,44 +14,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *  Revision : $Id: time_config.h,v 1.2 2006-03-02 11:24:27 zer0 Exp $
+ *
  */
 
-/** \file acfilter.h
-  * \author JD
-  *
-  * Filter ADNS and compass headings 
-  *
-  */
-
-#include <aversive.h>
-#include <aversive/error.h>
-#include "acfilter.h"
-
-void acfilter_init(acfilter_t* acf, double igain)
-{
-	acf->igain = igain;
-
-	acf->feedback = 0.0;
-	acf->accumulator = 0.0;
-
-	acf->output = 0.0;
-}
-
-double acfilter_do(acfilter_t* acf, double adns_heading, double compass_heading)
-{
-	double error;
-
-	// set output 
-	acf->output = adns_heading + (acf->feedback);
-	
-	// compute error between output and compass
-	error = compass_heading - (acf->output);
-	
-	// integrate error
-	acf->accumulator += error;
-
-	// compute feedback
-	acf->feedback = (acf->igain)*(acf->accumulator);
-
-	return (acf->output);
-}
+/** precision of the time processor, in us */
+#define TIME_PRECISION 10000l

@@ -16,42 +16,47 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** \file acfilter.h
+/** \file compass.h
   * \author JD
   *
-  * Filter ADNS and compass headings 
+  * Manage magnetic compass sensor
   *
   */
 
+#ifndef COMPASS_H
+#define COMPASS_H
+
 #include <aversive.h>
-#include <aversive/error.h>
-#include "acfilter.h"
 
-void acfilter_init(acfilter_t* acf, double igain)
+#define COMPASS_DELTA_MAX 1800
+#define COMPASS_TENTH_DEGREES_2PI 3600
+#define COMPASS_TDEG_TO_RADS 0.001745329251994
+
+typedef struct
 {
-	acf->igain = igain;
+	uint16_t address;
 
-	acf->feedback = 0.0;
-	acf->accumulator = 0.0;
+	double heading;
+	double offset;
 
-	acf->output = 0.0;
-}
+	int k;
+	int32_t praw_heading;
+}compass_t;
 
-double acfilter_do(acfilter_t* acf, double adns_heading, double compass_heading)
-{
-	double error;
+/**@brief Initialize compass structure
+	*@param address compass address on FPGA wishbone bus
+	*/
+void compass_init(compass_t*, uint16_t address);
 
-	// set output 
-	acf->output = adns_heading + (acf->feedback);
-	
-	// compute error between output and compass
-	error = compass_heading - (acf->output);
-	
-	// integrate error
-	acf->accumulator += error;
+/**@brief Update compass filter
+	*/
+void compass_update(compass_t*);
 
-	// compute feedback
-	acf->feedback = (acf->igain)*(acf->accumulator);
+/**@brief Set compass value */
+void compass_set_heading_rad(compass_t*, double heading);
 
-	return (acf->output);
-}
+/**@brief Return robot heading in radians
+	*/
+double compass_get_heading_rad(compass_t*);
+
+#endif/*COMPASS_H*/

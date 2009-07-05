@@ -26,35 +26,18 @@
 #include <aversive/error.h>
 #include <math.h>
 
+#include "hrobot_manager.h"
 #include "cs.h"
 #include "motor_cs.h"
-#include "robot_cs.h"
-#include "htrajectory.h"
-#include "acfilter.h"
 #include "compass.h"
-
-// Robot position
-hrobot_position_t position;
 
 // Robot system
 hrobot_system_t system;
 
-// Robot control systems
-robot_cs_t robot_cs;
-
-// Trajectory management
-htrajectory_t trajectory;
-
-// Compass 
+// Compass
 compass_t compass;
 
-// ADNS/Compass filter
-acfilter_t acfilter;
-
-// robot_cs quadramps
-extern struct quadramp_filter qramp_x;
-extern struct quadramp_filter qramp_y;
-extern struct quadramp_filter qramp_angle;
+volatile int32_t cs_vx,cs_vy,cs_omega;
 
 void cs_initialize(void)
 {
@@ -63,36 +46,14 @@ void cs_initialize(void)
   compass_init(&compass, 0x1700);
   compass_set_heading_rad(&compass, 0.0);
 
-   // Initializing ADNS/Compass filter
-  NOTICE(0,"Initializing ADNS / Compass filter");
-  acfilter_init(&acfilter, 0.01);
-  
-  
   // Initialize robot manager
   NOTICE(0,"Initializing robot manager");
   hrobot_init(&system);
   hrobot_set_motors_accessor(&system, motor_cs_update, NULL);
 
-  // Initialize position manager
-  NOTICE(0,"Initializing position manager");
-  hposition_init( &position );
-  hposition_set( &position, 0.0, 0.0, 0.0 );
-
   // Initialize control systems for motors
   NOTICE(0,"Initializing motors control systems");
   motor_cs_init();
-
-  // Initialize control systems for robot
-  NOTICE(0,"Initializing robot control systems");
-  robot_cs_init(&robot_cs);
-  robot_cs_set_hrobot_manager(&robot_cs,&system);
-  robot_cs_set_hposition_manager(&robot_cs,&position);
-  
-  // Initialize trajectory management
-  NOTICE(0,"Initializing trajectory management");
-  htrajectory_init(&trajectory,&robot_cs,&position,
-										&qramp_x, &qramp_y, &qramp_angle);
-  htrajectory_set_precision(&trajectory,3.0,0.1*M_PI);
 }
 
 void cs_update(void* dummy)
@@ -102,16 +63,9 @@ void cs_update(void* dummy)
   // some LED feedback on UNIOC-NG
   _SFR_MEM8(0x1800) = (led+=10)>50;
 
-  sbi(PORTD,1);
-
   // update compass filtering
   compass_update(&compass);
 
-	// update robot position 
-	hposition_update(&position);
-
 	// update control systems
-	robot_cs_update(&robot_cs);
-
-  cbi(PORTD,1);
+  hrobot_set_motors(&system, cs_vx, cs_vy, cs_omega);
 }

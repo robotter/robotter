@@ -16,42 +16,23 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** \file acfilter.h
+/** \file fpga.h
   * \author JD
-  *
-  * Filter ADNS and compass headings 
-  *
   */
 
-#include <aversive.h>
-#include <aversive/error.h>
-#include "acfilter.h"
+#ifndef _FPGA_H_
+#define _FPGA_H_
 
-void acfilter_init(acfilter_t* acf, double igain)
-{
-	acf->igain = igain;
+#define FPGA_RESET_DDR  DDRE
+#define FPGA_RESET_PORT PORTE
+#define FPGA_RESET_PIN  6
 
-	acf->feedback = 0.0;
-	acf->accumulator = 0.0;
+/**@brief Initialize FPGA communicatin through direct access memory.
+  */
+void fpga_init(void);
 
-	acf->output = 0.0;
-}
+/**@brief Reset FPGA
+  */
+void fpga_reset(void);
 
-double acfilter_do(acfilter_t* acf, double adns_heading, double compass_heading)
-{
-	double error;
-
-	// set output 
-	acf->output = adns_heading + (acf->feedback);
-	
-	// compute error between output and compass
-	error = compass_heading - (acf->output);
-	
-	// integrate error
-	acf->accumulator += error;
-
-	// compute feedback
-	acf->feedback = (acf->igain)*(acf->accumulator);
-
-	return (acf->output);
-}
+#endif/*_FPGA_H_*/

@@ -1,0 +1,6 @@
+../../mk/robotter_project.mk:40: warning: overriding commands for target `config'
+../../aversive//mk/aversive_project.mk:382: warning: ignoring old commands for target `config'
+../../mk/robotter_project.mk:47: warning: overriding commands for target `noconfig'
+../../aversive//mk/aversive_project.mk:388: warning: ignoring old commands for target `noconfig'
+../../mk/robotter_project.mk:53: warning: overriding commands for target `menuconfig'
+../../aversive//mk/aversive_project.mk:394: warning: ignoring old commands for target `menuconfig'

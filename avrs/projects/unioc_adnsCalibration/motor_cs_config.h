@@ -16,42 +16,37 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** \file acfilter.h
+/** \file motor_cs_config.h
   * \author JD
   *
-  * Filter ADNS and compass headings 
+  * Motors configuraton
   *
   */
 
-#include <aversive.h>
-#include <aversive/error.h>
-#include "acfilter.h"
+#ifndef MOTOR_CS_CONFIG_H
+#define MOTOR_CS_CONFIG_H
 
-void acfilter_init(acfilter_t* acf, double igain)
-{
-	acf->igain = igain;
+// break
+#define MOTOR_CS_BREAK_DDR DDRB
+#define MOTOR_CS_BREAK_PORT PORTB
+#define MOTOR_CS_BREAK_PIN 2
 
-	acf->feedback = 0.0;
-	acf->accumulator = 0.0;
+// pwms
+#define MOTOR_CS_PWM1_DDR DDRE
+#define MOTOR_CS_PWM1_PORT PORTE
+#define MOTOR_CS_PWM1_PIN 4
 
-	acf->output = 0.0;
-}
+#define MOTOR_CS_PWM2_DDR DDRB
+#define MOTOR_CS_PWM2_PORT PORTB
+#define MOTOR_CS_PWM2_PIN 4
 
-double acfilter_do(acfilter_t* acf, double adns_heading, double compass_heading)
-{
-	double error;
+#define MOTOR_CS_PWM3_DDR DDRG
+#define MOTOR_CS_PWM3_PORT PORTG
+#define MOTOR_CS_PWM3_PIN 3
 
-	// set output 
-	acf->output = adns_heading + (acf->feedback);
-	
-	// compute error between output and compass
-	error = compass_heading - (acf->output);
-	
-	// integrate error
-	acf->accumulator += error;
+// encoders
+#define MOTOR_CS_ENCODER1_ADDR (0x1400)
+#define MOTOR_CS_ENCODER2_ADDR (0x1500)
+#define MOTOR_CS_ENCODER3_ADDR (0x1600)
 
-	// compute feedback
-	acf->feedback = (acf->igain)*(acf->accumulator);
-
-	return (acf->output);
-}
+#endif/*MOTOR_CS_CONFIG_H*/

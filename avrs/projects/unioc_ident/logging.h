@@ -16,42 +16,24 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** \file acfilter.h
+/** \file logging.h
   * \author JD
-  *
-  * Filter ADNS and compass headings 
-  *
   */
+
+#ifndef _LOGGING_H_
+#define _LOGGING_H_
 
 #include <aversive.h>
 #include <aversive/error.h>
-#include "acfilter.h"
 
-void acfilter_init(acfilter_t* acf, double igain)
-{
-	acf->igain = igain;
+#include <time.h>
 
-	acf->feedback = 0.0;
-	acf->accumulator = 0.0;
+#define ERROR_SEVTEXT_EMERG   "EMERGENCY"
+#define ERROR_SEVTEXT_ERROR   "ERROR    "
+#define ERROR_SEVTEXT_WARNING "WARNING  "
+#define ERROR_SEVTEXT_NOTICE  "NOTICE   "
+#define ERROR_SEVTEXT_DEBUG   "DEBUG    "
 
-	acf->output = 0.0;
-}
+void log_event(struct error * e, ...);
 
-double acfilter_do(acfilter_t* acf, double adns_heading, double compass_heading)
-{
-	double error;
-
-	// set output 
-	acf->output = adns_heading + (acf->feedback);
-	
-	// compute error between output and compass
-	error = compass_heading - (acf->output);
-	
-	// integrate error
-	acf->accumulator += error;
-
-	// compute feedback
-	acf->feedback = (acf->igain)*(acf->accumulator);
-
-	return (acf->output);
-}
+#endif/*_LOGGING_H_*/

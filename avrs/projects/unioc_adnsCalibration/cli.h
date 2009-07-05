@@ -16,42 +16,25 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** \file acfilter.h
+/** \file cli.h
   * \author JD
-  *
-  * Filter ADNS and compass headings 
-  *
   */
 
+#ifndef _CLI_H_
+#define _CLI_H_
+
 #include <aversive.h>
-#include <aversive/error.h>
-#include "acfilter.h"
+#include <uart.h>
 
-void acfilter_init(acfilter_t* acf, double igain)
+#define CLI_USER_UART 1
+
+static inline uint8_t cli_getkey(void)
 {
-	acf->igain = igain;
-
-	acf->feedback = 0.0;
-	acf->accumulator = 0.0;
-
-	acf->output = 0.0;
+  return (uart_recv(CLI_USER_UART));
 }
 
-double acfilter_do(acfilter_t* acf, double adns_heading, double compass_heading)
+static inline uint8_t cli_getkey_nowait(void)
 {
-	double error;
-
-	// set output 
-	acf->output = adns_heading + (acf->feedback);
-	
-	// compute error between output and compass
-	error = compass_heading - (acf->output);
-	
-	// integrate error
-	acf->accumulator += error;
-
-	// compute feedback
-	acf->feedback = (acf->igain)*(acf->accumulator);
-
-	return (acf->output);
+  return (uart_recv_nowait(CLI_USER_UART));
 }
+#endif/*_CLI_H_*/

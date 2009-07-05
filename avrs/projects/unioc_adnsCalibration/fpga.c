@@ -16,42 +16,45 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** \file acfilter.h
+/** \file fpga.c
   * \author JD
-  *
-  * Filter ADNS and compass headings 
-  *
   */
 
 #include <aversive.h>
-#include <aversive/error.h>
-#include "acfilter.h"
+#include <aversive/wait.h>
+#include "fpga.h"
 
-void acfilter_init(acfilter_t* acf, double igain)
+void fpga_init()
 {
-	acf->igain = igain;
+  sbi(FPGA_RESET_DDR,FPGA_RESET_PIN);
+  sbi(FPGA_RESET_PORT,FPGA_RESET_PIN);
 
-	acf->feedback = 0.0;
-	acf->accumulator = 0.0;
+  // Initialize external memory over FPGA
+  // enable ATmega external SRAM operation
+  sbi(MCUCR,SRE);
 
-	acf->output = 0.0;
+  // set low timings on SRAM
+  sbi(MCUCR,SRW10);
+  sbi(XMCRA,SRW11);
+  sbi(XMCRA,SRW00);
+  sbi(XMCRA,SRW01);
+
+  sbi(XMCRA,SRL0);
+  sbi(XMCRA,SRL1);
+  sbi(XMCRA,SRL2);
+
+  // FPGA needs time to boot (load flash)
+  wait_ms(1000);
+
+  // perform FPGA reset
+  fpga_reset();
+
+
 }
 
-double acfilter_do(acfilter_t* acf, double adns_heading, double compass_heading)
+void fpga_reset()
 {
-	double error;
-
-	// set output 
-	acf->output = adns_heading + (acf->feedback);
-	
-	// compute error between output and compass
-	error = compass_heading - (acf->output);
-	
-	// integrate error
-	acf->accumulator += error;
-
-	// compute feedback
-	acf->feedback = (acf->igain)*(acf->accumulator);
-
-	return (acf->output);
+  cbi(FPGA_RESET_PORT,FPGA_RESET_PIN);
+  wait_ms(10);
+  sbi(FPGA_RESET_PORT,FPGA_RESET_PIN);
 }
