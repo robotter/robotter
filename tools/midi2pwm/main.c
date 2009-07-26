@@ -36,6 +36,14 @@ int main(){
   int get_chr;
   int delta_time;
 
+  time_sign time_sign;
+  time_sign.numer=4;
+  time_sign.denom=4;
+  time_sign.metro=24;
+  time_sign.v32nds=8;
+  time_sign.ratio=0.0;
+
+
   // Open the ringtone file
   fp=fopen("ringtone2.mid","r");
   if (fp==NULL) {
@@ -188,64 +196,85 @@ int main(){
       switch (get_chr){
         case 0:
           printf("Sequence Number\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
           break;
         case 1:
           printf("Text Event\n");
+          if (disp_text_event(fp)==1) return EXIT_FAILURE;
           break;
         case 2:
           printf("Copyright Notice\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
           break;
         case 3:
           printf("Sequence/Track Name\n");
-          if (disp_seq_name(fp)==1) return EXIT_FAILURE;
+          if (disp_text_event(fp)==1) return EXIT_FAILURE;
           break;
         case 4:
           printf("Instrument Name\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
           break;
         case 5:
           printf("Lyrics\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
           break;
         case 6:
           printf("Marker\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
           break;
         case 7:
           printf("Cue Point\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
           break;
         case 32:
           printf("MIDI Channel Prefix\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
           break;
         case 47:
           printf("End Of Track\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
           break;
         case 81:
           printf("Set Tempo\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
           break;
         case 84:
           printf("SMPTE Offset\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
           break;
         case 88:
           printf("Time Signature\n");
+          if (get_time_sign(fp,&time_sign)==1) return EXIT_FAILURE;
           break;
         case 89:
           printf("Key Signature\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
           break;
         case 127:
           printf("Sequencer Specific\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
           break;
-
-
-
         default:
           printf("Unknow\n");
+          return EXIT_FAILURE;
           break;
-        
-
       }
 
 
     }
 
-    return EXIT_SUCCESS;
 
   }
   return EXIT_SUCCESS;

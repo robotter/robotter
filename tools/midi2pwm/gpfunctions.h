@@ -3,6 +3,7 @@
 // Author: RB
 
 #ifndef __GPFUNCTIONS_H__
+#define __GPFUNCTIONS_H__
 
 /* 
   Some data in the MIDI file have a variable len for the representation this fonction read thoses informations
@@ -11,5 +12,4 @@
 */
 int get_variable_len_value(FILE * fp);
 
-#define __GPFUNCTIONS_H__
 #endif /* __GPFUNCTIONS_H__ */
