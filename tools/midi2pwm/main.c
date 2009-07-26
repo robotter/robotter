@@ -22,7 +22,7 @@ int main(){
   FILE * fp;
 
   int err=0; // Error level: 0:ok, 1: error, 2: warning
-  
+
   char fheader[5];
   uint32_t chuck_size=0;
   uint16_t format_type=0; 
@@ -43,6 +43,13 @@ int main(){
   time_sign.v32nds=8;
   time_sign.ratio=0.0;
 
+  key_sign key_sign;
+  key_sign.key=128;
+  key_sign.scale=2;
+
+  int tempo; //microseconds per quarter-note
+
+  int param1,param2;
 
   // Open the ringtone file
   fp=fopen("ringtone2.mid","r");
@@ -52,9 +59,9 @@ int main(){
   }
 
   /* **************************************************************
-                            Header chunk
-     ************************************************************** */
-  
+     Header chunk
+   ************************************************************** */
+
   // chunk ID is always "MThd"
   if (fread(fheader,1,4,fp)!=4){
     printf("< E: %s:%d >     Can't read the chunk ID\n", __FILE__, __LINE__);
@@ -69,7 +76,7 @@ int main(){
     printf("KO\n");
     err=1;
   }
-  
+
   // Chunk size is always 6
   if (fread(&chuck_size,4,1,fp)!=1){
     printf("< E: %s:%d >     Can't read the chunk size\n", __FILE__, __LINE__);
@@ -141,11 +148,11 @@ int main(){
   printf("____________________________________________________________\n\n");
 
 
- /* **************************************************************
-                             Track chunk
-    ************************************************************** */
+  /* **************************************************************
+     Track chunk
+   ************************************************************** */
 
-   // track chunk ID is always "MTrk"
+  // track chunk ID is always "MTrk"
   if (fread(theader,1,4,fp)!=4){
     printf("< E: %s:%d >     Can't read the track chunk ID\n", __FILE__, __LINE__);
     return EXIT_FAILURE;
@@ -159,7 +166,7 @@ int main(){
     printf("KO\n");
     err=1;
   }
-  
+
   // track chunk size
   if (fread(&track_chuck_size,4,1,fp)!=1){
     printf("< E: %s:%d >     Can't read the track chunk size\n", __FILE__, __LINE__);
@@ -169,9 +176,9 @@ int main(){
   printf("Track chuck size: %d\n", track_chuck_size);
 
 
- /* **************************************************************
-                             MIDI Event
-    ************************************************************** */
+  /* **************************************************************
+     MIDI Event
+   ************************************************************** */
 
   while (!feof(fp)){
     printf("-------\n");
@@ -185,91 +192,151 @@ int main(){
     // Get event type and MIDI Channel
     get_chr=fgetc(fp);
 
-    if (get_chr!=0xFF){
-      // This is not a Meta event
-      printf("Not a meta event");
+    if ((get_chr&0xF0)!=0xF0){
+      // This is not a midi event
+      printf("New midi event on MIDI channel %d: ", get_chr&0x0F);
+
+      switch(get_chr&0xF0){
+        case 0x80:
+          printf("Note Off\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
+          break;
+
+        case 0x90:
+          printf("Note On\n");
+          param1=fgetc(fp);
+          printf("  Note Number: %d\n", param1);
+          param2=fgetc(fp);
+          printf("  Velocity: %d\n", param2);
+          break;
+
+        case 0xA0:
+          printf("Note Aftertouch\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
+          break;
+
+        case 0xB0:
+          printf("Controller\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
+          break;
+
+        case 0xC0:
+          printf("Program Change\n");
+          param1=fgetc(fp);
+          printf("  Program number: %d\n", param1);
+          // param2=fgetc(fp);
+          break;
+
+        case 0xD0:
+          printf("Channel Aftertouch\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
+          break;
+
+        case 0xE0:
+          printf("Pitch Bend\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
+          break;
+
+        default:
+          printf("Unknow MIDI event... Exiting\n");
+          return EXIT_FAILURE;
+
+          break;
+      }
+
+
+
 
     }else{
-      // This is a Meta event
-      printf("New meta event: ");
-      get_chr=fgetc(fp);
-      switch (get_chr){
-        case 0:
-          printf("Sequence Number\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-        case 1:
-          printf("Text Event\n");
-          if (disp_text_event(fp)==1) return EXIT_FAILURE;
-          break;
-        case 2:
-          printf("Copyright Notice\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-        case 3:
-          printf("Sequence/Track Name\n");
-          if (disp_text_event(fp)==1) return EXIT_FAILURE;
-          break;
-        case 4:
-          printf("Instrument Name\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-        case 5:
-          printf("Lyrics\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-        case 6:
-          printf("Marker\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-        case 7:
-          printf("Cue Point\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-        case 32:
-          printf("MIDI Channel Prefix\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-        case 47:
-          printf("End Of Track\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-        case 81:
-          printf("Set Tempo\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-        case 84:
-          printf("SMPTE Offset\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-        case 88:
-          printf("Time Signature\n");
-          if (get_time_sign(fp,&time_sign)==1) return EXIT_FAILURE;
-          break;
-        case 89:
-          printf("Key Signature\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-        case 127:
-          printf("Sequencer Specific\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-        default:
-          printf("Unknow\n");
-          return EXIT_FAILURE;
-          break;
+      if(get_chr==0xFF){
+        // This is a Meta event
+        printf("New meta event: ");
+        get_chr=fgetc(fp);
+        switch (get_chr){
+          case 0:
+            printf("Sequence Number\n");
+            printf("Not implemented... Exiting\n");
+            return EXIT_FAILURE;
+            break;
+          case 1:
+            printf("Text Event\n");
+            if (disp_text_event(fp)==1) return EXIT_FAILURE;
+            break;
+          case 2:
+            printf("Copyright Notice\n");
+            printf("Not implemented... Exiting\n");
+            return EXIT_FAILURE;
+            break;
+          case 3:
+            printf("Sequence/Track Name\n");
+            if (disp_text_event(fp)==1) return EXIT_FAILURE;
+            break;
+          case 4:
+            printf("Instrument Name\n");
+            printf("Not implemented... Exiting\n");
+            return EXIT_FAILURE;
+            break;
+          case 5:
+            printf("Lyrics\n");
+            printf("Not implemented... Exiting\n");
+            return EXIT_FAILURE;
+            break;
+          case 6:
+            printf("Marker\n");
+            printf("Not implemented... Exiting\n");
+            return EXIT_FAILURE;
+            break;
+          case 7:
+            printf("Cue Point\n");
+            printf("Not implemented... Exiting\n");
+            return EXIT_FAILURE;
+            break;
+          case 32:
+            printf("MIDI Channel Prefix\n");
+            printf("Not implemented... Exiting\n");
+            return EXIT_FAILURE;
+            break;
+          case 47:
+            printf("End Of Track\n");
+            printf("Not implemented... Exiting\n");
+            return EXIT_FAILURE;
+            break;
+          case 81:
+            printf("Set Tempo\n");
+            if (get_tempo(fp,&tempo)==1) return EXIT_FAILURE;
+            break;
+          case 84:
+            printf("SMPTE Offset\n");
+            printf("Not implemented... Exiting\n");
+            return EXIT_FAILURE;
+            break;
+          case 88:
+            printf("Time Signature\n");
+            if (get_time_sign(fp,&time_sign)==1) return EXIT_FAILURE;
+            break;
+          case 89:
+            printf("Key Signature\n");
+            if (get_key_sign(fp,&key_sign)==1) return EXIT_FAILURE;
+            break;
+          case 127:
+            printf("Sequencer Specific\n");
+            printf("Not implemented... Exiting\n");
+            return EXIT_FAILURE;
+            break;
+          default:
+            printf("Unknow\n");
+            return EXIT_FAILURE;
+            break;
+        }
+      }else{
+        // This is a System Exclusive Event
+        printf("New System Exclusive Event ... Not implemented ... Exiting\n");
+        return EXIT_FAILURE;
       }
 
 
