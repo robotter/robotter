@@ -78,5 +78,17 @@ int get_key_sign(FILE * fp,key_sign * key_sign);
 */
 int get_tempo(FILE * fp,int * tempo);
 
+/* 
+  Function to display hexa values of the system exclusive event
+  
+  input:
+    fp: File descriptor to the MIDI file, the pointer must be set after the 
+        Meta Event Type
+  return value: 
+    0: OK, 1: Error
+*/
+int disp_sys_excl_event(FILE * fp);
+
+
 
 #endif /* __METAEVENT_H__ */

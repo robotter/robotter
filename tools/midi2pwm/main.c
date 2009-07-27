@@ -18,7 +18,7 @@
 #include "metaevent.h"
 
 
-int main(){
+int main(int argc, char **argv){
   FILE * fp;
 
   int err=0; // Error level: 0:ok, 1: error, 2: warning
@@ -50,9 +50,11 @@ int main(){
   int tempo; //microseconds per quarter-note
 
   int param1,param2;
+  
+  char control_name[100];
 
   // Open the ringtone file
-  fp=fopen("ringtone2.mid","r");
+  fp=fopen(argv[1],"r");
   if (fp==NULL) {
     printf("< E: %s:%d >     Can't open file\n", __FILE__, __LINE__);
     return EXIT_FAILURE;
@@ -142,7 +144,7 @@ int main(){
 
 
   if (err==1){
-    printf("Can't continue due to previous errors");
+    printf("Can't continue due to previous errors\n");
     return EXIT_FAILURE;
   }
   printf("____________________________________________________________\n\n");
@@ -219,8 +221,12 @@ int main(){
 
         case 0xB0:
           printf("Controller\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
+          param1=fgetc(fp);
+          get_controller_by_value(param1,control_name);
+          printf("  Controller Type: %s (%d)\n",control_name, param1);
+          param2=fgetc(fp);
+          printf("  Value: %d\n", param2);
+
           break;
 
         case 0xC0:
@@ -269,8 +275,7 @@ int main(){
             break;
           case 2:
             printf("Copyright Notice\n");
-            printf("Not implemented... Exiting\n");
-            return EXIT_FAILURE;
+            if (disp_text_event(fp)==1) return EXIT_FAILURE;
             break;
           case 3:
             printf("Sequence/Track Name\n");
@@ -335,8 +340,8 @@ int main(){
         }
       }else{
         // This is a System Exclusive Event
-        printf("New System Exclusive Event ... Not implemented ... Exiting\n");
-        return EXIT_FAILURE;
+        printf("New System Exclusive Event:\n");
+        if (disp_sys_excl_event(fp)==1) return EXIT_FAILURE;
       }
 
 

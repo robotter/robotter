@@ -12,7 +12,7 @@ SOURCE = .
 
 EXEC = midi2pwm
 
-FICHIER = ringtone2.mid
+FICHIER = queen-we_are_the_champions.mid
 
 
 $(EXEC): $(OBJS)

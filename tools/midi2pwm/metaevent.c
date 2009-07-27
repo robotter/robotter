@@ -150,3 +150,30 @@ int get_tempo(FILE * fp,int * tempo){
 }
 
 
+/* 
+  Function to display hexa values of the system exclusive event
+  
+  input:
+    fp: File descriptor to the MIDI file, the pointer must be set after the 
+        Meta Event Type
+  return value: 
+    0: OK, 1: Error
+*/
+int disp_sys_excl_event(FILE * fp){
+  int name_len,i;
+  name_len=get_variable_len_value(fp);
+  if (name_len==-1){
+      printf("< E: %s:%d >     Can't read the meta event length\n", __FILE__, __LINE__);
+      return 1;
+  }
+  printf("  Length: %d\n",name_len);
+  printf(" ");
+  for(i=0;i<name_len;i++) printf(" %02X",fgetc(fp));
+  printf("\n");
+  return 0;
+}
+
+
+
+
+
