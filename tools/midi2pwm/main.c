@@ -190,6 +190,8 @@ int main(int argc, char **argv){
       printf("< E: %s:%d >     Can't read the delta time\n", __FILE__, __LINE__);
       return EXIT_FAILURE;
     }
+    printf("Timestamp: %d\n", delta_time);
+
 
     // Get event type and MIDI Channel
     get_chr=fgetc(fp);
@@ -250,6 +252,8 @@ int main(int argc, char **argv){
 
         default:
           printf("Unknow MIDI event... Exiting\n");
+          printf("Adress: 0x%08X\n",ftell(fp)-1);
+          printf("Value: 0x%02X\n",get_chr);
           return EXIT_FAILURE;
 
           break;

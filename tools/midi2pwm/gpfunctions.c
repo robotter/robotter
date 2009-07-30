@@ -17,14 +17,15 @@
  */
 
 int get_variable_len_value(FILE * fp){
-  int get_chr;
-  get_chr=fgetc(fp);
-  // TODO
-  if (get_chr>127){
-    printf("Invalid tempo value=> TODO\n");
-    return -1;
-  }
-  return get_chr;
+  int value;
+  char c; 
+  if ((value = getc(fp)) & 0x80) {
+    value &= 0x7f; 
+    do { 
+      value = (value << 7) + ((c = getc(fp)) & 0x7f);
+    } while (c & 0x80); 
+  } 
+  return value;
 }
 
 /* 
