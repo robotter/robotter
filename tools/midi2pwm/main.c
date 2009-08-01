@@ -5,7 +5,7 @@
 
 // TODO:
 //    - include the fgetc read errors
-//    - implement the get_variable_len_value function
+//    - find the real time fonction
 //    - handle of input parameters
 
 #include <stdio.h>
@@ -23,11 +23,13 @@ int main(int argc, char **argv){
 
   int err=0; // Error level: 0:ok, 1: error, 2: warning
 
+  float running_time;
+
   char fheader[5];
   uint32_t chuck_size=0;
   uint16_t format_type=0; 
   uint16_t nb_tracks=0;
-  uint16_t time_division=0;
+  uint16_t time_division=120;
   uint16_t time_division_flag=0;
 
   char theader[5];
@@ -41,7 +43,7 @@ int main(int argc, char **argv){
   time_sign.denom=4;
   time_sign.metro=24;
   time_sign.v32nds=8;
-  time_sign.ratio=0.0;
+  time_sign.ratio=1.0;
 
   key_sign key_sign;
   key_sign.key=128;
@@ -49,9 +51,11 @@ int main(int argc, char **argv){
 
   int tempo; //microseconds per quarter-note
 
-  int param1,param2;
-  
+  note * notes_processed=(note *)malloc(2*sizeof(note));
+  int nb_notes=0;
+
   char control_name[100];
+  int last_event=0;
 
   // Open the ringtone file
   fp=fopen(argv[1],"r");
@@ -181,16 +185,23 @@ int main(int argc, char **argv){
   /* **************************************************************
      MIDI Event
    ************************************************************** */
-
+  running_time=0;
+  if (notes_processed==NULL){
+    printf("< E: %s:%d >     Memory allocation error\n", __FILE__, __LINE__);
+    return EXIT_FAILURE;
+  }
   while (!feof(fp)){
     printf("-------\n");
     // Get Delta-Times
     delta_time=get_variable_len_value(fp);
     if (delta_time==-1){
+      if (feof(fp)) break;
       printf("< E: %s:%d >     Can't read the delta time\n", __FILE__, __LINE__);
       return EXIT_FAILURE;
     }
-    printf("Timestamp: %d\n", delta_time);
+// trouver la formule
+    running_time+=(1000000.0f*time_sign.ratio*(float)delta_time/((float)time_division*(float)tempo*(float)time_sign.metro));
+    printf("Timestamp: %lf s\n", running_time);
 
 
     // Get event type and MIDI Channel
@@ -200,69 +211,12 @@ int main(int argc, char **argv){
       // This is not a midi event
       printf("New midi event on MIDI channel %d: ", get_chr&0x0F);
 
-      switch(get_chr&0xF0){
-        case 0x80:
-          printf("Note Off\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-
-        case 0x90:
-          printf("Note On\n");
-          param1=fgetc(fp);
-          printf("  Note Number: %d\n", param1);
-          param2=fgetc(fp);
-          printf("  Velocity: %d\n", param2);
-          break;
-
-        case 0xA0:
-          printf("Note Aftertouch\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-
-        case 0xB0:
-          printf("Controller\n");
-          param1=fgetc(fp);
-          get_controller_by_value(param1,control_name);
-          printf("  Controller Type: %s (%d)\n",control_name, param1);
-          param2=fgetc(fp);
-          printf("  Value: %d\n", param2);
-
-          break;
-
-        case 0xC0:
-          printf("Program Change\n");
-          param1=fgetc(fp);
-          printf("  Program number: %d\n", param1);
-          // param2=fgetc(fp);
-          break;
-
-        case 0xD0:
-          printf("Channel Aftertouch\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-
-        case 0xE0:
-          printf("Pitch Bend\n");
-          printf("Not implemented... Exiting\n");
-          return EXIT_FAILURE;
-          break;
-
-        default:
-          printf("Unknow MIDI event... Exiting\n");
-          printf("Adress: 0x%08X\n",ftell(fp)-1);
-          printf("Value: 0x%02X\n",get_chr);
-          return EXIT_FAILURE;
-
-          break;
+      if (get_midi_event_info(fp,get_chr,control_name, &last_event,
+          notes_processed, &nb_notes, running_time)==EXIT_FAILURE){
+        return EXIT_FAILURE;
       }
 
-
-
-
-    }else{
+   }else{
       if(get_chr==0xFF){
         // This is a Meta event
         printf("New meta event: ");
@@ -312,8 +266,12 @@ int main(int argc, char **argv){
             break;
           case 47:
             printf("End Of Track\n");
-            printf("Not implemented... Exiting\n");
-            return EXIT_FAILURE;
+            get_chr=fgetc(fp);
+            if (get_chr!=0){
+              printf("< E: %s:%d >     Incorrect End of track length\n", 
+                __FILE__, __LINE__);
+              return EXIT_FAILURE;
+            }
             break;
           case 81:
             printf("Set Tempo\n");
@@ -347,13 +305,15 @@ int main(int argc, char **argv){
         printf("New System Exclusive Event:\n");
         if (disp_sys_excl_event(fp)==1) return EXIT_FAILURE;
       }
-
-
     }
-
-
+    fflush(stdout);
   }
+  fclose (fp);
+  printf("End of file: Otter done\n");
+  fflush(stdout);
+  free(notes_processed);
   return EXIT_SUCCESS;
 }
+
 
 

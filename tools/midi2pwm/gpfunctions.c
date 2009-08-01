@@ -4,6 +4,10 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+#include "gpfunctions.h"
 
 /* 
  *  Some data in the MIDI file have a variable len for the representation this 
@@ -23,8 +27,11 @@ int get_variable_len_value(FILE * fp){
     value &= 0x7f; 
     do { 
       value = (value << 7) + ((c = getc(fp)) & 0x7f);
-    } while (c & 0x80); 
+    } while ((c & 0x80)&&(!feof(fp))); 
   } 
+  if (feof(fp)){
+    return -1;
+  }
   return value;
 }
 
@@ -136,5 +143,158 @@ int get_controller_by_value(int param1,char * control_name){
   return 0;
 
 }
+
+
+
+/* 
+ *  Process information of a midi event
+ *    this function is independent of the main function because the running 
+ *      status must call again this function
+ *    input:
+ *      fp: File descriptor to the MIDI file, the pointer must be set after the 
+ *          MIDI Event Type/Channel
+ *      get_chr: the 4 MSB of this variable is the midi event
+ *      control_name: a char array to get the control name string
+ *      last_event: the value of the last event for running status
+ *      notes_processed: the played notes
+ *      nb_notes: the number of played notes
+ *      timestamp: the time position in music
+ *    return value: 
+ *      0: OK, 1: Error
+ */
+
+int get_midi_event_info(FILE * fp,int get_chr,char * control_name,
+  int * last_event, note * notes_processed, int * nb_notes, float timestamp){
+      int param1,param2;
+      int i;
+
+      switch(get_chr&0xF0){
+        case 0x80:
+          printf("Note Off\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
+          break;
+
+        case 0x90:
+          printf("Note On\n");
+          param1=fgetc(fp);
+          printf("  Note Number: %d\n", param1);
+          param2=fgetc(fp);
+          printf("  Velocity: %d\n", param2);
+          *last_event=0x90;
+          
+          if (param2==0){
+            // Key released
+            for (i=(*nb_notes)-1;i>=0;i--){
+              if ((notes_processed[i].value==param1)
+                &&(notes_processed[i].rst_at==0.0)){
+                notes_processed[i].rst_at=timestamp;
+                // no break to close all the previous unclosed notes
+              }             
+            }
+            
+          }else{
+            // New key
+
+            // check that this key is not already pressed
+            /*for (i=0;i<(*nb_notes);i++){
+              if ((notes_processed[i].value==param1)
+                &&(notes_processed[i].rst_at==0.0)){
+                  printf("< W: %s:%d >     This note is already active.\n",
+                    __FILE__, __LINE__);
+              }
+            }*/
+            //adding it
+            (*nb_notes)++;
+
+//printf("notes_processed[0]=%c, nb_note=%d, sizeof(note)=%d, result=%d\n",notes_processed,(*nb_notes),sizeof(note),(*nb_notes)*sizeof(note));
+fflush(stdout);
+            notes_processed=(note *)realloc(notes_processed,(*nb_notes)*sizeof(note));
+
+            if (notes_processed==NULL){
+                printf("< E: %s:%d >     Memory allocation error\n", 
+                  __FILE__, __LINE__);
+                return EXIT_FAILURE;
+            }
+ 
+            /*notes_processed[(*nb_notes)-1].value=param1;
+            notes_processed[(*nb_notes)-1].velocity=param2;
+            notes_processed[(*nb_notes)-1].set_at=timestamp;
+            notes_processed[(*nb_notes)-1].rst_at=0.0;*/
+          }
+  
+          break;
+
+        case 0xA0:
+          printf("Note Aftertouch\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
+          break;
+
+        case 0xB0:
+          printf("Controller\n");
+          param1=fgetc(fp);
+          get_controller_by_value(param1,control_name);
+          printf("  Controller Type: %s (%d)\n",control_name, param1);
+          param2=fgetc(fp);
+          printf("  Value: %d\n", param2);
+          *last_event=0xB0;
+          break;
+
+        case 0xC0:
+          printf("Program Change\n");
+          param1=fgetc(fp);
+          printf("  Program number: %d\n", param1);
+          *last_event=0xC0;
+          break;
+
+        case 0xD0:
+          printf("Channel Aftertouch\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
+          break;
+
+        case 0xE0:
+          printf("Pitch Bend\n");
+          printf("Not implemented... Exiting\n");
+          return EXIT_FAILURE;
+          break;
+
+        default:
+          printf("\rNew midi event: Running event: ");
+          if (((*last_event)&0xF0)<0x80){  // Avoid any initialisation problems
+            printf("Initialisation Error: Possible infinite loop\n");
+            return EXIT_FAILURE;
+          }
+          // Rewind of 1 char
+          fseek ( fp , -1 , SEEK_CUR );
+          if (get_midi_event_info(fp,*last_event,control_name, last_event,
+              notes_processed, nb_notes, timestamp)==EXIT_FAILURE){
+            return EXIT_FAILURE;
+          }
+
+          break;
+      }
+      return EXIT_SUCCESS;
+}
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
