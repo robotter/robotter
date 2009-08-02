@@ -7,6 +7,7 @@
 //    - include the fgetc read errors
 //    - find the real time fonction
 //    - handle of input parameters
+//    - solve the problem of malloc/realloc for  note * notes_processed=(note *)malloc(1*sizeof(note));
 
 #include <stdio.h>
 #include <string.h>
@@ -20,6 +21,7 @@
 
 int main(int argc, char **argv){
   FILE * fp;
+  FILE * fw;
 
   int err=0; // Error level: 0:ok, 1: error, 2: warning
 
@@ -51,7 +53,12 @@ int main(int argc, char **argv){
 
   int tempo; //microseconds per quarter-note
 
-  note * notes_processed=(note *)malloc(2*sizeof(note));
+  note * notes_processed=(note *)malloc(100*sizeof(note)); 
+  if (notes_processed==NULL){
+    printf("< E: %s:%d >     Memory allocation error\n", __FILE__, __LINE__);
+    return EXIT_FAILURE;
+  }
+
   int nb_notes=0;
 
   char control_name[100];
@@ -185,11 +192,9 @@ int main(int argc, char **argv){
   /* **************************************************************
      MIDI Event
    ************************************************************** */
-  running_time=0;
-  if (notes_processed==NULL){
-    printf("< E: %s:%d >     Memory allocation error\n", __FILE__, __LINE__);
-    return EXIT_FAILURE;
-  }
+ 
+ running_time=0;
+
   while (!feof(fp)){
     printf("-------\n");
     // Get Delta-Times
@@ -310,6 +315,23 @@ int main(int argc, char **argv){
   }
   fclose (fp);
   printf("End of file: Otter done\n");
+
+  printf("_______________________________________________________\n");
+  printf("_______________________________________________________\n");
+  printf("_______________________________________________________\n\n");
+
+
+  // Open the ringtone file
+  fw=fopen("ouput.c","w+");
+  if (fw==NULL) {
+    printf("< E: %s:%d >     Can't open file\n", __FILE__, __LINE__);
+    return EXIT_FAILURE;
+  }
+
+  if (notes2pwm(notes_processed,nb_notes, fw)==EXIT_FAILURE){
+    return EXIT_FAILURE;
+  }
+
   fflush(stdout);
   free(notes_processed);
   return EXIT_SUCCESS;

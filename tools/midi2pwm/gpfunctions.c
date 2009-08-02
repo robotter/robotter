@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 #include "gpfunctions.h"
+#include "config.h"
 
 /* 
  *  Some data in the MIDI file have a variable len for the representation this 
@@ -46,7 +47,7 @@ int get_variable_len_value(FILE * fp){
  */
 
 int get_controller_by_value(int param1,char * control_name){
-  char var2string[][55]={"Bank Select",
+  char var2string[101][55]={"Bank Select",
     "Modulation",
     "Breath Controller",
     "Foot Controller",
@@ -138,7 +139,8 @@ int get_controller_by_value(int param1,char * control_name){
   if (param1>127) val2get=128;
   else val2get=param1;
 
-  strncpy(control_name,var2string[val2get],100);
+  strncpy(control_name,var2string[val2get],99);
+  control_name[99]=0;
 
   return 0;
 
@@ -182,7 +184,7 @@ int get_midi_event_info(FILE * fp,int get_chr,char * control_name,
           param2=fgetc(fp);
           printf("  Velocity: %d\n", param2);
           *last_event=0x90;
-          
+       
           if (param2==0){
             // Key released
             for (i=(*nb_notes)-1;i>=0;i--){
@@ -197,19 +199,28 @@ int get_midi_event_info(FILE * fp,int get_chr,char * control_name,
             // New key
 
             // check that this key is not already pressed
-            /*for (i=0;i<(*nb_notes);i++){
+            for (i=0;i<(*nb_notes);i++){
               if ((notes_processed[i].value==param1)
                 &&(notes_processed[i].rst_at==0.0)){
                   printf("< W: %s:%d >     This note is already active.\n",
                     __FILE__, __LINE__);
               }
-            }*/
+            }
             //adding it
             (*nb_notes)++;
-
-//printf("notes_processed[0]=%c, nb_note=%d, sizeof(note)=%d, result=%d\n",notes_processed,(*nb_notes),sizeof(note),(*nb_notes)*sizeof(note));
-fflush(stdout);
+            // this do not work
             notes_processed=(note *)realloc(notes_processed,(*nb_notes)*sizeof(note));
+            // ......OK.... THE FOLLOWING IS VERY VERY VERY BAD
+            /*{
+              note * temp=malloc((*nb_notes)*sizeof(note));
+              if (notes_processed!=NULL){
+                // copy
+                if (temp!=NULL) memcpy ( temp, notes_processed, (*nb_notes)*sizeof(note) );
+                //free
+                //free(notes_processed);
+                notes_processed=temp;
+              }
+            }*/
 
             if (notes_processed==NULL){
                 printf("< E: %s:%d >     Memory allocation error\n", 
@@ -217,10 +228,10 @@ fflush(stdout);
                 return EXIT_FAILURE;
             }
  
-            /*notes_processed[(*nb_notes)-1].value=param1;
+            notes_processed[(*nb_notes)-1].value=param1;
             notes_processed[(*nb_notes)-1].velocity=param2;
             notes_processed[(*nb_notes)-1].set_at=timestamp;
-            notes_processed[(*nb_notes)-1].rst_at=0.0;*/
+            notes_processed[(*nb_notes)-1].rst_at=0.0;
           }
   
           break;
@@ -279,6 +290,51 @@ fflush(stdout);
 }
  
 
+
+/* 
+ *  Process the transformation of the note structure into PWM functions
+ *    input:
+ *      notes_processed: the played notes
+ *      nb_notes: the number of played notes
+ *      fw: file to write the C lines
+ *    return value: 
+ *      0: OK, 1: Error
+ */
+int notes2pwm(note * notes_processed,int nb_notes, FILE * fw){
+  int i,j;
+
+  printf("Number of notes: %d\n", nb_notes);
+
+  //for (i=0;i<(nb_notes%6==0)?nb_notes/6:(nb_notes/6)+1;i++){
+  for (i=0;i<((nb_notes%20==0)?nb_notes/20:(nb_notes/20))+1;i++){
+    printf("\n\n+-----------");
+    for (j=0;j<20;j++) printf("-------+");
+    printf("\n|  Value   |");
+    for (j=0;j<20;j++) printf("   %3d |",(i*20+j<nb_notes)?notes_processed[i*20+j].value:0);
+
+    printf("\n+-----------");
+    for (j=0;j<20;j++) printf("-------+");
+    printf("\n| Velocity |");
+    for (j=0;j<20;j++) printf("   %3d |",(i*20+j<nb_notes)?notes_processed[i*20+j].velocity:0);
+
+    printf("\n+-----------");
+    for (j=0;j<20;j++) printf("-------+");
+    printf("\n|  Set at  |");
+    for (j=0;j<20;j++) printf("%7.3lf|",(i*20+j<nb_notes)?notes_processed[i*20+j].set_at:0);
+
+    printf("\n+-----------");
+    for (j=0;j<20;j++) printf("-------+");
+    printf("\n| Reset at |");
+    for (j=0;j<20;j++) printf("%7.3f|",(i*20+j<nb_notes)?notes_processed[i*20+j].rst_at:0);
+
+    printf("\n+-----------");
+    for (j=0;j<20;j++) printf("-------+");
+    printf("\n");
+
+  }
+
+  return EXIT_SUCCESS;
+}
 
 
 

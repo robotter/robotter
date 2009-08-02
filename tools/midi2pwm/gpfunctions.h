@@ -6,6 +6,11 @@
 #define __GPFUNCTIONS_H__
 
 
+
+/*
+  A variable to convert a MIDI note value to a frequency
+*/
+
 /*
   Note structure
 */ 
@@ -15,10 +20,6 @@ typedef struct{
   float set_at;
   float rst_at;
 } note;
-
-
-
-
 
 
 /* 
@@ -64,5 +65,17 @@ int get_controller_by_value(int param1,char * control_name);
 
 int get_midi_event_info(FILE * fp,int get_chr,char * control_name,
   int * last_event, note * notes_processed, int * nb_notes, float timestamp);
+
+/* 
+ *  Process the transformation of the note structure into PWM functions
+ *    input:
+ *      notes_processed: the played notes
+ *      nb_notes: the number of played notes
+ *      fw: file to write the C lines
+ *    return value: 
+ *      0: OK, 1: Error
+ */
+int notes2pwm(note * notes_processed,int nb_notes, FILE * fw);
+
 
 #endif /* __GPFUNCTIONS_H__ */

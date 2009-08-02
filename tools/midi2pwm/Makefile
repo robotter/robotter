@@ -1,6 +1,6 @@
 CC = gcc
 
-COMPOPT = -O3 -Wall
+COMPOPT = -O3 -Wall -g
 
 CFLAGS = $(COMPOPT)
 
