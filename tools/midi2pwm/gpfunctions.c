@@ -305,7 +305,6 @@ int notes2pwm(note * notes_processed,int nb_notes, FILE * fw){
 
   printf("Number of notes: %d\n", nb_notes);
 
-  //for (i=0;i<(nb_notes%6==0)?nb_notes/6:(nb_notes/6)+1;i++){
   for (i=0;i<((nb_notes%20==0)?nb_notes/20:(nb_notes/20))+1;i++){
     printf("\n\n+-----------");
     for (j=0;j<20;j++) printf("-------+");
@@ -330,27 +329,20 @@ int notes2pwm(note * notes_processed,int nb_notes, FILE * fw){
     printf("\n+-----------");
     for (j=0;j<20;j++) printf("-------+");
     printf("\n");
-
   }
-
+  
+  /* TEMP SOLUTION FOR LOITUMA */
+  /* TEMP SOLUTION FOR LOITUMA */
+  /* TEMP SOLUTION FOR LOITUMA */
+  fprintf(fw,"// set_pwm(float freq, float ratio)\n");
+  fprintf(fw,"// Set all PWMs (no specific channel) at frequency 'freq' Hz with a pulse width ratio 'ratio' (from 0.0 to 1.0) \n");
+  for (i=0;i<nb_notes;i++){
+    fprintf(fw,"set_pwm(%f,0.5);\n", note2freq[notes_processed[i].value]); // fixed 0.5 for maximum power (all notes have the same velocity)
+    fprintf(fw,"wait_ms(%d)\n", (int)((notes_processed[i].rst_at-notes_processed[i].set_at)*1000.0));
+  }
+  
   return EXIT_SUCCESS;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

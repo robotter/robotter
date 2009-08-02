@@ -322,7 +322,7 @@ int main(int argc, char **argv){
 
 
   // Open the ringtone file
-  fw=fopen("ouput.c","w+");
+  fw=fopen("output.c","w+");
   if (fw==NULL) {
     printf("< E: %s:%d >     Can't open file\n", __FILE__, __LINE__);
     return EXIT_FAILURE;
