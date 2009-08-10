@@ -24,10 +24,10 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 
-entity t_top_compass is
-end entity t_top_compass;
+entity t_compass is
+end entity t_compass;
 
-architecture t_top_compass_1 of t_top_compass is
+architecture t_compass_1 of t_compass is
 
   constant fpga_period_c : time := 2 us; -- FPGA period
 
@@ -43,7 +43,7 @@ architecture t_top_compass_1 of t_top_compass is
   signal wbs_cyc_s  : std_logic;
   signal pwm_s      : std_logic;
 
-  component top_compass is
+  component compass is
     generic (
       id         : natural := 9;    --! module ID
       clk_freq_c : natural := 50000 --! FPGA clock frequency, in kHz
@@ -63,8 +63,8 @@ architecture t_top_compass_1 of t_top_compass is
       pwm_i     : in std_logic
     );
 
-  end component top_compass;
-  for top_compass_0 : top_compass use entity work.top_compass;
+  end component compass;
+  for compass_0 : compass use entity work.top_compass;
 
   --! Test returned value for a given angle
   procedure test_angle (
@@ -123,7 +123,7 @@ architecture t_top_compass_1 of t_top_compass is
 
 begin
 
-  top_compass_0 : top_compass
+  compass_0 : compass
   generic map (
     clk_freq_c => 1 ms / fpga_period_c
   )
@@ -179,7 +179,7 @@ begin
     wait for fpga_period_c/2;
   end process clock_p;
 
-end architecture t_top_compass_1;
+end architecture t_compass_1;
 
 
 
