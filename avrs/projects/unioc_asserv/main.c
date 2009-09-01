@@ -66,13 +66,13 @@ uint8_t event_cs;
 
 int main(void)
 {
-	uint8_t tirette = 0;
+  uint8_t tirette = 0;
 
-	// ADNS configuration
-	adns6010_configuration_t adns_config;
+  // ADNS configuration
+  adns6010_configuration_t adns_config;
 
-	//--------------------------------------------------------------------------
-	// Booting
+  //--------------------------------------------------------------------------
+  // Booting
 
   // Turn interruptions ON
   sei();
@@ -125,10 +125,10 @@ int main(void)
   NOTICE(0,"Checking ADNS6010s firmware");
   adns6010_checkFirmware();
 
-	// ADNS CONFIGURATION
-	adns_config.res = ADNS6010_RES_2000;
-	adns_config.shutter = ADNS6010_SHUTTER_ON;
-	adns_config.power = 0x11;
+  // ADNS CONFIGURATION
+  adns_config.res = ADNS6010_RES_2000;
+  adns_config.shutter = ADNS6010_SHUTTER_ON;
+  adns_config.power = 0x11;
 
   NOTICE(0,"Checking ADNS6010s SPI communication");
   adns6010_checkSPI();
@@ -139,7 +139,7 @@ int main(void)
   NOTICE(0,"Checking ADNS6010s");
   adns6010_checks();
 
-	NOTICE(0,"ADNS6010s are GO");
+  NOTICE(0,"ADNS6010s are GO");
   
   //--------------------------------------------------------
   // CS
@@ -227,13 +227,13 @@ int main(void)
   
   NOTICE(0,"Go");
   
-	htrajectory_gotor_xya_wait(&trajectory, 0, 500, 0);
+  htrajectory_gotor_xya_wait(&trajectory, 0, 500, 0);
 
-	htrajectory_gotor_xya_wait(&trajectory, 0, 0, 5*2*M_PI);
+  htrajectory_gotor_xya_wait(&trajectory, 0, 0, 5*2*M_PI);
 
-	htrajectory_goto_xya_wait(&trajectory, 0, 0, 5*2*M_PI);
+  htrajectory_goto_xya_wait(&trajectory, 0, 0, 5*2*M_PI);
 
-	while(1);
+  while(1);
 
   return 0;
 }
