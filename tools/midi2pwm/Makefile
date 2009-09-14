@@ -4,7 +4,11 @@ COMPOPT = -O3 -Wall -g
 
 CFLAGS = $(COMPOPT)
 
+ifeq ($(OS),Windows_NT)
+LDFLAGS = -lwsock32
+else
 LDFLAGS = 
+endif
 
 OBJS = metaevent.o gpfunctions.o main.o
 

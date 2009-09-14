@@ -13,7 +13,11 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#ifdef WIN32
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include "gpfunctions.h"
 #include "metaevent.h"
