@@ -47,17 +47,13 @@
  * @todo Store the ROID in EEPROM.
  */
 
-#include <aversive.h>
+#include "roblos.h"
+#include <avr/io.h>
 #include <avr/boot.h>
 #include <avr/pgmspace.h>
 #include <util/crc16.h>
 #include <util/delay.h>
 #include "roblos_config.h"
-#include "uart_config.h"
-
-#ifndef ROBOTTER_DEVICE_ID
-#error  "ROID is not defined"
-#endif
 
 
 /** @name UART functions and configuration
@@ -66,7 +62,7 @@
  */
 //@{
 
-#if defined(UART0_ENABLED) && UART0_ENABLED == 1
+#if UART_NUM == 0
 
 #define UART_BAUDRATE  UART0_BAUDRATE
 #define UART_USE_DOUBLE_SPEED  UART0_USE_DOUBLE_SPEED
@@ -87,13 +83,7 @@
 #define UBRRxH  UBRR0H
 #define UBRRxL  UBRR0L
 
-#elif defined(UART1_ENABLED) && UART1_ENABLED == 1
-
-#define UART_BAUDRATE  UART1_BAUDRATE
-#define UART_USE_DOUBLE_SPEED  UART1_USE_DOUBLE_SPEED
-#define UART_NBITS  UART1_NBITS
-#define UART_PARITY  UART1_PARTITY
-#define UART_STOP_BIT  UART1_STOP_BIT
+#elif UART_NUM == 1
 
 #define UCSRxA  UCSR1A
 #define UCSRxB  UCSR1B
@@ -108,13 +98,7 @@
 #define UBRRxH  UBRR1H
 #define UBRRxL  UBRR1L
 
-#elif defined(UART2_ENABLED) && UART2_ENABLED == 1
-
-#define UART_BAUDRATE  UART2_BAUDRATE
-#define UART_USE_DOUBLE_SPEED  UART2_USE_DOUBLE_SPEED
-#define UART_NBITS  UART2_NBITS
-#define UART_PARITY  UART2_PARTITY
-#define UART_STOP_BIT  UART2_STOP_BIT
+#elif UART_NUM == 2
 
 #define UCSRxA  UCSR2A
 #define UCSRxB  UCSR2B
@@ -129,13 +113,7 @@
 #define UBRRxH  UBRR2H
 #define UBRRxL  UBRR2L
 
-#elif defined(UART3_ENABLED) && UART3_ENABLED == 1
-
-#define UART_BAUDRATE  UART3_BAUDRATE
-#define UART_USE_DOUBLE_SPEED  UART3_USE_DOUBLE_SPEED
-#define UART_NBITS  UART3_NBITS
-#define UART_PARITY  UART3_PARTITY
-#define UART_STOP_BIT  UART3_STOP_BIT
+#elif UART_NUM == 3
 
 #define UCSRxA  UCSR3A
 #define UCSRxB  UCSR3B
@@ -151,7 +129,7 @@
 #define UBRRxL  UBRR3L
 
 #else
-#error "no UART enabled"
+#error "invalid UART number"
 #endif
 
 
@@ -165,10 +143,12 @@
 #define UART_U2X_VAL  _BV(U2Xx)
 #endif
 
-#define UART_UBRR_VAL  (uint16_t)((float)(CONFIG_QUARTZ) / ((UART_SPEED_FACTOR)*(UART_BAUDRATE)) - 1)
+#define UART_UBRR_VAL  (uint16_t)((float)(F_CPU) / ((UART_SPEED_FACTOR)*(UART_BAUDRATE)) - 1)
 
 #if UART_NBITS == 9
 #error "9-bit UART not supported"
+#elif UART_NBITS < 5 || UART_NBITS > 8
+#error "invalid UART bit number value"
 #endif
 #define UART_NBITS_VAL ((UART_NBITS-5)&0x03)<<UCSZx0
 
@@ -182,9 +162,9 @@
 #error "invalid UART parity"
 #endif
 
-#if UART_STOP_BIT == UART_STOP_BITS_1
+#if UART_STOP_BIT == 1
 #define UART_STOP_BIT_VAL 0
-#elif UART_STOP_BIT == UART_STOP_BITS_2
+#elif UART_STOP_BIT == 2
 #define UART_STOP_BIT_VAL _BV(USBS)
 #else
 #error "invalid UART stop bit"
@@ -393,7 +373,7 @@ static int8_t cmd_infos(const char *p)
       "f"
 #endif
       " ");
-  send_hex8(ROBOTTER_DEVICE_ID);
+  send_hex8(ROBOTTER_ID);
   uart_send(' ');
   send_hex16(SPM_PAGESIZE);
   send_eol();
@@ -436,7 +416,7 @@ static int8_t cmd_prog_page(const char *p)
   if( (p = parse_hex32(p+1, &addr)) == NULL ) return -1;
   if( *p != '\0' ) return -1;
   if( (addr & ((uint32_t)SPM_PAGESIZE-1)) != 0 ) return -1;
-  if( addr > FLASHEND ) return -1;
+  if( addr > BOOTLOADER_ADDR ) return -1;
   send_msg("?data");
 
   // Read data from UART and compute CRC
@@ -531,7 +511,7 @@ static int8_t cmd_mem_crc(const char *p)
   if( *p != ' ' ) return -1;
   if( (p = parse_hex32(p+1, &size)) == NULL ) return -1;
   if( *p != '\0' ) return -1;
-  if( start+size > FLASHEND ) return -1;
+  if( start+size > BOOTLOADER_ADDR ) return -1;
 
   // Compute CRC
   uint32_t addr;
