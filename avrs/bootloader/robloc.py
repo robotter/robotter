@@ -31,7 +31,7 @@ class RobloClient:
     self.conn = conn
     if hasattr(conn, 'readline'):
       self._readline = conn.readline
-    else:
+    elif hasattr(conn, 'read'):
       def rl():
         s = ''
         while True:
@@ -40,6 +40,9 @@ class RobloClient:
           if c == '\n': break
         return s
       self._readline = rl
+    else:
+      raise ValueError, "invalid connection: read() method missing"
+
 
   # Data transmission
 
@@ -221,8 +224,9 @@ class Roblochon(RobloClient):
   """Rob'Otter Bootloader Client - High Orders and Network.
 
   The given connection object must meet an additional requirement: an
-  inWaiting() method which returns a number > 0 if there are in the receive
-  buffer. (This requirement is satisfied by pyserial objects.)
+  eof() method which returns True if there is nothing to read (a call to
+  read(1) will block) and False otherwise. If an inWaiting() method is
+  provided (as in pyserial objects), an eof method will be created from it.
 
   Attributes:
     cmds -- supported commands (as a string)
@@ -235,6 +239,14 @@ class Roblochon(RobloClient):
 
   def __init__(self, conn, verbose=False):
     RobloClient.__init__(self, conn)
+
+    if hasattr(conn, 'eof'):
+      self._eof = conn.eof
+    elif hasattr(conn, 'inWaiting'):
+      self._eof = lambda: conn.inWaiting() == 0
+    else:
+      raise ValueError, "invalid connection: eof() method missing"
+
     self.verbose = verbose
     # retrieve server infos
     self._wait_prompt()
@@ -246,7 +258,7 @@ class Roblochon(RobloClient):
     """Wait or force a prompt."""
     # Flush all waiting lines, remember the last one.
     r = None
-    while self.conn.inWaiting() > 0:
+    while not self._eof():
       rr = self.recv_msg()
       if rr is False:
         raise RoblochonError("recv_msg failed")
@@ -262,40 +274,70 @@ class Roblochon(RobloClient):
       if r.prompt: break
 
 
-  def program(self, fhex, force=False):
+  def program(self, fhex, fhex2=None, force=False):
     """Send a program to the device.
 
     Parameters:
       fhex -- HEX file (or filename) to program
+      fhex2 -- previous HEX file, to program changes
       force -- if True, skip CRC checking
 
     """
 
-    self._assert_supported_cmd('p')
     data = self._parse_hex_file(fhex)
-    if len(data) == 0:
-      raise ValueError("empty HEX data")
-    # data padding
-    n = len(data) % self.pagesize
-    data += (self.pagesize - len(data)%self.pagesize) * '\0'
-    page_count = len(data)/self.pagesize
+    if len(data) == 0: raise ValueError("empty HEX data")
+    if fhex2 is None:
+      return self.program_pages(data, force)
 
-    for i in range(page_count):
+    data2 = self._parse_hex_file(fhex2)
+    if len(data2) == 0: raise ValueError("empty previous HEX data")
+    
+    return self.program_pages(self._diff_pages(data, data2), force)
+
+
+  def program_pages(self, pages, force=False):
+    """Send a program to the device.
+
+    Parameters:
+      pages -- list of pages to program, or a single buffer string
+      force -- if True, skip CRC checking
+
+    pages is a list of (address, data) pairs. address has to be aligned to
+    pagesize, data is padded with NUL bytes if needed but size must not exceed
+    page size.
+    If pages is a single string, it will be cut in pages starting at address 0.
+
+    """
+
+    self._assert_supported_cmd('p')
+
+    if type(pages) is str:
+      pages = list(
+          (i, pages[i:i+self.pagesize])
+          for i in range(0, len(pages) ,self.pagesize)
+          )
+    page_count = len(pages)
+
+    for i, (addr, data) in enumerate(pages):
       #TODO progress bar
-      addr = i*self.pagesize
-      d = data[addr:addr+self.pagesize]
+
+      err_info = "at page %d/%d (0x%0x)" % (i+1, page_count, addr)
+      data = data.ljust(self.pagesize, '\0')
+      assert addr%self.pagesize == 0, "page address not aligned %s" % err_info
+      assert len(data) == self.pagesize, "invalid page size %s" % err_info
+
       crc = self.compute_crc(d) if force else False
       n = self.CRC_RETRY
       while True:
         self._wait_prompt()
-        r = self.cmd_prog_page(addr, d, crc)
+        r = self.cmd_prog_page(addr, data, crc)
         if r is True:
           break # ok
         elif r is False:
-          raise RoblochonError("prog failed at page %d/%d (0x%x)" % (i+1,page_count,addr))
+          raise RoblochonError("prog failed %s" % err_info)
         elif r is None:
           if n == 0:
-            raise RoblochonError("prog failed at page %d/%d (0x%x): too many attempts" % (i+1,page_count,addr))
+            raise RoblochonError("prog failed %s: too many attempts" % err_info)
           n = n-1
           continue # retry
         raise ValueError("unexpected cmd_prog_page() return value: %r" % r)
@@ -335,39 +377,67 @@ class Roblochon(RobloClient):
     return r
 
 
-  def reset(self):
-    """Reset the device."""
+  def boot(self):
+    """Boot the device."""
     self._assert_supported_cmd('x')
     self._wait_prompt()
     r = client.cmd_execute()
     if r is False:
-      raise RoblochonError("reset failed")
+      raise RoblochonError("boot failed")
     return
+
+
+  def _diff_pages(self, data1, data2):
+    """Return a list of pages of data1 which differ from data2."""
+    p = []
+    for i in range(0, len(data1), self.pagesize):
+      d1 = data1[i:i+self.pagesize]
+      d2 = data2[i:i+len(d1)]
+      if d1 != d2:
+        p.append( (i, d1) )
+    return p
 
 
   @classmethod
   def _parse_hex_file(cls, f):
     """Return a data buffer from a .hex.
     f is a file object or a filename.
+    Gaps are filled with NUL bytes.
     """
     if type(f) is str:
       f = open(f, 'rb')
 
     data = ''
+    offset = 0  # set by record type 02
     for s in f:
       s = s.strip()
       # only do basic checks needed for the algo
       if re.match(':[\dA-Fa-f]{10,42}$', s) is None:
         raise ValueError("invalid HEX line: %s" % s)
-      rt = s[7:9]
-      if rt == '00':
-        d = s[9:-2]
+      fields = {
+          'bytecount':  int(s[1:3],16),
+          'address':    int(s[3:7],16),
+          'recordtype': int(s[7:9],16),
+          'data':       s[9:-2],
+          'checksum':   int(s[-2:],16),
+          }
+      assert len(fields['data']) == 2*fields['bytecount'], "invalid byte count"
+
+      rt = fields['recordtype']
+      if rt == 0:
+        addr = fields['address'] + offset
+        assert addr >= len(data), "invalid address"
+        data = data.ljust(addr, '\0') # fill with 0x00
+        d = fields['data']
         data += ''.join(
             chr(int(d[i:i+2],16))
             for i in range(0,len(d),2)
             )
-      elif rt == '01':
-        break
+      elif rt == 1:
+        break # EOF
+      elif rt == 2:
+        assert fields['bytecount'] == 2, "invalid extended segment address record"
+        offset = int(fields['data'],16) << 4
       else:
         raise ValueError("invalid HEX record type: %s" % rt)
     return data
@@ -454,20 +524,22 @@ if __name__ == '__main__':
 
   parser = OptionParser(
       description="Rob'Otter Bootloader Client",
-      usage="%prog [OPTIONS] [file.hex]",
+      usage="%prog [OPTIONS] [file.hex] [previous.hex]",
       )
   parser.add_option('-p', '--program', dest='program', action='store_true',
       help="program the device")
   parser.add_option('-c', '--check', dest='check', action='store_true',
       help="check current loaded program")
-  parser.add_option('-r', '--reset', dest='reset', action='store_true',
-      help="reset (after programming and CRC check)")
+  parser.add_option('-b', '--boot', dest='boot', action='store_true',
+      help="boot (after programming and CRC check)")
   parser.add_option('-i', '--infos', dest='infos', action='store_true',
       help="print device infos")
   parser.add_option('-f', '--read-fuses', dest='fuses', action='store_true',
       help="print value of fuse bytes")
+  parser.add_option('--roid', dest='roid',
+      help="check device ROID before doing anything")
   parser.add_option('--force', dest='force', action='store_true',
-      help="do not check CRC during programming")
+      help="do not check CRC of programmed pages")
   parser.add_option('-P', '--port', dest='port',
       help="device port to used (default: /dev/ttyUSB0)")
   parser.add_option('-s', '--baudrate', dest='baudrate',
@@ -477,9 +549,10 @@ if __name__ == '__main__':
   parser.set_defaults(
       program=False,
       check=False,
-      reset=False,
+      boot=False,
       infos=False,
       fuses=False,
+      roid=None,
       force=False,
       port='/dev/ttyUSB0',
       baudrate=38400,
@@ -490,11 +563,21 @@ if __name__ == '__main__':
   conn = BasicSerial(opts.port, opts.baudrate)
   client = Roblochon(conn, opts.verbose)
 
-  if opts.program or opts.check:
+  # Check arg count
+  narg_max = 0
+  if opts.program:
     if len(args) < 1:
       parser.error("argument missing: HEX file")
-    elif len(args) > 1:
-      parser.error("extra argument")
+    narg_max = 2
+  elif opts.check:
+    if len(args) < 1:
+      parser.error("argument missing: HEX file")
+    narg_max = 1
+  if len(args) > narg_max:
+    parser.error("extra argument")
+
+  if opts.roid is not None:
+    assert opts.roid != client.roid, "ROID mismatch"
 
   if opts.infos:
     print "device infos :  ROID: %d, commands: %s" % (client.roid, client.cmds)
@@ -502,15 +585,15 @@ if __name__ == '__main__':
     print "fuses (low high ex): %02x %02x %02x" % client.read_fuses()
   if opts.program:
     print "programming..."
-    client.program(args[0], opts.force)
+    client.program(args[0], args[1] if len(args)>1 else None, opts.force)
   if opts.check:
     print "CRC check..."
     if client.check(args[0]):
       print "CRC OK"
     else:
       print "CRC mismatch"
-      opts.reset = False
-  if opts.reset:
-    print "reset"
-    client.reset()
+      opts.boot = False
+  if opts.boot:
+    print "boot"
+    client.boot()
 
