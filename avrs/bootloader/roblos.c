@@ -17,6 +17,10 @@
  * program is executed. Otherwise, the server parses and executes the command,
  * then prompt the client for another command, and so on.
  *
+ * To avoid issues with partially sent data or buffer garbages, the server
+ * sends an additional CRLF sequence before the first prompt and after the last
+ * message (before booting). This would make it easier for a client to parse it.
+ *
  * The server has always the initiative: the client sends messages only when
  * asked for by the server. By convention, server messages which wait for a
  * reply begin with a <tt>?</tt>.
@@ -74,10 +78,12 @@
 #define UCSRxB  UCSR0B
 #define UCSRxC  UCSR0C
 #define RXCx    RXC0
+#define TXCx    TXC0
 #define UDRx    UDR0
 #define UDREx   UDRE0
 #define U2Xx    U2X0
 #define RXENx   RXEN0
+#define TXENx   TXEN0
 #define TXENx   TXEN0
 #define UCSZx0  UCSZ00
 #define UBRRxH  UBRR0H
@@ -89,6 +95,7 @@
 #define UCSRxB  UCSR1B
 #define UCSRxC  UCSR1C
 #define RXCx    RXC1
+#define TXCx    TXC1
 #define UDRx    UDR1
 #define UDREx   UDRE1
 #define U2Xx    U2X1
@@ -104,6 +111,7 @@
 #define UCSRxB  UCSR2B
 #define UCSRxC  UCSR2C
 #define RXCx    RXC2
+#define TXCx    TXC2
 #define UDRx    UDR2
 #define UDREx   UDRE2
 #define U2Xx    U2X2
@@ -118,6 +126,7 @@
 #define UCSRxA  UCSR3A
 #define UCSRxB  UCSR3B
 #define UCSRxC  UCSR3C
+#define RXCx    RXC3
 #define RXCx    RXC3
 #define UDRx    UDR3
 #define UDREx   UDRE3
@@ -462,6 +471,12 @@ static int8_t cmd_prog_page(const char *p)
  */
 static void boot(void)
 {
+  send_msg("boot");
+  // extra CRLF to make sure the boot message is properly sent
+  send_eol();
+  // wait for the last byte
+  while( !(UCSRxA & ((1<<UDREx)|(1<<TXCx))) ) ;
+
   MCUCR = (1<<IVCE);
   MCUCR = (0<<IVSEL);
   reset();
@@ -480,10 +495,6 @@ static void boot(void)
 static int8_t cmd_execute(const char *p)
 {
   if( *p != '\0' ) return -1;
-  send_msg("boot");
-  // wait for the last byte
-  while( !(UCSRxA & (1<<UDREx)) ) ;
-
   boot();
   return -1; // never happens
 }
@@ -579,6 +590,7 @@ int main(void)
   sei();
 
   // first prompt, timeout before booting
+  send_eol();
   send_prompt();
   uint8_t i = (ROBLOS_BOOT_TIMEOUT)*F_CPU/(65536*4*1000);
   while( !(UCSRxA & (1<<RXCx)) )
