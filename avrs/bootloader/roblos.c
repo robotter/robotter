@@ -394,7 +394,7 @@ static int8_t cmd_infos(const char *p)
  *
  * Command dataflow:
  *  1. the client asks to write a page at a given address
- *  2. the server replies \c ok
+ *  2. the server replies <tt>?data</tt>
  *  3. the client sends the page data (without EOL sequence)
  *  4. the server replies with a CRC of the read data and asks for confirmation
  *  5. the client confirms or cancel the writing
@@ -471,9 +471,8 @@ static int8_t cmd_prog_page(const char *p)
  */
 static void boot(void)
 {
-  send_msg("boot");
   // extra CRLF to make sure the boot message is properly sent
-  send_eol();
+  send_msg("boot\r\n");
   // wait for the last byte
   while( !(UCSRxA & ((1<<UDREx)|(1<<TXCx))) ) ;
 
