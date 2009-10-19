@@ -189,6 +189,12 @@ class RoblosResponse:
   """
 
   def __init__(self, s):
+    self.cmd = None
+    self.ask = False
+    self.prompt = False
+    self.ok = False
+    self.ko = False
+    self.args = None
     self.valid = self.parse(s)
 
   def parse(self, s):
@@ -223,15 +229,16 @@ class RoblochonError(StandardError):
 class Roblochon(RobloClient):
   """Rob'Otter Bootloader Client - High Orders and Network.
 
-  The given connection object must meet an additional requirement: an
-  eof() method which returns True if there is nothing to read (a call to
-  read(1) will block) and False otherwise. If an inWaiting() method is
-  provided (as in pyserial objects), an eof method will be created from it.
+  If the given connection object defines an eof() method which returns True if
+  there is nothing to read (a call to read(1) will block) and False otherwise
+  or an inWaiting() method (as defined by pyserial objects), it will be used
+  for a better (and safer) behavior.
 
   Attributes:
     cmds -- supported commands (as a string)
     roid -- server's Rob'Otter ID
     pagesize -- server's page size
+    response -- last received response, or None
 
   """
 
@@ -240,37 +247,48 @@ class Roblochon(RobloClient):
   def __init__(self, conn, verbose=False):
     RobloClient.__init__(self, conn)
 
-    if hasattr(conn, 'eof'):
+    if hasattr(conn, 'eof') and callable(conn.eof):
       self._eof = conn.eof
-    elif hasattr(conn, 'inWaiting'):
+    elif hasattr(conn, 'inWaiting') and callable(conn.inWaiting):
       self._eof = lambda: conn.inWaiting() == 0
     else:
-      raise ValueError, "invalid connection: eof() method missing"
+      self._eof = None
 
     self.verbose = verbose
+    self.response = None
+
     # retrieve server infos
     self._wait_prompt()
     r = self.cmd_infos()
     if not r: raise RoblochonError("cannot retrieve device info")
     self.cmds, self.roid, self.pagesize = r
 
+  def recv_msg(self):
+    """Redefined method to store the last response."""
+    r = RobloClient.recv_msg(self)
+    self.response = r if r is not False else None
+    return r
+
   def _wait_prompt(self):
     """Wait or force a prompt."""
-    # Flush all waiting lines, remember the last one.
-    r = None
-    while not self._eof():
-      rr = self.recv_msg()
-      if rr is False:
-        raise RoblochonError("recv_msg failed")
-      r = rr
-    if r and r.prompt: return  # got a prompt
-    # not a prompt? ask for it!
-    self.send_msg('')
+
+    if self.response is None:
+      # unknown state, read all we can
+      if self._eof is not None:
+        while not self._eof():
+          r = self.recv_msg()
+          if r is False: raise RoblochonError("recv_msg failed")
+
+    if self.response and self.response.prompt:
+      return # we have a prompt
+
+    # wait for the prompt
     while True:
+      if self.response is None or self.response.ask:
+        # server is waiting for an answer, force KO
+        self.send_msg('')
       r = self.recv_msg()
-      if r is False:
-        raise RoblochonError("recv_msg failed")
-      if not r: continue
+      if r is False: raise RoblochonError("recv_msg failed")
       if r.prompt: break
 
 
