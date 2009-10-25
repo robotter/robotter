@@ -60,6 +60,18 @@
 #include "roblos_config.h"
 
 
+/** @brief Interrupt vector control register.
+ *
+ * Register for IVCE and IVSEL bits depend on the device.
+ * For devices with a GICR it is GICR, otherwise it is MCUCR.
+ */
+#ifdef GICR
+#define IVCR GICR
+#else
+#define IVCR MCUCR
+#endif
+
+
 /** @name UART functions and configuration
  *
  * Configuration definitions are compatible with \e uart_config.h fields.
@@ -476,8 +488,8 @@ static void boot(void)
   // wait for the last byte
   while( !(UCSRxA & ((1<<UDREx)|(1<<TXCx))) ) ;
 
-  MCUCR = (1<<IVCE);
-  MCUCR = (0<<IVSEL);
+  IVCR = (1<<IVCE);
+  IVCR = (0<<IVSEL);
   reset();
 }
 
@@ -583,8 +595,8 @@ int main(void)
   UCSRxC = UART_NBITS_VAL | UART_PARITY_VAL | UART_STOP_BIT_VAL;
 
   // move interrupt vector in bootloader section
-  MCUCR = (1<<IVCE);
-  MCUCR = (1<<IVSEL);
+  IVCR = (1<<IVCE);
+  IVCR = (1<<IVSEL);
 
   sei();
 
