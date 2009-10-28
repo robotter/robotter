@@ -243,6 +243,7 @@ class Roblochon(RobloClient):
   """
 
   CRC_RETRY = 5  # maximum number of retry on CRC mismatch
+  UNUSED_BYTE = '\xFF'  # value of programmed unused bytes
 
   def __init__(self, conn, verbose=False):
     RobloClient.__init__(self, conn)
@@ -321,8 +322,7 @@ class Roblochon(RobloClient):
       force -- if True, skip CRC checking
 
     pages is a list of (address, data) pairs. address has to be aligned to
-    pagesize, data is padded with NUL bytes if needed but size must not exceed
-    page size.
+    pagesize, data is padded if needed but size must not exceed page size.
     If pages is a single string, it will be cut in pages starting at address 0.
 
     """
@@ -340,7 +340,7 @@ class Roblochon(RobloClient):
       #TODO progress bar
 
       err_info = "at page %d/%d (0x%0x)" % (i+1, page_count, addr)
-      data = data.ljust(self.pagesize, '\0')
+      data = data.ljust(self.pagesize, self.UNUSED_BYTE)
       assert addr%self.pagesize == 0, "page address not aligned %s" % err_info
       assert len(data) == self.pagesize, "invalid page size %s" % err_info
 
@@ -420,7 +420,7 @@ class Roblochon(RobloClient):
   def _parse_hex_file(cls, f):
     """Return a data buffer from a .hex.
     f is a file object or a filename.
-    Gaps are filled with NUL bytes.
+    Gaps are filled with bytes set to UNUSED_BYTE.
     """
     if type(f) is str:
       f = open(f, 'rb')
@@ -445,7 +445,7 @@ class Roblochon(RobloClient):
       if rt == 0:
         addr = fields['address'] + offset
         assert addr >= len(data), "invalid address"
-        data = data.ljust(addr, '\0') # fill with 0x00
+        data = data.ljust(addr, cls.UNUSED_BYTE) # fill with default data
         d = fields['data']
         data += ''.join(
             chr(int(d[i:i+2],16))
