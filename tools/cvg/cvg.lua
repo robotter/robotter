@@ -1,13 +1,14 @@
 
--- check cvg and I2C functions
-assert(type(cvg) == 'table', "invalid 'cvg' value")
-assert(type(cvg.i2c_send) == 'function', "invalid 'cvg.i2c_send' value")
-assert(type(cvg.i2c_recv) == 'function', "invalid 'cvg.i2c_send' value")
+-- Table with module elements.
+local M = {}
 
 
--- Slave metatable, define slave methods
--- do not edit
-cvg.slave_mt = {
+-- Recv and send methods which will be used.
+local cb_send, cb_recv
+
+
+-- Slave metatable, define slave methods.
+local slave_mt = {
 
   -- Find buffer data with given id
   get_data = function(self, id)
@@ -19,7 +20,7 @@ cvg.slave_mt = {
     return nil
   end,
 
-  -- Send data
+  -- Send data.
   -- params may be a string or a table of byte values (raw data), or a table of
   -- named (typed) values
   send = function(self, id, params)
@@ -67,11 +68,11 @@ cvg.slave_mt = {
     end
 
     assert(#sout == d.size, "invalid data size: expected "..tostring(d.size).." got "..tostring(#sout))
-    cvg.i2c_send(self.roid, d.offset, sout)
+    cb_send(self.roid, d.offset, sout)
 
   end,
 
-  -- Receive raw data as a string
+  -- Receive raw data as a string.
   recv_raw = function(self, id)
 
     d = self:get_data(id)
@@ -79,11 +80,11 @@ cvg.slave_mt = {
 
     assert(d.mode ~= 'W', "invalid access: "..id.." is not readable")
 
-    return cvg.i2c_recv(self.roid, d.offset, d.size)
+    return cb_recv(self.roid, d.offset, d.size)
 
   end,
 
-  -- Receive data as a table of data
+  -- Receive data as a table of data.
   recv = function(self, id)
 
     d = self:get_data(id)
@@ -91,7 +92,7 @@ cvg.slave_mt = {
 
     assert(d.mode ~= 'W', "invalid access: "..id.." is not readable")
 
-    sdata = cvg.i2c_recv(self.roid, d.offset, d.size)
+    sdata = cb_recv(self.roid, d.offset, d.size)
 
     local t = {}
     local i = 1
@@ -122,11 +123,11 @@ cvg.slave_mt = {
   end
 
 }
-cvg.slave_mt.__index = cvg.slave_mt
+slave_mt.__index = slave_mt
 
 
--- Create a slave from a table
--- Check data and fill out some fields
+-- Create a slave from a table.
+-- Check data and fill out some fields.
 --
 -- t should have the following format:
 --   t = {
@@ -143,9 +144,10 @@ cvg.slave_mt.__index = cvg.slave_mt
 -- <MODE> is 'R', 'W', or 'RW'
 -- <FMT> is 'u' (unsigned), 'd' (signed), 'b' (boolean) or 's' (string)
 --
-function cvg.slave_init(t)
+function M.slave_init(t)
 
   assert(type(t) == 'table', "invalid slave type")
+  assert(t.roid, "invalid 'roid' value")
   t.roid = math.floor(t.roid)
   assert(t.roid > 0 and t.roid < 256, "invalid 'roid' value")
   assert(type(t.buffer) == 'table', "missing 'buffer' field")
@@ -196,7 +198,30 @@ function cvg.slave_init(t)
 
   end
 
-  return setmetatable(t, cvg.slave_mt)
+  return setmetatable(t, slave_mt)
 
 end
+
+
+-- Default callback, raise an error.
+local cb_default = function()
+  error("callbacks not set")
+end
+cb_recv = cb_default
+cb_send = cb_default
+
+-- Register recv/send methods
+function M.set_callbacks(f_recv, f_send)
+  assert(type(f_recv) == 'function', "invalid recv callback")
+  assert(type(f_send) == 'function', "invalid send callback")
+  cb_recv = f_recv
+  cb_send = f_send
+end
+
+
+-- Create module
+module('cvg')
+
+slave_init = M.slave_init
+set_callbacks = M.set_callbacks
 

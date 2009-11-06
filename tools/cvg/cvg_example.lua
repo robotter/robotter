@@ -2,16 +2,17 @@
 -- Sample use of cvg.lua
 --
 
--- elements which should be defined in C
-cvg = {}
-function cvg.i2c_send(addr, offset, data)
+require('cvg')
+
+
+function i2c_send(addr, offset, data)
   local s = ''
   for i=1,#data do
     s = s .. string.format(" %02X", data:byte(i))
   end
   print(string.format("SEND @ %02X+%02X : %s", addr, offset, s))
 end
-function cvg.i2c_recv(addr, offset, size)
+function i2c_recv(addr, offset, size)
   local data = ''
   local s = ''
   for i=1,size do
@@ -23,9 +24,7 @@ function cvg.i2c_recv(addr, offset, size)
   return data
 end
 
-
--- execute cvg.lua
-loadfile('cvg.lua')()
+cvg.set_callbacks(i2c_recv, i2c_send)
 
 
 -- slave description
