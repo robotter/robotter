@@ -32,6 +32,10 @@ dep_bool '  |-- Create Default i2c config' CONFIG_MODULE_I2C_ROBOTTER_CREATE_CON
 
 #
 
+bool 'match UART (ROBOTTER)' CONFIG_MODULE_MATCHUART_ROBOTTER
+
+#
+
 dep_bool 'AX12' CONFIG_MODULE_AX12_ROBOTTER
 
 dep_bool '  |-- Create Default ax12 config' CONFIG_MODULE_AX12_ROBOTTER_CREATE_CONFIG \
