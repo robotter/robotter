@@ -588,8 +588,8 @@ int main(void)
 #endif
 
   // UART init (all values have been already computed)
-  UBRRxH  = (uint8_t)(UART_UBRR_VAL>>8);
-  UBRRxL  = (uint8_t)UART_UBRR_VAL;
+  UBRRxH = (uint8_t)(UART_UBRR_VAL>>8);
+  UBRRxL = (uint8_t)UART_UBRR_VAL;
   UCSRxA = UART_U2X_VAL;
   UCSRxB = (1<<RXENx) | (1<<TXENx);
   UCSRxC = UART_NBITS_VAL | UART_PARITY_VAL | UART_STOP_BIT_VAL;

@@ -6,10 +6,6 @@ import re, sys
 class RobloClient:
   """
   Low-level Client for the Rob'Otter Bootloader.
-
-  Attributes:
-    verbose -- print transferred data on stderr if True
-
   """
 
   # End-of-line sequence
@@ -27,7 +23,6 @@ class RobloClient:
     before sending a command. Otherwise, read responses will not match.
 
     """
-    self.verbose = False
     self.conn = conn
     if hasattr(conn, 'readline'):
       self._readline = conn.readline
@@ -48,9 +43,8 @@ class RobloClient:
 
   def send_raw(self, buf):
     """Send raw data to the server."""
-    if self.verbose:
-      sys.stderr.write("robloc: >> %r\n" % str(buf))
     self.conn.write(buf)
+    self.output_write(buf)
 
   def send_eol(self):
     """Send an end-of-line sequence."""
@@ -81,8 +75,7 @@ class RobloClient:
     Return a RoblosResponse object or False on error.
     """
     s = self._readline()
-    if self.verbose:
-      sys.stderr.write("robloc: << %r\n" % s)
+    self.output_read(s)
     if not s: return False
     r = RoblosResponse(s)
     return r
@@ -149,6 +142,12 @@ class RobloClient:
     r = self.recv_msg()
     if not r or r.cmd!='boot': return False
     return True
+
+
+  # Output (default: do nothing)
+
+  def output_read(self, data): pass
+  def output_write(self, data): pass
 
 
   # Utils
@@ -239,13 +238,15 @@ class Roblochon(RobloClient):
     roid -- server's Rob'Otter ID
     pagesize -- server's page size
     response -- last received response, or None
+    verbose -- print transferred data on stderr if True
 
   """
 
   CRC_RETRY = 5  # maximum number of retry on CRC mismatch
   UNUSED_BYTE = '\xFF'  # value of programmed unused bytes
 
-  def __init__(self, conn, verbose=False):
+  def __init__(self, conn, **kw):
+    self.verbose = kw.get('verbose', False)
     RobloClient.__init__(self, conn)
 
     if hasattr(conn, 'eof') and callable(conn.eof):
@@ -255,9 +256,12 @@ class Roblochon(RobloClient):
     else:
       self._eof = None
 
-    self.verbose = verbose
-    self.response = None
+    # send init string, if any
+    if kw.get('init_send'):
+      self.send_raw( kw.get('init_send') )
 
+    self.response = None
+    
     # retrieve server infos
     self._wait_prompt()
     r = self.cmd_infos()
@@ -337,7 +341,7 @@ class Roblochon(RobloClient):
     page_count = len(pages)
 
     for i, (addr, data) in enumerate(pages):
-      #TODO progress bar
+      self.output_program_progress(i+1, page_count)
 
       err_info = "at page %d/%d (0x%0x)" % (i+1, page_count, addr)
       data = data.ljust(self.pagesize, self.UNUSED_BYTE)
@@ -359,6 +363,7 @@ class Roblochon(RobloClient):
           n = n-1
           continue # retry
         raise ValueError("unexpected cmd_prog_page() return value: %r" % r)
+    self.output_program_end()
 
 
   def check(self, fhex):
@@ -465,6 +470,22 @@ class Roblochon(RobloClient):
       raise RoblochonError("command '%c' not supported by the device" % c)
 
 
+  # Output
+
+  def output_read(self, data):
+    if self.verbose:
+      sys.stderr.write("robloc: << %r\n" % data)
+  def output_write(self, data):
+    if self.verbose:
+      sys.stderr.write("robloc: >> %r\n" % data)
+
+  def output_program_progress(self, ncur, nmax):
+    sys.stdout.write("\rprogramming: page %3d / %3d  " % (ncur, nmax))
+    sys.stdout.flush()
+  def output_program_end(self):
+    sys.stdout.write("\n")
+
+
 
 import os, termios, fcntl, struct
 
@@ -558,6 +579,8 @@ if __name__ == '__main__':
       help="check device ROID before doing anything")
   parser.add_option('--force', dest='force', action='store_true',
       help="do not check CRC of programmed pages")
+  parser.add_option('--init-send', dest='init_send',
+      help="string to send at connection (eg. to reset the device)")
   parser.add_option('-P', '--port', dest='port',
       help="device port to used (default: /dev/ttyUSB0)")
   parser.add_option('-s', '--baudrate', dest='baudrate',
@@ -572,14 +595,12 @@ if __name__ == '__main__':
       fuses=False,
       roid=None,
       force=False,
+      init_send=None,
       port='/dev/ttyUSB0',
       baudrate=38400,
       verbose=False
       )
   (opts, args) = parser.parse_args()
-
-  conn = BasicSerial(opts.port, opts.baudrate)
-  client = Roblochon(conn, opts.verbose)
 
   # Check arg count
   narg_max = 0
@@ -593,6 +614,9 @@ if __name__ == '__main__':
     narg_max = 1
   if len(args) > narg_max:
     parser.error("extra argument")
+
+  conn = BasicSerial(opts.port, opts.baudrate)
+  client = Roblochon(conn, verbose=opts.verbose, init_send=opts.init_send)
 
   if opts.roid is not None:
     assert opts.roid != client.roid, "ROID mismatch"
