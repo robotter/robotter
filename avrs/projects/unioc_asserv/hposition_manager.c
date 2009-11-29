@@ -148,7 +148,7 @@ void hposition_update(void *dummy)
 	compass_a = compass_get_heading_rad(&compass);
 	
 	// compute filtered alpha
-	vec.alpha = acfilter_do(&acfilter, hpos->adns_alpha, compass_a);
+	vec.alpha = hpos->adns_alpha;//acfilter_do(&acfilter, hpos->adns_alpha, compass_a);
 
 	// transform ADNS position to table  
   _ca = cos(vec.alpha);

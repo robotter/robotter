@@ -24,6 +24,7 @@
   */
 
 #include <aversive/error.h>
+#include <aversive/wait.h>
 #include <math.h>
 
 #include "cs.h"
@@ -32,6 +33,7 @@
 #include "htrajectory.h"
 #include "acfilter.h"
 #include "compass.h"
+#include "time.h"
 
 // Robot position
 hrobot_position_t position;
@@ -92,7 +94,7 @@ void cs_initialize(void)
   NOTICE(0,"Initializing trajectory management");
   htrajectory_init(&trajectory,&robot_cs,&position,
 										&qramp_x, &qramp_y, &qramp_angle);
-  htrajectory_set_precision(&trajectory,3.0,0.1*M_PI);
+  htrajectory_set_precision(&trajectory,3.0,0.01*M_PI);
 }
 
 void cs_update(void* dummy)
@@ -100,9 +102,8 @@ void cs_update(void* dummy)
   static uint8_t led = 0;
 
   // some LED feedback on UNIOC-NG
+  // (quite strange code for a great flashing effect :p)
   _SFR_MEM8(0x1800) = (led+=10)>50;
-
-  sbi(PORTD,1);
 
   // update compass filtering
   compass_update(&compass);
@@ -112,6 +113,4 @@ void cs_update(void* dummy)
 
 	// update control systems
 	robot_cs_update(&robot_cs);
-
-  cbi(PORTD,1);
 }

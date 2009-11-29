@@ -63,7 +63,6 @@ extern robot_cs_t robot_cs;
 uint8_t event_position;
 uint8_t event_cs;
 
-
 int main(void)
 {
   uint8_t tirette = 0;
@@ -89,8 +88,8 @@ int main(void)
   error_register_notice(log_event);
   error_register_debug(log_event);
 
-  log_level = ERROR_SEVERITY_NOTICE;
-  //log_level = ERROR_SEVERITY_DEBUG;
+  //log_level = ERROR_SEVERITY_NOTICE;
+  log_level = ERROR_SEVERITY_DEBUG;
 
   // Clear screen
   printf("%c[2J",0x1B);
@@ -150,36 +149,6 @@ int main(void)
 
   //--------------------------------------------------------
 
-  // Wait for *tirette*
-  /*
-  NOTICE(0,"Waiting for tirette");
-  
-  // tirette to Z
-  cbi(DDRF,1);
-  cbi(PORTF,1);
-  int tircpt=0;
-  uint8_t twilite=0;
-  while(1)
-  {
-		tirette = 1;
-
-    if(PINF&0x02)
-      tircpt++;
-    else
-      tircpt=0;
-    
-    if(tircpt>2) break;
-
-    // info
-    _SFR_MEM8(0x1800) = twilite;
-    twilite = !twilite;
-    wait_ms(100);
-  }
- */ 
-  // switch led off
-
-  //--------------------------------------------------------
-
   NOTICE(0,"Initializing ADCs");
   adc_init();
   
@@ -202,19 +171,19 @@ int main(void)
   //----------------------------------------------------------------------
 
   // Set CS speeds
-  htrajectory_set_xy_speed(&trajectory, 5000, 20);
-  htrajectory_set_a_speed(&trajectory, 70, 10);
+  htrajectory_set_xy_speed(&trajectory, 2500, 80);
+  htrajectory_set_a_speed(&trajectory, 200, 10);
 
-  sbi(DDRD,1);
-  cbi(PORTD,1);
-
-  NOTICE(0,"Strike 'c' for manual control / any other key to go");
+  NOTICE(0,"Strike 'c' for manual control / 'x' to reboot / any other key to go");
  
   uint8_t c;
   while(!tirette)
   {
     c = cli_getkey();
-
+    
+    if(c == 'x')
+      EMERG(MAIN_ERROR,"safe key 'x' pressed");
+  
     if(c == 'c')
       manual_control();
     
@@ -227,11 +196,7 @@ int main(void)
   
   NOTICE(0,"Go");
   
-  htrajectory_gotor_xya_wait(&trajectory, 0, 500, 0);
-
-  htrajectory_gotor_xya_wait(&trajectory, 0, 0, 5*2*M_PI);
-
-  htrajectory_goto_xya_wait(&trajectory, 0, 0, 5*2*M_PI);
+  htrajectory_goto_xya_wait(&trajectory, 0, 0, 0);
 
   while(1);
 

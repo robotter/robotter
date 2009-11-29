@@ -84,7 +84,7 @@ void log_event(struct error * e, ...)
   {
     printf_P(PSTR("\nprogram stopped, strike a key other than 'x' to reset\n"));
     
-    //XXX Add shutdown procedures here XXX
+    // TODO Add shutdown procedures here TODO
     
     // breaking motors
     motor_cs_break(1);
