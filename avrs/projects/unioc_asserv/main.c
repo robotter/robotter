@@ -171,8 +171,9 @@ int main(void)
   //----------------------------------------------------------------------
 
   // Set CS speeds
-  htrajectory_set_xy_speed(&trajectory, 2500, 80);
-  htrajectory_set_a_speed(&trajectory, 200, 10);
+  htrajectory_set_xy_speed(&trajectory, 2000, 50);
+  htrajectory_set_a_speed(&trajectory, 500, 10);
+  htrajectory_set_realign_speed(&trajectory, 2500);
 
   NOTICE(0,"Strike 'c' for manual control / 'x' to reboot / any other key to go");
  
@@ -195,9 +196,11 @@ int main(void)
   //----------------------------------------------------------------------
   
   NOTICE(0,"Go");
-  
-  htrajectory_goto_xya_wait(&trajectory, 0, 0, 0);
 
+  htrajectory_realign(&trajectory, RV_YPLUS, 0);
+  htrajectory_goto_xya_wait(&trajectory, -1300, 300, 0);
+
+  NOTICE(0,"Done");
   while(1);
 
   return 0;
@@ -265,65 +268,3 @@ void safe_key_pressed(void* dummy)
   if(cli_getkey_nowait() == 'x') 
     EMERG(MAIN_ERROR,"safe key 'x' pressed");
 }
-
-
-/*
-  htrajectory_goto_xya_wait(&trajectory, sx*0, sy*50,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*20, sy*50,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*20, sy*30,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*0, sy*30,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*20, sy*10,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*20, sy*0,0);
-  
-  htrajectory_goto_xya_wait(&trajectory, sx*30, sy*0,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*30, sy*20,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*50, sy*20,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*50, sy*0,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*30, sy*0,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*60, sy*0,0);
-
-  htrajectory_goto_xya_wait(&trajectory, sx*60, sy*0,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*60, sy*50,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*60, sy*20,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*80, sy*20,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*80, sy*0,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*60, sy*0,0);
-
-  htrajectory_goto_xya_wait(&trajectory, sx*90, sy*0,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*90, sy*50,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*110, sy*50,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*110, sy*0,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*90, sy*0,0);
-
-  htrajectory_goto_xya_wait(&trajectory, sx*120, sy*0,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*120, sy*40,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*120, sy*20,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*130, sy*20,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*120, sy*20,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*120, sy*0,0);
-  
-  htrajectory_goto_xya_wait(&trajectory, sx*140, sy*0,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*140, sy*40,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*140, sy*20,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*150, sy*20,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*140, sy*20,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*140, sy*0,0);
-
-  htrajectory_goto_xya_wait(&trajectory, sx*160, sy*0,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*160, sy*20,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*170, sy*20,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*170, sy*10,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*160, sy*10,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*160, sy*0,0);
-
-  htrajectory_goto_xya_wait(&trajectory, sx*180, sy*0,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*180, sy*50,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*200, sy*50,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*200, sy*30,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*180, sy*30,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*200, sy*10,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*200, sy*0,0);
-
-  htrajectory_goto_xya_wait(&trajectory, sx*250, sy*0,0);
-  htrajectory_goto_xya_wait(&trajectory, sx*250, sy*60,0);
-*/

@@ -211,9 +211,6 @@ void set_pwm_motor1(void* dummy, int32_t pwm)
 {
   S_MAX(pwm,4095);
 
-  if( (pwm == 4095)||(pwm ==  -4095))
-    DEBUG(MOTORCS_ERROR,"PWM#1 saturated pwm=%d",pwm);
-
   if(pwm>0)
   {
     pwm_set_1C(4095-pwm);
@@ -234,9 +231,6 @@ void set_pwm_motor2(void* dummy, int32_t pwm)
 {
   S_MAX(pwm,4095);
 
-  if( (pwm == 4095)||(pwm ==  -4095))
-    DEBUG(MOTORCS_ERROR,"PWM#2 saturated pwm=%d",pwm);
-
   if(pwm>0)
   {
     pwm_set_1B(4095-pwm);
@@ -256,9 +250,6 @@ void set_pwm_motor2(void* dummy, int32_t pwm)
 void set_pwm_motor3(void* dummy, int32_t pwm)
 {
   S_MAX(pwm,4095);
-
-  if( (pwm == 4095)||(pwm ==  -4095))
-    DEBUG(MOTORCS_ERROR,"PWM#3 saturated pwm=%d",pwm);
 
 	if(pwm>0)
   {

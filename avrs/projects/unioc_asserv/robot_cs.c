@@ -56,6 +56,9 @@ void robot_cs_init(robot_cs_t* rcs)
   // set CS on
   rcs->active = 1;
 
+  // CS not reactivated since last tick
+  rcs->reactivated = 0;
+
 	// setup PIDs
 	pid_init(&pid_x);
 	pid_init(&pid_y);
@@ -113,6 +116,22 @@ void robot_cs_init(robot_cs_t* rcs)
 	cs_set_process_in(&csm_angle, NULL, NULL);
 }
 
+void robot_cs_activate(robot_cs_t* rcs, uint8_t active)
+{
+  uint8_t flags;
+
+  // must be performed on a interruption free environnement
+  IRQ_LOCK(flags);
+
+  if(!active)
+    hrobot_set_motors(rcs->hrs, 0, 0, 0);
+  else
+    rcs->reactivated = 1;
+
+  rcs->active = active;
+  IRQ_UNLOCK(flags);
+}
+
 void robot_cs_set_hposition_manager(robot_cs_t* rcs,
                                      hrobot_position_t* hpm)
 {
@@ -132,13 +151,41 @@ void robot_cs_update(void* dummy)
   double vx_r,vy_r;
   double alpha;
   double _ca,_sa;
+
   hrobot_vector_t hvec;
 	robot_cs_t *rcs = dummy;
  
+
+  // if CS inactivated, just quit
   if(!rcs->active)
-  {
-    hrobot_set_motors(rcs->hrs, 0, 0, 0);
     return;
+
+  // if CS was previously inactive, we need a little hack for quadramps
+  if(rcs->reactivated)
+  {
+    int32_t consign;
+
+    pid_reset(&pid_x);
+    pid_reset(&pid_y);
+    pid_reset(&pid_angle);
+
+    consign = cs_get_consign(&csm_x);
+    DEBUG(0,"CS consign x = %ld",consign);
+    qramp_x.previous_var = 0;
+    qramp_x.previous_out = consign;
+    qramp_x.previous_in = consign;
+ 
+    consign = cs_get_consign(&csm_y);
+    qramp_y.previous_var = 0;
+    qramp_y.previous_out = consign;
+    qramp_y.previous_in = consign;
+    
+    consign = cs_get_consign(&csm_angle);
+    qramp_angle.previous_var = 0;
+    qramp_angle.previous_out = consign;
+    qramp_angle.previous_in = consign;
+       
+    rcs->reactivated = 0;
   }
 
   // compute control system first level (x,y,a)
@@ -182,16 +229,12 @@ void robot_cs_set_consigns( robot_cs_t *rcs,
 
 int32_t get_robot_x(void* dummy)
 {
-  int32_t out;
-
   hrobot_vector_t hvec;
   robot_cs_t* rcs = dummy;
 
   hposition_get(rcs->hpm, &hvec);
  
-  out = hvec.x * RCS_MM_TO_CSUNIT;
-
-  return out;
+  return hvec.x * RCS_MM_TO_CSUNIT;
 }
 
 int32_t get_robot_y(void* dummy)

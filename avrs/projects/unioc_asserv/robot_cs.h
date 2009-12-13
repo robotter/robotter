@@ -41,11 +41,15 @@ typedef struct
   hrobot_position_t* hpm;
 
   uint8_t active;
+  uint8_t reactivated;
 }robot_cs_t;
 
 /**@brief Initialize robot-level control systems
   */
 void robot_cs_init(robot_cs_t*);
+
+/**@brief Activate motor control to position control systems */
+void robot_cs_activate(robot_cs_t*, uint8_t active);
 
 /**@brief Set hposition_manager structure used to access robot position
   */

@@ -49,6 +49,8 @@ void htrajectory_init(htrajectory_t *htj,
   htj->mind = 1.0;
   htj->mina = 1.0;
 
+  htj->realignspeed = 2000;
+
 	htj->event = 0;
 
 	htj->in_position = 1;
@@ -60,6 +62,11 @@ void htrajectory_set_xy_speed(htrajectory_t *htj, double v, double a)
   quadramp_set_2nd_order_vars(htj->qr_x, a, a);
   quadramp_set_1st_order_vars(htj->qr_y, v, v);
   quadramp_set_2nd_order_vars(htj->qr_y, a, a);
+}
+
+void htrajectory_set_realign_speed(htrajectory_t *htj, double v)
+{
+  htj->realignspeed = v;
 }
 
 void htrajectory_set_a_speed(htrajectory_t *htj, double v, double a)
@@ -82,6 +89,11 @@ void htrajectory_goto_xya(htrajectory_t *htj, double x, double y, double a)
   htj->ta = a;
 
 	htj->in_position = 0;
+
+	// set consign to high level cs
+  robot_cs_set_consigns(htj->rcs, (htj->tx)*RCS_MM_TO_CSUNIT,
+                                  (htj->ty)*RCS_MM_TO_CSUNIT,
+                                  (htj->ta)*RCS_RAD_TO_CSUNIT);
 
 	// start a scheduler task
 	htj->event =
@@ -155,3 +167,139 @@ uint8_t htrajectory_done(htrajectory_t *htj)
 {
 	return htj->in_position;
 }
+
+uint8_t htrajectory_realign(htrajectory_t *htj,
+                              realignvector_t realignv, double newpos)
+{ 
+  double newangle;
+  double reavx,reavy;
+  hrobot_vector_t robv;
+
+  // perform robot realignement
+  NOTICE(0,"performing robot realignement vector %d, new position %f",
+              realignv,newpos);
+
+  // get position in mm, rads
+  hposition_get(htj->hps, &robv);
+
+  // compute angle to face to realign
+  switch(realignv)
+  {
+    case RV_XPLUS:
+      newangle = +M_PI/6.0;
+      reavx = -(htj->realignspeed)*cos(M_PI/6.0);
+      reavy = (htj->realignspeed)*sin(M_PI/6.0);
+      break;
+
+    case RV_XMINUS:
+      newangle = -M_PI/6.0;
+      reavx = (htj->realignspeed)*cos(M_PI/6.0);
+      reavy = (htj->realignspeed)*sin(M_PI/6.0);
+      break;
+
+    case RV_YPLUS:
+      newangle = 0;
+      reavx = 0;
+      reavy = -(htj->realignspeed);
+      break;
+
+    case RV_YMINUS:
+      newangle = +M_PI/3.0;
+      reavx = (htj->realignspeed)*cos(M_PI/6.0);
+      reavy = (htj->realignspeed)*sin(M_PI/6.0);
+      break;
+
+    default: 
+      ERROR(HTRAJECTORY_ERROR,"realign vector wrong value realignv=%d",
+                    realignv); 
+      break;
+  }
+
+  htrajectory_goto_xya_wait(htj, robv.x, robv.y, newangle);
+  
+  robot_cs_activate(htj->rcs, 0);
+  DEBUG(0,"upper CSs deactivated.");
+
+  hrobot_set_motors(htj->rcs->hrs, reavx, reavy, 0);
+  
+  uint8_t firsttime = 1;
+  uint8_t ipcount=0;
+  double ds;
+  hrobot_vector_t probv;
+
+  while(1)
+  {
+    hposition_get(htj->hps, &robv);
+    
+    if(firsttime)
+      firsttime = 0;
+    else
+    { 
+      //  compute distance squared between now and previous position
+      ds = pow(probv.x - robv.x,2) + pow(probv.y - robv.y,2);
+
+      if(ds < 0.1)
+        ipcount++;
+
+      // blocked, in position
+      if(ipcount >=  2)
+        break;  
+    }
+
+    probv = robv;
+    wait_ms(100);
+  }
+  
+  // set new position
+  hposition_get(htj->hps, &robv);
+
+  switch(realignv)
+  {
+    case RV_XPLUS:  hposition_set(htj->hps, newpos+(HTRAJECTORY_ROBOT_LENGTH/3.0), robv.y, newangle); break;
+    case RV_XMINUS: hposition_set(htj->hps, newpos-(HTRAJECTORY_ROBOT_LENGTH/3.0), robv.y, newangle); break;
+    case RV_YPLUS:  hposition_set(htj->hps, robv.x, newpos+(HTRAJECTORY_ROBOT_LENGTH/3.0), newangle); break;
+    case RV_YMINUS: hposition_set(htj->hps, robv.x, newpos-(HTRAJECTORY_ROBOT_LENGTH/3.0), newangle); break;
+    default:
+      ERROR(HTRAJECTORY_ERROR,"realign vector wrong value realignv=%d",
+                    realignv);
+      break;
+  }
+  
+  // DEBUG
+  hposition_get(htj->hps, &robv);
+  DEBUG(0,"new position is (%f,%f,%f)",robv.x,robv.y,robv.alpha);
+
+  hrobot_set_motors(htj->rcs->hrs, 0, 0, 0);
+  
+  // magic trick to reinitialize CSs
+  htrajectory_goto_xya(htj, robv.x, robv.y, robv.alpha);
+
+  // reactivate rock'n'roll
+  robot_cs_activate(htj->rcs, 1);
+
+  DEBUG(0,"upper CSs reactivated.");
+  
+  while(!htrajectory_done(htj));
+
+  // move away from wall
+  switch(realignv)
+  {
+    case RV_XPLUS:  htrajectory_gotor_xya(htj, +70, 0, 0); break;
+    case RV_XMINUS: htrajectory_gotor_xya(htj, -70, 0, 0); break;
+    case RV_YPLUS:  htrajectory_gotor_xya(htj, 0, +70, 0); break;
+    case RV_YMINUS: htrajectory_gotor_xya(htj, 0, -70, 0); break;
+    default:
+      ERROR(HTRAJECTORY_ERROR,"realign vector wrong value realignv=%d",
+                    realignv);
+      break;
+  }
+
+
+  while(!htrajectory_done(htj));
+
+  NOTICE(0,"realignement done");
+
+  return 1;
+}
+
+

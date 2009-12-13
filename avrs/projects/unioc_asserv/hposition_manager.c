@@ -64,11 +64,18 @@ void hposition_init( hrobot_position_t* hpos )
 void hposition_set( hrobot_position_t* hpos, double x, double y, double alpha)
 {
   uint8_t flags;
+  double nadnsalpha;
+
+  // compute a new adns alpha value
+
+  nadnsalpha = hpos->adns_alpha + (alpha - hpos->position.alpha);
+
 
   IRQ_LOCK(flags);
   hpos->position.x = x;
   hpos->position.y = y;
   hpos->position.alpha = alpha;
+  hpos->adns_alpha = nadnsalpha;
   IRQ_UNLOCK(flags);
 
   return;
