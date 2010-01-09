@@ -171,7 +171,7 @@ int main(void)
   //----------------------------------------------------------------------
 
   // Set CS speeds
-  htrajectory_set_xy_speed(&trajectory, 2000, 50);
+  htrajectory_set_xy_speed(&trajectory, 2000, 25);
   htrajectory_set_a_speed(&trajectory, 500, 10);
   htrajectory_set_realign_speed(&trajectory, 2500);
 
@@ -196,6 +196,8 @@ int main(void)
   //----------------------------------------------------------------------
   
   NOTICE(0,"Go");
+
+  while(1) nop();
 
   htrajectory_realign(&trajectory, RV_YPLUS, 0);
   htrajectory_goto_xya_wait(&trajectory, -1300, 300, 0);

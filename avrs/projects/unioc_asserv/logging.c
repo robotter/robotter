@@ -24,6 +24,7 @@
 #include <uart.h>
 #include <scheduler.h>
 
+#include "reset.h"
 #include "cli.h"
 #include "logging.h"
 #include "motor_cs.h"
@@ -104,8 +105,7 @@ void log_event(struct error * e, ...)
       break;
     }
 
-    // reset MCU 
-    reset();
+    reset_bootloader();
   }
 
 }
