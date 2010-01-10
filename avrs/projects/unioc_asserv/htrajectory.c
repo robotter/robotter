@@ -67,10 +67,10 @@ inline void copyPath( htrajectory_t *htj, vect_xy_t *path, uint8_t n)
   uint8_t it;
 
   if( n == 0 )
-    return;
+    ERROR(HTRAJECTORY_ERROR,"zero point path");
 
   if( n > HTRAJECTORY_MAX_POINTS )
-    return;
+    ERROR(HTRAJECTORY_ERROR,"%d points path over %d points limit");
 
   htj->pathSize = n;
 
@@ -125,8 +125,6 @@ void htrajectory_init( htrajectory_t *htj,
   htj->rcs = rcs;
   htj->qramp_a = qramp_angle;
 
-  htj->aSpeed = 0.0;
-  htj->aAcc = 0.0;
 
   htj->cruiseSpeed = 0.0;
   htj->cruiseAcc = 0.0;
@@ -153,10 +151,10 @@ void htrajectory_init( htrajectory_t *htj,
 
 /* -- orders -- */
 
-void htrajectory_run( htrajectory_t *htj, vect_xy_t *path, uint8_t n)
+void htrajectory_run( htrajectory_t *htj, vect_xy_t *path, uint8_t n )
 {
   // copy points to internal structure
-  copyPath( htj, path, n);
+  copyPath( htj, path, n );
 
   DEBUG(0,"New path loaded (size=%d) and running",n);
 
@@ -176,13 +174,13 @@ void htrajectory_run( htrajectory_t *htj, vect_xy_t *path, uint8_t n)
   return;
 }
 
-void htrajectory_gotoA( htrajectory_t *htj, double a)
+void htrajectory_gotoA( htrajectory_t *htj, double a )
 {
   hrobot_vector_t robot;
   double da;
 
   // get robot angle
-  hposition_get( htj->hrp, &robot);
+  hposition_get( htj->hrp, &robot );
 
   // compute modulo distance between consign and position
   da = a - fmod( robot.alpha, 2*M_PI );
@@ -191,7 +189,7 @@ void htrajectory_gotoA( htrajectory_t *htj, double a)
   htj->carrotA += da;
 
   // set robot carrot
-  setCarrotAPosition(htj, htj->carrotA);
+  setCarrotAPosition(htj, htj->carrotA );
 }
 
 void htrajectory_gotoXY( htrajectory_t *htj, double x, double y)
@@ -209,8 +207,8 @@ void htrajectory_gotoXY( htrajectory_t *htj, double x, double y)
 
 void htrajectory_setASpeed( htrajectory_t *htj, double speed, double acc )
 {
-  htj->aSpeed = speed;
-  htj->aAcc = acc;
+  quadramp_set_1st_order_vars(htj->qramp_a, speed, speed);
+  quadramp_set_2nd_order_vars(htj->qramp_a, acc, acc);
 }
 
 void htrajectory_setXYCruiseSpeed( htrajectory_t *htj, double speed, double acc )
@@ -278,8 +276,6 @@ void htrajectory_update( htrajectory_t *htj )
   vect_xy_t *point;
   double dx,dy;
   
-//  hposition_get( htj->hrp, &robot );
-
   switch( htj->state )
   {
     case STATE_STOP:
@@ -374,7 +370,9 @@ void htrajectory_update( htrajectory_t *htj )
         }
         else
         {
-          /* XXX SHOULD NOT HAPPEN XXX */
+          /* should not happen */
+          ERROR(HTRAJECTORY_ERROR,
+                  "update reach an incorrect state : state=%d",htj->state);
         }
            
       decDistance = 0.5*((htj->carrotSpeed)*(htj->carrotSpeed)

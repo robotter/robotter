@@ -38,6 +38,8 @@
 #include "logging.h"
 #include "cli.h"
 
+#include "settings.h"
+
 // error code
 #define MAIN_ERROR 0x30
 
@@ -125,9 +127,9 @@ int main(void)
   adns6010_checkFirmware();
 
   // ADNS CONFIGURATION
-  adns_config.res = ADNS6010_RES_2000;
-  adns_config.shutter = ADNS6010_SHUTTER_ON;
-  adns_config.power = 0x11;
+  adns_config.res = SETTING_ADNS_RESOLUTION;
+  adns_config.shutter = SETTING_ADNS_SHUTTER;
+  adns_config.power = SETTING_ADNS_POWER;
 
   NOTICE(0,"Checking ADNS6010s SPI communication");
   adns6010_checkSPI();
@@ -160,10 +162,14 @@ int main(void)
 
   // Unleash control systems
   event_cs = 
-    scheduler_add_periodical_event_priority(&cs_update, NULL, 25,100);
+    scheduler_add_periodical_event_priority(&cs_update, NULL,
+                                              SETTING_SCHED_CS_PERIOD,
+                                              SETTING_SCHED_CS_PRIORITY);
 
   // Safe key event
-  scheduler_add_periodical_event_priority(&safe_key_pressed, NULL, 100, 50);
+  scheduler_add_periodical_event_priority(&safe_key_pressed, NULL,
+                                              SETTING_SCHED_SAFEKEY_PERIOD,
+                                              SETTING_SCHED_SAFEKEY_PRIORITY);
 
   // remove break
   motor_cs_break(0);

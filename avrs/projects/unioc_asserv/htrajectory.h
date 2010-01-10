@@ -35,6 +35,8 @@
 
 #include "htrajectory_config.h"
 
+#define HTRAJECTORY_ERROR 0x70
+
 typedef enum
 {
   STATE_STOP = 0,

@@ -23,6 +23,7 @@
 #include <aversive.h>
 #include <aversive/wait.h>
 #include "fpga.h"
+#include "settings.h"
 
 void fpga_init()
 {
@@ -44,7 +45,7 @@ void fpga_init()
   sbi(XMCRA,SRL2);
 
   // FPGA needs time to boot (load flash)
-  wait_ms(1000);
+  wait_ms(SETTING_FPGA_BOOTTIME);
 
   // perform FPGA reset
   fpga_reset();

@@ -31,6 +31,8 @@
 #include <aversive/error.h>
 #include <pwm.h>
 
+#include "settings.h"
+
 // control system managers
 struct cs csm_motor1;
 struct cs csm_motor2;
@@ -108,18 +110,32 @@ void motor_cs_init()
 	pid_init(&pid_motor2);
 	pid_init(&pid_motor3);
 
-  pid_set_gains(&pid_motor1, 500, 0, 10) ;
-  pid_set_maximums(&pid_motor1, 0, 0, 0);
-  pid_set_out_shift(&pid_motor1, 10);
+  pid_set_gains(&pid_motor1, SETTING_PID_MOTOR1_GAIN_P,
+                             SETTING_PID_MOTOR1_GAIN_I,
+                             SETTING_PID_MOTOR1_GAIN_D);
+  pid_set_maximums(&pid_motor1, SETTING_PID_MOTOR1_MAX_IN,
+                                SETTING_PID_MOTOR1_MAX_I,
+                                SETTING_PID_MOTOR1_MAX_OUT);
+  pid_set_out_shift(&pid_motor1, SETTING_PID_MOTOR1_SHIFT);
  
-  pid_set_gains(&pid_motor2, 500, 0, 10) ;
-  pid_set_maximums(&pid_motor2, 0, 0, 0);
-  pid_set_out_shift(&pid_motor2, 10);
- 
-  pid_set_gains(&pid_motor3, 500, 0, 10);
-  pid_set_maximums(&pid_motor3, 0, 0, 0);
-  pid_set_out_shift(&pid_motor3, 10);
 
+  pid_set_gains(&pid_motor2, SETTING_PID_MOTOR2_GAIN_P,
+                             SETTING_PID_MOTOR2_GAIN_I,
+                             SETTING_PID_MOTOR2_GAIN_D);
+  pid_set_maximums(&pid_motor2, SETTING_PID_MOTOR2_MAX_IN,
+                                SETTING_PID_MOTOR2_MAX_I,
+                                SETTING_PID_MOTOR2_MAX_OUT);
+  pid_set_out_shift(&pid_motor2, SETTING_PID_MOTOR2_SHIFT);
+ 
+
+  pid_set_gains(&pid_motor3, SETTING_PID_MOTOR3_GAIN_P,
+                             SETTING_PID_MOTOR3_GAIN_I,
+                             SETTING_PID_MOTOR3_GAIN_D);
+  pid_set_maximums(&pid_motor3, SETTING_PID_MOTOR3_MAX_IN,
+                                SETTING_PID_MOTOR3_MAX_I,
+                                SETTING_PID_MOTOR3_MAX_OUT);
+  pid_set_out_shift(&pid_motor3, SETTING_PID_MOTOR3_SHIFT);
+ 
 	// setup CSMs
 	cs_init(&csm_motor1);
 	cs_init(&csm_motor2);
@@ -151,8 +167,6 @@ void motor_cs_init()
 
 void motor_cs_update(void* dummy, int32_t m1, int32_t m2, int32_t m3)
 {
-  uint8_t flags;
-
 	// set consigns for motors CS
 	cs_set_consign(&csm_motor1, m1);
 	cs_set_consign(&csm_motor2, m2);

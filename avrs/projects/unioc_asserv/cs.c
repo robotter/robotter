@@ -35,6 +35,8 @@
 #include "compass.h"
 #include "time.h"
 
+#include "settings.h"
+
 // Robot position
 hrobot_position_t position;
 
@@ -91,31 +93,27 @@ void cs_initialize(void)
   // Initialize trajectory management
   NOTICE(0,"Initializing trajectory management");
   htrajectory_init(&trajectory,&position,&robot_cs,&qramp_angle);
-  htrajectory_setASpeed(&trajectory, 10.0, 1.0);
-  htrajectory_setXYCruiseSpeed(&trajectory, 4.0, 0.01);
-  htrajectory_setXYSteeringSpeed(&trajectory, 2.0, 0.01);
-  htrajectory_setXYStopSpeed(&trajectory, 0.0, 0.01);
+  htrajectory_setASpeed(&trajectory, SETTING_TRAJECTORY_A_SPEED,
+                                     SETTING_TRAJECTORY_A_ACC);
+  htrajectory_setXYCruiseSpeed(&trajectory, SETTING_TRAJECTORY_XYCRUISE_SPEED,
+                                            SETTING_TRAJECTORY_XYCRUISE_ACC);
+  htrajectory_setXYSteeringSpeed(&trajectory, SETTING_TRAJECTORY_XYSTEERING_SPEED,
+                                              SETTING_TRAJECTORY_XYSTEERING_ACC);
+  htrajectory_setXYStopSpeed(&trajectory, SETTING_TRAJECTORY_XYSTOP_SPEED,
+                                          SETTING_TRAJECTORY_XYSTOP_ACC);
 
-  htrajectory_setSteeringWindow(&trajectory, 50.0);
-  htrajectory_setStopWindows(&trajectory, 5.0,0.1);
+  htrajectory_setSteeringWindow(&trajectory, SETTING_TRAJECTORY_STEERING_XYWIN);
+  htrajectory_setStopWindows(&trajectory, SETTING_TRAJECTORY_STOP_XYWIN,
+                                          SETTING_TRAJECTORY_STOP_AWIN);
 }
 
 void cs_update(void* dummy)
 {
-  static uint8_t cycle = 0;
   static uint8_t led = 0;
 
   // some LED feedback on UNIOC-NG
   // (quite strange code for a great flashing effect :p)
   _SFR_MEM8(0x1800) = (led+=10)>50;
-
-  cycle++;
-  cycle%=10;
-
-  // -- section called every ten cycles (80ms) --
-  if( cycle == 0 )
-  {
-  }
 
   // -- section called every 8 ms -- 
 

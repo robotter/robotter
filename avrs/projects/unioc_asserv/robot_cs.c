@@ -31,6 +31,7 @@
 #include <pid.h>
 #include "pid_config.h"
 #include <quadramp.h>
+#include "settings.h"
 
 // control system managers
 struct cs csm_x;
@@ -62,21 +63,35 @@ void robot_cs_init(robot_cs_t* rcs)
 	pid_init(&pid_y);
 	pid_init(&pid_angle);
 
-	pid_set_gains(&pid_x, 120, 1, 0) ;
-  pid_set_maximums(&pid_x, 50000, 10, 0);
-  pid_set_out_shift(&pid_x, 10);
+	pid_set_gains(&pid_x, SETTING_PID_X_GAIN_P,
+                        SETTING_PID_X_GAIN_I,
+                        SETTING_PID_X_GAIN_D);
+  pid_set_maximums(&pid_x, SETTING_PID_X_MAX_IN,
+                           SETTING_PID_X_MAX_I,
+                           SETTING_PID_X_MAX_OUT);
+  pid_set_out_shift(&pid_x, SETTING_PID_X_SHIFT);
  
-  pid_set_gains(&pid_y, 120, 1, 0) ;
-  pid_set_maximums(&pid_y, 50000, 10, 0);
-  pid_set_out_shift(&pid_y, 10);
+  pid_set_gains(&pid_y, SETTING_PID_Y_GAIN_P,
+                        SETTING_PID_Y_GAIN_I,
+                        SETTING_PID_Y_GAIN_D);
+  pid_set_maximums(&pid_y, SETTING_PID_Y_MAX_IN,
+                           SETTING_PID_Y_MAX_I,
+                           SETTING_PID_Y_MAX_OUT);
+  pid_set_out_shift(&pid_y, SETTING_PID_Y_SHIFT);
  
-  pid_set_gains(&pid_angle, 1000, 10, 0) ;
-  pid_set_maximums(&pid_angle, 4000, 200, 0);
-  pid_set_out_shift(&pid_angle, 10);
+  pid_set_gains(&pid_angle, SETTING_PID_A_GAIN_P,
+                            SETTING_PID_A_GAIN_I,
+                            SETTING_PID_A_GAIN_D);
+  pid_set_maximums(&pid_angle, SETTING_PID_A_MAX_IN,
+                           SETTING_PID_A_MAX_I,
+                           SETTING_PID_A_MAX_OUT);
+  pid_set_out_shift(&pid_angle, SETTING_PID_A_SHIFT);
   
   // quadramp
-  quadramp_set_1st_order_vars(&qramp_angle, 70, 70);
-  quadramp_set_2nd_order_vars(&qramp_angle, 10, 10);
+  quadramp_set_1st_order_vars(&qramp_angle,
+                                SETTING_QRAMP_A_SPEED, SETTING_QRAMP_A_SPEED);
+  quadramp_set_2nd_order_vars(&qramp_angle,
+                                SETTING_QRAMP_A_ACC, SETTING_QRAMP_A_ACC);
   
 	// setup CSMs
 	cs_init(&csm_x);
