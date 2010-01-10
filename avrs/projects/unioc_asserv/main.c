@@ -198,19 +198,16 @@ int main(void)
   
   NOTICE(0,"Go");
 
-  vect_xy_t path[] = { (vect_xy_t){400.0,0.0} };
+  vect_xy_t path[] = { (vect_xy_t){300.0,0.0},
+                       (vect_xy_t){400.0,100.0},
+                       (vect_xy_t){400.0,300.0},
+                       (vect_xy_t){200.0,300.0},
+                       (vect_xy_t){200.0,100.0},
+                       (vect_xy_t){0.0,0.0} };
 
-  htrajectory_run(&trajectory, path, 1);
+  htrajectory_run(&trajectory, path, 6);
   
   while( !htrajectory_doneXY(&trajectory) );
-
-  htrajectory_gotoA(&trajectory, 0.25*M_PI);
-
-  while( !htrajectory_doneA(&trajectory) );
-
-  htrajectory_gotoA(&trajectory, 0.0 );
-
-  while( !htrajectory_doneA(&trajectory) );
 
   motor_cs_break(1);
 
