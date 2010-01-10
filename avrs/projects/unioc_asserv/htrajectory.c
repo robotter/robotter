@@ -72,28 +72,6 @@ inline void preparePoint( htrajectory_t *htj )
     htj->state);
 }
 
-
-/** \brief Return squared approach speed according to trajectory state */
-inline double getSquaredApproachSpeed( htrajectory_t *htj)
-{
-  double s;
-
-  switch(htj->state)
-  {
-    case STATE_PATH_MID:  s = htj->cruiseSpeed; break;
-    case STATE_PATH_LAST: s = htj->stopSpeed; break;
-
-    case STATE_STOP: 
-    default:
-      /* Should not happen */
-      ERROR(HTRAJECTORY_ERROR,"incorrect state reached (state=%d)", htj->state);
-      break;
-  }
-  
-  return (s*s);
-}
-
-
 /** \brief Set htj->carrot angle, transfer orders to low level CSs */
 inline void setCarrotAPosition( htrajectory_t *htj, double a )
 {
