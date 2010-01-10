@@ -81,12 +81,28 @@ void hposition_set( hrobot_position_t* hpos, double x, double y, double alpha)
   return;
 }
 
-void hposition_get( hrobot_position_t* hpos, hrobot_vector_t* hvec)
+void hposition_get_xy( hrobot_position_t *hpos, vect_xy_t *pv )
 {
   uint8_t flags;
 
-  if(hvec == NULL)
-    ERROR(HROBOT_ERROR,"%s received a null pointer",__func__);
+  IRQ_LOCK(flags);
+  pv->x = hpos->position.x;
+  pv->y = hpos->position.y;
+  IRQ_UNLOCK(flags);
+}
+
+void hposition_get_a( hrobot_position_t *hpos, double *pa )
+{
+  uint8_t flags;
+
+  IRQ_LOCK(flags);
+  *pa = hpos->position.alpha;
+  IRQ_UNLOCK(flags);
+}
+
+void hposition_get( hrobot_position_t *hpos, hrobot_vector_t *hvec)
+{
+  uint8_t flags;
 
   IRQ_LOCK(flags);
   *hvec = hpos->position;

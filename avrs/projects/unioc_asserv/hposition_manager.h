@@ -26,6 +26,8 @@
 #ifndef _HPOSITION_MANAGER_H_
 #define _HPOSITION_MANAGER_H_
 
+#include "vector.h"
+
 #define HROBOT_DX 0
 #define HROBOT_DY 1 
 #define HROBOT_DA 2
@@ -66,6 +68,14 @@ void hposition_init( hrobot_position_t* );
   *@param alpha orientation to set
   */
 void hposition_set( hrobot_position_t*, double x, double y, double alpha);
+
+/**@brief Return robot (x,y) coordinates
+  */
+void hposition_get_xy( hrobot_position_t *hpos, vect_xy_t *pv );
+
+/**@brief Return robot (a) coordinates
+  */
+void hposition_get_a( hrobot_position_t *hpos, double *pa );
 
 /**@brief Return robot position
   */

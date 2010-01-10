@@ -73,6 +73,8 @@ typedef struct
 
   // internal variables
 
+  vect_xy_t normalizedError;
+
   vect_xy_t carrot;
   double carrotSpeed;
 

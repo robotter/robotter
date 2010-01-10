@@ -28,7 +28,50 @@
 #include "logging.h"
 #include <math.h>
 
-/* -- private / static functions -- */
+/* -- private functions -- */
+
+/** \brief Compute normalized error vector to current point */
+inline vect_xy_t computeNormalizedError( vect_xy_t point, vect_xy_t carrot )
+{ 
+  vect_xy_t error;
+  double errorLength;
+  double dx,dy;
+
+  dx = point.x - carrot.x;
+  dy = point.y - carrot.y;
+
+  // compute error vector length
+  errorLength = sqrt( dx*dx + dy*dy );
+
+  if( errorLength == 0.0 )
+  {
+    error.x = 0.0;
+    error.y = 0.0;
+  }
+  else
+  {
+    // normalize error vector
+    error.x = dx/errorLength;
+    error.y = dy/errorLength;
+  }
+
+  return error;
+}
+
+/** \brief Prepare point */
+inline void preparePoint( htrajectory_t *htj )
+{
+  // compute and store normalized error vector
+  htj->normalizedError = 
+    computeNormalizedError(htj->path[htj->pathIndex],htj->carrot);
+  
+  DEBUG(0,"Going to %d (%2.2f,%2.2f) state=%d",
+    htj->pathIndex,
+    htj->path[htj->pathIndex].x,
+    htj->path[htj->pathIndex].y,
+    htj->state);
+}
+
 
 /** \brief Return squared approach speed according to trajectory state */
 inline double getSquaredApproachSpeed( htrajectory_t *htj)
@@ -41,9 +84,12 @@ inline double getSquaredApproachSpeed( htrajectory_t *htj)
     case STATE_PATH_LAST: s = htj->stopSpeed; break;
 
     case STATE_STOP: 
-    default: /*XXX SHOULD NOT HAPPEN XXX*/ break;
+    default:
+      /* Should not happen */
+      ERROR(HTRAJECTORY_ERROR,"incorrect state reached (state=%d)", htj->state);
+      break;
   }
-
+  
   return (s*s);
 }
 
@@ -70,7 +116,7 @@ inline void copyPath( htrajectory_t *htj, vect_xy_t *path, uint8_t n)
     ERROR(HTRAJECTORY_ERROR,"zero point path");
 
   if( n > HTRAJECTORY_MAX_POINTS )
-    ERROR(HTRAJECTORY_ERROR,"%d points path over %d points limit");
+    ERROR(HTRAJECTORY_ERROR,"%d points path over %d points limit",n,HTRAJECTORY_MAX_POINTS);
 
   htj->pathSize = n;
 
@@ -84,13 +130,12 @@ inline void copyPath( htrajectory_t *htj, vect_xy_t *path, uint8_t n)
   */
 uint8_t inWindowXY( htrajectory_t *htj )
 {
-  hrobot_vector_t robot;
-  vect_xy_t point;
+  vect_xy_t robot,point;
   double dx,dy,dl;
   uint8_t inWindow;
 
   // get robot position
-  hposition_get( htj->hrp, &robot);
+  hposition_get_xy( htj->hrp, &robot);
 
   // get next point position
   point = htj->path[htj->pathIndex];
@@ -104,12 +149,16 @@ uint8_t inWindowXY( htrajectory_t *htj )
   dx = point.x - robot.x;
   dy = point.y - robot.y;
 
-  // (squared inegality)
-  // check if robot is in window  
-  if( dx*dx + dy*dy < dl*dl )
-    inWindow = 1;
-  else
+  // coarse inegality to save computing time
+  if( dx > dl && dy > dl )
     inWindow = 0;
+  else
+    // (squared inegality)
+    // check if robot is in window  
+    if( dx*dx + dy*dy < dl*dl )
+      inWindow = 1;
+    else
+      inWindow = 0;
 
   return inWindow;
 } 
@@ -165,28 +214,24 @@ void htrajectory_run( htrajectory_t *htj, vect_xy_t *path, uint8_t n )
   else
     htj->state = STATE_PATH_MID;
 
-  DEBUG(0,"Going to %d (%2.2f,%2.2f) state=%d",
-    htj->pathIndex,
-    htj->path[htj->pathIndex].x,
-    htj->path[htj->pathIndex].y,
-    htj->state);
+  preparePoint(htj);
 
   return;
 }
 
 void htrajectory_gotoA( htrajectory_t *htj, double a )
 {
-  hrobot_vector_t robot;
+  double robot_a;
   double da;
 
   // get robot angle
-  hposition_get( htj->hrp, &robot );
+  hposition_get_a( htj->hrp, &robot_a );
 
-  // compute modulo distance between consign and position
-  da = a - fmod( robot.alpha, 2*M_PI );
+  // compute distance between consign and position modulo 2pi
+  da = fmod( a - robot_a, 2*M_PI );
   
   // update consign
-  htj->carrotA += da;
+  htj->carrotA = robot_a + da;
 
   // set robot carrot
   setCarrotAPosition(htj, htj->carrotA );
@@ -254,12 +299,12 @@ uint8_t htrajectory_doneXY( htrajectory_t *htj )
 
 uint8_t htrajectory_doneA( htrajectory_t *htj )
 {
-  hrobot_vector_t robot;
+  double robot_a;
   double da;
 
-  hposition_get(htj->hrp, &robot);
+  hposition_get_a(htj->hrp, &robot_a);
 
-  da = fabs(htj->carrotA - robot.alpha);
+  da = fabs(htj->carrotA - robot_a);
 
   if( da < htj->aStopWindow )
     return 1;
@@ -271,154 +316,124 @@ uint8_t htrajectory_doneA( htrajectory_t *htj )
 
 void htrajectory_update( htrajectory_t *htj )
 {
-  vect_xy_t normalizedError;
-  double errorLength;
+  double sqErrorLength;
   vect_xy_t *point;
   double dx,dy;
   
-  switch( htj->state )
+  if(htj->state == STATE_STOP)
+    /* nothing to do */
+    return;
+
+  // is robot in position ?
+  if( inWindowXY(htj) )
   {
-    case STATE_STOP:
-      break;
+    // last point reached
+    if( htj->state == STATE_PATH_LAST )
+    {
+      DEBUG(0,"Point %d (%2.2f,%2.2f) reached, full stop",
+        htj->pathIndex,
+        htj->path[htj->pathIndex].x,
+        htj->path[htj->pathIndex].y);
+
+      // put trajectory management to full stop
+      htj->pathIndex = 0;
+      htj->state = STATE_STOP;
+      
+      // set htj->carrot to last position
+      setCarrotXYPosition( htj, htj->path[htj->pathSize - 1] );
+
+      return;
+    }
+
+    DEBUG(0,"Point %d (%2.2f,%2.2f) reached, goto next point",
+        htj->pathIndex,
+        htj->path[htj->pathIndex].x,
+        htj->path[htj->pathIndex].y);
+
+    // switch to next point 
+    htj->pathIndex++;
     
-    // robot follow a path
-    case STATE_PATH_MID:
-    case STATE_PATH_LAST:
+    // if next point is last point
+    if( htj->pathIndex >= htj->pathSize - 1 )
+      htj->state = STATE_PATH_LAST;
 
-      // is robot in position ?
-      if( inWindowXY(htj) )
-      {
-        // last point reached
-        if( htj->pathIndex >= htj->pathSize - 1 )
-        {
-          DEBUG(0,"Point %d (%2.2f,%2.2f) reached, full stop",
-            htj->pathIndex,
-            htj->path[htj->pathIndex].x,
-            htj->path[htj->pathIndex].y);
-
-          // put trajectory management to full stop
-          htj->pathIndex = 0;
-          htj->state = STATE_STOP;
-          
-          // set htj->carrot to last position
-          setCarrotXYPosition( htj, htj->path[htj->pathSize - 1] );
-
-          break;
-        }
-
-        DEBUG(0,"Point %d (%2.2f,%2.2f) reached, goto next point",
-            htj->pathIndex,
-            htj->path[htj->pathIndex].x,
-            htj->path[htj->pathIndex].y);
-
-        // switch to next point 
-        htj->pathIndex++;
-        
-        // if next point is last point
-        if( htj->pathIndex >= htj->pathSize - 1 )
-          htj->state = STATE_PATH_LAST;
-
-         DEBUG(0,"Going to %d (%2.2f,%2.2f) state=%d",
-            htj->pathIndex,
-            htj->path[htj->pathIndex].x,
-            htj->path[htj->pathIndex].y,
-            htj->state);
-
-       
-      }
-      
-      point = htj->path + htj->pathIndex;
-
-      // --- compute normalized error vector ---
-      
-      dx = point->x - htj->carrot.x;
-      dy = point->y - htj->carrot.y;
-
-      // compute error vector length
-      errorLength = sqrt( dx*dx + dy*dy );
-
-      if( errorLength == 0.0 )
-      {
-        normalizedError.x = 0.0;
-        normalizedError.y = 0.0;
-      }
-      else
-      {
-        // normalize error vector
-        normalizedError.x = dx/errorLength;
-        normalizedError.y = dy/errorLength;
-      }
-
-      // --- compute speed consign & ramp ---
-      
-      // compute distance at which constant deceleration will bring robot
-      // to desired speed
-      double nextSpeed = 0.0;
-      double currAcc = 0.0;
-      double decDistance;
-      
-      if( htj->state == STATE_PATH_MID )
-      {
-        nextSpeed = htj->steeringSpeed;
-        currAcc = htj->steeringAcc;
-      }
-      else
-        if( htj->state == STATE_PATH_LAST )
-        {
-          nextSpeed = htj->stopSpeed;
-          currAcc = htj->stopAcc;
-        }
-        else
-        {
-          /* should not happen */
-          ERROR(HTRAJECTORY_ERROR,
-                  "update reach an incorrect state : state=%d",htj->state);
-        }
-           
-      decDistance = 0.5*((htj->carrotSpeed)*(htj->carrotSpeed)
-                            - nextSpeed*nextSpeed)/currAcc;
-      // * deceleration phase
-      if( errorLength < decDistance )
-      {
-        if( htj->carrotSpeed - nextSpeed > currAcc )
-          htj->carrotSpeed -= currAcc;
-        else
-          htj->carrotSpeed = nextSpeed;
-      } 
-      // * acceleration phase
-      else if( (htj->carrotSpeed) < htj->cruiseSpeed )
-      {
-        if( htj->cruiseSpeed - htj->carrotSpeed > htj->cruiseAcc )
-          htj->carrotSpeed += htj->cruiseAcc;
-        else
-          htj->carrotSpeed = htj->cruiseSpeed;
-      }
-      // * stable phase
-      else
-      {
-        /* nothing to do */
-      }
-      
-      // --- compute htj->carrot position ---
-
-      if( htj->carrotSpeed > errorLength )
-      {
-        htj->carrot.x = point->x;
-        htj->carrot.y = point->y;
-      }
-      else
-      {
-        htj->carrot.x += (htj->carrotSpeed)*normalizedError.x;
-        htj->carrot.y += (htj->carrotSpeed)*normalizedError.y;
-      }
-
-      // --- update htj->carrot position ---
-
-      setCarrotXYPosition( htj, htj->carrot );
-
-      break;
-
-    default: break;
+    preparePoint(htj);    
   }
+  
+  point = htj->path + htj->pathIndex;
+
+
+  // --- compute speed consign & ramp ---
+  
+  // compute distance at which constant deceleration will bring robot
+  // to desired speed
+  double nextSpeed = 0.0;
+  double currAcc = 0.0;
+  double decDistance;
+  
+  if( htj->state == STATE_PATH_MID )
+  {
+    nextSpeed = htj->steeringSpeed;
+    currAcc = htj->steeringAcc;
+  }
+  else
+    if( htj->state == STATE_PATH_LAST )
+    {
+      nextSpeed = htj->stopSpeed;
+      currAcc = htj->stopAcc;
+    }
+    else
+    {
+      /* should not happen */
+      ERROR(HTRAJECTORY_ERROR,
+              "update reach an incorrect state : state=%d",htj->state);
+    }
+       
+  // compute squared distance between carrot and target
+  dx = point->x - htj->carrot.x;
+  dy = point->y - htj->carrot.y;
+  sqErrorLength = dx*dx + dy*dy;
+
+  decDistance = 0.5*((htj->carrotSpeed)*(htj->carrotSpeed)
+                        - nextSpeed*nextSpeed)/currAcc;
+  // * deceleration phase
+  if( sqErrorLength < decDistance*decDistance )
+  {
+    // set speed to minimum speed when acceleration will cause algorithm to overshoot
+    if( htj->carrotSpeed - nextSpeed > currAcc )
+      htj->carrotSpeed -= currAcc;
+    else
+      htj->carrotSpeed = nextSpeed;
+  } 
+  // * acceleration phase
+  else if( (htj->carrotSpeed) < htj->cruiseSpeed )
+  {
+    // set speed to maximum speed when acceleration will cause algorithm to overshoot
+    if( htj->cruiseSpeed - htj->carrotSpeed > htj->cruiseAcc )
+      htj->carrotSpeed += htj->cruiseAcc;
+    else
+      htj->carrotSpeed = htj->cruiseSpeed;
+  }
+  // * stable phase
+  else
+  {
+    /* nothing to do */
+  }
+  
+  // --- compute carrot position ---
+
+  if( (htj->carrotSpeed)*(htj->carrotSpeed) > sqErrorLength )
+  {
+    htj->carrot.x = point->x;
+    htj->carrot.y = point->y;
+  }
+  else
+  {
+    htj->carrot.x += (htj->carrotSpeed)*(htj->normalizedError.x);
+    htj->carrot.y += (htj->carrotSpeed)*(htj->normalizedError.y);
+  }
+
+  // --- update carrot position ---
+  setCarrotXYPosition( htj, htj->carrot );
 
 }
