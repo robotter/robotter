@@ -54,8 +54,6 @@ compass_t compass;
 acfilter_t acfilter;
 
 // robot_cs quadramps
-extern struct quadramp_filter qramp_x;
-extern struct quadramp_filter qramp_y;
 extern struct quadramp_filter qramp_angle;
 
 void cs_initialize(void)
@@ -92,18 +90,36 @@ void cs_initialize(void)
   
   // Initialize trajectory management
   NOTICE(0,"Initializing trajectory management");
-  htrajectory_init(&trajectory,&robot_cs,&position,
-										&qramp_x, &qramp_y, &qramp_angle);
-  htrajectory_set_precision(&trajectory,3.0,0.01*M_PI);
+  htrajectory_init(&trajectory,&position,&robot_cs,&qramp_angle);
+  htrajectory_setASpeed(&trajectory, 10.0, 1.0);
+  htrajectory_setXYCruiseSpeed(&trajectory, 4.0, 0.01);
+  htrajectory_setXYSteeringSpeed(&trajectory, 2.0, 0.01);
+  htrajectory_setXYStopSpeed(&trajectory, 0.0, 0.01);
+
+  htrajectory_setSteeringWindow(&trajectory, 50.0);
+  htrajectory_setStopWindows(&trajectory, 5.0,0.1);
 }
 
 void cs_update(void* dummy)
 {
+  static uint8_t cycle = 0;
   static uint8_t led = 0;
 
   // some LED feedback on UNIOC-NG
   // (quite strange code for a great flashing effect :p)
   _SFR_MEM8(0x1800) = (led+=10)>50;
+
+  cycle++;
+  cycle%=10;
+
+  // -- section called every ten cycles (80ms) --
+  if( cycle == 0 )
+  {
+  }
+
+  // -- section called every 8 ms -- 
+
+  htrajectory_update(&trajectory);
 
   // update compass filtering
   compass_update(&compass);
@@ -113,4 +129,5 @@ void cs_update(void* dummy)
 
 	// update control systems
 	robot_cs_update(&robot_cs);
+
 }

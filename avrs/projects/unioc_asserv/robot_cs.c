@@ -38,8 +38,6 @@ struct cs csm_y;
 struct cs csm_angle;
 
 // quadramp
-struct quadramp_filter qramp_x;
-struct quadramp_filter qramp_y;
 struct quadramp_filter qramp_angle;
 
 // pids
@@ -75,28 +73,18 @@ void robot_cs_init(robot_cs_t* rcs)
   pid_set_gains(&pid_angle, 1000, 10, 0) ;
   pid_set_maximums(&pid_angle, 4000, 200, 0);
   pid_set_out_shift(&pid_angle, 10);
-
-  // setup quadramps
-  quadramp_init(&qramp_x);
-  quadramp_init(&qramp_y);
-  quadramp_init(&qramp_angle);
-
-  quadramp_set_1st_order_vars(&qramp_x, 5000, 5000);
-  quadramp_set_2nd_order_vars(&qramp_x, 30, 30);
-
-  quadramp_set_1st_order_vars(&qramp_y, 5000, 5000);
-  quadramp_set_2nd_order_vars(&qramp_y, 30, 30);
-
+  
+  // quadramp
   quadramp_set_1st_order_vars(&qramp_angle, 70, 70);
   quadramp_set_2nd_order_vars(&qramp_angle, 10, 10);
-
+  
 	// setup CSMs
 	cs_init(&csm_x);
 	cs_init(&csm_y);
 	cs_init(&csm_angle);
 
-	cs_set_consign_filter(&csm_x, &quadramp_do_filter, &qramp_x);
-	cs_set_consign_filter(&csm_y, &quadramp_do_filter, &qramp_y);
+	cs_set_consign_filter(&csm_x,     NULL, NULL); 
+	cs_set_consign_filter(&csm_y,     NULL, NULL); 
   cs_set_consign_filter(&csm_angle, &quadramp_do_filter, &qramp_angle);
 
 	cs_set_correct_filter(&csm_x,     &pid_do_filter, &pid_x);
@@ -169,17 +157,6 @@ void robot_cs_update(void* dummy)
     pid_reset(&pid_y);
     pid_reset(&pid_angle);
 
-    consign = cs_get_consign(&csm_x);
-    DEBUG(0,"CS consign x = %ld",consign);
-    qramp_x.previous_var = 0;
-    qramp_x.previous_out = consign;
-    qramp_x.previous_in = consign;
- 
-    consign = cs_get_consign(&csm_y);
-    qramp_y.previous_var = 0;
-    qramp_y.previous_out = consign;
-    qramp_y.previous_in = consign;
-    
     consign = cs_get_consign(&csm_angle);
     qramp_angle.previous_var = 0;
     qramp_angle.previous_out = consign;
@@ -213,16 +190,24 @@ void robot_cs_update(void* dummy)
                               
 }
 
-void robot_cs_set_consigns( robot_cs_t *rcs,
-														int32_t x,
-														int32_t y,
-                            int32_t angle )
+void robot_cs_set_xy_consigns( robot_cs_t* rcs,
+											  	  		int32_t x,
+												  	  	int32_t y)
 {
   uint8_t flags;
 
   IRQ_LOCK(flags);
   cs_set_consign(&csm_x,x);
   cs_set_consign(&csm_y,y);
+  IRQ_UNLOCK(flags);
+}
+
+void robot_cs_set_a_consign( robot_cs_t* rcs,
+		    											int32_t angle)
+{                                
+  uint8_t flags;
+
+  IRQ_LOCK(flags);
   cs_set_consign(&csm_angle,angle);
   IRQ_UNLOCK(flags);
 }

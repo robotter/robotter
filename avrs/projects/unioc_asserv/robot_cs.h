@@ -65,15 +65,19 @@ void robot_cs_set_hrobot_manager(robot_cs_t*, hrobot_system_t*);
   */
 void robot_cs_update(void* rcs);
 
-/**@brief Set robot-level control system consigns
+/**@brief Set robot-level control system consigns to (x,y) CSs
   *@param x robot x position in CSUNITs
   *@param y robot y position in CSUNITs
+  */
+void robot_cs_set_xy_consigns( robot_cs_t* rcs,
+											  	  		int32_t x,
+												  	  	int32_t y);
+                                
+/**@brief Set robot-level control system consigns to (a) CSs
   *@param angle robot angle in CSUNITs
   */
-void robot_cs_set_consigns( robot_cs_t* rcs,
-														int32_t x,
-														int32_t y,
-														int32_t angle);
+void robot_cs_set_a_consign( robot_cs_t* rcs,
+		    												int32_t angle);
 
 /**@brief Accessor used by CSM to access robot x position */
 int32_t get_robot_x(void*);

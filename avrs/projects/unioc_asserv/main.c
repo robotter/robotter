@@ -53,7 +53,7 @@ extern uint8_t log_level;
 
 // trajectory management 
 // XXX TBMoved to a strat dedicated source file
-extern htrajectory_t trajectory;
+extern volatile htrajectory_t trajectory;
 
 // manual control
 // XXX TBMoved to a manual control dedicated source file
@@ -88,7 +88,7 @@ int main(void)
   error_register_notice(log_event);
   error_register_debug(log_event);
 
-  //log_level = ERROR_SEVERITY_NOTICE;
+  log_level = ERROR_SEVERITY_NOTICE;
   log_level = ERROR_SEVERITY_DEBUG;
 
   // Clear screen
@@ -170,11 +170,6 @@ int main(void)
 
   //----------------------------------------------------------------------
 
-  // Set CS speeds
-  htrajectory_set_xy_speed(&trajectory, 2000, 25);
-  htrajectory_set_a_speed(&trajectory, 500, 10);
-  htrajectory_set_realign_speed(&trajectory, 2500);
-
   NOTICE(0,"Strike 'c' for manual control / 'x' to reboot / any other key to go");
  
   uint8_t c;
@@ -197,10 +192,21 @@ int main(void)
   
   NOTICE(0,"Go");
 
-  while(1) nop();
+  vect_xy_t path[] = { (vect_xy_t){400.0,0.0} };
 
-  htrajectory_realign(&trajectory, RV_YPLUS, 0);
-  htrajectory_goto_xya_wait(&trajectory, -1300, 300, 0);
+  htrajectory_run(&trajectory, path, 1);
+  
+  while( !htrajectory_doneXY(&trajectory) );
+
+  htrajectory_gotoA(&trajectory, 0.25*M_PI);
+
+  while( !htrajectory_doneA(&trajectory) );
+
+  htrajectory_gotoA(&trajectory, 0.0 );
+
+  while( !htrajectory_doneA(&trajectory) );
+
+  motor_cs_break(1);
 
   NOTICE(0,"Done");
   while(1);
@@ -257,9 +263,10 @@ void manual_control(void)
 
     NOTICE(0,"manual control : (%2.2f, %2.2f, %2.2f)",x,y,a);
 
-    robot_cs_set_consigns(&robot_cs, x*RCS_MM_TO_CSUNIT,
-                                    y*RCS_MM_TO_CSUNIT,
-                                    a*RCS_RAD_TO_CSUNIT);
+    robot_cs_set_xy_consigns(&robot_cs, x*RCS_MM_TO_CSUNIT,
+                                        y*RCS_MM_TO_CSUNIT);
+
+    robot_cs_set_a_consign(&robot_cs, a*RCS_RAD_TO_CSUNIT);
 
 
   } 

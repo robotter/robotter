@@ -1,5 +1,5 @@
 /*  
- *  Copyright RobOtter (2009) 
+ *  Copyright RobOtter (2010)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,289 +17,410 @@
  */
 
 /** \file htrajectory.c
-  * \author JD
-  *
-  * Simple trajectory management 
-  *
-  */
-
-#include <aversive/wait.h>
-#include <aversive/error.h>
-#include <scheduler.h>
-#include <quadramp.h>
-#include <math.h>
+ * \date 02/01/2010 
+ * \author JD
+ *
+ * Trajectory management NG
+ *
+ */
 
 #include "htrajectory.h"
+#include "logging.h"
+#include <math.h>
 
+/* -- private / static functions -- */
 
-
-void htrajectory_init(htrajectory_t *htj,
-                        robot_cs_t *rcs, 
-                        hrobot_position_t *hps,
-												struct quadramp_filter* qr_x,
-												struct quadramp_filter* qr_y,
-												struct quadramp_filter* qr_a)
+/** \brief Return squared approach speed according to trajectory state */
+inline double getSquaredApproachSpeed( htrajectory_t *htj)
 {
+  double s;
+
+  switch(htj->state)
+  {
+    case STATE_PATH_MID:  s = htj->cruiseSpeed; break;
+    case STATE_PATH_LAST: s = htj->stopSpeed; break;
+
+    case STATE_STOP: 
+    default: /*XXX SHOULD NOT HAPPEN XXX*/ break;
+  }
+
+  return (s*s);
+}
+
+
+/** \brief Set htj->carrot angle, transfer orders to low level CSs */
+inline void setCarrotAPosition( htrajectory_t *htj, double a )
+{
+  robot_cs_set_a_consign( htj->rcs, RCS_RAD_TO_CSUNIT*a );
+}
+
+/** \brief Set htj->carrot position, transfer orders to low level CSs */
+inline void setCarrotXYPosition( htrajectory_t *htj, vect_xy_t pos )
+{
+  robot_cs_set_xy_consigns( htj->rcs, RCS_MM_TO_CSUNIT*pos.x,
+                                      RCS_MM_TO_CSUNIT*pos.y );
+}
+
+/** \brief Copy given path into internal structure */
+inline void copyPath( htrajectory_t *htj, vect_xy_t *path, uint8_t n)
+{
+  uint8_t it;
+
+  if( n == 0 )
+    return;
+
+  if( n > HTRAJECTORY_MAX_POINTS )
+    return;
+
+  htj->pathSize = n;
+
+  // copy points in internal structure
+  for(it=0;it<n;it++)
+    htj->path[it] = path[it];
+}
+
+/** \brief Check if robot is in window of current point
+  * \return 1- if target reached 0- otherwise
+  */
+uint8_t inWindowXY( htrajectory_t *htj )
+{
+  hrobot_vector_t robot;
+  vect_xy_t point;
+  double dx,dy,dl;
+  uint8_t inWindow;
+
+  // get robot position
+  hposition_get( htj->hrp, &robot);
+
+  // get next point position
+  point = htj->path[htj->pathIndex];
+  
+  // XXX stop window is default window ?
+  if( htj->state == STATE_PATH_MID )
+    dl = htj->xySteeringWindow;
+  else
+    dl = htj->xyStopWindow;
+
+  dx = point.x - robot.x;
+  dy = point.y - robot.y;
+
+  // (squared inegality)
+  // check if robot is in window  
+  if( dx*dx + dy*dy < dl*dl )
+    inWindow = 1;
+  else
+    inWindow = 0;
+
+  return inWindow;
+} 
+
+/* -- public functions -- */
+
+void htrajectory_init( htrajectory_t *htj,
+                        hrobot_position_t *hrp,
+                        robot_cs_t *rcs,
+                        struct quadramp_filter *qramp_angle)
+{
+  htj->hrp = hrp;
   htj->rcs = rcs;
-  htj->hps = hps;
-	htj->qr_x = qr_x;
-	htj->qr_y = qr_y;
-	htj->qr_a = qr_a;
+  htj->qramp_a = qramp_angle;
 
-  htj->mind = 1.0;
-  htj->mina = 1.0;
+  htj->aSpeed = 0.0;
+  htj->aAcc = 0.0;
 
-  htj->realignspeed = 2000;
+  htj->cruiseSpeed = 0.0;
+  htj->cruiseAcc = 0.0;
 
-	htj->event = 0;
+  htj->steeringSpeed = 0.0;
+  htj->steeringAcc = 0.0;
 
-	htj->in_position = 1;
+  htj->stopSpeed = 0.0;
+  htj->stopAcc = 0.0;
+
+  htj->xySteeringWindow = 1.0;
+  htj->xyStopWindow = 1.0;
+  htj->aStopWindow = 1.0;
+ 
+  htj->carrot = (vect_xy_t){0.0,0.0};
+  htj->carrotA = 0.0;
+  htj->carrotSpeed = 0.0;
+
+  htj->pathIndex = 0;
+  htj->state = STATE_STOP;
+
+  return;
 }
 
-void htrajectory_set_xy_speed(htrajectory_t *htj, double v, double a)
+/* -- orders -- */
+
+void htrajectory_run( htrajectory_t *htj, vect_xy_t *path, uint8_t n)
 {
-  quadramp_set_1st_order_vars(htj->qr_x, v, v);
-  quadramp_set_2nd_order_vars(htj->qr_x, a, a);
-  quadramp_set_1st_order_vars(htj->qr_y, v, v);
-  quadramp_set_2nd_order_vars(htj->qr_y, a, a);
+  // copy points to internal structure
+  copyPath( htj, path, n);
+
+  DEBUG(0,"New path loaded (size=%d) and running",n);
+
+  htj->pathIndex = 0;
+
+  if(htj->pathSize == 1)
+    htj->state = STATE_PATH_LAST;
+  else
+    htj->state = STATE_PATH_MID;
+
+  DEBUG(0,"Going to %d (%2.2f,%2.2f) state=%d",
+    htj->pathIndex,
+    htj->path[htj->pathIndex].x,
+    htj->path[htj->pathIndex].y,
+    htj->state);
+
+  return;
 }
 
-void htrajectory_set_realign_speed(htrajectory_t *htj, double v)
+void htrajectory_gotoA( htrajectory_t *htj, double a)
 {
-  htj->realignspeed = v;
+  hrobot_vector_t robot;
+  double da;
+
+  // get robot angle
+  hposition_get( htj->hrp, &robot);
+
+  // compute modulo distance between consign and position
+  da = a - fmod( robot.alpha, 2*M_PI );
+  
+  // update consign
+  htj->carrotA += da;
+
+  // set robot carrot
+  setCarrotAPosition(htj, htj->carrotA);
 }
 
-void htrajectory_set_a_speed(htrajectory_t *htj, double v, double a)
+void htrajectory_gotoXY( htrajectory_t *htj, double x, double y)
 {
-  quadramp_set_1st_order_vars(htj->qr_a, v, v);
-  quadramp_set_2nd_order_vars(htj->qr_a, a, a);
+  vect_xy_t path;
+
+  // create a one point path
+  path = (vect_xy_t){x,y};
+  
+  // load and run path
+  htrajectory_run(htj, &path,  1);
 }
 
-void htrajectory_set_precision(htrajectory_t *htj, double d, double a)
+/* -- speed management -- */
+
+void htrajectory_setASpeed( htrajectory_t *htj, double speed, double acc )
 {
-  htj->mind = d;
-  htj->mina = a;
+  htj->aSpeed = speed;
+  htj->aAcc = acc;
 }
 
-void htrajectory_goto_xya(htrajectory_t *htj, double x, double y, double a)
+void htrajectory_setXYCruiseSpeed( htrajectory_t *htj, double speed, double acc )
 {
-  // save target position
-  htj->tx = x;
-  htj->ty = y;
-  htj->ta = a;
-
-	htj->in_position = 0;
-
-	// set consign to high level cs
-  robot_cs_set_consigns(htj->rcs, (htj->tx)*RCS_MM_TO_CSUNIT,
-                                  (htj->ty)*RCS_MM_TO_CSUNIT,
-                                  (htj->ta)*RCS_RAD_TO_CSUNIT);
-
-	// start a scheduler task
-	htj->event =
-		scheduler_add_periodical_event_priority(&htrajectory_manage_xya, htj,
-																							HTRAJECTORY_DT,110);
-
-	DEBUG(0,"trajectory task %d : goto XYA (%2.1f,%2.1f,%2.2f)",htj->event,x,y,a);
+  htj->cruiseSpeed = speed;
+  htj->cruiseAcc = acc;
 }
 
-
-void htrajectory_gotor_xya(htrajectory_t *htj, double x, double y, double a)
+void htrajectory_setXYSteeringSpeed( htrajectory_t *htj, double speed, double acc )
 {
-  hrobot_vector_t vector;
-
-  hposition_get(htj->hps, &vector);
-  htrajectory_goto_xya(htj, x + vector.x, y + vector.y, a + vector.alpha );
+  htj->steeringSpeed = speed;
+  htj->steeringAcc = acc;
 }
 
-void htrajectory_goto_xya_wait(htrajectory_t *htj, double x, double y, double a)
+void htrajectory_setXYStopSpeed( htrajectory_t *htj, double speed, double acc )
 {
-  htrajectory_goto_xya(htj,x,y,a);
-	
-  while(!htrajectory_done(htj));
+  htj->stopSpeed = speed;
+  htj->stopAcc = acc;
 }
 
-void htrajectory_gotor_xya_wait(htrajectory_t *htj, double x, double y, double a)
-{
-  htrajectory_gotor_xya(htj,x,y,a);
+/* -- target window management -- */
 
-  while(!htrajectory_done(htj));
+void htrajectory_setSteeringWindow( htrajectory_t *htj, double xywin )
+{
+  htj->xySteeringWindow = xywin;
 }
 
-void htrajectory_manage_xya(void *dummy)
+void htrajectory_setStopWindows( htrajectory_t *htj, double xywin, double awin )
 {
-	htrajectory_t *htj = (htrajectory_t*)dummy;
-
-	if(!htj)
-		ERROR(HTRAJECTORY_ERROR,"%s received a null pointer",__func__);
-	
-	// set consign to high level cs
-  robot_cs_set_consigns(htj->rcs, (htj->tx)*RCS_MM_TO_CSUNIT,
-                                  (htj->ty)*RCS_MM_TO_CSUNIT,
-                                  (htj->ta)*RCS_RAD_TO_CSUNIT);
-
-	if(htrajectory_in_position(htj))
-	{
-		DEBUG(0,"trajectory task %d : in position",htj->event);
-
-		scheduler_del_event(htj->event);
-		htj->in_position = 1;
-	}
+  htj->xyStopWindow = xywin;
+  htj->aStopWindow = awin;
 }
 
-uint8_t htrajectory_in_position(htrajectory_t *htj)
+/* -- status -- */
+
+uint8_t htrajectory_doneXY( htrajectory_t *htj )
 {
-  hrobot_vector_t vector;
-
-  // get position in mm, rads
-  hposition_get(htj->hps, &vector);
-
-  // in position
-  if( (fabs( vector.x - htj->tx ) < htj->mind )
-    &&(fabs( vector.y - htj->ty ) < htj->mind )
-    &&(fabs( vector.alpha - htj->ta ) < htj->mina ) )
+  if( htj->state == STATE_STOP )
     return 1;
   else
     return 0;
 }
 
-uint8_t htrajectory_done(htrajectory_t *htj)
+uint8_t htrajectory_doneA( htrajectory_t *htj )
 {
-	return htj->in_position;
+  hrobot_vector_t robot;
+  double da;
+
+  hposition_get(htj->hrp, &robot);
+
+  da = fabs(htj->carrotA - robot.alpha);
+
+  if( da < htj->aStopWindow )
+    return 1;
+  else
+    return 0;
 }
 
-uint8_t htrajectory_realign(htrajectory_t *htj,
-                              realignvector_t realignv, double newpos)
-{ 
-  double newangle;
-  double reavx,reavy;
-  hrobot_vector_t robv;
+/* -- trajectory update -- */
 
-  // perform robot realignement
-  NOTICE(0,"performing robot realignement vector %d, new position %f",
-              realignv,newpos);
-
-  // get position in mm, rads
-  hposition_get(htj->hps, &robv);
-
-  // compute angle to face to realign
-  switch(realignv)
-  {
-    case RV_XPLUS:
-      newangle = +M_PI/6.0;
-      reavx = -(htj->realignspeed)*cos(M_PI/6.0);
-      reavy = (htj->realignspeed)*sin(M_PI/6.0);
-      break;
-
-    case RV_XMINUS:
-      newangle = -M_PI/6.0;
-      reavx = (htj->realignspeed)*cos(M_PI/6.0);
-      reavy = (htj->realignspeed)*sin(M_PI/6.0);
-      break;
-
-    case RV_YPLUS:
-      newangle = 0;
-      reavx = 0;
-      reavy = -(htj->realignspeed);
-      break;
-
-    case RV_YMINUS:
-      newangle = +M_PI/3.0;
-      reavx = (htj->realignspeed)*cos(M_PI/6.0);
-      reavy = (htj->realignspeed)*sin(M_PI/6.0);
-      break;
-
-    default: 
-      ERROR(HTRAJECTORY_ERROR,"realign vector wrong value realignv=%d",
-                    realignv); 
-      break;
-  }
-
-  htrajectory_goto_xya_wait(htj, robv.x, robv.y, newangle);
+void htrajectory_update( htrajectory_t *htj )
+{
+  vect_xy_t normalizedError;
+  double errorLength;
+  vect_xy_t *point;
+  double dx,dy;
   
-  robot_cs_activate(htj->rcs, 0);
-  DEBUG(0,"upper CSs deactivated.");
+//  hposition_get( htj->hrp, &robot );
 
-  hrobot_set_motors(htj->rcs->hrs, reavx, reavy, 0);
-  
-  uint8_t firsttime = 1;
-  uint8_t ipcount=0;
-  double ds;
-  hrobot_vector_t probv;
-
-  while(1)
+  switch( htj->state )
   {
-    hposition_get(htj->hps, &robv);
+    case STATE_STOP:
+      break;
     
-    if(firsttime)
-      firsttime = 0;
-    else
-    { 
-      //  compute distance squared between now and previous position
-      ds = pow(probv.x - robv.x,2) + pow(probv.y - robv.y,2);
+    // robot follow a path
+    case STATE_PATH_MID:
+    case STATE_PATH_LAST:
 
-      if(ds < 0.1)
-        ipcount++;
+      // is robot in position ?
+      if( inWindowXY(htj) )
+      {
+        // last point reached
+        if( htj->pathIndex >= htj->pathSize - 1 )
+        {
+          DEBUG(0,"Point %d (%2.2f,%2.2f) reached, full stop",
+            htj->pathIndex,
+            htj->path[htj->pathIndex].x,
+            htj->path[htj->pathIndex].y);
 
-      // blocked, in position
-      if(ipcount >=  2)
-        break;  
-    }
+          // put trajectory management to full stop
+          htj->pathIndex = 0;
+          htj->state = STATE_STOP;
+          
+          // set htj->carrot to last position
+          setCarrotXYPosition( htj, htj->path[htj->pathSize - 1] );
 
-    probv = robv;
-    wait_ms(100);
-  }
-  
-  // set new position
-  hposition_get(htj->hps, &robv);
+          break;
+        }
 
-  switch(realignv)
-  {
-    case RV_XPLUS:  hposition_set(htj->hps, newpos+(HTRAJECTORY_ROBOT_LENGTH/3.0), robv.y, newangle); break;
-    case RV_XMINUS: hposition_set(htj->hps, newpos-(HTRAJECTORY_ROBOT_LENGTH/3.0), robv.y, newangle); break;
-    case RV_YPLUS:  hposition_set(htj->hps, robv.x, newpos+(HTRAJECTORY_ROBOT_LENGTH/3.0), newangle); break;
-    case RV_YMINUS: hposition_set(htj->hps, robv.x, newpos-(HTRAJECTORY_ROBOT_LENGTH/3.0), newangle); break;
-    default:
-      ERROR(HTRAJECTORY_ERROR,"realign vector wrong value realignv=%d",
-                    realignv);
+        DEBUG(0,"Point %d (%2.2f,%2.2f) reached, goto next point",
+            htj->pathIndex,
+            htj->path[htj->pathIndex].x,
+            htj->path[htj->pathIndex].y);
+
+        // switch to next point 
+        htj->pathIndex++;
+        
+        // if next point is last point
+        if( htj->pathIndex >= htj->pathSize - 1 )
+          htj->state = STATE_PATH_LAST;
+
+         DEBUG(0,"Going to %d (%2.2f,%2.2f) state=%d",
+            htj->pathIndex,
+            htj->path[htj->pathIndex].x,
+            htj->path[htj->pathIndex].y,
+            htj->state);
+
+       
+      }
+      
+      point = htj->path + htj->pathIndex;
+
+      // --- compute normalized error vector ---
+      
+      dx = point->x - htj->carrot.x;
+      dy = point->y - htj->carrot.y;
+
+      // compute error vector length
+      errorLength = sqrt( dx*dx + dy*dy );
+
+      if( errorLength == 0.0 )
+      {
+        normalizedError.x = 0.0;
+        normalizedError.y = 0.0;
+      }
+      else
+      {
+        // normalize error vector
+        normalizedError.x = dx/errorLength;
+        normalizedError.y = dy/errorLength;
+      }
+
+      // --- compute speed consign & ramp ---
+      
+      // compute distance at which constant deceleration will bring robot
+      // to desired speed
+      double nextSpeed = 0.0;
+      double currAcc = 0.0;
+      double decDistance;
+      
+      if( htj->state == STATE_PATH_MID )
+      {
+        nextSpeed = htj->steeringSpeed;
+        currAcc = htj->steeringAcc;
+      }
+      else
+        if( htj->state == STATE_PATH_LAST )
+        {
+          nextSpeed = htj->stopSpeed;
+          currAcc = htj->stopAcc;
+        }
+        else
+        {
+          /* XXX SHOULD NOT HAPPEN XXX */
+        }
+           
+      decDistance = 0.5*((htj->carrotSpeed)*(htj->carrotSpeed)
+                            - nextSpeed*nextSpeed)/currAcc;
+      // * deceleration phase
+      if( errorLength < decDistance )
+      {
+        if( htj->carrotSpeed - nextSpeed > currAcc )
+          htj->carrotSpeed -= currAcc;
+        else
+          htj->carrotSpeed = nextSpeed;
+      } 
+      // * acceleration phase
+      else if( (htj->carrotSpeed) < htj->cruiseSpeed )
+      {
+        if( htj->cruiseSpeed - htj->carrotSpeed > htj->cruiseAcc )
+          htj->carrotSpeed += htj->cruiseAcc;
+        else
+          htj->carrotSpeed = htj->cruiseSpeed;
+      }
+      // * stable phase
+      else
+      {
+        /* nothing to do */
+      }
+      
+      // --- compute htj->carrot position ---
+
+      if( htj->carrotSpeed > errorLength )
+      {
+        htj->carrot.x = point->x;
+        htj->carrot.y = point->y;
+      }
+      else
+      {
+        htj->carrot.x += (htj->carrotSpeed)*normalizedError.x;
+        htj->carrot.y += (htj->carrotSpeed)*normalizedError.y;
+      }
+
+      // --- update htj->carrot position ---
+
+      setCarrotXYPosition( htj, htj->carrot );
+
       break;
-  }
-  
-  // DEBUG
-  hposition_get(htj->hps, &robv);
-  DEBUG(0,"new position is (%f,%f,%f)",robv.x,robv.y,robv.alpha);
 
-  hrobot_set_motors(htj->rcs->hrs, 0, 0, 0);
-  
-  // magic trick to reinitialize CSs
-  htrajectory_goto_xya(htj, robv.x, robv.y, robv.alpha);
-
-  // reactivate rock'n'roll
-  robot_cs_activate(htj->rcs, 1);
-
-  DEBUG(0,"upper CSs reactivated.");
-  
-  while(!htrajectory_done(htj));
-
-  // move away from wall
-  switch(realignv)
-  {
-    case RV_XPLUS:  htrajectory_gotor_xya(htj, +70, 0, 0); break;
-    case RV_XMINUS: htrajectory_gotor_xya(htj, -70, 0, 0); break;
-    case RV_YPLUS:  htrajectory_gotor_xya(htj, 0, +70, 0); break;
-    case RV_YMINUS: htrajectory_gotor_xya(htj, 0, -70, 0); break;
-    default:
-      ERROR(HTRAJECTORY_ERROR,"realign vector wrong value realignv=%d",
-                    realignv);
-      break;
+    default: break;
   }
 
-
-  while(!htrajectory_done(htj));
-
-  NOTICE(0,"realignement done");
-
-  return 1;
 }
-
-

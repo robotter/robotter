@@ -1,5 +1,5 @@
 /*  
- *  Copyright RobOtter (2009) 
+ *  Copyright RobOtter (2010)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,119 +17,125 @@
  */
 
 /** \file htrajectory.h
-  * \author JD
-  *
-  * Manage simple trajectory management 
-  *
-  */
+ * \date 02/01/2010 
+ * \author JD
+ *
+ * Trajectory management NG
+ *
+ */
 
 #ifndef HTRAJECTORY_H
 #define HTRAJECTORY_H
 
+#include <aversive.h>
+#include <quadramp.h>
 #include "robot_cs.h"
-#include <hposition_manager.h>
+#include "hposition_manager.h"
+#include "vector.h"
 
-#define HTRAJECTORY_ERROR 0x50
+#include "htrajectory_config.h"
 
-#define HTRAJECTORY_DT 200
+typedef enum
+{
+  STATE_STOP = 0,
 
-#define HTRAJECTORY_ROBOT_LENGTH 300.0
+  STATE_PATH_MID,
+  STATE_PATH_LAST
+
+}htrajectory_state_t;
 
 typedef struct
 {
+  hrobot_position_t *hrp;
   robot_cs_t *rcs;
-  hrobot_position_t *hps;
+  struct quadramp_filter *qramp_a;
 
-  double mind;
-  double mina;
+  // trajectory parameters
   
-  double realignspeed;
+  double aSpeed;
+  double aAcc;
 
-  double tx,ty,ta;
+  double cruiseSpeed;
+  double cruiseAcc;
 
-	uint8_t event;
+  double steeringSpeed;
+  double steeringAcc;
 
-	volatile uint8_t in_position;
+  double stopSpeed;
+  double stopAcc;
 
-	struct quadramp_filter *qr_x;
-	struct quadramp_filter *qr_y;
-	struct quadramp_filter *qr_a;
+  double xySteeringWindow;
 
-}htrajectory_t;
+  double xyStopWindow;
+  double aStopWindow;
 
-/**@brief Realignement vector */
-typedef enum 
-{
-  RV_XPLUS = 0,
-  RV_XMINUS,
-  RV_YPLUS,
-  RV_YMINUS
-}realignvector_t;
+  // internal variables
 
-/**@brief Initialize trajectory management 
-  *@param rcs reference to robot_cs_t structure
-  *@param hps reference to hrobot_position_t structure
-  *@param qr_x reference to /x CS quadramp filter
-  *@param qr_y reference to /y CS quadramp filter
-  *@param qr_angle reference to /angle CS quadramp filter
-  */
-void htrajectory_init(htrajectory_t *htj,
-                        robot_cs_t *rcs,
-                        hrobot_position_t *hps,
-												struct quadramp_filter* qr_x,
-												struct quadramp_filter* qr_y,
-												struct quadramp_filter* qr_a);
+  vect_xy_t carrot;
+  double carrotSpeed;
 
-/**@brief Set XY robot speeds 
-  *@param v maximum speed
-  *@param a maximum acceleration
-  */
-void htrajectory_set_xy_speed(htrajectory_t *htj, double v, double a);
+  double carrotA;
 
-/**@brief Set angle robot speed
-  *@param v maximum speed
-  *@param a maximum acceleration
-  */
-void htrajectory_set_a_speed(htrajectory_t *htj, double v, double a);
+  // trajectory
+  vect_xy_t path[HTRAJECTORY_MAX_POINTS];
+  uint8_t pathSize;
 
-/**@brief Set realignement speed
-  *@param v realignement speed
-  */
-void htrajectory_set_realign_speed(htrajectory_t *htj, double v);
+  // status
+  uint8_t pathIndex;
 
-/**@brief Set position precision
-  *@param d minimum distance to target in mm
-  *@param a minimum angle to angle target in rads
-  */
-void htrajectory_set_precision(htrajectory_t *htj, double d, double a);
+  htrajectory_state_t state;
 
-/**@brief Scheduler event managing trajectory*/
-void htrajectory_manage_xya(void *dummy);
+} htrajectory_t;
 
-/**@brief Goto (x,y,a) in robot space, return immediatly*/
-void htrajectory_goto_xya(htrajectory_t *htj, double x, double y, double a);
+/**\brief Initialize trajectory manager */
+void htrajectory_init( htrajectory_t *htj, 
+                        hrobot_position_t *hrp,
+                        robot_cs_t* rcs,
+                        struct quadramp_filter* qramp_angle);
 
-/**@brief Goto (x,y,a) relatively to current position in robot space, return immediatly */
-void htrajectory_gotor_xya(htrajectory_t *htj, double x, double y, double a);
+/* -- speed management -- */
 
-/**@brief Goto (x,y,a) in robot space, return when target is reached */
-void htrajectory_goto_xya_wait(htrajectory_t *htj, double x, double y, double a);
+/**\brief Change robot A speed */
+void htrajectory_setASpeed( htrajectory_t *htj, double speed, double acc );
 
-/**@brief Goto (x,y,a) relatively to current position in robot space, return when target is reached */
-void htrajectory_gotor_xya_wait(htrajectory_t *htj, double x, double y, double a);
+/**\brief Change robot XY cruise speed */
+void htrajectory_setXYCruiseSpeed( htrajectory_t *htj, double speed, double acc );
 
-/**@brief Check if target is reached 
-  *@return 1 if target reached, 0 otherwise */
-uint8_t htrajectory_in_position(htrajectory_t *htj);
+/**\brief Change robot XY steering speed */
+void htrajectory_setXYSteeringSpeed( htrajectory_t *htj, double speed, double acc );
 
-/**@brief Check if trajectory done
-  *@return 1 if trajectory done, 0 otherwise */
-uint8_t htrajectory_done(htrajectory_t *htj);
+/**\brief Change robot XY stop speed */
+void htrajectory_setXYStopSpeed( htrajectory_t *htj, double speed, double acc );
 
-/**@brief Perform robot realignement 
-  *@param realignv robot vector/orientation to perform realignement
-  *@param newpos position of the border the robot is realigning on
-  */
-uint8_t htrajectory_realign(htrajectory_t* htj, realignvector_t realignv, double newpos);
+/* -- target window management -- */
+
+/**\brief Change robot window along path */
+void htrajectory_setSteeringWindow( htrajectory_t *htj, double xywin );
+
+/**\brief Change robot window on stop */
+void htrajectory_setStopWindows( htrajectory_t *htj, double xywin, double awin );
+
+/* -- orders -- */
+
+/**\brief Load and run path */
+void htrajectory_run( htrajectory_t *htj, vect_xy_t *hrv, uint8_t n);
+
+/**\brief Turn robot by 'a'  */
+void htrajectory_gotoA( htrajectory_t *htj, double a);
+
+/**\brief Goto (x,y) point */
+void htrajectory_gotoXY( htrajectory_t *htj, double x, double y);
+
+/* -- status -- */
+
+/**\brief Return 1 if robot is turned to it consign, 0 otherwise */
+uint8_t htrajectory_doneA( htrajectory_t *htj );
+
+/**\brief Return 1 if robot is in (x,y) position, 0 otherwise */
+uint8_t htrajectory_doneXY( htrajectory_t *htj );
+
+/* -- trajectory update -- */
+
+void htrajectory_update( htrajectory_t *htj );
 
 #endif/*HTRAJECTORY_H*/
