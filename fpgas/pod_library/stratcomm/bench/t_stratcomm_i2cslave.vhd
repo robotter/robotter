@@ -33,7 +33,8 @@ architecture t_stratcomm_i2cslave_1 of t_stratcomm_i2cslave is
 	signal i2c_scl_s : std_logic;
 	signal i2c_sda_s : std_logic;
 
-	signal subaddress_s : std_logic_vector(7 downto 0);
+  signal i2c_self_address_s : std_logic_vector(6 downto 0);
+
   signal data_in_s : std_logic_vector(7 downto 0);
   signal data_out_s : std_logic_vector(7 downto 0);
   signal write_s : std_logic;
@@ -50,7 +51,8 @@ architecture t_stratcomm_i2cslave_1 of t_stratcomm_i2cslave is
       i2c_scl_i : in std_logic;
       i2c_sda_io : inout std_logic;
 
-      subaddress_o : out std_logic_vector(7 downto 0);
+      i2c_self_address_i : in std_logic_vector(6 downto 0);
+
       data_in_i : in std_logic_vector(7 downto 0);
       data_out_o : out std_logic_vector(7 downto 0);
       write_o : out std_logic;
@@ -72,6 +74,19 @@ architecture t_stratcomm_i2cslave_1 of t_stratcomm_i2cslave is
     i2c_sda_io <= '0';
     wait for 2 us;
   end procedure i2c_start;
+
+  procedure i2c_stop (
+    signal i2c_scl_o : out std_logic;
+    signal i2c_sda_io : inout std_logic
+  ) is 
+  begin
+    -- generate STOP condition
+    i2c_scl_o <= '1';
+    i2c_sda_io <= '0';
+    wait for 2 us;
+    i2c_sda_io <= '1';
+    wait for 2 us;
+  end procedure i2c_stop;
 
 
   procedure i2c_senddata (
@@ -107,6 +122,7 @@ architecture t_stratcomm_i2cslave_1 of t_stratcomm_i2cslave is
     i2c_scl_o <= '0';
   end procedure i2c_waitforack;
 
+
 begin
 
   stratcomm_i2cslave_0 : stratcomm_i2cslave
@@ -115,7 +131,7 @@ begin
     reset_ni => reset_s,
 		i2c_scl_i => i2c_scl_s,
 		i2c_sda_io => i2c_sda_s,
-		subaddress_o => subaddress_s,
+    i2c_self_address_i => i2c_self_address_s,
     data_in_i => data_in_s,
     data_out_o => data_out_s,
     write_o => write_s,
@@ -133,8 +149,14 @@ begin
     i2c_scl_s <= '1';
     i2c_sda_s <= '1';
 
+    i2c_self_address_s <= "0010001"; -- 0x20
+
     reset_s <= '1';
     wait for 2 us;
+
+    i2c_start(i2c_scl_s, i2c_sda_s);
+    i2c_senddata(i2c_scl_s, i2c_sda_s, x"22");
+    i2c_stop(i2c_scl_s, i2c_sda_s);
 
     i2c_start(i2c_scl_s, i2c_sda_s);
     i2c_senddata(i2c_scl_s, i2c_sda_s, x"22");
@@ -142,6 +164,7 @@ begin
     i2c_senddata(i2c_scl_s, i2c_sda_s, x"01");
     i2c_waitforack(i2c_scl_s, i2c_sda_s);
     i2c_senddata(i2c_scl_s, i2c_sda_s, x"FE");
+    i2c_stop(i2c_scl_s, i2c_sda_s);
 
     wait for 10 us;
     report "end of tests" severity note;

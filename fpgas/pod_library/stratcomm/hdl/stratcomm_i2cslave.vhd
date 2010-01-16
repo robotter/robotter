@@ -37,12 +37,8 @@ entity stratcomm_i2cslave is
 generic (
   ---------- FPGA ---------------------------------------------------------
   -- FPGA clock period in ns
-  fpga_clock_period_c : natural := 20;
+  fpga_clock_period_c : natural := 20
 
-  ---------- I2C ----------------------------------------------------------
-  -- entity i2c slave address
-  i2c_self_address_c : std_logic_vector(6 downto 0) := "0010001"
-  
 );
 port (
   -- FPGA signals
@@ -53,8 +49,10 @@ port (
   i2c_scl_i : in std_logic;
   i2c_sda_io : inout std_logic;
 
+  -- i2c params
+  i2c_self_address_i : in std_logic_vector(6 downto 0);
+
   -- array addressing signals
-  subaddress_o : out std_logic_vector(7 downto 0);
   data_in_i : in std_logic_vector(7 downto 0);
   data_out_o : out std_logic_vector(7 downto 0);
   write_o : out std_logic;
@@ -70,19 +68,45 @@ architecture stratcomm_i2c_1 of stratcomm_i2cslave is
 signal debug_addr_s : std_logic_vector(6 downto 0);
 signal debug_state_s : natural;
 
-signal subaddress_s : std_logic_vector(7 downto 0);
+signal i2c_stop_recv_s : std_logic;
 
 begin
-	
-  subaddress_o <= subaddress_s;
+
+  -- handle i2c stop event
+  i2cstop_p : process(reset_ni, clk_i)
+
+    variable i2c_psda_v : std_logic;
+    variable i2c_twotick_v : std_logic;
+
+  begin
+
+    if reset_ni = '0' then
+
+      i2c_psda_v := '0';
+      i2c_twotick_v := '0';
+
+    else
+      if rising_edge(clk_i) then
+        
+        -- STOP condition
+        if i2c_psda_v = '0' and i2c_sda_io = '1' and i2c_scl_i = '1' then
+          i2c_stop_recv_s <= '1';
+        else
+          i2c_stop_recv_s <= '0';
+        end if;
+
+        i2c_psda_v := i2c_sda_io;
+      
+      end if; --r_e(clk_i)
+    end if; -- reset_ni = '0'
+
+  end process i2cstop_p;
 
   -- handle i2c communication
   i2c_p : process(reset_ni, clk_i)
     
     -- iterator used on i2c clock
     variable i2c_addrit_v : natural range 0 to 7;
-    -- current received data is subaddress
-    variable i2c_issubaddr_v : std_logic;
     -- current i2c address
     variable i2c_address_v : std_logic_vector(6 downto 0);
     -- current i2c data
@@ -91,18 +115,19 @@ begin
     variable i2c_state_v : natural range 0 to 10;
     -- i2c communication R/W bit
     -- '0' for write / '1' for read
-    variable i2c_rw_bit : std_logic;
+    variable i2c_rw_bit_v : std_logic;
     -- previous sda value
     variable i2c_psda_v : std_logic;
     -- previous scl value
     variable i2c_pscl_v : std_logic;
   begin
 
-    if reset_ni = '0' then
+    if reset_ni = '0' or i2c_stop_recv_s = '1' then
       -- on reset 
       i2c_sda_io <= 'Z';
       i2c_state_v := 0;
       write_o <= '0';
+      i2c_address_v := "0000000";
     else
       if rising_edge(clk_i) then
         -- on clock rising edge
@@ -136,11 +161,9 @@ begin
             if i2c_addrit_v = 0 then
               
               -- i2c address received, checking if self address
-              if i2c_address_v = i2c_self_address_c then
+              if i2c_address_v = i2c_self_address_i then
                 -- OK, reading R/W bit
                 i2c_state_v := 2;
-                -- next data will be the subaddress
-                i2c_issubaddr_v := '1';
               else
                 -- KO, wait for START condition
                 i2c_state_v := 0;
@@ -159,7 +182,7 @@ begin
           -- SCL rising edge
           if i2c_pscl_v = '0' and i2c_scl_i = '1' then
             -- sample R/W bit
-            i2c_rw_bit := i2c_sda_io;
+            i2c_rw_bit_v := i2c_sda_io;
             i2c_state_v := i2c_state_v + 1;
           end if; -- SCL r_e
         
@@ -179,7 +202,7 @@ begin
           if i2c_pscl_v = '1' and i2c_scl_i = '0' then
             i2c_sda_io <= 'Z';
             i2c_addrit_v := 7;
-            if i2c_rw_bit = '0' then
+            if i2c_rw_bit_v = '0' then
               -- write
               i2c_state_v := 5;
             else
@@ -199,16 +222,9 @@ begin
             if i2c_addrit_v = 0 then
               -- all data sampled
               
-              if i2c_issubaddr_v = '1' then
-                -- data is a subaddress
-                subaddress_s <= i2c_data_v;
-                i2c_issubaddr_v := '0';
-                i2c_state_v := 3;
-              else
-                data_out_o <= i2c_data_v;
-                write_o <= '0';
-                i2c_state_v := i2c_state_v + 1;
-              end if;
+              data_out_o <= i2c_data_v;
+              write_o <= '0';
+              i2c_state_v := i2c_state_v + 1;
 
             else
               i2c_addrit_v := i2c_addrit_v - 1;
@@ -221,16 +237,9 @@ begin
 
           -- generate write r_e to sample data
           write_o <= '1';
-          subaddress_s <= std_logic_vector(to_unsigned(
-                            to_integer(unsigned(subaddress_s)) + 1
-                            ,8));
+
           -- go to generate ACK state
           i2c_state_v := 3;
-
-        -------------------------------------
-        -- state 7 : increment subaddress
-        elsif i2c_state_v = 6 then 
-
 
         end if; -- state machine
         
