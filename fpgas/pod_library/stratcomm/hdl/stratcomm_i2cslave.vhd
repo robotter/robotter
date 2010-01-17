@@ -91,7 +91,7 @@ begin
         else
           i2c_stop_recv_s <= '0';
         end if;
-
+      
         i2c_psda_v := i2c_sda_in_s;
       
       end if; --r_e(clk_i)
