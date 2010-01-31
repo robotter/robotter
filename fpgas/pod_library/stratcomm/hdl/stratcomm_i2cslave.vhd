@@ -49,8 +49,8 @@ port (
   -- array addressing signals
   data_in_i : in std_logic_vector(7 downto 0);
   data_out_o : out std_logic_vector(7 downto 0);
-  write_o : out std_logic;
-  read_i : in std_logic
+  lock_write_o : out std_logic;
+  lock_read_o : out std_logic
 );
 end entity;
 
@@ -60,10 +60,14 @@ architecture stratcomm_i2c_1 of stratcomm_i2cslave is
 ---------------------------------------------------------------------------
 
 signal i2c_stop_recv_s : std_logic;
+signal i2c_start_recv_s : std_logic;
 signal i2c_sda_in_s : std_logic;
 signal i2c_sda_out_s : std_logic;
 -- i2c state flag 0-'Z' 1-driven by sda_out
 signal i2c_sda_state_s : std_logic;
+
+signal i2c_sda_in_db_s : std_logic;
+signal i2c_scl_db_s : std_logic;
 
 begin
 
@@ -71,6 +75,89 @@ begin
   i2c_sda_in_s <= i2c_sda_io;
   i2c_sda_io <= i2c_sda_out_s when i2c_sda_state_s = '1' else 'Z';
 
+	-------------------------------------------------------------------------------------
+	-- SCL debouncer
+	debouncer_scl_p : process(reset_ni, clk_i)
+    variable dbcr_array_v : std_logic_vector(7 downto 0);
+	begin
+	  if reset_ni = '0' then
+			i2c_scl_db_s <= '1';
+    else
+      if rising_edge(clk_i) then
+      	
+				for it in 6 downto 0 loop
+				  dbcr_array_v(it+1) := dbcr_array_v(it);
+				end loop;
+				dbcr_array_v(0) := i2c_scl_i;
+			  
+				if dbcr_array_v = x"00" then
+					i2c_scl_db_s <= '0';
+				end if;
+
+				if dbcr_array_v = x"FF" then
+					i2c_scl_db_s <= '1';
+				end if;
+
+      end if; --r_e(clk_i)
+    end if; -- reset_ni = '0'
+	end process; -- debouncer_scl_p
+
+	-------------------------------------------------------------------------------------
+	-- SDA debouncer
+	debouncer_sda_p : process(reset_ni, clk_i)
+    variable dbcr_array_v : std_logic_vector(7 downto 0);
+	begin
+	  if reset_ni = '0' then
+			i2c_sda_in_db_s <= '1';
+    else
+      if rising_edge(clk_i) then
+      	
+				for it in 6 downto 0 loop
+				  dbcr_array_v(it+1) := dbcr_array_v(it);
+				end loop;
+				dbcr_array_v(0) := i2c_sda_in_s;
+			  
+				if dbcr_array_v = x"00" then
+					i2c_sda_in_db_s <= '0';
+				end if;
+
+				if dbcr_array_v = x"FF" then
+					i2c_sda_in_db_s <= '1';
+				end if;
+
+      end if; --r_e(clk_i)
+    end if; -- reset_ni = '0'
+	end process; -- debouncer_sda_p
+
+	-------------------------------------------------------------------------------------
+  -- handle i2c start event
+  i2cstart_p : process(reset_ni, clk_i)
+
+    variable i2c_psda_v : std_logic;
+
+  begin
+
+    if reset_ni = '0' then
+
+      i2c_psda_v := '1';
+			i2c_start_recv_s <= '0';
+
+    else
+      if rising_edge(clk_i) then
+        -- START condition
+          if i2c_psda_v = '1' and i2c_sda_in_db_s = '0' and i2c_scl_db_s = '1' then
+						i2c_start_recv_s <= '1';
+					else
+						i2c_start_recv_s <= '0';
+      		end if;	    
+        i2c_psda_v := i2c_sda_in_db_s;
+      
+      end if; --r_e(clk_i)
+    end if; -- reset_ni = '0'
+
+  end process i2cstart_p;
+
+  -------------------------------------------------------------------------------------
   -- handle i2c stop event
   i2cstop_p : process(reset_ni, clk_i)
 
@@ -80,25 +167,27 @@ begin
 
     if reset_ni = '0' then
 
-      i2c_psda_v := '0';
+      i2c_psda_v := '1';
+			i2c_stop_recv_s <= '0';
 
     else
       if rising_edge(clk_i) then
         
         -- STOP condition
-        if i2c_psda_v = '0' and i2c_sda_in_s = '1' and i2c_scl_i = '1' then
+        if i2c_psda_v = '0' and i2c_sda_in_db_s = '1' and i2c_scl_db_s = '1' then
           i2c_stop_recv_s <= '1';
         else
           i2c_stop_recv_s <= '0';
         end if;
       
-        i2c_psda_v := i2c_sda_in_s;
+        i2c_psda_v := i2c_sda_in_db_s;
       
       end if; --r_e(clk_i)
     end if; -- reset_ni = '0'
 
   end process i2cstop_p;
 
+	-------------------------------------------------------------------------------------
   -- handle i2c communication
   i2c_p : process(reset_ni, clk_i, i2c_stop_recv_s)
     
@@ -121,17 +210,37 @@ begin
 
     if reset_ni = '0' or i2c_stop_recv_s = '1' then
       -- on reset 
---      i2c_sda_io <= 'Z';
       i2c_sda_state_s <= '0'; -- set SDA tri-stated
+      i2c_data_v := x"00";
       i2c_state_v := 0;
-      write_o <= '0';
+      i2c_addrit_v := 0;
+      i2c_rw_bit_v := '0';
+      i2c_psda_v := '1';
+      i2c_pscl_v := '1';
+      i2c_state_v := 0;
+      lock_write_o <= '0';
+      lock_read_o <= '0';
       i2c_address_v := "0000000";
+      i2c_addrit_v := 0;
+      i2c_data_v := x"00";
+      i2c_rw_bit_v := '0';
+
+      i2c_sda_out_s <= '0';
+      i2c_sda_state_s <= '0';
+
     else
       if rising_edge(clk_i) then
         -- on clock rising edge
         
+				-- if START condition received run state machine
+				if i2c_start_recv_s = '1' then
+					i2c_state_v := 1;
+					i2c_address_v := "0000000";
+					i2c_addrit_v := 6;
+				end if;
+
         -------------------------------------
-        -- state 0 : Initial state
+        -- state 0 : Idle state
         if i2c_state_v = 0 then
 
           -- START condition
@@ -146,10 +255,11 @@ begin
         elsif i2c_state_v = 1 then
           
           -- SCL rising edge
-          if i2c_pscl_v = '0' and i2c_scl_i = '1' then
+          if i2c_pscl_v = '0' and i2c_scl_db_s = '1' then
             
             -- sample address data on SCL r_e
-            i2c_address_v(i2c_addrit_v) := i2c_sda_in_s;
+						i2c_sda_state_s <= '0'; 
+            i2c_address_v(i2c_addrit_v) := i2c_sda_in_db_s;
 
             if i2c_addrit_v = 0 then
               
@@ -173,9 +283,9 @@ begin
         elsif i2c_state_v = 2 then
           
           -- SCL rising edge
-          if i2c_pscl_v = '0' and i2c_scl_i = '1' then
+          if i2c_pscl_v = '0' and i2c_scl_db_s = '1' then
             -- sample R/W bit
-            i2c_rw_bit_v := i2c_sda_in_s;
+            i2c_rw_bit_v := i2c_sda_in_db_s;
             i2c_state_v := i2c_state_v + 1;
           end if; -- SCL r_e
         
@@ -183,26 +293,30 @@ begin
         -- state 3 : waiting for SCL low to generate ACK (pull SDA low)
         elsif i2c_state_v = 3 then
 
-          if i2c_scl_i = '0' then
+          if i2c_scl_db_s = '0' then
             i2c_sda_state_s <= '1';
             i2c_sda_out_s <= '0';
             i2c_state_v := i2c_state_v + 1;
           end if;
 
         -------------------------------------
-        -- state 4 : waiting for SCL falling edge to give line back to master
+        -- state 4 : waiting for SCL falling edge
         elsif i2c_state_v = 4 then
           
-          if i2c_pscl_v = '1' and i2c_scl_i = '0' then
- --           i2c_sda_io <= 'Z';
-            i2c_sda_state_s <= '0'; -- set SDA tri-stated
+          if i2c_pscl_v = '1' and i2c_scl_db_s = '0' then
             i2c_addrit_v := 7;
             if i2c_rw_bit_v = '0' then
-              -- write
+              -- write, give SDA line back to master
+              i2c_sda_state_s <= '0'; -- set SDA tri-stated
               i2c_state_v := 5;
+
+              lock_write_o <= '0';
             else
-              -- read
+              -- read, slave keep SDA line
+              i2c_sda_state_s <= '1'; -- set SDA to high levels
               i2c_state_v := 7;
+
+              lock_read_o <= '0';
             end if;
           end if; -- scl falling edge
 
@@ -211,15 +325,16 @@ begin
         elsif i2c_state_v = 5 then
         
           -- SCL rising edge
-          if i2c_pscl_v = '0' and i2c_scl_i = '1' then 
-            i2c_data_v(i2c_addrit_v) := i2c_sda_in_s;
+          if i2c_pscl_v = '0' and i2c_scl_db_s = '1' then 
+            i2c_data_v(i2c_addrit_v) := i2c_sda_in_db_s;
             
             if i2c_addrit_v = 0 then
               -- all data sampled
               
               data_out_o <= i2c_data_v;
-              write_o <= '0';
-              i2c_state_v := i2c_state_v + 1;
+
+              -- go to generate ACK state
+              i2c_state_v := 3;
 
             else
               i2c_addrit_v := i2c_addrit_v - 1;
@@ -227,20 +342,65 @@ begin
           end if; -- SCL r_e
 
         -------------------------------------
-        -- state 6 : data received perform write to array
-        elsif i2c_state_v = 6 then 
+        -- state 7 : read communication, immediatly set SDA 
+  			elsif i2c_state_v = 7 then
+        
+          -- latch data to send
+          i2c_data_v := data_in_i;
+          
+          -- set SDA
+          i2c_sda_state_s <= '1';
+          i2c_sda_out_s <= i2c_data_v(7);
+          
+          -- set iterator
+          i2c_addrit_v := 6;
+          
+          -- switch to next state
+          i2c_state_v := i2c_state_v + 1;
 
-          -- generate write r_e to sample data
-          write_o <= '1';
+	      -------------------------------------
+        -- state 8 : read communication, next  7 bits
+  			elsif i2c_state_v = 8 then
+          
+          -- waiting for SCL falling edge
+          if i2c_pscl_v = '1' and i2c_scl_db_s = '0' then
+            
+            -- put bit on SDA
+            i2c_sda_out_s <= i2c_data_v(i2c_addrit_v);
+            
+            if i2c_addrit_v = 0 then
+              -- all data sampled wait for master ACK
+              i2c_state_v := i2c_state_v + 1;
+              -- switch SDA to Z
+              i2c_sda_state_s <= '0'; 
+            else
+              i2c_addrit_v := i2c_addrit_v - 1;
+            end if;
 
-          -- go to generate ACK state
-          i2c_state_v := 3;
+          end if;
+        
+        -------------------------------------
+        -- state 9 : wait for master ACK
+        elsif i2c_state_v = 9 then
+          
+          -- waiting for SCL rising edge
+          if i2c_pscl_v = '0' and i2c_scl_db_s = '1' then 
+              
+            if i2c_sda_in_db_s = '0' then
+              -- master ACK with 0, continue reads
+              i2c_state_v := 7;
+            else
+              -- master ACK with 1, end communication
+              i2c_state_v := 0;
+            end if;
 
-        end if; -- state machine
+          end if;
+
+  			end if; -- state machine
         
         -- update previous sda & scl values
-        i2c_psda_v := i2c_sda_in_s;
-        i2c_pscl_v := i2c_scl_i;
+        i2c_psda_v := i2c_sda_in_db_s;
+        i2c_pscl_v := i2c_scl_db_s;
 
       end if; -- r_e(clk_i)
     end if; -- reset_ni = '0'
