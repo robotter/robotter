@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-import re, sys
+import re, sys, select
 
+# TODO 
+# - call uio.restoreLocalTermios when program quit
 
 class RobloClient:
   """
@@ -480,7 +482,8 @@ class Roblochon(RobloClient):
       sys.stderr.write("robloc: >> %r\n" % data)
 
   def output_program_progress(self, ncur, nmax):
-    sys.stdout.write("\rprogramming: page %3d / %3d  " % (ncur, nmax))
+    sys.stdout.write("\rprogramming: page %3d / %3d  -- %2.2f%%" 
+                          % (ncur, nmax, (100.0*ncur)/nmax))
     sys.stdout.flush()
   def output_program_end(self):
     sys.stdout.write("\n")
@@ -556,7 +559,109 @@ class BasicSerial:
     s = fcntl.ioctl(self.fd, termios.FIONREAD, struct.pack('I', 0))
     return struct.unpack('I',s)[0]
 
+class TermColor:
 
+  """ Terminal color codes """
+  normal = "\033[0m"
+  black = "\033[30m"
+  red = "\033[31m"
+  green = "\033[32m"
+  yellow = "\033[33m"
+  blue = "\033[34m"
+  purple = "\033[35m"
+  cyan = "\033[36m"
+  grey = "\033[37m"
+  bold = "\033[1m"
+  uline = "\033[4m"
+  blink = "\033[5m"
+  invert = "\033[7m"
+
+
+class BasicUIO:
+  """ Basic User I/O """
+
+  def __init__(self):
+    self.saveLocalTermios()
+    self.setLocalTermios()
+ 
+  def setColorSpecial(self):
+    sys.stderr.write("%s%s"%(TermColor.blue,TermColor.bold))
+
+  def setColorNormal(self):
+    sys.stderr.write("%s"%(TermColor.normal))
+
+  def showMenu(self,opts):
+    self.setColorSpecial()
+    sys.stderr.write(">> . | p ")
+    self.setColorNormal()
+    
+    c = os.read(sys.stdin.fileno(), 1)
+
+    sys.stderr.write("\n")
+
+    # quit
+    if c == ".":
+      return 0
+    
+    # program
+    elif c == "p":
+      return 1
+
+  def saveLocalTermios(self):
+    """ Save local termios
+    """
+    self.savetio_local = termios.tcgetattr(sys.stdout)
+
+  def restoreLocalTermios(self):
+    """ Restore local termios
+    """
+    termios.tcsetattr(sys.stdout, termios.TCSANOW, self.savetio_local)
+
+  def setLocalTermios(self):
+    """ Set local termios
+    """
+    
+    # get current termios
+    tio = termios.tcgetattr(sys.stdout)
+    
+    # do not translate carriage return to newline
+    tio[0] = tio[0] & ~termios.ICRNL
+
+    # various magic from tip
+    tio[3] = 0
+    tio[6][termios.VMIN] = 1
+    tio[6][termios.VTIME] = 0
+
+    # set new termios
+    termios.tcsetattr(sys.stdout, termios.TCSANOW, tio)
+
+
+
+def startBootloader():
+  print "bootloader waiting..."
+  client = Roblochon(conn, verbose=opts.verbose, init_send=opts.init_send)
+  
+  if opts.roid is not None:
+    assert opts.roid != client.roid, "ROID mismatch"
+
+  if opts.infos:
+    print "device infos :  ROID: %d, commands: %s" % (client.roid, client.cmds)
+  if opts.fuses:
+    print "fuses (low high ex): %02x %02x %02x" % client.read_fuses()
+  if opts.program:
+    print "programming..."
+    client.program(args[0], args[1] if len(args)>1 else None, opts.force)
+  if opts.check:
+    print "CRC check..."
+    if client.check(args[0]):
+      print "CRC OK"
+    else:
+      print "CRC mismatch"
+      opts.boot = False
+  if opts.boot:
+    print "boot"
+    client.boot()
+ 
 
 if __name__ == '__main__':
   from optparse import OptionParser
@@ -565,6 +670,8 @@ if __name__ == '__main__':
       description="Rob'Otter Bootloader Client",
       usage="%prog [OPTIONS] [file.hex] [previous.hex]",
       )
+  parser.add_option('-t', '--terminal', dest='terminal', action='store_true',
+      help="work as a serial terminal")
   parser.add_option('-p', '--program', dest='program', action='store_true',
       help="program the device")
   parser.add_option('-c', '--check', dest='check', action='store_true',
@@ -588,6 +695,7 @@ if __name__ == '__main__':
   parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
       help="print transferred data on stderr")
   parser.set_defaults(
+      terminal=False,
       program=False,
       check=False,
       boot=False,
@@ -615,27 +723,52 @@ if __name__ == '__main__':
   if len(args) > narg_max:
     parser.error("extra argument")
 
+  # Connect to serial line and setup stdin/out
   conn = BasicSerial(opts.port, opts.baudrate)
-  client = Roblochon(conn, verbose=opts.verbose, init_send=opts.init_send)
 
-  if opts.roid is not None:
-    assert opts.roid != client.roid, "ROID mismatch"
+  # not in terminal mode, just run bootloader 
+  if opts.terminal == False :
+    startBootloader()
+  else:
 
-  if opts.infos:
-    print "device infos :  ROID: %d, commands: %s" % (client.roid, client.cmds)
-  if opts.fuses:
-    print "fuses (low high ex): %02x %02x %02x" % client.read_fuses()
-  if opts.program:
-    print "programming..."
-    client.program(args[0], args[1] if len(args)>1 else None, opts.force)
-  if opts.check:
-    print "CRC check..."
-    if client.check(args[0]):
-      print "CRC OK"
-    else:
-      print "CRC mismatch"
-      opts.boot = False
-  if opts.boot:
-    print "boot"
-    client.boot()
+    uio = BasicUIO()
+
+    # Main loop
+    while 1:
+
+      # wait for data in either stdin or serial line
+      rds,_,_ = select.select([conn.fd,sys.stdin],[],[])
+
+      # select was trigged by the serial line
+      # transfer bytes to stdout
+      if conn.fd in rds :
+        buffer = conn.read(1024)
+        os.write(sys.stdout.fileno(), buffer)
+
+      # select was trigged by stdin
+      # transfer bytes to serial line
+      if sys.stdin in rds:
+        buffer = os.read(sys.stdin.fileno(), 1)
+        
+        # bring up menu
+        if buffer == "^":
+          r = uio.showMenu(opts)
+
+          if r == 0:
+            break
+          elif r == 1:
+            
+            # switch to special color
+            uio.setColorSpecial()
+
+            startBootloader()
+
+            # switch back to normal color
+            uio.setColorNormal()
+
+        else:
+          conn.write(buffer)
+    
+    # Final cleanup
+    uio.restoreLocalTermios()
 
