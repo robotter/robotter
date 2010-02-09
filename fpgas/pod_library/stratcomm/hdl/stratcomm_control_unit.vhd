@@ -2,7 +2,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.std_logic_1164_ram.all;
-entity comm_control_unit is
+
+entity stratcomm_control_unit is
   
   generic (
     reception_buffer_size_c : natural := 20;
@@ -27,9 +28,9 @@ entity comm_control_unit is
     i2c_communicating_i  : in  std_logic;  -- indicates if a communication is occuring
     i2c_new_transfert_i  : in  std_logic);  -- indicates that a new data is required on data_out_o or avaliable on data_in_i
 
-end comm_control_unit;
+end stratcomm_control_unit;
 
-architecture comm_contol_unit_1 of comm_control_unit is
+architecture stratcomm_control_unit_1 of stratcomm_control_unit is
 
 
   type control_unit_state is(wait_for_communication, rd_begin_emission, rd_send_byte, rd_update_read_index, rd_finish_read, wr_begin_reception, wr_receive_byte, wr_update_write_index, wr_finish_write);  -- states of the control unit
@@ -265,4 +266,4 @@ begin  -- comm_contol_unit_1
     end if;
   end process wr_update_buffer_out_p;
   
-end comm_contol_unit_1;
+end stratcomm_control_unit_1;

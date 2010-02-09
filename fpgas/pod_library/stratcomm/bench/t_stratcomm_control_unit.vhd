@@ -2,7 +2,7 @@
 -- Title    : Communication Control Unit Testbench
 -- Project  : 
 -----------------------------------------------------------------------------
--- File     : comm_control_unit_tb.vhd
+-- File     : stratcomm_control_unit_tb.vhd
 -- Author   : Lamygalle
 -- Company  : Rob'Otter
 -- 
@@ -113,19 +113,19 @@ use work.p_i2c_module_proc.all;
 use work.std_logic_1164_ram.all;
 
 ---------------------------------------------------------------------------
-entity t_comm_control_unit is 
+entity t_stratcomm_control_unit is 
 generic(
       reception_buffer_size_c : natural := 25;
       emission_buffer_size_c  : natural := 25);
 ---------------------------------------------------------------------------
-end t_comm_control_unit;
+end t_stratcomm_control_unit;
 
 
 ---------------------------------------------------------------------------
-architecture t_comm_control_unit_1 of t_comm_control_unit is
+architecture t_stratcomm_control_unit_1 of t_stratcomm_control_unit is
 ---------------------------------------------------------------------------
 
-  component comm_control_unit
+  component stratcomm_control_unit
     generic (
       reception_buffer_size_c : natural := 25;
       emission_buffer_size_c  : natural := 17);
@@ -180,7 +180,7 @@ begin
 
   ------------------------------------------------------------
   -- Component declaration
-  ccu0:comm_control_unit
+  ccu0:stratcomm_control_unit
     generic map (
       reception_buffer_size_c => reception_buffer_size_c,
       emission_buffer_size_c => emission_buffer_size_c
@@ -250,5 +250,5 @@ begin
 
   end process main_p;
 
-end t_comm_control_unit_1;
+end t_stratcomm_control_unit_1;
 

@@ -41,9 +41,6 @@ architecture t_stratcomm_i2cslave_1 of t_stratcomm_i2cslave is
   signal read_s : std_logic;
 
   component stratcomm_i2cslave is
-    generic (
-      fpga_clock_period_c : natural := 20
-    );
     port (
       clk_i   : in  std_logic;
       reset_ni : in  std_logic;
@@ -55,8 +52,8 @@ architecture t_stratcomm_i2cslave_1 of t_stratcomm_i2cslave is
 
       data_in_i : in std_logic_vector(7 downto 0);
       data_out_o : out std_logic_vector(7 downto 0);
-      write_o : out std_logic;
-      read_i : in std_logic
+      lock_write_o : out std_logic;
+      lock_read_o : out std_logic
     );
   end component stratcomm_i2cslave;
 
@@ -134,8 +131,8 @@ begin
     i2c_self_address_i => i2c_self_address_s,
     data_in_i => data_in_s,
     data_out_o => data_out_s,
-    write_o => write_s,
-    read_i => read_s
+    lock_write_o => write_s,
+    lock_read_o => read_s
   );
 
 

@@ -2,7 +2,7 @@
 -- Title    : Communication wishbone interface
 -- Project  : 
 -----------------------------------------------------------------------------
--- File     : comm_wishbone_interface.vhd
+-- File     : stratcomm_wishbone.vhd
 -- Author   : Lamygale
 -- Company  : Rob'Otter
 -- 
@@ -31,7 +31,7 @@ USE ieee.numeric_std.ALL;
 use work.std_logic_1164_ram.all;
 
 -------------------------------------------------------------------------------
-ENTITY comm_wishbone_interface IS
+ENTITY stratcomm_wishbone IS
   
   GENERIC (
     id_c                        : natural := 2;
@@ -70,9 +70,9 @@ ENTITY comm_wishbone_interface IS
     emission_buffer_o       : out std_logic_ram_8(emission_buffer_size_c-1 downto 0)
     
     );
-END comm_wishbone_interface;
+END stratcomm_wishbone;
 
-ARCHITECTURE comm_wishbone_interface_1 OF comm_wishbone_interface IS
+ARCHITECTURE stratcomm_wishbone_1 OF stratcomm_wishbone IS
 
   
   SIGNAL ack_read_s : std_logic ;
@@ -138,5 +138,5 @@ BEGIN  -- adns6010_wishbone_interface_1
   END PROCESS read_bloc_p;
 
 
-END ARCHITECTURE comm_wishbone_interface_1;
+END ARCHITECTURE stratcomm_wishbone_1;
 
