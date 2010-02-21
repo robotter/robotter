@@ -396,7 +396,7 @@ class Roblochon(RobloClient):
     """
     self._assert_supported_cmd('f')
     self._wait_prompt()
-    r = client.cmd_fuse_read()
+    r = self.cmd_fuse_read()
     if r is False:
       raise RoblochonError("failed to read fuses")
     return r
