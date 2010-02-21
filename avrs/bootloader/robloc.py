@@ -406,7 +406,7 @@ class Roblochon(RobloClient):
     """Boot the device."""
     self._assert_supported_cmd('x')
     self._wait_prompt()
-    r = client.cmd_execute()
+    r = self.cmd_execute()
     if r is False:
       raise RoblochonError("boot failed")
     return

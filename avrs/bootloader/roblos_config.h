@@ -1,5 +1,5 @@
 
-#define ROBOTTER_ID  0
+#define ROBOTTER_ID  0x10
 
 /** @brief Rough timeout before booting at startup, in ms.
  * Actual precision is about 262144/freq (33ms at 8Mhz).
