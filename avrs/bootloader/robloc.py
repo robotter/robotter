@@ -502,7 +502,7 @@ class BasicSerial:
 
     iflag &= ~(termios.INPCK|termios.ISTRIP|termios.INLCR|termios.IGNCR|termios.ICRNL|termios.IXON)
     oflag &= ~(termios.OPOST)
-    cflag = (termios.CREAD)
+    cflag = (termios.CREAD|termios.CLOCAL)
     lflag = 0
 
     # baudrate
