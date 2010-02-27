@@ -173,8 +173,6 @@ architecture t_stratcomm_control_unit_1 of t_stratcomm_control_unit is
 -- Simulation stuff
   signal endofsimulation_s : boolean := false;
 
-  signal loutre_s : std_logic;
-
   signal it_s : natural ;
 begin
 

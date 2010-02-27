@@ -36,7 +36,7 @@ ENTITY stratcomm_wishbone IS
   GENERIC (
     id_c                        : natural := 2;
     wb_size_c                   : natural := 8;
-    adr_size_c                  : natural := 20; -- adr_size_c : equal to
+    addr_size_c                  : natural := 5; -- addr_size_c : equal to
                                                 --max(reception_buffer_size_c, emission_buffer_size_c-1)
     reception_buffer_size_c     : natural := 20;
     emission_buffer_size_c      : natural := 20);
@@ -47,7 +47,7 @@ ENTITY stratcomm_wishbone IS
     wbs_rst_i : IN  std_logic;          -- asynchronous reset, active high
     wbs_clk_i : IN std_logic;           -- clock
 
-    wbs_adr_i : IN std_logic_vector(adr_size_c DOWNTO 0);    -- address BUS
+    wbs_adr_i : IN std_logic_vector(addr_size_c-1 DOWNTO 0);    -- address BUS
     wbs_dat_o : OUT std_logic_vector(wb_size_c-1 DOWNTO 0);  -- data readden
                                                              -- from bus
     wbs_dat_i : IN std_logic_vector(wb_size_c-1 DOWNTO 0); -- data write from BUS
@@ -57,7 +57,6 @@ ENTITY stratcomm_wishbone IS
     wbs_cyc_i : IN std_logic;
 
     ---------------------------------------------------------------------------
-    -- interface to the first sensor
 
     -- whishbone interface
     i2c_write_in_progress_i : in std_logic;  -- indicates that reception buffer is
@@ -67,8 +66,11 @@ ENTITY stratcomm_wishbone IS
     i2c_read_in_progress_i  : in std_logic;  -- indicates that emission buffer
                                              -- is used and should not be accessed
     -- data accessble by master in read
-    emission_buffer_o       : out std_logic_ram_8(emission_buffer_size_c-1 downto 0)
-    
+    emission_buffer_o   : out std_logic_ram_8(emission_buffer_size_c-1 downto 0);
+ 
+    -- i2c slave address
+    i2c_self_address_o : out std_logic_vector(6 downto 0)
+
     );
 END stratcomm_wishbone;
 
@@ -78,13 +80,14 @@ ARCHITECTURE stratcomm_wishbone_1 OF stratcomm_wishbone IS
   SIGNAL ack_read_s : std_logic ;
   SIGNAL ack_write_s: std_logic ;
 
-  signal disable_recopy_emission_buffer_uc_s, disable_recopy_reception_buffer_uc_s : std_logic;
-
   signal reception_uc_buffer_s : std_logic_ram_8(reception_buffer_size_c downto 0);
   signal emission_uc_buffer_s : std_logic_ram_8(emission_buffer_size_c-1 downto 0);
   
 
 BEGIN  -- adns6010_wishbone_interface_1
+
+  reception_uc_buffer_s <= reception_buffer_i;
+  emission_buffer_o <= emission_uc_buffer_s;
 
   wbs_ack_o <= ack_write_s OR ack_read_s;
 
@@ -97,11 +100,12 @@ BEGIN  -- adns6010_wishbone_interface_1
     ELSIF rising_edge(wbs_clk_i) THEN
       IF ((wbs_stb_i AND wbs_we_i AND wbs_cyc_i) = '1' ) THEN
         ack_write_s <= '1';
-        if (to_integer(unsigned(wbs_adr_i)) = 1 )then
-          disable_recopy_reception_buffer_uc_s <= wbs_dat_i(0);
-          disable_recopy_emission_buffer_uc_s <= wbs_dat_i(1);
+        if (to_integer(unsigned(wbs_adr_i)) = 0 ) then
+          -- nothing to do
+        elsif (to_integer(unsigned(wbs_adr_i)) = 1 ) then
+          i2c_self_address_o <= wbs_dat_i(6 downto 0);
         else
-          emission_uc_buffer_s(to_integer(unsigned(wbs_adr_i))+2) <= wbs_dat_i;
+          emission_uc_buffer_s(to_integer(unsigned(wbs_adr_i))-2) <= wbs_dat_i;
           
         end if;
         
@@ -125,9 +129,9 @@ BEGIN  -- adns6010_wishbone_interface_1
         if to_integer(unsigned(wbs_adr_i)) = 0 then
           wbs_dat_o <= std_logic_vector(to_unsigned(id_c,wb_size_c));
         elsif to_integer(unsigned(wbs_adr_i)) = 1 then
-          wbs_dat_o <= (1=>disable_recopy_emission_buffer_uc_s , 0 => disable_recopy_reception_buffer_uc_s, others => '0');
+          wbs_dat_o <= (1=>i2c_write_in_progress_i , 0 => i2c_read_in_progress_i, others => '0');
         else
-          wbs_dat_o <= reception_uc_buffer_s(to_integer(unsigned(wbs_adr_i))+2);
+          wbs_dat_o <= reception_uc_buffer_s(to_integer(unsigned(wbs_adr_i))-2);
         end if; 
         
       ELSE

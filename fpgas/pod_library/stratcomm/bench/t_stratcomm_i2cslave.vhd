@@ -52,8 +52,10 @@ architecture t_stratcomm_i2cslave_1 of t_stratcomm_i2cslave is
 
       data_in_i : in std_logic_vector(7 downto 0);
       data_out_o : out std_logic_vector(7 downto 0);
-      lock_write_o : out std_logic;
-      lock_read_o : out std_logic
+      i2c_new_transfert_o : out std_logic;
+      i2c_communicating_o : out std_logic;
+      i2c_r_nw_operation_o : out std_logic
+
     );
   end component stratcomm_i2cslave;
 
@@ -130,9 +132,7 @@ begin
 		i2c_sda_io => i2c_sda_s,
     i2c_self_address_i => i2c_self_address_s,
     data_in_i => data_in_s,
-    data_out_o => data_out_s,
-    lock_write_o => write_s,
-    lock_read_o => read_s
+    data_out_o => data_out_s
   );
 
 

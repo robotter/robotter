@@ -49,8 +49,13 @@ port (
   -- array addressing signals
   data_in_i : in std_logic_vector(7 downto 0);
   data_out_o : out std_logic_vector(7 downto 0);
-  lock_write_o : out std_logic;
-  lock_read_o : out std_logic
+
+  -- ="1" when byte transmitted or received, ="0" otherwise
+  i2c_new_transfert_o : out std_logic;
+  -- ="1" when correct address received, ="0" on STOP
+  i2c_communicating_o : out std_logic;
+  -- ="1" when performing read operation, ="0" for write op.
+  i2c_r_nw_operation_o : out std_logic
 );
 end entity;
 
@@ -218,12 +223,14 @@ begin
       i2c_psda_v := '1';
       i2c_pscl_v := '1';
       i2c_state_v := 0;
-      lock_write_o <= '0';
-      lock_read_o <= '0';
       i2c_address_v := "0000000";
       i2c_addrit_v := 0;
       i2c_data_v := x"00";
       i2c_rw_bit_v := '0';
+
+      i2c_new_transfert_o <= '0';
+      i2c_communicating_o <= '0';
+      i2c_r_nw_operation_o <= '0';
 
       i2c_sda_out_s <= '0';
       i2c_sda_state_s <= '0';
@@ -267,6 +274,9 @@ begin
               if i2c_address_v = i2c_self_address_i then
                 -- OK, reading R/W bit
                 i2c_state_v := 2;
+                -- set comminucation to "in progress"
+                i2c_communicating_o <= '1';
+
               else
                 -- KO, wait for START condition
                 i2c_state_v := 0;
@@ -287,11 +297,18 @@ begin
             -- sample R/W bit
             i2c_rw_bit_v := i2c_sda_in_db_s;
             i2c_state_v := i2c_state_v + 1;
+
+            -- set operation R/W signal
+            i2c_r_nw_operation_o <= i2c_rw_bit_v;
+
           end if; -- SCL r_e
         
         -------------------------------------
         -- state 3 : waiting for SCL low to generate ACK (pull SDA low)
         elsif i2c_state_v = 3 then
+  
+          -- reset signal
+          i2c_new_transfert_o <= '0';
 
           if i2c_scl_db_s = '0' then
             i2c_sda_state_s <= '1';
@@ -309,14 +326,10 @@ begin
               -- write, give SDA line back to master
               i2c_sda_state_s <= '0'; -- set SDA tri-stated
               i2c_state_v := 5;
-
-              lock_write_o <= '0';
             else
               -- read, slave keep SDA line
               i2c_sda_state_s <= '1'; -- set SDA to high levels
               i2c_state_v := 7;
-
-              lock_read_o <= '0';
             end if;
           end if; -- scl falling edge
 
@@ -330,11 +343,12 @@ begin
             
             if i2c_addrit_v = 0 then
               -- all data sampled
-              
               data_out_o <= i2c_data_v;
-
               -- go to generate ACK state
               i2c_state_v := 3;
+
+              -- signal data received 
+              i2c_new_transfert_o <= '1';
 
             else
               i2c_addrit_v := i2c_addrit_v - 1;
@@ -373,6 +387,10 @@ begin
               i2c_state_v := i2c_state_v + 1;
               -- switch SDA to Z
               i2c_sda_state_s <= '0'; 
+
+              -- signal data sent
+              i2c_new_transfert_o <= '1';
+
             else
               i2c_addrit_v := i2c_addrit_v - 1;
             end if;
@@ -383,9 +401,12 @@ begin
         -- state 9 : wait for master ACK
         elsif i2c_state_v = 9 then
           
+          -- reset signal
+          i2c_new_transfert_o <= '0';
+
           -- waiting for SCL rising edge
           if i2c_pscl_v = '0' and i2c_scl_db_s = '1' then 
-              
+             
             if i2c_sda_in_db_s = '0' then
               -- master ACK with 0, continue reads
               i2c_state_v := 7;
