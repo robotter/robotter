@@ -558,6 +558,11 @@ class BasicSerial:
   def inWaiting(self):
     s = fcntl.ioctl(self.fd, termios.FIONREAD, struct.pack('I', 0))
     return struct.unpack('I',s)[0]
+  def flushInput(self):
+    termios.tcflush(self.fd, termios.TCIFLUSH)
+  def flushOutput(self):
+    termios.tcflush(self.fd, termios.TCIOFLUSH)
+
 
 class TermColor:
 
