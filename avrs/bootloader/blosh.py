@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import cmd, re, sys, os, select, termios, glob, subprocess, signal, StringIO
+from robloc import Roblochon, RoblochonError
 
 class Color:
   """Terminal color codes."""
@@ -31,6 +32,7 @@ class ColorTheme:
       return fmt % s
     return do_style
   def fmt(self, s):
+    s = s.replace('%', '%%')
     s = re.subn(r'\{(\w+)\}', r'%(\1)s', s)[0] % self.__class__.__dict__
     return s.replace('{}', Color.normal)
 
@@ -49,9 +51,12 @@ class DefaultTheme(ColorTheme):
   data_out = Color.normal+Color.cyan
 
 class NoColorTheme(ColorTheme):
-  @classmethod
   def __getattr__(self, attr):
-    return ''
+    if not attr.startswith('do_'):
+      return ''
+    return lambda s: s
+  def fmt(self, s):
+    return re.subn(r'\{(\w*)\}', '', s)[0]
 
 
 # Option values
@@ -140,7 +145,6 @@ class ShellOptKey(ShellOption):
     return self.val
 
 
-
 class Blosh(cmd.Cmd):
   """Shell-like client for the Rob'Otter bootloader.
 
@@ -148,6 +152,9 @@ class Blosh(cmd.Cmd):
     conn -- serial connection (shared with Roblochon)
     opts -- shell options
     theme -- color theme
+    bl -- Roblochon instance (initialized at first use)
+    bl_mode -- True if bootloader active
+    last_hex -- last uploaded HEX data
 
   """
 
@@ -159,23 +166,37 @@ class Blosh(cmd.Cmd):
       'eol': (ShellOptEnum('CR','LF','CRLF'), 'CRLF', "[CR|LF|CRLF], EOL of outgoing data from stdin"),
       'tkey_quit': (ShellOptKey, '^', "key to quit in terminal mode"),
       'tkey_reset': (ShellOptKey, '^R', "key to reset in terminal mode"),
+      'tkey_prog': (ShellOptKey, '^P', "key to (re)program in terminal mode"),
       'log_file': (ShellOptStr, None, "current log file (see 'log' command)"),
       'filter_cmd': (ShellOptStr, None, "filtering program (see 'filter' command)"),
       'feed_cmd': (ShellOptStr, None, "feeding program (see 'feed' command)"),
+      'prog_file': (ShellOptStr, None, "programmed binary file (see 'programm' command)"),
+      'prog_check': (ShellOptBool, False, "check programmed pages"),
+      'auto_boot': (ShellOptBool, True, "boot (if needed) when entering terminal mode"),
       }
 
   _help_topics = {
       'quit': "quit the interactive shell",
       'shell': ('!<cmd>', "run a shell command"),
-      'reset': "reset the device by sending the reset string",
+      'reset': ('r[eset]', "reset the device by sending the reset string or boot"),
       'set': ('set [opt [value]]', "list, set or unset shell options",
         "Option list:"+''.join('\n  %-12s  %s'%(k, v[2]) for k,v in _option_list.items())
         ),
-      'terminal': "enter terminal mode",
-      'source': "load commands from a file",
+      'terminal': ('t[erminal]', "enter terminal mode"),
+      'source': ('source <file>', "load commands from a file"),
       'log': ('log [file]', "set or unset log file", """This command is an alias for 'set filter_cmd'."""),
       'filter': ('filter [cmd]', "set or unset a filter on incoming data", """Data received from the device is send to the filter command. Its output is displayed, stderr data is displayed in a different color.\nTerminal mode is aborted if the process returned a not null code.\nIf hexa output is enabled, no filtering is applied.\nThis command is an alias for 'set filter_cmd'."""),
       'feed': ('feed [cmd]', "set or unset a command providing outgoing data", """Data received from stdin is send to the feeder command. Its output is then sent to the device. stderr data is displayed in a different color.\nTerminal mode is aborted if the process returned a not null code.\neol and tkey_quit are applied before sending data to the feeder; tkey_reset is ignored. If hexa output or echo are enabled, they use data returned by the feeder.\nThis command is an alias for 'set feed_cmd'."""),
+      'program': ('p[rogram][!] [file.hex]', "program the device", """The given file, or the previous one if none is provided, is uploaded on the device. Without '!', only differences with the previous binary are sent."""),
+      'check': ('check [file.hex]', "check uploaded program"),
+      'boot': "boot the device (if bootloader is active)",
+      'infos': "display device infos and value of fuse bytes",
+      }
+
+  _cmd_aliases = {
+      'r': 'reset',
+      't': 'terminal',
+      'p': 'program',
       }
 
 
@@ -185,30 +206,96 @@ class Blosh(cmd.Cmd):
       }
 
 
-  def __init__(self, conn):
+  class BlClient(Roblochon):
+    """Redefine some Roblochon methods for internal purposes."""
+    def output_program_progress(self, ncur, nmax):
+      sys.stdout.write(
+          self.theme.fmt("\r{info}programming: {bold}page %3d / %3d{info} -- {bold}%2.2f%%{}")
+          % (ncur, nmax, (100.0*ncur)/nmax))
+      sys.stdout.flush()
+    def output_program_end(self):
+      sys.stdout.write("\n")
+
+
+  def __init__(self, conn, color=True):
     cmd.Cmd.__init__(self)
 
-    self.theme = DefaultTheme()
+    if color:
+      self.theme = DefaultTheme()
+    else:
+      self.theme = NoColorTheme()
     self.prompt = self.theme.do_prompt('>> ')
     self.intro = ''
     self.use_rawinput = True
 
     self.conn = conn
     self.opts = dict( (k, v[0](v[1])) for k,v in self._option_list.items() )
+    self.bl = None
+    self.bl_mode = None
+    self.last_hex = None
+
+
+  def bl_enter(self):
+    """Enter bootloader mode.
+    Return True on success, None if bootloader was already active.
+    """
+    if self.bl_mode: return None
+    if self.opts['reset_str']:
+      print self.theme.fmt('{info}sending {bold}reset{info} string{}')
+      self.conn.write(self.opts['reset_str'].val)
+    print self.theme.fmt('{info}{bold}waiting{info} for bootloader...{}')
+
+    if self.bl is None:
+      self.bl = self.BlClient(self.conn)
+      self.bl.theme = self.theme
+    self.bl.wait_prompt(True)
+    self.bl_mode = True
+    return True
+
+  def bl_exit(self):
+    """Exit bootloader mode.
+    Return True on success, None if bootloader was already active.
+    If bootloader state is not known, first enter then exit.
+    """
+    if not self.bl:
+      self.bl_enter()
+    if not self.bl_mode: return None
+    self.bl_mode = False
+    try:
+      print self.theme.fmt('{info}{bold}exiting{info} bootloader{}')
+      self.bl.boot()
+    except Error, e:
+      print self.theme.do_error('failed to boot: %s' % e)
+      return False
+    return True
 
 
   def terminal_mode(self):
     """Enter terminal mode."""
 
-    tkey_quit = self.opts['tkey_quit'].val
+    if self.bl_mode and self.opts['auto_boot']:
+      self.bl_exit()
+
     if self.opts['reset_str']:
       tkey_reset = self.opts['tkey_reset'].val
     else:
       tkey_reset = None
+    if self.opts['prog_file']:
+      tkey_prog = self.opts['tkey_prog'].val
+    else:
+      tkey_prog = None
+
+    tkey_quit = self.opts['tkey_quit'].val
     if tkey_quit in '\r\n':
       print self.theme.do_error('using CR or LF for tkey_quit is not safe')
       return
-    print self.theme.fmt('{info}entering teminal mode, {bold}%s{info} to quit{}' % self.opts['tkey_quit'])
+    print self.theme.fmt('{info}entering teminal mode, {bold}%s{info} to quit{}') % self.opts['tkey_quit']
+
+    l = filter(None, (tkey_reset, tkey_prog, tkey_quit))
+    if len(l) != len(set(l)):
+      print self.theme.do_error('several tkey_* share the same value')
+      return
+
     crlf = {'CR':'\r','LF':'\n','CRLF':'\r\n'}[self.opts['eol'].val]
 
     printers_in = []
@@ -230,9 +317,9 @@ class Blosh(cmd.Cmd):
       s = self.opts['log_file'].val
       try:
         flog = open(s, 'w')
-        print self.theme.fmt('{info}logging to {bold}%s{info}' % s)
+        print self.theme.fmt('{info}logging to {bold}%s{info}') % s
       except Exception, e:
-        print self.theme.do_error('cannot open log file {arg}%s{error}: %s' % (s,e))
+        print self.theme.fmt('{error}cannot open log file {arg}%s{error}: %s{}') % (s,e)
         return
       printers_in.append(lambda s: flog.write(s))
 
@@ -268,9 +355,9 @@ class Blosh(cmd.Cmd):
       try:
         pfilter = subprocess.Popen(s, shell=True, bufsize=0, close_fds=True,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print self.theme.fmt('{info}filtering with {bold}%s{}' % s)
+        print self.theme.fmt('{info}filtering with {bold}%s{}') % s
       except Exception, e:
-        print self.theme.fmt('{error}failed to run filter command {arg}%s{error}: %s' % (s,e))
+        print self.theme.fmt('{error}failed to run filter command {arg}%s{error}: %s') % (s,e)
         return
       def pin_filter(s):
         if pfilter and pfilter.poll() is None:
@@ -285,9 +372,9 @@ class Blosh(cmd.Cmd):
       try:
         pfeed = subprocess.Popen(s, shell=True, bufsize=0, close_fds=True,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print self.theme.fmt('{info}feeding with {bold}%s{}' % s)
+        print self.theme.fmt('{info}feeding with {bold}%s{}') % s
       except Exception, e:
-        print self.theme.fmt('{error}failed to run feed command {arg}%s{error}: %s' % (s,e))
+        print self.theme.fmt('{error}failed to run feed command {arg}%s{error}: %s') % (s,e)
         return
 
     if not printers_in: printers_in.append(pin_default)
@@ -349,6 +436,10 @@ class Blosh(cmd.Cmd):
           c = sys.stdin.read(1)
           if c == tkey_quit: break
           if c == tkey_reset: c = self.opts['reset_str'].val
+          if c == tkey_prog:
+            sys.stdout.write('\r\n')
+            self.reprogram()
+            self.bl_exit()
           if c == '\n': c = crlf
           if pfeed:
             pfeed.stdin.write(c)
@@ -381,6 +472,26 @@ class Blosh(cmd.Cmd):
         flog.close()
     self.stdout.write('\n'+Color.normal)
 
+  def reprogram(self):
+    """(Re)program the current prog_file."""
+    f = self.opts['prog_file'].val
+    if not f:
+      print self.theme.do_error("no file to upload")
+      return
+    self.bl_enter()
+    try:
+      data = self.bl.parse_hex_file(f)
+    except Exception, e:
+      print self.theme.fmt('{error}cannot parse HEX file {arg}%s{error}: %s{}') % (f,e)
+      return
+
+    try:
+      if self.bl.program(data, self.last_hex, self.opts['prog_check'].val) is None:
+        print self.theme.do_info("nothing to program")
+      self.last_hex = data
+    except Exception, e:
+      print self.theme.do_error('failed to program: %s' % e)
+
 
   def do_quit(self, line):
     return True
@@ -391,9 +502,18 @@ class Blosh(cmd.Cmd):
   def emptyline(self):
     pass
 
+  def precmd(self, line):
+    if len(line) == 1 or (len(line) > 1 and line[1] not in self.identchars):
+      try:
+        return self._cmd_aliases[line[0]] + line[1:]
+      except:
+        pass
+    return line
+
+
   def default(self, line):
     if line[0] == '#': return  # ignore comments
-    print self.theme.fmt('{error}unknown command: {arg}%s{}'%line.split()[0])
+    print self.theme.fmt('{error}unknown command: {arg}%s{}')%line.split()[0]
 
   def do_shell(self, line):
     os.system(line)
@@ -402,7 +522,9 @@ class Blosh(cmd.Cmd):
     self.terminal_mode()
 
   def do_reset(self, line):
-    if self.opts['reset_str']:
+    if self.bl_mode:
+      self.bl_exit()
+    elif self.opts['reset_str']:
       print self.theme.fmt('{info}sending {bold}reset{info} string{}')
       self.conn.write(self.opts['reset_str'].val)
     else:
@@ -421,7 +543,7 @@ class Blosh(cmd.Cmd):
       try:
         opt = self.opts[k]
       except KeyError:
-        print self.theme.fmt('{error}unknown option: {arg}%s{}'%k)
+        print self.theme.fmt('{error}unknown option: {arg}%s{}')%k
         return
       if len(l) < 2:
         opt.reset()
@@ -429,7 +551,7 @@ class Blosh(cmd.Cmd):
         try:
           opt.set(l[1])
         except ValueError, e:
-          print self.theme.fmt('{error}invalid option value: {arg}%s{}'%e)
+          print self.theme.fmt('{error}invalid option value: {arg}%s{}')%e
 
   def do_source(self, line):
     if not line:
@@ -438,7 +560,7 @@ class Blosh(cmd.Cmd):
     try:
       f = open(line, 'r')
     except:
-      print self.theme.fmt('{error}failed to open {arg}%s{}'%line)
+      print self.theme.fmt('{error}failed to open {arg}%s{}')%line
       return
     self.execute(f)
 
@@ -465,17 +587,57 @@ class Blosh(cmd.Cmd):
     return self.do_set('feed_cmd %s' %line)
 
 
+  def do_program(self, line):
+    if len(line) and line[0] == '!':
+      self.last_hex = None
+      line = line.lstrip('! \t')
+    else:
+      force = False
+    if line:
+      self.opts['prog_file'].set(line)
+    self.reprogram()
+
+  def do_check(self, line):
+    if line:
+      f = line
+    else:
+      f = self.opts['prog_file'].val
+    if not f:
+      print self.theme.do_error("no file to check")
+      return
+    self.bl_enter()
+    try:
+      ret = self.bl.check(f)
+      print self.theme.fmt('check: {bold}%s{}') % (
+        Color.green+'OK' if ret else Color.red+'FAILED'
+        )
+    except Exception, e:
+      print self.theme.do_error('failed to check: %s' % e)
+
+  def do_boot(self, line):
+    self.bl_exit()
+
+  def do_infos(self, line):
+    self.bl_enter()
+    print self.theme.fmt('{bold}ROID:{} 0x%02x (%d)   {bold}commands:{} %s') % (
+        self.bl.roid, self.bl.roid, self.bl.cmds )
+    try:
+      fuses = self.bl.read_fuses()
+      print self.theme.fmt('{bold}fuses (low high ex):{} %02x %02x %02x') % fuses
+    except Exception, e:
+      self.theme.do_error('cannot read fuses: %s' % e)
+
+
   # completion
 
   def complete_set(self, text, line, begidx, endidx):
     return [x for x in self.opts if x.startswith(text)]
 
   def _complete_file(self, text, line, begidx, endidx):
-    l = line.split(None, 2)
-    if len(l) > 0:
-      path = l[1]
-    else:
-      path = text
+    i = line.rfind(' ', 0, endidx)
+    if i == -1:
+      i = begidx-1
+    path = line[i+1:endidx]
     n = len(path)-len(text)
     return [x[n:] for x in glob.glob('%s*'%path) if x.startswith(path)]
 
@@ -483,6 +645,8 @@ class Blosh(cmd.Cmd):
   complete_log = _complete_file
   complete_filter = _complete_file
   complete_feed = _complete_file
+  complete_program = _complete_file
+  complete_check = _complete_file
 
   def complete_help(self, text, line, begidx, endidx):
     return [x for x in self._help_topics if x.startswith(text)]
@@ -495,12 +659,12 @@ class Blosh(cmd.Cmd):
     if line:
       try:
         cmd, brief, desc = self._help_topics[line]
-        print self.theme.fmt('{help_cmd}%s{help_brief} -- %s'%(cmd,brief))
+        print self.theme.fmt('{help_cmd}%s{help_brief} -- %s')%(cmd,brief)
         if desc:
           desc = re.subn(r'(.{1,76}\S)(?:\n|\s+|$)', r'\1\n', desc)[0]
           print '  '+ desc.rstrip().replace('\n', '\n  ')
       except KeyError:
-        print self.theme.fmt('{error}no help on {arg}%s'%line)
+        print self.theme.fmt('{error}no help on {arg}%s')%line
     else:
       print "Help topics:"
       it = self._help_topics.items()

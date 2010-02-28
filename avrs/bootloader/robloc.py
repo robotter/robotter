@@ -2,8 +2,6 @@
 
 import re, sys, select
 
-# TODO 
-# - call uio.restoreLocalTermios when program quit
 
 class RobloClient:
   """
@@ -263,9 +261,9 @@ class Roblochon(RobloClient):
       self.send_raw( kw.get('init_send') )
 
     self.response = None
-    
+
     # retrieve server infos
-    self._wait_prompt()
+    self.wait_prompt()
     r = self.cmd_infos()
     if not r: raise RoblochonError("cannot retrieve device info")
     self.cmds, self.roid, self.pagesize = r
@@ -276,48 +274,61 @@ class Roblochon(RobloClient):
     self.response = r if r is not False else None
     return r
 
-  def _wait_prompt(self):
-    """Wait or force a prompt."""
+  def wait_prompt(self, force=True):
+    """Wait or force a prompt.
 
+    If force is True, nothing is assumed about current state.
+    """
+
+    if force: self.response = None
     if self.response is None:
       # unknown state, read all we can
       if self._eof is not None:
         while not self._eof():
           r = self.recv_msg()
           if r is False: raise RoblochonError("recv_msg failed")
+      self.response = None  # reset current state, again
+    elif self.response and self.response.prompt:
+      return # we already have a prompt
 
-    if self.response and self.response.prompt:
-      return # we have a prompt
-
-    # wait for the prompt
+    # wait for 2 successive prompts
+    prev = self.response
     while True:
       if self.response is None or self.response.ask:
-        # server is waiting for an answer, force KO
-        self.send_msg('')
+        self.send_msg('')  # force KO or prompt
       r = self.recv_msg()
       if r is False: raise RoblochonError("recv_msg failed")
-      if r.prompt: break
+      if prev and prev.prompt and r.prompt: break
+      prev = r
 
 
   def program(self, fhex, fhex2=None, force=False):
     """Send a program to the device.
 
     Parameters:
-      fhex -- HEX file (or filename) to program
+      fhex -- HEX file (or filename or buffer) to program
       fhex2 -- previous HEX file, to program changes
       force -- if True, skip CRC checking
 
+    See program_pages() for return values.
+
     """
 
-    data = self._parse_hex_file(fhex)
+    if type(fhex) is buffer:
+      data = fhex
+    else:
+      data = self.parse_hex_file(fhex)
     if len(data) == 0: raise ValueError("empty HEX data")
     if fhex2 is None:
       return self.program_pages(data, force)
 
-    data2 = self._parse_hex_file(fhex2)
+    if type(fhex2) is buffer:
+      data2 = fhex2
+    else:
+      data2 = self.parse_hex_file(fhex2)
     if len(data2) == 0: raise ValueError("empty previous HEX data")
     
-    return self.program_pages(self._diff_pages(data, data2), force)
+    return self.program_pages(self.diff_pages(data, data2), force)
 
 
   def program_pages(self, pages, force=False):
@@ -331,16 +342,20 @@ class Roblochon(RobloClient):
     pagesize, data is padded if needed but size must not exceed page size.
     If pages is a single string, it will be cut in pages starting at address 0.
 
+    Return True on success, None if nothing has been programmed.
+
     """
 
     self._assert_supported_cmd('p')
 
-    if type(pages) is str:
+    if type(pages) in (str, buffer):
       pages = list(
           (i, pages[i:i+self.pagesize])
           for i in range(0, len(pages) ,self.pagesize)
           )
     page_count = len(pages)
+    if page_count == 0:
+      return None
 
     for i, (addr, data) in enumerate(pages):
       self.output_program_progress(i+1, page_count)
@@ -353,7 +368,7 @@ class Roblochon(RobloClient):
       crc = self.compute_crc(d) if force else False
       n = self.CRC_RETRY
       while True:
-        self._wait_prompt()
+        self.wait_prompt(False)
         r = self.cmd_prog_page(addr, data, crc)
         if r is True:
           break # ok
@@ -366,24 +381,28 @@ class Roblochon(RobloClient):
           continue # retry
         raise ValueError("unexpected cmd_prog_page() return value: %r" % r)
     self.output_program_end()
+    return True
 
 
   def check(self, fhex):
     """Check the program on the device.
 
     Parameters:
-      fhex -- HEX file (or filename) to check against
+      fhex -- HEX file (or filename or buffer) to check against
 
     Return True if the CRC matches, False otherwise
 
     """
 
     self._assert_supported_cmd('c')
-    data = self._parse_hex_file(fhex)
+    if type(fhex) is buffer:
+      data = fhex
+    else:
+      data = self.parse_hex_file(fhex)
     if len(data) == 0:
       raise ValueError("empty HEX data")
 
-    self._wait_prompt()
+    self.wait_prompt()
     r = self.cmd_mem_crc(0, len(data))
     if r is False:
       raise RoblochonError("crc check failed")
@@ -395,7 +414,7 @@ class Roblochon(RobloClient):
     Return a tuple with low, high and extended fuse bytes.
     """
     self._assert_supported_cmd('f')
-    self._wait_prompt()
+    self.wait_prompt()
     r = self.cmd_fuse_read()
     if r is False:
       raise RoblochonError("failed to read fuses")
@@ -405,14 +424,14 @@ class Roblochon(RobloClient):
   def boot(self):
     """Boot the device."""
     self._assert_supported_cmd('x')
-    self._wait_prompt()
+    self.wait_prompt()
     r = self.cmd_execute()
     if r is False:
       raise RoblochonError("boot failed")
     return
 
 
-  def _diff_pages(self, data1, data2):
+  def diff_pages(self, data1, data2):
     """Return a list of pages of data1 which differ from data2."""
     p = []
     for i in range(0, len(data1), self.pagesize):
@@ -424,10 +443,12 @@ class Roblochon(RobloClient):
 
 
   @classmethod
-  def _parse_hex_file(cls, f):
+  def parse_hex_file(cls, f):
     """Return a data buffer from a .hex.
     f is a file object or a filename.
     Gaps are filled with bytes set to UNUSED_BYTE.
+
+    Note: returned value is a buffer object, not a string.
     """
     if type(f) is str:
       f = open(f, 'rb')
@@ -465,7 +486,7 @@ class Roblochon(RobloClient):
         offset = int(fields['data'],16) << 4
       else:
         raise ValueError("invalid HEX record type: %s" % rt)
-    return data
+    return buffer(data)
 
   def _assert_supported_cmd(self, c):
     if c not in self.cmds:
@@ -588,7 +609,7 @@ class BasicUIO:
   def __init__(self):
     self.saveLocalTermios()
     self.setLocalTermios()
- 
+
   def setColorSpecial(self):
     sys.stderr.write("%s%s"%(TermColor.blue,TermColor.bold))
 
@@ -599,7 +620,7 @@ class BasicUIO:
     self.setColorSpecial()
     sys.stderr.write(">> . | p ")
     self.setColorNormal()
-    
+
     c = os.read(sys.stdin.fileno(), 1)
 
     sys.stderr.write("\n")
@@ -607,7 +628,7 @@ class BasicUIO:
     # quit
     if c == ".":
       return 0
-    
+
     # program
     elif c == "p":
       return 1
@@ -625,10 +646,10 @@ class BasicUIO:
   def setLocalTermios(self):
     """ Set local termios
     """
-    
+
     # get current termios
     tio = termios.tcgetattr(sys.stdout)
-    
+
     # do not translate carriage return to newline
     tio[0] = tio[0] & ~termios.ICRNL
 
@@ -645,7 +666,7 @@ class BasicUIO:
 def startBootloader():
   print "bootloader waiting..."
   client = Roblochon(conn, verbose=opts.verbose, init_send=opts.init_send)
-  
+
   if opts.roid is not None:
     assert opts.roid != client.roid, "ROID mismatch"
 
@@ -655,7 +676,9 @@ def startBootloader():
     print "fuses (low high ex): %02x %02x %02x" % client.read_fuses()
   if opts.program:
     print "programming..."
-    client.program(args[0], args[1] if len(args)>1 else None, opts.force)
+    ret = client.program(args[0], args[1] if len(args)>1 else None, opts.force)
+    if ret is None:
+      print "nothing to program"
   if opts.check:
     print "CRC check..."
     if client.check(args[0]):
@@ -666,7 +689,7 @@ def startBootloader():
   if opts.boot:
     print "boot"
     client.boot()
- 
+
 
 if __name__ == '__main__':
   from optparse import OptionParser
@@ -735,45 +758,45 @@ if __name__ == '__main__':
   if opts.terminal == False :
     startBootloader()
   else:
-
     uio = BasicUIO()
+    try:
+      # Main loop
+      while 1:
 
-    # Main loop
-    while 1:
+        # wait for data in either stdin or serial line
+        rds,_,_ = select.select([conn.fd,sys.stdin],[],[])
 
-      # wait for data in either stdin or serial line
-      rds,_,_ = select.select([conn.fd,sys.stdin],[],[])
+        # select was trigged by the serial line
+        # transfer bytes to stdout
+        if conn.fd in rds :
+          buffer = conn.read(1024)
+          os.write(sys.stdout.fileno(), buffer)
 
-      # select was trigged by the serial line
-      # transfer bytes to stdout
-      if conn.fd in rds :
-        buffer = conn.read(1024)
-        os.write(sys.stdout.fileno(), buffer)
+        # select was trigged by stdin
+        # transfer bytes to serial line
+        if sys.stdin in rds:
+          buffer = os.read(sys.stdin.fileno(), 1)
 
-      # select was trigged by stdin
-      # transfer bytes to serial line
-      if sys.stdin in rds:
-        buffer = os.read(sys.stdin.fileno(), 1)
-        
-        # bring up menu
-        if buffer == "^":
-          r = uio.showMenu(opts)
+          # bring up menu
+          if buffer == "^":
+            r = uio.showMenu(opts)
 
-          if r == 0:
-            break
-          elif r == 1:
-            
-            # switch to special color
-            uio.setColorSpecial()
+            if r == 0:
+              break
+            elif r == 1:
 
-            startBootloader()
+              # switch to special color
+              uio.setColorSpecial()
 
-            # switch back to normal color
-            uio.setColorNormal()
+              startBootloader()
 
-        else:
-          conn.write(buffer)
-    
-    # Final cleanup
-    uio.restoreLocalTermios()
+              # switch back to normal color
+              uio.setColorNormal()
+
+          else:
+            conn.write(buffer)
+
+    finally:
+      # Final cleanup
+      uio.restoreLocalTermios()
 
