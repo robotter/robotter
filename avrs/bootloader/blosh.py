@@ -312,17 +312,6 @@ class Blosh(cmd.Cmd):
     else:
       pout_default = lambda s: None
 
-    flog = None
-    if self.opts['log_file']:
-      s = self.opts['log_file'].val
-      try:
-        flog = open(s, 'w')
-        print self.theme.fmt('{info}logging to {bold}%s{info}') % s
-      except Exception, e:
-        print self.theme.fmt('{error}cannot open log file {arg}%s{error}: %s{}') % (s,e)
-        return
-      printers_in.append(lambda s: flog.write(s))
-
     if self.opts['hexa']:
       # number of written data bytes on the current line (>0: out, <0: in)
       hexaline_len = [0] # in a list to keep a reference
@@ -379,6 +368,17 @@ class Blosh(cmd.Cmd):
 
     if not printers_in: printers_in.append(pin_default)
     if not printers_out: printers_out.append(pout_default)
+
+    flog = None
+    if self.opts['log_file']:
+      s = self.opts['log_file'].val
+      try:
+        flog = open(s, 'w')
+        print self.theme.fmt('{info}logging to {bold}%s{}') % s
+      except Exception, e:
+        print self.theme.fmt('{error}cannot open log file {arg}%s{error}: %s{}') % (s,e)
+        return
+      printers_in.append(lambda s: flog.write(s))
 
     match_data = ''  # last input data, for matching
     match_data_len = max( len(k) for k in self._matches )
