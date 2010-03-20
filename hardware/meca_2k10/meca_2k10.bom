@@ -1,0 +1,37 @@
+Partlist exported from C:/Documents and Settings/JDaM/Bureau/svn_robotter/eurobot/hardware/meca_2k10/meca_2k10.sch at 20/03/2010 20:23:44
+
+Qty Value                      Device             Parts                             
+2                              520250-3           I2C, JTAG                         
+1                              555165-2           UART0                             
+5                              L-EUL1812          L1, L5, L6, L7, L8                
+5                              LEDCHIPLED_1206    LED0, LED1, LED2, LED3, PUISS_AX12
+2                              ML10L              COLOR_SENSOR0, COLOR_SENSOR1      
+1   1k                         R-EU_R0805         R2                                
+1   1k 1%                      R-EU_R0805         R5                                
+2   2k2                        R-EU_R0805         R10, R11                          
+1   6.8k 1%                    R-EU_R0805         R4                                
+1   8MHz                       CRYSTALHC49S       Q1                                
+2   10k                        R-EU_0207/10       R1, R3                            
+1   10k                        R-EU_R0805         R12                               
+1   15µH WURTH 1635908         WE-PD_L/XL/XXL     L2                                
+1   22-05-7048-04              22-05-7048-04      J2                                
+2   22pF                       C-EUC0805          C4, C5                            
+1   33µH EPCOS B82477P4333M000 WE-PD_L/XL/XXL     L3                                
+1   74HC157D                   74HC157D           IC5                               
+1   74LVC1T45DBV               74LVC1T45DBV       IC6                               
+1   74LVC4245A                 74LVC4245A         IC1                               
+2   100nF                      C-EU025-024X044    C14, C19                          
+1   100nF                      C-EU025-025X050    C1                                
+2   100nF                      C-EU025-030X050    C6, C7                            
+2   100nF                      C-EU050-025X075    C21, C22                          
+6   100nF                      C-EUC0603          C15, C16, C17, C18, C23, C24      
+5   100nF                      C-EUC0805          C2, C3, C8, C9, C20               
+4   270                        R-EU_R0805         R6, R7, R8, R9                    
+2   560µF                      CPOL-EUE5-10.5     C11, C13                          
+2   680µF 35V                  CPOL-EUE5-10.5     C10, C12                          
+2   53047-12                   53047-12           GP2, SERVOS                       
+1   LM2596S-5.0                LM2596S            IC4                               
+1   LM2596S-ADJ                LM2596S            IC2                               
+1   MEGA128L-A                 MEGA128-A          IC3                               
+3   MOUNT-PAD-ROUND3.6         MOUNT-PAD-ROUND3.6 H1, H2, H3                        
+2   MUR420                     DIODE-DO201-15     D1, D2                            
