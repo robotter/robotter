@@ -36,16 +36,6 @@ DoLibraryUpdate=1
 DoDatabaseUpdate=1
 
 [Document3]
-DocumentPath=prop_2009.PCBDOC
-AnnotationEnabled=1
-AnnotateStartValue=1
-AnnotateSuffix=
-AnnotationIgnoreSelected=0
-AnnotateOrder=-1
-DoLibraryUpdate=1
-DoDatabaseUpdate=1
-
-[Document4]
 DocumentPath=prop2009.SCHLIB
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -55,7 +45,7 @@ AnnotateOrder=-1
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 
-[Document5]
+[Document4]
 DocumentPath=ground_detector.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -65,7 +55,7 @@ AnnotateOrder=2
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 
-[Document6]
+[Document5]
 DocumentPath=prop_2009.PcbLib
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -75,8 +65,18 @@ AnnotateOrder=-1
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 
-[Document7]
+[Document6]
 DocumentPath=prop_MMX_v1.OutJob
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotateSuffix=
+AnnotationIgnoreSelected=0
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+
+[Document7]
+DocumentPath=prop_MMX.PCBDOC
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotateSuffix=
