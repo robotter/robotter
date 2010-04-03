@@ -101,7 +101,7 @@ class ShellOptStr(ShellOption):
 
 class ShellOptInt(ShellOption):
   def set(self, val):
-    if type(val) == int:
+    if type(val) is int:
       self.val = val
     else:
       self.val = int(str(val), 0)
@@ -428,8 +428,8 @@ class Blosh(cmd.Cmd):
           for k in self._matches:
             if match_data.endswith(k):
               sys.stdout.write(self.theme.do_match('\r\n%s\r\n'%self._matches[k]))
-            try: hexaline_len[0] = 0
-            except: pass
+              try: hexaline_len[0] = 0
+              except: pass
           match_data = match_data[-match_data_len:]
 
         if sys.stdin in rds:
