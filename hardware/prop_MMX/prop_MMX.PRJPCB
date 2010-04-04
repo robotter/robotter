@@ -85,6 +85,108 @@ AnnotateOrder=-1
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 
+[GeneratedDocument1]
+DocumentPath=Project Outputs for prop2009\prop_MMX.DRL
+
+[GeneratedDocument2]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.DRL
+
+[GeneratedDocument3]
+DocumentPath=Project Outputs for prop2009\prop_MMX.DRR
+
+[GeneratedDocument4]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.DRR
+
+[GeneratedDocument5]
+DocumentPath=Project Outputs for prop2009\prop_MMX.GBL
+
+[GeneratedDocument6]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.GBL
+
+[GeneratedDocument7]
+DocumentPath=Project Outputs for prop2009\prop_MMX.GBO
+
+[GeneratedDocument8]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.GBO
+
+[GeneratedDocument9]
+DocumentPath=Project Outputs for prop2009\prop_MMX.GBP
+
+[GeneratedDocument10]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.GBP
+
+[GeneratedDocument11]
+DocumentPath=Project Outputs for prop2009\prop_MMX.GBS
+
+[GeneratedDocument12]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.GBS
+
+[GeneratedDocument13]
+DocumentPath=Project Outputs for prop2009\prop_MMX.GKO
+
+[GeneratedDocument14]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.GKO
+
+[GeneratedDocument15]
+DocumentPath=Project Outputs for prop2009\prop_MMX.GPB
+
+[GeneratedDocument16]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.GPB
+
+[GeneratedDocument17]
+DocumentPath=Project Outputs for prop2009\prop_MMX.GPT
+
+[GeneratedDocument18]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.GPT
+
+[GeneratedDocument19]
+DocumentPath=Project Outputs for prop2009\prop_MMX.GTL
+
+[GeneratedDocument20]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.GTL
+
+[GeneratedDocument21]
+DocumentPath=Project Outputs for prop2009\prop_MMX.GTO
+
+[GeneratedDocument22]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.GTO
+
+[GeneratedDocument23]
+DocumentPath=Project Outputs for prop2009\prop_MMX.GTP
+
+[GeneratedDocument24]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.GTP
+
+[GeneratedDocument25]
+DocumentPath=Project Outputs for prop2009\prop_MMX.GTS
+
+[GeneratedDocument26]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.GTS
+
+[GeneratedDocument27]
+DocumentPath=Project Outputs for prop2009\prop_MMX.LDP
+
+[GeneratedDocument28]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.LDP
+
+[GeneratedDocument29]
+DocumentPath=Project Outputs for prop2009\prop_MMX.REP
+
+[GeneratedDocument30]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.REP
+
+[GeneratedDocument31]
+DocumentPath=Project Outputs for prop2009\prop_MMX.RUL
+
+[GeneratedDocument32]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.RUL
+
+[GeneratedDocument33]
+DocumentPath=Project Outputs for prop2009\prop_MMX.TXT
+
+[GeneratedDocument34]
+DocumentPath=Project Outputs for PROP_MMX\prop_MMX.TXT
+
 [OutputGroup1]
 Name=Netlist Outputs
 Description=
@@ -173,53 +275,55 @@ OutputDefault2=0
 Name=Fabrication Outputs
 Description=
 PrinterOptions=Record=PrinterOptions|Copies=1|Duplex=1|TrueTypeOptions=3|Collate=1|PrintWhat=1
-OutputType1=CompositeDrill
-OutputName1=Composite Drill Drawing
+OutputType1=ODB
+OutputName1=ODB++ Files
 OutputDocumentPath1=
 OutputEnabled1=1
 OutputDefault1=0
-PageOptions1=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
-OutputType2=Drill
-OutputName2=Drill Drawing/Guides
+OutputType2=NC Drill
+OutputName2=NC Drill Files
 OutputDocumentPath2=
 OutputEnabled2=1
 OutputDefault2=0
-PageOptions2=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
-OutputType3=Final
-OutputName3=Final Artwork Prints
+Configuration2_Name1=OutputConfigurationParameter1
+Configuration2_Item1=NumberOfDecimals=4|NumberOfUnits=4|OptimizeChangeLocationCommands=True|OriginPosition=Relative|Record=DrillView|Units=Metric|ZeroesMode=SuppressTrailingZeroes
+OutputType3=Test Points
+OutputName3=Test Point Report
 OutputDocumentPath3=
 OutputEnabled3=1
 OutputDefault3=0
-PageOptions3=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
-OutputType4=Gerber
-OutputName4=Gerber Files
+OutputType4=Plane
+OutputName4=Power-Plane Prints
 OutputDocumentPath4=
 OutputEnabled4=1
 OutputDefault4=0
+PageOptions4=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
 OutputType5=Mask
 OutputName5=Solder/Paste Mask Prints
 OutputDocumentPath5=
 OutputEnabled5=1
 OutputDefault5=0
 PageOptions5=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
-OutputType6=NC Drill
-OutputName6=NC Drill Files
+OutputType6=Drill
+OutputName6=Drill Drawing/Guides
 OutputDocumentPath6=
 OutputEnabled6=1
 OutputDefault6=0
-OutputType7=ODB
-OutputName7=ODB++ Files
+PageOptions6=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
+OutputType7=CompositeDrill
+OutputName7=Composite Drill Drawing
 OutputDocumentPath7=
 OutputEnabled7=1
 OutputDefault7=0
-OutputType8=Plane
-OutputName8=Power-Plane Prints
+PageOptions7=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
+OutputType8=Final
+OutputName8=Final Artwork Prints
 OutputDocumentPath8=
 OutputEnabled8=1
 OutputDefault8=0
 PageOptions8=Record=PageOptions|SelectedOnly=False|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-4|MediaType=1|DitherType=10|PaperKind=A4|PrintScaleMode=1
-OutputType9=Test Points
-OutputName9=Test Point Report
+OutputType9=Gerber
+OutputName9=Gerber Files
 OutputDocumentPath9=
 OutputEnabled9=1
 OutputDefault9=0
