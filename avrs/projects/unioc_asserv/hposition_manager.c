@@ -128,7 +128,7 @@ void hposition_update(void *dummy)
   //------------------------
   // Access ADNS6010 values
   adns6010_encoders_get_value(&adns6010);
- 
+
   // FAULT register is set
   if( adns6010.fault )
     WARNING(HROBOT_ERROR, "ADNS6010 FAULT register is set : fault=0x%X",
@@ -180,16 +180,18 @@ void hposition_update(void *dummy)
   //--------------------------------------------------
   // Integrate speed in robot coordinates to position
 
-	// update ADNS angular position
-	hpos->adns_alpha += dp[HROBOT_DA];
- 
   vec.x = hpos->position.x + dp[HROBOT_DX]*_ca - dp[HROBOT_DY]*_sa;
   vec.y = hpos->position.y + dp[HROBOT_DX]*_sa + dp[HROBOT_DY]*_ca;
 
   //------------------------------------
   // Latch computed values to accessors
   IRQ_LOCK(flags);
+
+	// update ADNS angular position
+	hpos->adns_alpha += dp[HROBOT_DA];
+
   hpos->position = vec;
+  
   IRQ_UNLOCK(flags);
 
   return;
