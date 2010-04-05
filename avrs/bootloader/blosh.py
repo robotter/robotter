@@ -423,6 +423,9 @@ class Blosh(cmd.Cmd):
 
         if self.conn.fd in rds:
           c = self.conn.read(1)
+          if not c:
+            sys.stdout.write(self.theme.do_warn('\r\ndisconnected\r\n'))
+            break
           print_in(c)
           match_data += c
           for k in self._matches:
