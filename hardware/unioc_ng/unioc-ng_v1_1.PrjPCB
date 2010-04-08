@@ -2,7 +2,7 @@
 Version=1.0
 HierarchyMode=0
 ChannelRoomNamingStyle=0
-OutputPath=
+OutputPath=Project Outputs for unioc-ng_v1_1
 ChannelDesignatorFormatString=$Component_$RoomName
 ChannelRoomLevelSeperator=_
 OpenOutputs=1
@@ -16,7 +16,7 @@ DefaultConfiguration=
 UserID=0xFFFFFFFF
 
 [Document1]
-DocumentPath=Documents\FPGA_UNIOC-NG.Sch
+DocumentPath=FPGA_UNIOC-NG.Sch
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotateSuffix=
@@ -26,7 +26,7 @@ DoLibraryUpdate=1
 DoDatabaseUpdate=1
 
 [Document2]
-DocumentPath=Documents\Micro_UNIOC-NG.Sch
+DocumentPath=Micro_UNIOC-NG.Sch
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotateSuffix=
@@ -36,7 +36,7 @@ DoLibraryUpdate=1
 DoDatabaseUpdate=1
 
 [Document3]
-DocumentPath=Documents\UNIOC-NG.PCB
+DocumentPath=UNIOC-NG.PCB
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotateSuffix=
@@ -44,6 +44,184 @@ AnnotationIgnoreSelected=0
 AnnotateOrder=-1
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
+
+[Document4]
+DocumentPath=unioc_ng_v1_1.OutJob
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotateSuffix=
+AnnotationIgnoreSelected=0
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+
+[GeneratedDocument1]
+DocumentPath=Project Outputs for unioc-ng_v1_1\Bill of Materials-unioc-ng_v1_1.csv
+
+[GeneratedDocument2]
+DocumentPath=Project Outputs for unioc-ng_v1_1\Component Cross Reference Report-unioc-ng_v1_1.csv
+
+[GeneratedDocument3]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\comp_+_bot\components
+
+[GeneratedDocument4]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\comp_+_top\components
+
+[GeneratedDocument5]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\eda\data
+
+[GeneratedDocument6]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\bottom\features
+
+[GeneratedDocument7]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\bottomoverlay\features
+
+[GeneratedDocument8]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\bottompaste\features
+
+[GeneratedDocument9]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\bottomsolder\features
+
+[GeneratedDocument10]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\comp_+_bot\features
+
+[GeneratedDocument11]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\comp_+_top\features
+
+[GeneratedDocument12]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\drill\features
+
+[GeneratedDocument13]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\keepout\features
+
+[GeneratedDocument14]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\mechanical1\features
+
+[GeneratedDocument15]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\top\features
+
+[GeneratedDocument16]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\topoverlay\features
+
+[GeneratedDocument17]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\toppaste\features
+
+[GeneratedDocument18]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\topsolder\features
+
+[GeneratedDocument19]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\symbols\rect60x50_45\features
+
+[GeneratedDocument20]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\symbols\rect60x50_135\features
+
+[GeneratedDocument21]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\symbols\rect60x100_225\features
+
+[GeneratedDocument22]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\symbols\rect68x58_45\features
+
+[GeneratedDocument23]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\symbols\rect68x58_135\features
+
+[GeneratedDocument24]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\symbols\rect68x108_225\features
+
+[GeneratedDocument25]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\matrix\matrix
+
+[GeneratedDocument26]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\netlists\cadnet\netlist
+
+[GeneratedDocument27]
+DocumentPath=Project Outputs for unioc-ng_v1_1\Pick Place for UNIOC-NG.txt
+
+[GeneratedDocument28]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\profile
+
+[GeneratedDocument29]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\stephdr
+
+[GeneratedDocument30]
+DocumentPath=Project Outputs for unioc-ng_v1_1\odb\steps\pcb\layers\drill\tools
+
+[GeneratedDocument31]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.DRL
+
+[GeneratedDocument32]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.DRR
+
+[GeneratedDocument33]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.GBL
+
+[GeneratedDocument34]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.GBO
+
+[GeneratedDocument35]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.GBP
+
+[GeneratedDocument36]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.GBS
+
+[GeneratedDocument37]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.GKO
+
+[GeneratedDocument38]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.GM1
+
+[GeneratedDocument39]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.GPB
+
+[GeneratedDocument40]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.GPT
+
+[GeneratedDocument41]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.GTL
+
+[GeneratedDocument42]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.GTO
+
+[GeneratedDocument43]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.GTP
+
+[GeneratedDocument44]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.GTS
+
+[GeneratedDocument45]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.LDP
+
+[GeneratedDocument46]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.REP
+
+[GeneratedDocument47]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.RUL
+
+[GeneratedDocument48]
+DocumentPath=Project Outputs for unioc-ng_v1_1\UNIOC-NG.TXT
+
+[GeneratedDocument49]
+DocumentPath=Project Outputs for unioc-ng_v1_1\unioc-ng_v1_1.BOM
+
+[GeneratedDocument50]
+DocumentPath=Project Outputs for unioc-ng_v1_1\unioc-ng_v1_1.CSV
+
+[GeneratedDocument51]
+DocumentPath=Project Outputs for unioc-ng_v1_1\unioc-ng_v1_1.EDF
+
+[GeneratedDocument52]
+DocumentPath=Project Outputs for unioc-ng_v1_1\unioc-ng_v1_1.NET
+
+[GeneratedDocument53]
+DocumentPath=Project Outputs for unioc-ng_v1_1\unioc-ng_v1_1.nsx
+
+[GeneratedDocument54]
+DocumentPath=Project Outputs for unioc-ng_v1_1\unioc-ng_v1_1.pld
+
+[GeneratedDocument55]
+DocumentPath=Project Outputs for unioc-ng_v1_1\unioc-ng_v1_1.REP
+
+[GeneratedDocument56]
+DocumentPath=Project Outputs for unioc-ng_v1_1\unioc-ng_v1_1.VHD
 
 [OutputGroup1]
 Name=Netlist Outputs
@@ -193,6 +371,14 @@ OutputName1=Bill of Materials
 OutputDocumentPath1=
 OutputEnabled1=1
 OutputDefault1=0
+Configuration1_Name1=General
+Configuration1_Item1=OpenExported=False|ForceFit=False|TemplateFilename=|BatchMode=0|FormWidth=875|FormHeight=657
+Configuration1_Name2=GroupOrder
+Configuration1_Item2=Footprint=True|Comment=True
+Configuration1_Name3=SortOrder
+Configuration1_Item3=Designator=Up|Comment=Up|Footprint=Up
+Configuration1_Name4=VisibleOrder
+Configuration1_Item4=Comment=100|Description=100|Designator=100|Footprint=100|LibRef=100|Quantity=100
 OutputType2=ComponentCrossReference
 OutputName2=Component Cross Reference Report
 OutputDocumentPath2=
@@ -394,6 +580,7 @@ L17=WNNNNNNNWNNNWWWWN
 
 [Annotate]
 SortOrder=3
+MatchParameter1=Comment
 
 [HighlightMethod]
 Zoom=1
