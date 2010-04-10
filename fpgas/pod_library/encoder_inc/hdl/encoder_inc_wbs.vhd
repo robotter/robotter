@@ -68,10 +68,10 @@ begin
     elsif rising_edge(wbs_clk_i) then
       if wbs_stb_i = '1' and wbs_we_i = '0' then
         case wbs_adr_i is
-          when "000"  => wbs_dat_o <= angle_reg_s(31 downto 24);
-          when "001"  => wbs_dat_o <= angle_reg_s(23 downto 16);
-          when "010"  => wbs_dat_o <= angle_reg_s(15 downto  8);
-          when "011"  => wbs_dat_o <= angle_reg_s( 7 downto  0);
+          when "000"  => wbs_dat_o <= angle_reg_s(7 downto 0);
+          when "001"  => wbs_dat_o <= angle_reg_s(15 downto 8);
+          when "010"  => wbs_dat_o <= angle_reg_s(23 downto 16);
+          when "011"  => wbs_dat_o <= angle_reg_s(31 downto 24);
           when others => wbs_dat_o <= std_logic_vector(to_unsigned(id_c, 8));
         end case;
         wbs_ack_o <= '1';
