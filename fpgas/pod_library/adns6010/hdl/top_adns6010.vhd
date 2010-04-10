@@ -29,7 +29,7 @@ ENTITY adns6010 IS
     wb_size_c    : natural := 8;           -- data port size
     adns_size_c  : natural RANGE 8 TO 32:= 32;        -- data sensor port size
     squal_size_c : natural RANGE 8 TO 32:= 8;  -- squal port size
-    freq_fpga_c  : natural := 50000
+    freq_fpga_c  : natural := 25000
     );
 
   PORT (
@@ -69,7 +69,7 @@ ARCHITECTURE adns6010_1 OF adns6010 IS
   COMPONENT adns6010_spi IS
   GENERIC (
     spi_freq_c : natural :=  1000; -- SPI clock frequency in kHz
-    clk_freq_c : natural := 50000  -- FPGA clock frequency in kHz
+    clk_freq_c : natural := 25000  -- FPGA clock frequency in kHz
   );
   PORT (
     clk_i     : IN std_logic;

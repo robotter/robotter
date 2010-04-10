@@ -9,22 +9,22 @@
     </generics>
 
 	<hdl_files>
-    <hdl_file filename="hdl/top_encoder_inc.vhd" scope="all" istop="1" />
-    <hdl_file filename="hdl/encoder_inc_debouncer.vhd" scope="all" istop="0" />
-    <hdl_file filename="hdl/encoder_inc_reader.vhd" scope="all" istop="0" />
-    <hdl_file filename="hdl/encoder_inc_wbs.vhd" scope="all" istop="0" />
+    <hdl_file filename="top_encoder_inc.vhd" scope="all" istop="1" />
+    <hdl_file filename="encoder_inc_debouncer.vhd" scope="all" istop="0" />
+    <hdl_file filename="encoder_inc_reader.vhd" scope="all" istop="0" />
+    <hdl_file filename="encoder_inc_wbs.vhd" scope="all" istop="0" />
 	</hdl_files>
 
 	<interfaces>
 
-		<interface name="clock" class="CLK_RST">
+		<interface name="clock" class="clk_rst">
 			<ports>
 				<port name="wbs_clk_i" type="CLK" size="1" dir="in"/>
 				<port name="wbs_rst_i" type="RST" size="1" dir="in"/>
 			</ports>
 		</interface>
 
-    <interface name="swb8" class="SLAVE" bus="wishbone8" clockandreset="clock">
+    <interface name="swb8" class="slave" bus="wishbone8" clockandreset="clock">
 			<ports>
 				<port name="wbs_adr_i" type="ADR" size="3" dir="in"/>
 <!--				<port name="wbs_dat_i" type="DAT_I" size="8" dir="in"/>-->

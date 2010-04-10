@@ -83,6 +83,9 @@ project.setaddr led00.swb8 0x1800
 # intercon
 project.intercon atmega_nodir_wb8_wrapper00.mwb8
 
+# set pin
+project.setpin unioc_ng.fpga.CLK_mega z
+
 # top gen.
 project.top
 

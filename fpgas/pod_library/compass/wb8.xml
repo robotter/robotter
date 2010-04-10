@@ -9,21 +9,21 @@
     </generics>
 
 	<hdl_files>
-    <hdl_file filename="hdl/top_compass.vhd" scope="all" istop="1" />
-    <hdl_file filename="hdl/compass_wbs.vhd" scope="all" istop="0"/>
-    <hdl_file filename="hdl/compass_reader.vhd" scope="all" istop="0"/>
+    <hdl_file filename="top_compass.vhd" scope="all" istop="1" />
+    <hdl_file filename="compass_wbs.vhd" scope="all" istop="0"/>
+    <hdl_file filename="compass_reader.vhd" scope="all" istop="0"/>
 	</hdl_files>
 
 	<interfaces>
 
-		<interface name="clock" class="CLK_RST">
+		<interface name="clock" class="clk_rst">
 			<ports>
 				<port name="wbs_clk_i" type="CLK" size="1" dir="in"/>
 				<port name="wbs_rst_i" type="RST" size="1" dir="in"/>
 			</ports>
 		</interface>
 
-    <interface name="swb8" class="SLAVE" bus="wishbone8" clockandreset="clock">
+    <interface name="swb8" class="slave" bus="wishbone8" clockandreset="clock">
 			<ports>
 				<port name="wbs_adr_i" type="ADR" size="2" dir="in"/>
 				<port name="wbs_dat_o" type="DAT_O" size="8" dir="out"/>

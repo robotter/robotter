@@ -27,7 +27,7 @@ use ieee.numeric_std.all;
 entity adns6010_spi is
   generic (
     spi_freq_c : natural :=  1000; -- SPI clock frequency in kHz
-    clk_freq_c : natural := 50000  -- FPGA clock frequency in kHz
+    clk_freq_c : natural := 25000  -- FPGA clock frequency in kHz
   );
   port (
     clk_i     : in std_logic;

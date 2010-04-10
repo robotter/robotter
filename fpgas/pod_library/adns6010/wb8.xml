@@ -10,24 +10,24 @@
     </generics>
 
 	<hdl_files>
-    <hdl_file filename="hdl/top_adns6010.vhd" scope="all" istop="1" />
-    <hdl_file filename="hdl/adns6010_controlunit.vhd" scope="all" istop="0"/>
-    <hdl_file filename="hdl/adns6010_latch_nbits.vhd" scope="all" istop="0"/>
-    <hdl_file filename="hdl/adns6010_mode_mux.vhd" scope="all" istop="0"/>
-    <hdl_file filename="hdl/adns6010_spi.vhd" scope="all" istop="0"/>
-    <hdl_file filename="hdl/adns6010_wishbone_interface.vhd" scope="all" istop="0"/>
+    <hdl_file filename="top_adns6010.vhd" scope="all" istop="1" />
+    <hdl_file filename="adns6010_controlunit.vhd" scope="all" istop="0"/>
+    <hdl_file filename="adns6010_latch_nbits.vhd" scope="all" istop="0"/>
+    <hdl_file filename="adns6010_mode_mux.vhd" scope="all" istop="0"/>
+    <hdl_file filename="adns6010_spi.vhd" scope="all" istop="0"/>
+    <hdl_file filename="adns6010_wishbone_interface.vhd" scope="all" istop="0"/>
 	</hdl_files>
 
 	<interfaces>
 
-		<interface name="clock" class="CLK_RST">
+		<interface name="clock" class="clk_rst">
 			<ports>
 				<port name="wbs_clk_i" type="CLK" size="1" dir="in"/>
 				<port name="wbs_rst_i" type="RST" size="1" dir="in"/>
 			</ports>
 		</interface>
 
-    <interface name="swb8" class="SLAVE" bus="wishbone8" clockandreset="clock">
+    <interface name="swb8" class="slave" bus="wishbone8" clockandreset="clock">
 			<ports>
 				<port name="wbs_adr_i" type="ADR" size="6" dir="in"/>
 				<port name="wbs_dat_i" type="DAT_I" size="8" dir="in"/>

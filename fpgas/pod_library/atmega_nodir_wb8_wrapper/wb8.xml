@@ -6,7 +6,7 @@
     </description>
 
     <hdl_files>
-        <hdl_file filename="hdl/atmega_nodir_wb8_wrapper.vhd" istop="1"/>
+        <hdl_file filename="atmega_nodir_wb8_wrapper.vhd" istop="1"/>
     </hdl_files>
 
     <interfaces>
