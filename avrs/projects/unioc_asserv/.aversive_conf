@@ -11,8 +11,8 @@ AVRDUDE_PORT = "/dev/parport0"
 AVARICE_PROGRAMMER = mkI
 AVARICE_PORT = "/dev/ttyS0"
 AVARICE_DEBUG_PORT = 1234
-MODULES = devices/control_system/filters/pid devices/control_system/filters/ramp devices/control_system/filters/quadramp devices/control_system/control_system_manager base/time base/scheduler comm/uart hardware/pwm hardware/adc base/cirbuf debug/error
+MODULES = devices/control_system/filters/pid devices/control_system/filters/ramp devices/control_system/filters/quadramp devices/control_system/control_system_manager base/time base/scheduler comm/uart hardware/pwm hardware/adc hardware/timer base/cirbuf debug/error
 
-ROBOTTER_MODULES = ../..//modules/hardware/adns6010
+ROBOTTER_MODULES = ../..//modules/comm/i2c_robotter ../..//modules/hardware/adns6010
 MODULES := $(ROBOTTER_MODULES) $(MODULES)
 

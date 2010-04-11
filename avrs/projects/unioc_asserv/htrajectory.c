@@ -226,6 +226,20 @@ void htrajectory_gotoXY( htrajectory_t *htj, double x, double y)
   htrajectory_run(htj, &path,  1);
 }
 
+void htrajectory_gotoA_R( htrajectory_t *htj, double da)
+{
+  double ra;
+  hposition_get_a( htj->hrp, &ra);
+  htrajectory_gotoA( htj, ra + da);
+}
+
+void htrajectory_gotoXY_R( htrajectory_t *htj, double dx, double dy)
+{
+  vect_xy_t rp;
+  hposition_get_xy( htj->hrp, &rp);
+  htrajectory_gotoXY( htj, rp.x + dx, rp.y + dy);
+}
+
 /* -- speed management -- */
 
 void htrajectory_setASpeed( htrajectory_t *htj, double speed, double acc )

@@ -4,7 +4,7 @@
 /** @brief Size of slave data buffer
  * @sa i2cs_data
  */
-#define I2C_BUF_SIZE    8
+#define I2C_BUF_SIZE  32
 #endif
 
 /** @brief Divider for I2C baudrate

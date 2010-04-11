@@ -27,6 +27,8 @@
 #include <scheduler.h>
 #include <adc.h>
 #include <time.h>
+#include <i2cs.h>
+#include <timer.h>
 
 #include <adns6010.h>
 
@@ -37,6 +39,7 @@
 #include "htrajectory.h"
 #include "logging.h"
 #include "cli.h"
+#include "stratcomm.h"
 
 #include "settings.h"
 
@@ -60,6 +63,18 @@ extern volatile htrajectory_t trajectory;
 // manual control
 // XXX TBMoved to a manual control dedicated source file
 extern robot_cs_t robot_cs;
+
+// XXX 
+extern hrobot_position_t position;
+
+// XXX
+extern hrobot_system_t system;
+
+// communications
+extern stratcomm_t stratcomm;
+
+// CSs cpu usage in percent (0-100)
+extern uint8_t cs_cpuUsage;
 
 // scheduler events
 uint8_t event_position;
@@ -98,7 +113,7 @@ int main(void)
   printf("%c[0;0H",0x1B);
 
   // Some advertisment :p
-  NOTICE(0,"Robotter 2009 - Galipeur - UNIOC-NG PROPULSION");
+  NOTICE(0,"Robotter 2010 - Galipeur - UNIOC-NG PROPULSION");
   NOTICE(0,"Compiled "__DATE__" at "__TIME__".");
 
   //--------------------------------------------------------
@@ -120,6 +135,9 @@ int main(void)
   // ADNS6010
   //--------------------------------------------------------
 
+  #ifdef SETTING_OVERRIDE_ADNSBOOT
+  WARNING(MAIN_ERROR, "ADNS6010 BOOT OVERRIDE");
+  #else
   NOTICE(0,"Initializing ADNS6010s");
   adns6010_init();
 
@@ -141,7 +159,8 @@ int main(void)
   adns6010_checks();
 
   NOTICE(0,"ADNS6010s are GO");
-  
+  #endif//SETTING_OVERRIDE_ADNSBOOT
+
   //--------------------------------------------------------
   // CS
   //--------------------------------------------------------
@@ -150,10 +169,24 @@ int main(void)
   cs_initialize();
 
   //--------------------------------------------------------
+  // MISC
+  //--------------------------------------------------------
+
+  NOTICE(0,"Initializing TIMER3");
+  timer_init();
 
   NOTICE(0,"Initializing ADCs");
   adc_init();
-  
+ 
+  NOTICE(0,"Initializing I2C slave");
+  i2cs_init(SETTING_I2C_ADDRESS);
+ 
+  NOTICE(0,"Initializing communications");
+  stratcomm_init(&stratcomm);
+
+  //--------------------------------------------------------
+
+
   // For ploting purposes
   NOTICE(0,"<PLOTMARK>");
 
@@ -161,6 +194,7 @@ int main(void)
   adns6010_setMode(ADNS6010_BHVR_MODE_AUTOMATIC);
 
   // Unleash control systems
+
   event_cs = 
     scheduler_add_periodical_event_priority(&cs_update, NULL,
                                               SETTING_SCHED_CS_PERIOD,
@@ -197,19 +231,20 @@ int main(void)
   //----------------------------------------------------------------------
   
   NOTICE(0,"Go");
-
-  vect_xy_t path[] = { (vect_xy_t){300.0,0.0},
-                       (vect_xy_t){400.0,100.0},
-                       (vect_xy_t){400.0,300.0},
-                       (vect_xy_t){200.0,300.0},
-                       (vect_xy_t){200.0,100.0},
-                       (vect_xy_t){0.0,0.0} };
-
-  htrajectory_run(&trajectory, path, 6);
-  
-  while( !htrajectory_doneXY(&trajectory) );
-
-  motor_cs_break(1);
+ 
+  while(1)
+  {
+    DEBUG(0,"%2.2X %2.2X %2.2X %2.2X %2.2X %2.2X %2.2X %2.2X",
+            i2cs_data[0],
+            i2cs_data[1],
+            i2cs_data[2],
+            i2cs_data[3],
+            i2cs_data[4],
+            i2cs_data[5],
+            i2cs_data[6],
+            i2cs_data[7]);
+    wait_ms(100);
+  }
 
   NOTICE(0,"Done");
   while(1);

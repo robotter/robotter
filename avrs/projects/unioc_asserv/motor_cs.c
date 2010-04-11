@@ -193,6 +193,7 @@ int32_t get_encoder_motor1(void* dummy)
   int32_t value,speed;
 
   value = _SFR_MEM32(MOTOR_CS_ENCODER1_ADDR);
+
   speed = value - encoder1_pvalue;
   encoder1_pvalue = value;
 
@@ -204,6 +205,7 @@ int32_t get_encoder_motor2(void* dummy)
   int32_t value,speed;
 
   value = _SFR_MEM32(MOTOR_CS_ENCODER2_ADDR);
+
   speed = value - encoder2_pvalue;
   encoder2_pvalue = value;
 
@@ -215,6 +217,7 @@ int32_t get_encoder_motor3(void* dummy)
   int32_t value,speed;
 
   value = _SFR_MEM32(MOTOR_CS_ENCODER3_ADDR);
+
   speed = value - encoder3_pvalue;
   encoder3_pvalue = value;
 

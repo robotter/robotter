@@ -30,6 +30,7 @@
 #include <adns6010.h>
 #include "acfilter.h"
 #include "compass.h"
+#include "settings.h"
 
 #include "hposition_manager.h"
 #include "hposition_manager_config.h"
@@ -129,10 +130,13 @@ void hposition_update(void *dummy)
   // Access ADNS6010 values
   adns6010_encoders_get_value(&adns6010);
 
+  // override warning if ADNS boot was previously skipped
+  #ifndef SETTING_OVERRIDE_ADNSBOOT 
   // FAULT register is set
   if( adns6010.fault )
     WARNING(HROBOT_ERROR, "ADNS6010 FAULT register is set : fault=0x%X",
                             adns6010.fault);
+  #endif
 
   // first time update => update vector, quit
   if( hpos->firstUpdate )

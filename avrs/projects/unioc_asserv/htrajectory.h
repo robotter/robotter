@@ -124,11 +124,18 @@ void htrajectory_setStopWindows( htrajectory_t *htj, double xywin, double awin )
 /**\brief Load and run path */
 void htrajectory_run( htrajectory_t *htj, vect_xy_t *hrv, uint8_t n);
 
-/**\brief Turn robot by 'a'  */
+/**\brief Turn robot to 'a'  */
 void htrajectory_gotoA( htrajectory_t *htj, double a);
 
 /**\brief Goto (x,y) point */
 void htrajectory_gotoXY( htrajectory_t *htj, double x, double y);
+
+/**\brief Turn robot by 'a'  */
+void htrajectory_gotoA_R( htrajectory_t *htj, double a);
+
+/**\brief Goto current point + (x,y) */
+void htrajectory_gotoXY_R( htrajectory_t *htj, double x, double y);
+
 
 /* -- status -- */
 

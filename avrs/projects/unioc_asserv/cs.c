@@ -26,6 +26,8 @@
 #include <aversive/error.h>
 #include <aversive/wait.h>
 #include <math.h>
+#include <timer.h>
+#include <scheduler.h>
 
 #include "cs.h"
 #include "motor_cs.h"
@@ -34,8 +36,12 @@
 #include "acfilter.h"
 #include "compass.h"
 #include "time.h"
+#include "stratcomm.h"
 
 #include "settings.h"
+
+// Strategic communications
+stratcomm_t stratcomm;
 
 // Robot position
 hrobot_position_t position;
@@ -57,6 +63,9 @@ acfilter_t acfilter;
 
 // robot_cs quadramps
 extern struct quadramp_filter qramp_angle;
+
+// CSs cpu usage in percents
+uint8_t cs_cpuUsage;
 
 void cs_initialize(void)
 {
@@ -107,16 +116,24 @@ void cs_initialize(void)
                                           SETTING_TRAJECTORY_STOP_AWIN);
 }
 
+uint16_t dbg_timer;
+
 void cs_update(void* dummy)
 {
+  uint16_t dt;
   static uint8_t led = 0;
 
   // some LED feedback on UNIOC-NG
   // (quite strange code for a great flashing effect :p)
   _SFR_MEM8(0x1800) = (led+=10)>50;
 
-  // -- section called every 8 ms -- 
+  // reset TIMER3
+  timer3_set(0);
 
+  // update communications with stratcomm
+  stratcomm_update(&stratcomm);
+
+  // update trajectory management
   htrajectory_update(&trajectory);
 
   // update compass filtering
@@ -128,4 +145,14 @@ void cs_update(void* dummy)
 	// update control systems
 	robot_cs_update(&robot_cs);
 
+  // compute CPU usage
+  dt = timer3_get();
+  cs_cpuUsage = (100*timer3_tics_to_us(dt))
+      /(SETTING_SCHED_CS_PERIOD*SCHEDULER_UNIT);
+
+  #ifdef SETTING_OVERRIDE_CPUUSAGE
+  // if cpu usage get over 95%, throw an error
+  if(cs_cpuUsage > 95)
+    ERROR(CS_ERROR,"cs_update CPU usage go over 95% : %d",cs_cpuUsage);
+  #endif
 }

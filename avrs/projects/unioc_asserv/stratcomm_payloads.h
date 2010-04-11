@@ -1,5 +1,5 @@
 /*  
- *  Copyright RobOtter (2009) 
+ *  Copyright RobOtter (2010) 
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,20 +16,16 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** \file cs.h
+/** \file stratcomm_payloads.h
   * \author JD
-  *
-  * Manage control systems
-  *
   */
 
-#ifndef CS_H
-#define CS_H
+#ifndef _STRATCOMM_PAYLOADS_H_
+#define _STRATCOMM_PAYLOADS_H_
 
-#define CS_ERROR 0x90
+#define UNPACK_DOUBLE(sc,payload) ( *((double*) stratcomm_popPayload(sc, payload, sizeof(double))) )
+#define UNPACK_UINT8(sc,payload) ( *((uint8_t*) stratcomm_popPayload(sc, payload, sizeof(uint8_t))) )
 
-void cs_initialize(void);
+#define PACK_UINT8(v)  ( (uint8_t*)(&(v)) )
 
-void cs_update(void* dummy);
-
-#endif/*CS_H*/
+#endif/*_STRATCOMM_PAYLOADS_H_*/
