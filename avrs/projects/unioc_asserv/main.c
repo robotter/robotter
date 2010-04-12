@@ -234,15 +234,6 @@ int main(void)
  
   while(1)
   {
-    DEBUG(0,"%2.2X %2.2X %2.2X %2.2X %2.2X %2.2X %2.2X %2.2X",
-            i2cs_data[0],
-            i2cs_data[1],
-            i2cs_data[2],
-            i2cs_data[3],
-            i2cs_data[4],
-            i2cs_data[5],
-            i2cs_data[6],
-            i2cs_data[7]);
     wait_ms(100);
   }
 

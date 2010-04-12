@@ -23,16 +23,20 @@
 #include <aversive/error.h>
 #include <i2cs.h>
 #include <string.h>
+#include <time.h>
 
 #include "stratcomm.h"
 #include "stratcomm_payloads.h"
 #include "stratcomm_orders.h"
 
+#include "motor_cs.h"
 #include "htrajectory.h"
 #include "hposition_manager.h"
+#include <adns6010.h>
 
 extern htrajectory_t trajectory;
 extern hrobot_position_t position;
+extern adns6010_encoders_t adns6010;
 
 void stratcomm_init(stratcomm_t* sc)
 {
@@ -126,9 +130,11 @@ void stratcomm_doOrder(stratcomm_t* sc,
                         stratcommOrder_t order,
                         uint8_t* payload)
 {
-  double x,y,a;
+  double xy,x,y,a;
+  double speed,acc;
   vect_xy_t pxy;
   uint8_t b,n;
+  time_h tv;
 
   switch(order)
   {
@@ -136,6 +142,16 @@ void stratcomm_doOrder(stratcomm_t* sc,
     // NONE order
     case SO_NONE:
       DEBUG(0,"new order NONE received");
+      break;
+    
+    //---------------------------------------------------------
+    // 42 order
+    case SO_FORTYTWO:
+      DEBUG(0,"new order FORTYTWO received");
+
+      b = 0x42;
+      stratcomm_pushReturnPayload(sc, PACK_UINT8(b), sizeof(uint8_t));
+      
       break;
 
     //---------------------------------------------------------
@@ -230,38 +246,112 @@ void stratcomm_doOrder(stratcomm_t* sc,
       break;
 
     //---------------------------------------------------------
+    // perform robot autoset
+    case SO_TRAJECTORY_AUTOSET:
+      
+      // unpack payload
+      n = UNPACK_UINT8(sc, payload);
+
+      DEBUG(0,"new order TRAJECTORY_AUTOSET (%u) received",n);
+
+      // perform order 
+      htrajectory_autoset(&trajectory, n);
+
+      break;
+
+    //---------------------------------------------------------
+    // set robot trajectory angular speed
     case SO_SET_A_SPEED:
-      ERROR(STRATCOMM_ERROR,"order SO_SET_A_SPEED not implemented");
+      
+      // unpack payload
+      speed = UNPACK_DOUBLE(sc, payload);
+      acc =   UNPACK_DOUBLE(sc, payload);
+      
+      DEBUG(0,"new order SET_A_SPEED (v=%2.2f,a=%2.2f) received",
+                speed,acc);
+      
+      // perform order
+      htrajectory_setASpeed(&trajectory, speed, acc);
+
       break;
 
 
     //---------------------------------------------------------
     case SO_SET_XY_CRUISE_SPEED:
-      ERROR(STRATCOMM_ERROR,"order SO_SET_XY_CRUISE_SPEED not implemented");
+
+      // unpack payload
+      speed = UNPACK_DOUBLE(sc, payload);
+      acc =   UNPACK_DOUBLE(sc, payload);
+      
+      DEBUG(0,"new order SET_XY_CRUISE_SPEED (v=%2.2f,a=%2.2f) received",
+                speed,acc);
+      
+      // perform order
+      htrajectory_setXYCruiseSpeed(&trajectory, speed, acc);
+
       break;
 
 
     //---------------------------------------------------------
     case SO_SET_XY_STEERING_SPEED:
-      ERROR(STRATCOMM_ERROR,"order SO_SET_XY_STEERING_SPEED not implemented");
+
+      // unpack payload
+      speed = UNPACK_DOUBLE(sc, payload);
+      acc =   UNPACK_DOUBLE(sc, payload);
+      
+      DEBUG(0,"new order SET_XY_STEERING_SPEED (v=%2.2f,a=%2.2f) received",
+                speed,acc);
+      
+      // perform order
+      htrajectory_setXYSteeringSpeed(&trajectory, speed, acc);
+
       break;
 
 
     //---------------------------------------------------------
     case SO_SET_XY_STOP_SPEED:
-      ERROR(STRATCOMM_ERROR,"order SO_SET_XY_STOP_SPEED not implemented");
+
+      // unpack payload
+      speed = UNPACK_DOUBLE(sc, payload);
+      acc =   UNPACK_DOUBLE(sc, payload);
+      
+      DEBUG(0,"new order SET_XY_STOP_SPEED (v=%2.2f,a=%2.2f) received",
+                speed,acc);
+      
+      // perform order
+      htrajectory_setXYStopSpeed(&trajectory, speed, acc);
+
       break;
 
 
     //---------------------------------------------------------
     case SO_SET_STEERING_WIN:
-      ERROR(STRATCOMM_ERROR,"order SO_SET_STEERING_WIN not implemented");
+
+      // unpack payload
+      xy = UNPACK_DOUBLE(sc, payload);
+      
+      DEBUG(0,"new order SET_STEERING_WIN (xyw=%2.2f) received",
+                xy);
+      
+      // perform order
+      htrajectory_setSteeringWindow(&trajectory, xy);
+
       break;
 
 
     //---------------------------------------------------------
     case SO_SET_STOP_WIN:
-      ERROR(STRATCOMM_ERROR,"order SO_SET_STOP_WIN not implemented");
+
+      // unpack payload
+      xy = UNPACK_DOUBLE(sc, payload);
+      a  = UNPACK_DOUBLE(sc, payload);
+      
+      DEBUG(0,"new order SET_STOP_WIN (xyw=%2.2f,aw=%2.2f) received",
+                xy,a);
+      
+      // perform order
+      htrajectory_setStopWindows(&trajectory, xy, a);
+
       break;
 
     //---------------------------------------------------------
@@ -288,8 +378,83 @@ void stratcomm_doOrder(stratcomm_t* sc,
     //---------------------------------------------------------
     // set robot XYA position
     case SO_SET_XYA:
-      ERROR(STRATCOMM_ERROR, "order SO_SET_XYA not implemented");
+      
+      // unpack payload
+      x = UNPACK_DOUBLE(sc, payload);
+      y = UNPACK_DOUBLE(sc, payload);
+      a = UNPACK_DOUBLE(sc, payload);
+
+      DEBUG(0,"new order SET_XYA(x=%2.2f,y=%2.2f,a=%2.2f) received",
+              x,y,a);
+      
+      // perform order
+      hposition_set(&position, x, y, a);
+
       break;
+
+    //---------------------------------------------------------
+    // set robot drivers brakes
+    case SO_BRAKE:
+
+      // unpack payload
+      n = UNPACK_UINT8(sc, payload);
+
+      DEBUG(0,"new order BRAKE(%u) received", n);
+
+      // perform order
+      motor_cs_break(n);
+
+      break;
+
+    //---------------------------------------------------------
+    // get ADNS6010 system faults
+    case SO_GET_ADNSFAULT:
+
+      DEBUG(0,"new order GET_ADNSFAULT received");
+
+      // no payload to unpack
+  
+      stratcomm_pushReturnPayload(sc, PACK_UINT8(adns6010.fault),
+                                                sizeof(uint8_t));
+
+      break;
+
+    //---------------------------------------------------------
+    // get ADNS6010 SQUALS
+    case SO_GET_ADNSSQUALS:
+
+      DEBUG(0,"new order GET_ADNSSQUALS received");
+
+      // no payload to unpack
+  
+      stratcomm_pushReturnPayload(sc, PACK_UINT8(adns6010.squals[0]),
+                                   sizeof(uint8_t));
+
+      stratcomm_pushReturnPayload(sc, PACK_UINT8(adns6010.squals[1]),
+                                   sizeof(uint8_t));
+
+      stratcomm_pushReturnPayload(sc, PACK_UINT8(adns6010.squals[2]),
+                                   sizeof(uint8_t));
+
+      break;
+
+    //---------------------------------------------------------
+    // get system time
+    case SO_GET_TIME:
+
+      DEBUG(0,"new order GET_TIME received");
+      
+      // no payload to unpack
+      
+      // get current time
+      tv = time_get_time();
+
+      stratcomm_pushReturnPayload(sc,PACK_UINT8(tv.s),sizeof(uint32_t));
+
+      stratcomm_pushReturnPayload(sc,PACK_UINT8(tv.us),sizeof(uint32_t));
+
+      break;
+
 
     //---------------------------------------------------------
     default:

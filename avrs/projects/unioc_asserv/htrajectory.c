@@ -240,6 +240,11 @@ void htrajectory_gotoXY_R( htrajectory_t *htj, double dx, double dy)
   htrajectory_gotoXY( htj, rp.x + dx, rp.y + dy);
 }
 
+void htrajectory_autoset( htrajectory_t *htj, uint8_t side)
+{
+  ERROR(HTRAJECTORY_ERROR, "AUTOSET(%u) not implemented",side);
+}
+
 /* -- speed management -- */
 
 void htrajectory_setASpeed( htrajectory_t *htj, double speed, double acc )

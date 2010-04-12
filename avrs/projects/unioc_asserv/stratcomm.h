@@ -20,8 +20,8 @@
   * \author JD
   */
 
-#ifndef _STRATCOMM_H_
-#define _STRATCOMM_H_
+#ifndef STRATCOMM_H
+#define STRATCOMM_H
 
 #include <aversive.h>
 #include <i2cs.h>
@@ -76,4 +76,4 @@ void stratcomm_resetReturnPayload( stratcomm_t* );
 /** @brief Push data on return payload buffer */
 void stratcomm_pushReturnPayload( stratcomm_t*, uint8_t* p, uint8_t psize);
 
-#endif/*_STRATCOMM_H_*/
+#endif/*STRATCOMM_H*/

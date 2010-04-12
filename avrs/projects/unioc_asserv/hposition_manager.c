@@ -41,6 +41,9 @@ extern compass_t compass;
 // ADNS/compass filter
 extern acfilter_t acfilter;
 
+// ADNS encoders
+adns6010_encoders_t adns6010;
+
 void hposition_init( hrobot_position_t* hpos )
 {
   uint8_t flags;
@@ -124,7 +127,6 @@ void hposition_update(void *dummy)
 
   hrobot_position_t* hpos  = dummy;
 
-  adns6010_encoders_t adns6010;
 
   //------------------------
   // Access ADNS6010 values

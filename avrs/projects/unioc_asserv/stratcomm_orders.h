@@ -20,29 +20,35 @@
   * \author JD
   */
 
-#ifndef _STRATCOMM_ORDERS_H_
-#define _STRATCOMM_ORDERS_H_
+#ifndef STRATCOMM_ORDERS_H
+#define STRATCOMM_ORDERS_H
 
-typedef enum 
-{
-  SO_NONE = 0,
-  SO_GOTO_A_XYA,
-  SO_GOTO_R_XYA,
+#define SO_NONE                       0x00
+#define SO_FORTYTWO                   0x01
 
-  SO_TRAJECTORY_SET_CHECKPOINT,
-  SO_TRAJECTORY_RUN,
-  SO_TRAJECTORY_STATUS,
+#define SO_GOTO_A_XYA                 0x10
+#define SO_GOTO_R_XYA                 0x11
 
-  SO_SET_A_SPEED,
-  SO_SET_XY_CRUISE_SPEED,
-  SO_SET_XY_STEERING_SPEED,
-  SO_SET_XY_STOP_SPEED,
-  SO_SET_STEERING_WIN,
-  SO_SET_STOP_WIN,
+#define SO_TRAJECTORY_SET_CHECKPOINT  0x20
+#define SO_TRAJECTORY_RUN             0x21
+#define SO_TRAJECTORY_STATUS          0x22
+#define SO_TRAJECTORY_AUTOSET         0x23
 
-  SO_GET_XYA,
-  SO_SET_XYA
+#define SO_SET_A_SPEED                0x30
+#define SO_SET_XY_CRUISE_SPEED        0x31
+#define SO_SET_XY_STEERING_SPEED      0x32
+#define SO_SET_XY_STOP_SPEED          0x33
+#define SO_SET_STEERING_WIN           0x34
+#define SO_SET_STOP_WIN               0x35
 
-}stratcommOrder_t;
+#define SO_GET_XYA                    0x40
+#define SO_SET_XYA                    0x41
 
-#endif/*_STRATCOMM_ORDERS_H_*/
+#define SO_BRAKE                      0x50
+#define SO_GET_ADNSFAULT              0x51
+#define SO_GET_ADNSSQUALS             0x52
+#define SO_GET_TIME                   0x53
+
+typedef uint8_t stratcommOrder_t;
+
+#endif/*STRATCOMM_ORDERS_H*/

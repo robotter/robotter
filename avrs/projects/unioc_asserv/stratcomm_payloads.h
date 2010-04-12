@@ -20,12 +20,12 @@
   * \author JD
   */
 
-#ifndef _STRATCOMM_PAYLOADS_H_
-#define _STRATCOMM_PAYLOADS_H_
+#ifndef STRATCOMM_PAYLOADS_H
+#define STRATCOMM_PAYLOADS_H
 
 #define UNPACK_DOUBLE(sc,payload) ( *((double*) stratcomm_popPayload(sc, payload, sizeof(double))) )
 #define UNPACK_UINT8(sc,payload) ( *((uint8_t*) stratcomm_popPayload(sc, payload, sizeof(uint8_t))) )
 
 #define PACK_UINT8(v)  ( (uint8_t*)(&(v)) )
 
-#endif/*_STRATCOMM_PAYLOADS_H_*/
+#endif/*STRATCOMM_PAYLOADS_H*/
