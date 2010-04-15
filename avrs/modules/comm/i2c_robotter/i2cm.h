@@ -16,7 +16,7 @@ void i2cm_init(void);
  * @return  0  NACK has been immediately received
  * @return  n  size of sent data (even on error / NACK)
  */
-int8_t i2cm_send(uint8_t slave_addr, uint8_t n, const uint8_t* data);
+int8_t i2cm_send(uint8_t slave_addr, const uint8_t *data, uint8_t n);
 
 /** @brief Receive data frame from a slave
  *
@@ -28,5 +28,5 @@ int8_t i2cm_send(uint8_t slave_addr, uint8_t n, const uint8_t* data);
  * @return  0  NACK has been immediately received
  * @return  n  size of sent data
  */
-int8_t i2cm_recv(uint8_t slave_addr, uint8_t n, uint8_t* data);
+int8_t i2cm_recv(uint8_t slave_addr, uint8_t *data, uint8_t n);
 

@@ -3,8 +3,11 @@
 
 #include "i2cs.h"
 
-#if I2C_BUF_SIZE < 2
-#error "I2C_BUF_SIZE is too short"
+#if (I2CS_RECV_BUF_SIZE > 255) || (I2CS_RECV_BUF_SIZE < 1)
+#error "invalid I2CS_RECV_BUF_SIZE value"
+#endif
+#if (I2CS_SEND_BUF_SIZE > 255) || (I2CS_SEND_BUF_SIZE < 1)
+#error "invalid I2CS_SEND_BUF_SIZE value"
 #endif
 
 #define I2C_ACK()   (TWCR=(1<<TWIE)+(1<<TWEN)+(1<<TWEA)+(1<<TWINT))
@@ -12,8 +15,10 @@
 #define I2C_STOP()  (TWCR=(1<<TWIE)+(1<<TWEN)+(1<<TWSTO)+(1<<TWINT))
 
 
-uint8_t i2cs_data[I2C_BUF_SIZE];
-volatile I2CS_STATE i2cs_state;
+volatile uint8_t i2cs_recv_buf[I2CS_RECV_BUF_SIZE];
+volatile uint8_t i2cs_recv_size;
+volatile uint8_t i2cs_send_buf[I2CS_SEND_BUF_SIZE];
+volatile uint8_t i2cs_send_size;
 
 
 void i2cs_init(uint8_t slave_addr)
@@ -31,7 +36,13 @@ void i2cs_init(uint8_t slave_addr)
   if(I2C_PRESCALER & 2)
     sbi(TWSR, TWPS1);
 
-  i2cs_state = I2C_NONE;
+  int i;
+  for( i=0; i<sizeof(i2cs_recv_buf); i++ )
+    i2cs_recv_buf[0];
+  i2cs_recv_size = 0;
+  for( i=0; i<sizeof(i2cs_send_buf); i++ )
+    i2cs_send_buf[0];
+  i2cs_send_size = 0;
 
   I2C_ACK();
 
@@ -46,40 +57,46 @@ SIGNAL(SIG_2WIRE_SERIAL)
   switch(TW_STATUS)
   {
     case TW_SR_SLA_ACK:
-      ptr = i2cs_data;
+      ptr = i2cs_recv_buf;
+      i2cs_recv_size = 0;
       I2C_ACK();
       break;
 
     case TW_SR_DATA_ACK:
       *(ptr++) = TWDR;
-      if( ptr < i2cs_data+I2C_BUF_SIZE )
+      if( ptr < i2cs_recv_buf+sizeof(i2cs_recv_buf) )
         I2C_ACK();
       else
         I2C_NACK();
       break;
 
     case TW_SR_STOP:
-      i2cs_state = I2C_RECEIVED;
+    case TW_SR_DATA_NACK:
+      i2cs_recv_size = ptr-i2cs_recv_buf;
       I2C_ACK();
       break;
 
     case TW_ST_SLA_ACK:
-      ptr = i2cs_data;
-      i2cs_state = I2C_NONE;
+      if( i2cs_send_size == 0 ) {
+        TWDR = I2CS_SEND_NONE_BYTE;
+        I2C_NACK();
+        break;
+      }
+      if( i2cs_send_size > sizeof(i2cs_send_buf) )
+        i2cs_send_size = sizeof(i2cs_send_buf);
+      ptr = i2cs_send_buf;
       // no break;
     case TW_ST_DATA_ACK:
       TWDR = *(ptr++);
-      if( ptr < i2cs_data+I2C_BUF_SIZE )
+      if( ptr < i2cs_send_buf+i2cs_send_size )
         I2C_ACK();
       else
         I2C_NACK();
       break;
 
-    case TW_SR_DATA_NACK:
-      i2cs_state = I2C_RECEIVED;
-      // no break;
     case TW_ST_DATA_NACK:
     case TW_ST_LAST_DATA:
+      i2cs_send_size = 0;
       I2C_ACK();
       break;
 
