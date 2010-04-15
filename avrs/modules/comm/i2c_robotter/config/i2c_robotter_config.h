@@ -8,10 +8,12 @@
 #endif
 
 /** @brief Divider for I2C baudrate
+ *
  * Refers to TWBR in specs for details.
  */
 #define I2C_BITRATE   1
 /** @brief Prescaler configuration
+ *
  * Rate is 2^(n*2)
  */
 #define I2C_PRESCALER 3

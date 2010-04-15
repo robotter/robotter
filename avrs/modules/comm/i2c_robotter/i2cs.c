@@ -3,8 +3,17 @@
 
 #include "i2cs.h"
 
+#if I2C_BUF_SIZE < 2
+#error "I2C_BUF_SIZE is too short"
+#endif
+
+#define I2C_ACK()   (TWCR=(1<<TWIE)+(1<<TWEN)+(1<<TWEA)+(1<<TWINT))
+#define I2C_NACK()  (TWCR=(1<<TWIE)+(1<<TWEN)+(1<<TWINT))
+#define I2C_STOP()  (TWCR=(1<<TWIE)+(1<<TWEN)+(1<<TWSTO)+(1<<TWINT))
+
+
 uint8_t i2cs_data[I2C_BUF_SIZE];
-I2CS_STATE i2cs_state;
+volatile I2CS_STATE i2cs_state;
 
 
 void i2cs_init(uint8_t slave_addr)
@@ -24,7 +33,7 @@ void i2cs_init(uint8_t slave_addr)
 
   i2cs_state = I2C_NONE;
 
-  TWCR = (1<<TWEA)+(1<<TWEN)+(1<<TWIE)+(1<<TWINT);
+  I2C_ACK();
 
   IRQ_UNLOCK(flags);
 }
@@ -38,44 +47,43 @@ SIGNAL(SIG_2WIRE_SERIAL)
   {
     case TW_SR_SLA_ACK:
       ptr = i2cs_data;
-      I2C_NEXT();
+      I2C_ACK();
       break;
 
     case TW_SR_DATA_ACK:
       *(ptr++) = TWDR;
-      I2C_NEXT();
-      break;
-      
-    case TW_ST_SLA_ACK:
-      if( i2cs_state == I2C_READY )
-      {
-        ptr = i2cs_data;
-        i2cs_state = I2C_NONE;
-        I2C_SEND(1);
-      }
+      if( ptr < i2cs_data+I2C_BUF_SIZE )
+        I2C_ACK();
       else
-      {
-        I2C_SEND(0);
-      }
-      break;
-
-    case TW_ST_DATA_ACK:
-      I2C_SEND(*(ptr++));
-      break;
-
-    case TW_ST_DATA_NACK:
-      I2C_ACK();
+        I2C_NACK();
       break;
 
     case TW_SR_STOP:
       i2cs_state = I2C_RECEIVED;
-      I2C_NEXT();
-
-    case TW_ST_LAST_DATA:
-      I2C_NEXT();
+      I2C_ACK();
       break;
 
-    default:
+    case TW_ST_SLA_ACK:
+      ptr = i2cs_data;
+      i2cs_state = I2C_NONE;
+      // no break;
+    case TW_ST_DATA_ACK:
+      TWDR = *(ptr++);
+      if( ptr < i2cs_data+I2C_BUF_SIZE )
+        I2C_ACK();
+      else
+        I2C_NACK();
+      break;
+
+    case TW_SR_DATA_NACK:
+      i2cs_state = I2C_RECEIVED;
+      // no break;
+    case TW_ST_DATA_NACK:
+    case TW_ST_LAST_DATA:
+      I2C_ACK();
+      break;
+
+    default: // illegal states, errors
       I2C_STOP();
       break;
   }

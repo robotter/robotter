@@ -4,6 +4,14 @@
 
 #include "i2cm.h"
 
+#define I2C_WAIT()  while( !( TWCR & (1<<TWINT) ) )
+#define I2C_ACK()   do{ TWCR=(1<<TWEN)+(1<<TWEA)+(1<<TWINT); I2C_WAIT(); }while(0);
+#define I2C_NACK()  do{ TWCR=(1<<TWEN)+(1<<TWINT); I2C_WAIT(); }while(0)
+#define I2C_START() do{ TWCR=(1<<TWEN)+(1<<TWSTA)+(1<<TWINT); I2C_WAIT(); }while(0)
+#define I2C_SEND(d) do{ TWDR = (d); I2C_ACK(); }while(0)
+#define I2C_STOP()  (TWCR=(1<<TWEN)+(1<<TWSTO)+(1<<TWINT))
+
+
 
 void i2cm_init(void)
 {
@@ -23,98 +31,61 @@ void i2cm_init(void)
 }
 
 
-void i2cm_send(uint8_t slave_addr, uint8_t n, const uint8_t* data)
+int8_t i2cm_send(uint8_t slave_addr, uint8_t n, const uint8_t* data)
 {
-  uint8_t i;
-
   I2C_START();
+  if( TW_STATUS != TW_START )
+    return -1;
 
   // Slave address + Write bit (0)
   I2C_SEND(slave_addr<<1);
+  if( TW_STATUS == TW_MT_SLA_NACK ) {
+    I2C_STOP(); wait_4cyc(100);
+    return 0;
+  }
+  if( TW_STATUS != TW_MT_SLA_ACK )
+    return -1;
 
-  // Send ata
-  for( i=0; i<n; i++ )
-  {
+  uint8_t i;
+  for( i=0; i<n; i++ ) {
     I2C_SEND(data[i]);
+    if( TW_STATUS != TW_MT_DATA_ACK )
+      break;
   }
 
-  // Stop and wait
-  I2C_STOP();
-  wait_4cyc(100);
+  if( TW_STATUS == TW_MT_DATA_ACK || TW_STATUS == TW_MT_DATA_NACK ) {
+    I2C_STOP(); wait_4cyc(100);
+  }
+
+  return i;
 }
 
 
 int8_t i2cm_recv(uint8_t slave_addr, uint8_t n, uint8_t* data)
 {
-  uint8_t i;
-
   I2C_START();
+  if( TW_STATUS != TW_START )
+    return -1;
 
   // Slave address + Read bit (1)
   I2C_SEND((slave_addr<<1)+1);
-
-  // No ACK, no data
-  if( TW_STATUS != TW_MR_SLA_ACK )
-  {
-    I2C_STOP();
-    wait_4cyc(100);
-    return -1;
-  }
-
-  // Read all data
-  for( i=0; i<n; i++ )
-  {
-    I2C_ACK();
-    data[i] = TWDR;
-  }
-
-  I2C_NACK();
-  I2C_STOP();
-  wait_4cyc(100);
-
-  return 0;
-}
-
-
-int8_t i2cm_ask_and_recv(uint8_t slave_addr, uint8_t n, uint8_t* data)
-{
-  uint8_t i;
-
-  I2C_START();
-
-  // Slave address + Read bit (1)
-  I2C_SEND((slave_addr<<1)+1);
-
-  // No ACK, no data
-  if( TW_STATUS != TW_MR_SLA_ACK )
-  {
-    I2C_STOP();
-    wait_4cyc(100);
-    return -1;
-  }
-
-  // First byte: is there something to transmit?
-  I2C_ACK();
-  if( TWDR == 0 )
-  {
-    I2C_NACK();
-    I2C_STOP();
-    wait_4cyc(100);
+  if( TW_STATUS == TW_MR_SLA_NACK ) {
+    I2C_STOP(); wait_4cyc(100);
     return 0;
   }
+  if( TW_STATUS != TW_MR_SLA_ACK )
+    return -1;
 
-  // Read all data
-  for( i=0; i<n; i++ )
-  {
+  uint8_t i;
+  for( i=0; i<n; i++ ) {
     I2C_ACK();
     data[i] = TWDR;
   }
 
   I2C_NACK();
-  I2C_STOP();
-  wait_4cyc(100);
+  I2C_STOP(); wait_4cyc(100);
 
-  return 1;
+  return i;
 }
 
 
