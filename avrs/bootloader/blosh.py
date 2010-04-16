@@ -164,6 +164,7 @@ class Blosh(cmd.Cmd):
       'hexa_len': (ShellOptInt, 16, "line length (in bytes) for hexa output"),
       'echo': (ShellOptBool, False, "display send data in terminal mode"),
       'eol': (ShellOptEnum('CR','LF','CRLF'), 'CRLF', "[CR|LF|CRLF], EOL of outgoing data from stdin"),
+      'switch_way_eol': (ShellOptBool, True, "force an EOL when switching between send and received data"),
       'tkey_quit': (ShellOptKey, '^', "key to quit in terminal mode"),
       'tkey_reset': (ShellOptKey, '^R', "key to reset in terminal mode"),
       'tkey_prog': (ShellOptKey, '^P', "key to (re)program in terminal mode"),
@@ -180,13 +181,13 @@ class Blosh(cmd.Cmd):
       'shell': ('!<cmd>', "run a shell command"),
       'reset': ('r[eset]', "reset the device by sending the reset string or boot"),
       'set': ('set [opt [value]]', "list, set or unset shell options",
-        "Option list:"+''.join('\n  %-12s  %s'%(k, v[2]) for k,v in _option_list.items())
+        "Option list:"+''.join('\n  %-14s  %s'%(k, v[2]) for k,v in _option_list.items())
         ),
       'terminal': ('t[erminal]', "enter terminal mode"),
       'source': ('source <file>', "load commands from a file"),
       'log': ('log [file]', "set or unset log file", """This command is an alias for 'set filter_cmd'."""),
       'filter': ('filter [cmd]', "set or unset a filter on incoming data", """Data received from the device is send to the filter command. Its output is displayed, stderr data is displayed in a different color.\nTerminal mode is aborted if the process returned a not null code.\nIf hexa output is enabled, no filtering is applied.\nThis command is an alias for 'set filter_cmd'."""),
-      'feed': ('feed [cmd]', "set or unset a command providing outgoing data", """Data received from stdin is send to the feeder command. Its output is then sent to the device. stderr data is displayed in a different color.\nTerminal mode is aborted if the process returned a not null code.\neol and tkey_quit are applied before sending data to the feeder; tkey_reset is ignored. If hexa output or echo are enabled, they use data returned by the feeder.\nThis command is an alias for 'set feed_cmd'."""),
+      'feed': ('feed [cmd]', "set or unset a command providing outgoing data", """Data received from stdin is send to the feeder command. Its output is then sent to the device. stderr data is displayed in a different color.\nTerminal mode is aborted if the process returned a not null code.\neol and tkey_quit are applied before sending data to the feeder; tkey_reset and switch_way_eol are ignored. If hexa output or echo are enabled, they use data returned by the feeder.\nThis command is an alias for 'set feed_cmd'."""),
       'program': ('p[rogram][!] [file.hex]', "program the device", """The given file, or the previous one if none is provided, is uploaded on the device. Without '!', only differences with the previous binary are sent."""),
       'check': ('check [file.hex]', "check uploaded program"),
       'boot': "boot the device (if bootloader is active)",
@@ -306,11 +307,22 @@ class Blosh(cmd.Cmd):
     def print_out(s):
       for p in printers_out: p(s)
 
-    pin_default = lambda s: sys.stdout.write(s)
-    if self.opts['echo']:
-      pout_default = lambda s: sys.stdout.write(self.theme.do_data_out(s))
+    if self.opts['switch_way_eol']:
+      last_way = [0] # -1: in, +1: out, in a list to keep a reference
+      def pin_default(s):
+        if last_way[0] > 0: sys.stdout.write('\r\n')
+        last_way[0] = -1
+        sys.stdout.write(s)
+      def pout_default(s):
+        if last_way[0] < 0: sys.stdout.write('\r\n')
+        last_way[0] = 1
+        sys.stdout.write(self.theme.do_data_out(s))
     else:
+      pin_default = lambda s: sys.stdout.write(s)
+      pout_default = lambda s: sys.stdout.write(self.theme.do_data_out(s))
+    if not self.opts['echo']:
       pout_default = lambda s: None
+
 
     if self.opts['hexa']:
       # number of written data bytes on the current line (>0: out, <0: in)
@@ -337,7 +349,8 @@ class Blosh(cmd.Cmd):
           n += 1
         hexaline_len[0] = n
       printers_in.append(pin_hexa)
-      printers_out.append(pout_hexa)
+      if self.opts['echo']:
+        printers_out.append(pout_hexa)
 
     elif self.opts['filter_cmd']:
       s = self.opts['filter_cmd'].val
@@ -540,7 +553,7 @@ class Blosh(cmd.Cmd):
       l = self._option_list.keys()
       l.sort()
       for k in l:
-        print "  %-12s  %s" % (k, self.opts[k])
+        print "  %-14s  %s" % (k, self.opts[k])
     else:
       k = l[0]
       try:
