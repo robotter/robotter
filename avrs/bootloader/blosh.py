@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import cmd, re, sys, os, select, termios, glob, subprocess, signal, StringIO
-from robloc import Roblochon, RoblochonError
+from robloc import Roblochon
 
 class Color:
   """Terminal color codes."""
@@ -265,7 +265,7 @@ class Blosh(cmd.Cmd):
     try:
       print self.theme.fmt('{info}{bold}exiting{info} bootloader{}')
       self.bl.boot()
-    except Error, e:
+    except Exception, e:
       print self.theme.do_error('failed to boot: %s' % e)
       return False
     return True
