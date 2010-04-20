@@ -261,12 +261,7 @@ class Roblochon(RobloClient):
       self.send_raw( kw.get('init_send') )
 
     self.response = None
-
-    # retrieve server infos
-    self.wait_prompt()
-    r = self.cmd_infos()
-    if not r: raise RoblochonError("cannot retrieve device info")
-    self.cmds, self.roid, self.pagesize = r
+    self.clear_infos()
 
   def recv_msg(self):
     """Redefined method to store the last response."""
@@ -409,6 +404,19 @@ class Roblochon(RobloClient):
     return r == self.compute_crc(data)
 
 
+  def update_infos(self):
+    """Get device infos, update associated attributes."""
+    self.wait_prompt()
+    r = self.cmd_infos()
+    if not r: raise RoblochonError("cannot retrieve device info")
+    self.cmds, self.roid, self.pagesize = r
+    return r
+
+  def clear_infos(self):
+    """Clear cached device infos."""
+    self.cmds, self.roid, self.pagesize = None, None, None
+
+
   def read_fuses(self):
     """Read fuses.
     Return a tuple with low, high and extended fuse bytes.
@@ -433,6 +441,7 @@ class Roblochon(RobloClient):
 
   def diff_pages(self, data1, data2):
     """Return a list of pages of data1 which differ from data2."""
+    if self.pagesize is None: self.update_infos()
     p = []
     for i in range(0, len(data1), self.pagesize):
       d1 = data1[i:i+self.pagesize]
@@ -489,6 +498,7 @@ class Roblochon(RobloClient):
     return buffer(data)
 
   def _assert_supported_cmd(self, c):
+    if self.cmds is None: self.update_infos()
     if c not in self.cmds:
       raise RoblochonError("command '%c' not supported by the device" % c)
 
@@ -666,9 +676,10 @@ class BasicUIO:
 def startBootloader():
   print "bootloader waiting..."
   client = Roblochon(conn, verbose=opts.verbose, init_send=opts.init_send)
+  client.update_infos()
 
   if opts.roid is not None:
-    assert opts.roid != client.roid, "ROID mismatch"
+    assert opts.roid == client.roid, "ROID mismatch"
 
   if opts.infos:
     print "device infos :  ROID: %d, commands: %s" % (client.roid, client.cmds)
