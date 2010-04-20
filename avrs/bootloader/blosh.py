@@ -41,6 +41,7 @@ class DefaultTheme(ColorTheme):
   prompt = Color.bold+Color.blue
   warn = Color.yellow+Color.bold
   error = Color.red+Color.bold
+  ok = Color.green+Color.bold
   arg = Color.normal+Color.bold
   match = Color.green+Color.bold
   notice = Color.green+Color.bold
@@ -152,7 +153,7 @@ class Blosh(cmd.Cmd):
     conn -- serial connection (shared with Roblochon)
     opts -- shell options
     theme -- color theme
-    bl -- Roblochon instance (initialized at first use)
+    bl -- Roblochon instance
     bl_mode -- True if bootloader active
     last_hex -- last uploaded HEX data
 
@@ -174,6 +175,7 @@ class Blosh(cmd.Cmd):
       'prog_file': (ShellOptStr, None, "programmed binary file (see 'programm' command)"),
       'prog_check': (ShellOptBool, False, "check programmed pages"),
       'auto_boot': (ShellOptBool, True, "boot (if needed) when entering terminal mode"),
+      'check_roid': (ShellOptInt, -1, "excepted ROID, checked before programming/checking (-1 to ignore)"),
       }
 
   _help_topics = {
@@ -191,7 +193,8 @@ class Blosh(cmd.Cmd):
       'program': ('p[rogram][!] [file.hex]', "program the device", """The given file, or the previous one if none is provided, is uploaded on the device. Without '!', only differences with the previous binary are sent."""),
       'check': ('check [file.hex]', "check uploaded program"),
       'boot': "boot the device (if bootloader is active)",
-      'infos': "display device infos and value of fuse bytes",
+      'clear': "clear cached device infos and last programmed data",
+      'infos': "display device infos, fuse bytes and programmed binary state",
       }
 
   _cmd_aliases = {
@@ -231,8 +234,9 @@ class Blosh(cmd.Cmd):
 
     self.conn = conn
     self.opts = dict( (k, v[0](v[1])) for k,v in self._option_list.items() )
-    self.bl = None
-    self.bl_mode = None
+    self.bl = self.BlClient(self.conn)
+    self.bl.theme = self.theme
+    self.bl_mode = False
     self.last_hex = None
 
 
@@ -246,9 +250,6 @@ class Blosh(cmd.Cmd):
       self.conn.write(self.opts['reset_str'].val)
     print self.theme.fmt('{info}{bold}waiting{info} for bootloader...{}')
 
-    if self.bl is None:
-      self.bl = self.BlClient(self.conn)
-      self.bl.theme = self.theme
     self.bl.wait_prompt(True)
     self.bl_mode = True
     return True
@@ -495,6 +496,7 @@ class Blosh(cmd.Cmd):
       print self.theme.do_error("no file to upload")
       return
     self.bl_enter()
+    if not self._check_roid(): return
     try:
       data = self.bl.parse_hex_file(f)
     except Exception, e:
@@ -622,26 +624,59 @@ class Blosh(cmd.Cmd):
       print self.theme.do_error("no file to check")
       return
     self.bl_enter()
+    if not self._check_roid(): return
     try:
       ret = self.bl.check(f)
-      print self.theme.fmt('check: {bold}%s{}') % (
-        Color.green+'OK' if ret else Color.red+'FAILED'
-        )
+      print 'check: %s' % self.theme.do_ok('OK') if ret else self.theme.do_error('FAILED')
     except Exception, e:
       print self.theme.do_error('failed to check: %s' % e)
 
   def do_boot(self, line):
     self.bl_exit()
 
+  def do_clear(self, line):
+    self.bl.clear_infos()
+    self.last_hex = None
+
   def do_infos(self, line):
     self.bl_enter()
-    print self.theme.fmt('{bold}ROID:{} 0x%02x (%d)   {bold}commands:{} %s') % (
+    self.bl.update_infos()
+    roid_style = ''
+    if self.opts['check_roid'].val > -1:
+      roid_style = 'ok' if self.bl.roid == self.opts['check_roid'].val else 'error'
+    print self.theme.fmt('{bold}ROID:{'+roid_style+'} 0x%02x (%d){}   {bold}commands:{} %s') % (
         self.bl.roid, self.bl.roid, self.bl.cmds )
     try:
       fuses = self.bl.read_fuses()
       print self.theme.fmt('{bold}fuses (low high ex):{} %02x %02x %02x') % fuses
     except Exception, e:
-      self.theme.do_error('cannot read fuses: %s' % e)
+      print self.theme.do_error('cannot read fuses: %s' % e)
+
+    f = self.opts['prog_file'].val
+    if f:
+      try:
+        data = self.bl.parse_hex_file(f)
+        if self.last_hex is not None:
+          data_diff = self.bl.diff_pages(data, self.last_hex)
+          print self.theme.fmt('{bold}program:{} %d bytes, %d page%c to program') % (
+            len(data), len(data_diff), '' if len(data_diff)==1 else 's' )
+        else:
+          print self.theme.fmt('{bold}program:{} %d bytes, no previous state'%len(data))
+      except Exception:
+        print self.theme.fmt('{bold}program:{} {error}invalid data{}')
+    else:
+      print self.theme.fmt('{bold}program:{} no file')
+
+
+  def _check_roid(self):
+    """Internal method to check ROID if needed, print a message on mismatch."""
+    if self.opts['check_roid'].val <= -1: return True
+    self.bl.update_infos()
+    if self.opts['check_roid'].val != self.bl.roid:
+      print self.theme.fmt('{error}ROID mismatch: expected {arg}0x%02x{error} got {arg}0x%02x{}') % (
+          self.opts['check_roid'].val, self.bl.roid )
+      return False
+    return True
 
 
   # completion
