@@ -28,6 +28,9 @@
 #include <aversive.h>
 #include <stdlib.h>
 
+#include "logging.h"
+#include "cli.h"
+
 #include "hrobot_manager.h"
 #include "hrobot_manager_config.h"
 
@@ -62,6 +65,8 @@ void hrobot_set_motors( hrobot_system_t* hrs,
   v0 += omega;
   v1 += omega;
   v2 += omega;
+
+  //DEBUG(0,"HRM : %ld %ld %ld", v0, v1, v2);
 
   // set motors speeds
   if(hrs->motors_accessor)

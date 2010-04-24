@@ -150,7 +150,7 @@ void cs_update(void* dummy)
   cs_cpuUsage = (100*timer3_tics_to_us(dt))
       /(SETTING_SCHED_CS_PERIOD*SCHEDULER_UNIT);
 
-  #ifdef SETTING_OVERRIDE_CPUUSAGE
+  #ifndef SETTING_OVERRIDE_CPUUSAGE
   // if cpu usage get over 95%, throw an error
   if(cs_cpuUsage > 95)
     ERROR(CS_ERROR,"cs_update CPU usage go over 95% : %d",cs_cpuUsage);

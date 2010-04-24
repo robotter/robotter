@@ -51,36 +51,38 @@ void stratcomm_update(stratcomm_t* sc)
   stratcommOrder_t order;
 
   // check if mailbox is full
-  if(i2cs_state == I2C_RECEIVED)
+  if(i2cs_recv_size > 0)
   {
     // ------------------------------------------------------------
     // RECEIVE
 
     // -- ORDER --
     // first byte should be ORDER
-    order = (stratcommOrder_t)i2cs_data[0];
+    order = (stratcommOrder_t)i2cs_recv_buf[0];
     
     // -- PAYLOAD SIZE  --
     // second byte should be payload size
-    sc->payloadSize = i2cs_data[1];
+    sc->payloadSize = i2cs_recv_buf[1];
   
     // if payloadSize will overflow i2c buffer size
     if(sc->payloadSize > STRATCOMM_MAX_PAYLOAD_SIZE)
     {
       WARNING(STRATCOMM_ERROR,
-        "i2c message payload size too big (payloadSize=%d, I2C_BUF_SIZE=%d\n",
-        sc->payloadSize,I2C_BUF_SIZE); 
+        "i2c message payload size too big (payloadSize=%d, I2CS_SEND_BUF_SIZE=%d\n",
+        sc->payloadSize,I2CS_SEND_BUF_SIZE); 
      
-      i2cs_state = I2C_NONE;
+      // XXX to avoid triggering next time
+      i2cs_recv_size = 0;
       return;
     }
     
     // -- PAYLOAD CRC --
     // last byte should be CRC
-    payloadCRC = i2cs_data[sc->payloadSize+2];
+    payloadCRC = i2cs_recv_buf[sc->payloadSize+2];
     
     // compute CRC
-    recvCRC = stratcomm_computeChecksum(i2cs_data+2, sc->payloadSize);
+    recvCRC =
+      stratcomm_computeChecksum(i2cs_recv_buf+2, sc->payloadSize);
     
     // in case of CRCs mismatch
     if( payloadCRC != recvCRC )
@@ -88,8 +90,9 @@ void stratcomm_update(stratcomm_t* sc)
       WARNING(STRATCOMM_ERROR,
         "i2c message CRC mismatch (payloadCRC=0x%2.2x recvCRC=0x%2.2x)",
         payloadCRC, recvCRC);
-      
-      i2cs_state = I2C_NONE;
+
+      // XXX to avoid triggering next time
+      i2cs_recv_size = 0;
       return;
     }
     
@@ -100,27 +103,27 @@ void stratcomm_update(stratcomm_t* sc)
     stratcomm_resetReturnPayload(sc);
 
     // perform ORDER
-    stratcomm_doOrder(sc, order, i2cs_data+2);
+    stratcomm_doOrder(sc, order, i2cs_recv_buf+2);
 
     // ------------------------------------------------------------
     // SEND
     
     // 
-    memset(i2cs_data, 0, I2C_BUF_SIZE);
+    memset(i2cs_send_buf, 0, I2CS_SEND_BUF_SIZE);
 
     // size of returned payload
-    i2cs_data[0] = sc->returnPayloadIt;
+    i2cs_send_buf[0] = sc->returnPayloadIt;
 
     // prepare returned payload
-    memcpy(i2cs_data + 1, sc->returnPayload, sc->returnPayloadIt);
+    memcpy(i2cs_send_buf + 1, sc->returnPayload, sc->returnPayloadIt);
 
     // compute CRC and add it to payload
     payloadCRC =
       stratcomm_computeChecksum(sc->returnPayload, sc->returnPayloadIt);
-    i2cs_data[ sc->returnPayloadIt + 2 ] = payloadCRC;
+    i2cs_send_buf[ sc->returnPayloadIt + 2 ] = payloadCRC;
 
     // set i2c state machine to READY (data OK to be sent)
-    i2cs_state = I2C_READY;
+    i2cs_send_size = sc->returnPayloadIt + 3;
   }
 
   return;
@@ -130,8 +133,8 @@ void stratcomm_doOrder(stratcomm_t* sc,
                         stratcommOrder_t order,
                         uint8_t* payload)
 {
-  double xy,x,y,a;
-  double speed,acc;
+  int16_t xy,x,y,a;
+  int16_t speed,acc;
   vect_xy_t pxy;
   uint8_t b,n;
   time_h tv;
@@ -159,11 +162,11 @@ void stratcomm_doOrder(stratcomm_t* sc,
     case SO_GOTO_A_XYA:
 
       // unpack payload
-      x = UNPACK_DOUBLE(sc, payload);
-      y = UNPACK_DOUBLE(sc, payload);
-      a = UNPACK_DOUBLE(sc, payload);
+      x = UNPACK_INT16(sc, payload);
+      y = UNPACK_INT16(sc, payload);
+      a = UNPACK_INT16(sc, payload);
       
-      DEBUG(0,"new order GOTO_A_XYA(%3.3f,%3.3f,%3.3f) received", x,y,a);
+      DEBUG(0,"new order GOTO_A_XYA(%3.3d,%3.3d,%3.3d) received", x,y,a);
 
       // send order to lower CSs
       htrajectory_gotoXY(&trajectory, x, y);
@@ -176,9 +179,9 @@ void stratcomm_doOrder(stratcomm_t* sc,
     case SO_GOTO_R_XYA:
 
       // unpack payload
-      x = UNPACK_DOUBLE(sc, payload);
-      y = UNPACK_DOUBLE(sc, payload);
-      a = UNPACK_DOUBLE(sc, payload);
+      x = UNPACK_INT16(sc, payload);
+      y = UNPACK_INT16(sc, payload);
+      a = UNPACK_INT16(sc, payload);
       
       DEBUG(0,"new order GOTO_R_XYA(%3.3f,%3.3f,%3.3f) received", x,y,a);
 
@@ -194,8 +197,8 @@ void stratcomm_doOrder(stratcomm_t* sc,
 
       // unpack payload
       n = UNPACK_UINT8(sc, payload);
-      x = UNPACK_DOUBLE(sc, payload);
-      y = UNPACK_DOUBLE(sc, payload);
+      x = UNPACK_INT16(sc, payload);
+      y = UNPACK_INT16(sc, payload);
 
       DEBUG(0,"new order TRAJECTORY_SET_CHECKPOINT (%u, %3.3f, %3.3f) received",
               n,x,y);
@@ -234,13 +237,14 @@ void stratcomm_doOrder(stratcomm_t* sc,
 
       // no payload to unpack
       
+      b = 0x00;
       // get values from trajectory manager
-      b = htrajectory_doneXY(&trajectory);
-      // robot in XY position, boolean
-      stratcomm_pushReturnPayload(sc, PACK_UINT8(b), sizeof(uint8_t));
+      if(htrajectory_doneXY(&trajectory))
+        b &= 0x01;
 
-      b = htrajectory_doneA(&trajectory);
-      // robot in A position, boolean
+      if(htrajectory_doneA(&trajectory))
+        b &= 0x02;
+
       stratcomm_pushReturnPayload(sc, PACK_UINT8(b), sizeof(uint8_t));
 
       break;
@@ -264,8 +268,8 @@ void stratcomm_doOrder(stratcomm_t* sc,
     case SO_SET_A_SPEED:
       
       // unpack payload
-      speed = UNPACK_DOUBLE(sc, payload);
-      acc =   UNPACK_DOUBLE(sc, payload);
+      speed = UNPACK_INT16(sc, payload);
+      acc =   UNPACK_INT16(sc, payload);
       
       DEBUG(0,"new order SET_A_SPEED (v=%2.2f,a=%2.2f) received",
                 speed,acc);
@@ -280,8 +284,8 @@ void stratcomm_doOrder(stratcomm_t* sc,
     case SO_SET_XY_CRUISE_SPEED:
 
       // unpack payload
-      speed = UNPACK_DOUBLE(sc, payload);
-      acc =   UNPACK_DOUBLE(sc, payload);
+      speed = UNPACK_INT16(sc, payload);
+      acc =   UNPACK_INT16(sc, payload);
       
       DEBUG(0,"new order SET_XY_CRUISE_SPEED (v=%2.2f,a=%2.2f) received",
                 speed,acc);
@@ -312,8 +316,8 @@ void stratcomm_doOrder(stratcomm_t* sc,
     case SO_SET_XY_STOP_SPEED:
 
       // unpack payload
-      speed = UNPACK_DOUBLE(sc, payload);
-      acc =   UNPACK_DOUBLE(sc, payload);
+      speed = UNPACK_INT16(sc, payload);
+      acc =   UNPACK_INT16(sc, payload);
       
       DEBUG(0,"new order SET_XY_STOP_SPEED (v=%2.2f,a=%2.2f) received",
                 speed,acc);
@@ -328,7 +332,7 @@ void stratcomm_doOrder(stratcomm_t* sc,
     case SO_SET_STEERING_WIN:
 
       // unpack payload
-      xy = UNPACK_DOUBLE(sc, payload);
+      xy = UNPACK_INT16(sc, payload);
       
       DEBUG(0,"new order SET_STEERING_WIN (xyw=%2.2f) received",
                 xy);
@@ -343,8 +347,8 @@ void stratcomm_doOrder(stratcomm_t* sc,
     case SO_SET_STOP_WIN:
 
       // unpack payload
-      xy = UNPACK_DOUBLE(sc, payload);
-      a  = UNPACK_DOUBLE(sc, payload);
+      xy = UNPACK_INT16(sc, payload);
+      a  = UNPACK_INT16(sc, payload);
       
       DEBUG(0,"new order SET_STOP_WIN (xyw=%2.2f,aw=%2.2f) received",
                 xy,a);
@@ -380,9 +384,9 @@ void stratcomm_doOrder(stratcomm_t* sc,
     case SO_SET_XYA:
       
       // unpack payload
-      x = UNPACK_DOUBLE(sc, payload);
-      y = UNPACK_DOUBLE(sc, payload);
-      a = UNPACK_DOUBLE(sc, payload);
+      x = UNPACK_INT16(sc, payload);
+      y = UNPACK_INT16(sc, payload);
+      a = UNPACK_INT16(sc, payload);
 
       DEBUG(0,"new order SET_XYA(x=%2.2f,y=%2.2f,a=%2.2f) received",
               x,y,a);

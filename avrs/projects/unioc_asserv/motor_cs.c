@@ -49,9 +49,9 @@ int32_t encoder2_pvalue;
 int32_t encoder3_pvalue;
 
 // motors bit signs
-uint8_t motor1_sign;
-uint8_t motor2_sign;
-uint8_t motor3_sign;
+volatile uint8_t motor1_sign;
+volatile uint8_t motor2_sign;
+volatile uint8_t motor3_sign;
 
 // PWM overflow event
 ISR(SIG_OVERFLOW1)

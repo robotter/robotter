@@ -48,9 +48,12 @@
 
 //-----
 
-void manual_control(void);
 void safe_key_pressed(void* dummy);
 
+void paddock_manualControl(void);
+void paddock_adnsFeedback(void);
+void paddock_testCode(void);
+void paddock_pwmTest(void);
 //-----
 
 // log level
@@ -70,6 +73,7 @@ extern hrobot_position_t position;
 // XXX
 extern hrobot_system_t system;
 
+
 // communications
 extern stratcomm_t stratcomm;
 
@@ -82,8 +86,6 @@ uint8_t event_cs;
 
 int main(void)
 {
-  uint8_t tirette = 0;
-
   // ADNS configuration
   adns6010_configuration_t adns_config;
 
@@ -105,7 +107,7 @@ int main(void)
   error_register_notice(log_event);
   error_register_debug(log_event);
 
-  log_level = ERROR_SEVERITY_NOTICE;
+  //log_level = ERROR_SEVERITY_NOTICE;
   log_level = ERROR_SEVERITY_DEBUG;
 
   // Clear screen
@@ -210,10 +212,10 @@ int main(void)
 
   //----------------------------------------------------------------------
 
-  NOTICE(0,"Strike 'c' for manual control / 'x' to reboot / any other key to go");
+  NOTICE(0,"Strike 'x' to reboot / 'c' manual control / 'a' ADNS test / 'p' PWM test / 't' test code / any other key to go");
  
   uint8_t c;
-  while(!tirette)
+  while(1)
   {
     c = cli_getkey();
     
@@ -221,8 +223,17 @@ int main(void)
       EMERG(MAIN_ERROR,"safe key 'x' pressed");
   
     if(c == 'c')
-      manual_control();
+      paddock_manualControl();
     
+    if(c == 'a')
+      paddock_adnsFeedback();
+
+    if(c == 't')
+      paddock_testCode();
+
+    if(c == 'p')
+      paddock_pwmTest();
+
     if(c != -1)
       break;
   }
@@ -234,7 +245,12 @@ int main(void)
  
   while(1)
   {
-    wait_ms(100);
+    htrajectory_gotoXY_R((htrajectory_t*)&trajectory, 500.0, 0.0);
+    while(!htrajectory_doneXY((htrajectory_t*)&trajectory));
+    htrajectory_gotoXY_R((htrajectory_t*)&trajectory, -500.0, 0.0);
+    while(!htrajectory_doneXY((htrajectory_t*)&trajectory));
+
+    wait_ms(200);
   }
 
   NOTICE(0,"Done");
@@ -243,7 +259,43 @@ int main(void)
   return 0;
 }
 
-void manual_control(void)
+void paddock_testCode(void)
+{
+  NOTICE(0, "Entering TEST CODE");
+
+
+  while(1) nop();
+}
+
+void paddock_adnsFeedback(void)
+{
+  adns6010_encoders_t adns6010;
+
+  NOTICE(0, "Entering ANDS feedback mode");
+
+  // breaking motors
+  motor_cs_break(1);
+  scheduler_del_event(event_cs);
+
+  while(1)
+  {
+    adns6010_encoders_get_value(&adns6010);
+    
+    NOTICE(0,"ADNS 0x%2.2x | %6ld %6ld %6ld %6ld %6ld %6ld | %d %d %d",
+              adns6010.fault,
+              adns6010.vectors[0],
+              adns6010.vectors[1],
+              adns6010.vectors[2],
+              adns6010.vectors[3],
+              adns6010.vectors[4],
+              adns6010.vectors[5],
+              adns6010.squals[0],
+              adns6010.squals[1],
+              adns6010.squals[2]);
+  }
+}
+
+void paddock_manualControl(void)
 {
   uint8_t key;
   double x = 0.0;
@@ -299,6 +351,67 @@ void manual_control(void)
 
 
   } 
+}
+
+void paddock_pwmTest(void)
+{
+  uint8_t key;
+  int32_t pwm1 = 0;
+  int32_t pwm2 = 0;
+  int32_t pwm3 = 0;
+  
+  NOTICE(0,"Entering PWM test mode");
+
+  // kill CSs
+  scheduler_del_event(event_cs);
+
+  NOTICE(0,"PWM1 +/- : i/k | PWM2 +/- : o/l | PWM3 +/- : p/m | zero all : z");
+
+  while(1)
+  {
+    key = cli_getkey();
+
+    if(key=='x')
+      EMERG(MAIN_ERROR,"safe key 'x' pressed");
+    
+    switch(key)
+    {
+      case 'i': 
+        pwm1 += SETTING_PADDOCK_PWMTEST_INC;
+        break;
+        
+      case 'k':
+        pwm1 -= SETTING_PADDOCK_PWMTEST_INC;
+        break;
+
+      case 'o':
+        pwm2 += SETTING_PADDOCK_PWMTEST_INC;
+        break;
+
+      case 'l':
+        pwm2 -= SETTING_PADDOCK_PWMTEST_INC;
+        break;
+
+      case 'p':
+        pwm3 += SETTING_PADDOCK_PWMTEST_INC;
+        break;
+
+      case 'm':
+        pwm3 -= SETTING_PADDOCK_PWMTEST_INC;
+        break;
+
+      case 'z': 
+        pwm1 = 0;
+        pwm2 = 0;
+        pwm3 = 0;
+        break;
+    }
+
+    NOTICE(0,"PWM1=%5ld PWM2=%5ld PWM3=%5ld",pwm1,pwm2,pwm3);
+
+  }
+
+  while(1) nop();
 }
 
 void safe_key_pressed(void* dummy)
