@@ -152,6 +152,7 @@ class Blosh(cmd.Cmd):
   Attributes:
     conn -- serial connection (shared with Roblochon)
     opts -- shell options
+    cmd_aliases -- dictionary of command aliases
     theme -- color theme
     bl -- Roblochon instance
     bl_mode -- True if bootloader active
@@ -185,6 +186,7 @@ class Blosh(cmd.Cmd):
       'set': ('set [opt [value]]', "list, set or unset shell options",
         "Option list:"+''.join('\n  %-14s  %s'%(k, v[2]) for k,v in _option_list.items())
         ),
+      'alias': ('set [name [commmand]]', "list, set or unset command aliases", """Alias names are replaced by the associated command, then processed as usual. Alias matching is recursive and alias names may shadow built-in command names. Aliases names are not commpleted."""),
       'terminal': ('t[erminal]', "enter terminal mode"),
       'source': ('source <file>', "load commands from a file"),
       'log': ('log [file]', "set or unset log file", """This command is an alias for 'set filter_cmd'."""),
@@ -197,7 +199,7 @@ class Blosh(cmd.Cmd):
       'infos': "display device infos, fuse bytes and programmed binary state",
       }
 
-  _cmd_aliases = {
+  _default_aliases = {
       'r': 'reset',
       't': 'terminal',
       'p': 'program',
@@ -234,6 +236,7 @@ class Blosh(cmd.Cmd):
 
     self.conn = conn
     self.opts = dict( (k, v[0](v[1])) for k,v in self._option_list.items() )
+    self.cmd_aliases = dict(self._default_aliases)
     self.bl = self.BlClient(self.conn)
     self.bl.theme = self.theme
     self.bl_mode = False
@@ -521,11 +524,14 @@ class Blosh(cmd.Cmd):
     pass
 
   def precmd(self, line):
-    if len(line) == 1 or (len(line) > 1 and line[1] not in self.identchars):
-      try:
-        return self._cmd_aliases[line[0]] + line[1:]
-      except:
-        pass
+    last_alias = None
+    while True:
+      l = line.split(None, 1)
+      if l[0] == last_alias: break  # avoid self-recursive aliases
+      alias_val = self.cmd_aliases.get(l[0])
+      if alias_val is None: break  # not an alias
+      last_alias = l[0]
+      line = alias_val + line[len(last_alias):]
     return line
 
 
@@ -570,6 +576,22 @@ class Blosh(cmd.Cmd):
           opt.set(l[1])
         except ValueError, e:
           print self.theme.fmt('{error}invalid option value: {arg}%s{}')%e
+
+  def do_alias(self, line):
+    l = line.split(None, 1)
+    if len(l) < 1:
+      print "Aliases:"
+      l = self.cmd_aliases.keys()
+      l.sort()
+      k_len = max( len(k) for k in l )
+      for k in l:
+        print "  %-*s  %s" % (k_len, k, self.cmd_aliases[k])
+    else:
+      k = l[0]
+      if len(l) < 2:
+        del self.cmd_aliases[k]
+      else:
+        self.cmd_aliases[k] = l[1]
 
   def do_source(self, line):
     if not line:
