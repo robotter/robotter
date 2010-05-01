@@ -153,5 +153,10 @@
 
 #define SETTING_PADDOCK_PWMTEST_INC (50)
 
+// -- stratcomm
+
+#define SETTING_STRATCOMM_RAD_TO_SCUNIT (1000)
+
+#define SETTING_STRATCOMM_MM_TO_SCUNIT (1)
 
 #endif/*SETTINGS_H*/

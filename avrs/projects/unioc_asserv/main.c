@@ -408,7 +408,10 @@ void paddock_pwmTest(void)
     }
 
     NOTICE(0,"PWM1=%5ld PWM2=%5ld PWM3=%5ld",pwm1,pwm2,pwm3);
-
+    
+    set_pwm_motor1(NULL, pwm1);
+    set_pwm_motor2(NULL, pwm2);
+    set_pwm_motor3(NULL, pwm3);
   }
 
   while(1) nop();
