@@ -83,7 +83,7 @@ local slave_mt = {
   recv_raw = function(self, o)
 
     local data = cb_recv(self.roid, o.ret.size+1)
-    if data.byte(1) == 0 then
+    if data:byte(1) == 0 then
       return nil -- no payload
     end
     assert( #data == o.ret.size+1, "invalid data size")
