@@ -191,7 +191,7 @@ class Blosh(cmd.Cmd):
       'filter': ('filter [cmd]', "set or unset a filter on incoming data", """Data received from the device is send to the filter command. Its output is displayed, stderr data is displayed in a different color.\nTerminal mode is aborted if the process returned a not null code.\nIf hexa output is enabled, no filtering is applied.\nThis command is an alias for 'set filter_cmd'."""),
       'feed': ('feed [cmd]', "set or unset a command providing outgoing data", """Data received from stdin is send to the feeder command. Its output is then sent to the device. stderr data is displayed in a different color.\nTerminal mode is aborted if the process returned a not null code.\neol and tkey_quit are applied before sending data to the feeder; tkey_reset and switch_way_eol are ignored. If hexa output or echo are enabled, they use data returned by the feeder.\nThis command is an alias for 'set feed_cmd'."""),
       'program': ('p[rogram][!] [file.hex]', "program the device", """The given file, or the previous one if none is provided, is uploaded on the device. Without '!', only differences with the previous binary are sent."""),
-      'check': ('check [file.hex]', "check uploaded program"),
+      'check': ('check [file.hex]', "check uploaded program", """On success, checked program becomes the previous binary (used when programming only changes). This may be used to avoid reprogramming the whole binary file at startup."""),
       'boot': "boot the device (if bootloader is active)",
       'clear': "clear cached device infos and last programmed data",
       'infos': "display device infos, fuse bytes and programmed binary state",
@@ -627,6 +627,10 @@ class Blosh(cmd.Cmd):
     if not self._check_roid(): return
     try:
       ret = self.bl.check(f)
+      if ret:
+        # current embedded program is the given HEX file
+        # set last_hex to allow page optimizations
+        self.last_hex = self.bl.parse_hex_file(f)
       print 'check: %s' % self.theme.do_ok('OK') if ret else self.theme.do_error('FAILED')
     except Exception, e:
       print self.theme.do_error('failed to check: %s' % e)
