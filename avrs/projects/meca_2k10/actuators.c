@@ -26,7 +26,7 @@
 
 #include "cli.h"
 #include "logging.h"
-#include "setting.h"
+#include "settings.h"
 
 #include "actuators.h"
 
@@ -51,7 +51,7 @@ void actuators_clamp_close(actuators_t* m, clampPos_t p)
                                   SETTING_AX12_POS_LCA_CLOSED);
   // right clamp
   else
-     actuators_ax12_setPosition(m, SETTING_AX12_ID_LEFT_CLAMP_A,
+     actuators_ax12_setPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_A,
                                   SETTING_AX12_POS_RCA_CLOSED);   
 
   return;
@@ -66,7 +66,7 @@ void actuators_clamp_open(actuators_t* m, clampPos_t p)
                                   SETTING_AX12_POS_LCA_OPENED);
   // right clamp
   else
-     actuators_ax12_setPosition(m, SETTING_AX12_ID_LEFT_CLAMP_A,
+     actuators_ax12_setPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_A,
                                   SETTING_AX12_POS_RCA_OPENED);   
 
   return;
@@ -77,6 +77,7 @@ uint8_t actuators_clamp_isClosed(actuators_t* m, clampPos_t p)
   uint8_t id;
   uint16_t pos;
   uint16_t goal;
+  uint16_t trq;
 
   if( p == CT_LEFT )
   {
@@ -89,7 +90,7 @@ uint8_t actuators_clamp_isClosed(actuators_t* m, clampPos_t p)
     goal = SETTING_AX12_POS_RCA_CLOSED;
   }
   
-  // -- 
+  // -- AX12 in position
 
   // get AX12 position
   ax12_user_read_int(&ax12, id, AA_PRESENT_POSITION_L, &pos);
@@ -98,9 +99,13 @@ uint8_t actuators_clamp_isClosed(actuators_t* m, clampPos_t p)
   if( abs(goal-pos) < SETTING_AX12_WINDOW )
     return 1;
 
-  // --
+  // -- AX12 overtorque
   
-  // XXX manage over torque / null speed here XXX
+  // get AX12 torque
+  ax12_user_read_int(&ax12, id, AA_PRESENT_LOAD_L, &trq);
+  
+  if( trq > SETTING_AX12_CLAMPING_TORQUE )
+    return 1;
 
   return 0;
 }
@@ -132,17 +137,47 @@ uint8_t actuators_clamp_isOpened(actuators_t* m, clampPos_t p)
   return 0;
 }
 
-void actuators_clamp_setElevation(actuators_t* m, clampPos_t p, int16_t angle)
+void actuators_clamp_raise(actuators_t* m, clampPos_t p)
 {
   if( p == CT_LEFT )
     actuators_ax12_setPosition(m, SETTING_AX12_ID_LEFT_CLAMP_B,
-                             SETTING_AX12_POS_LCB_HORIZ + angle);
+                             SETTING_AX12_POS_LCB_RAISED);
   else
-    actuators_ax12_setPosition(m, SETTING_AX12_ID_LEFT_CLAMP_B,
-                             SETTING_AX12_POS_RCB_HORIZ + angle);
+    actuators_ax12_setPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_B,
+                             SETTING_AX12_POS_RCB_RAISED);
   return;
 }
 
+void actuators_clamp_lower(actuators_t* m, clampPos_t p)
+{
+  if( p == CT_LEFT )
+    actuators_ax12_setPosition(m, SETTING_AX12_ID_LEFT_CLAMP_B,
+                             SETTING_AX12_POS_LCB_LOWERED);
+  else
+    actuators_ax12_setPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_B,
+                             SETTING_AX12_POS_RCB_LOWERED);
+}
+
+uint8_t actuators_clamp_isRaised(actuators_t* m, clampPos_t p)
+{
+  ERROR(ACTUATORS_ERROR,"%s not implemented",__func__);
+  return 0;
+}
+
+uint8_t actuators_clamp_isLowered(actuators_t* m, clampPos_t p)
+{
+  ERROR(ACTUATORS_ERROR,"%s not implemented",__func__);
+  return 0;
+}
+
+void actuators_scanner_setAngle(actuators_t* m, int16_t angle)
+{
+  // move scanner AX12
+  actuators_ax12_setPosition(m, SETTING_AX12_ID_SCANNER,
+                                SETTING_AX12_SCANNER_CENTER + angle);
+
+  return;
+}
 
 void actuators_loadDefaults(actuators_t* m)
 {
@@ -151,7 +186,7 @@ void actuators_loadDefaults(actuators_t* m)
   actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_LEFT_CLAMP_B);
   actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_RIGHT_CLAMP_A);
   actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_RIGHT_CLAMP_B);
-  actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_TOWER);
+  actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_SCANNER);
 }
 
 void actuators_ax12_init(actuators_t* m)
@@ -161,7 +196,7 @@ void actuators_ax12_init(actuators_t* m)
   actuators_ax12_check(m, SETTING_AX12_ID_LEFT_CLAMP_B);
   actuators_ax12_check(m, SETTING_AX12_ID_RIGHT_CLAMP_A);
   actuators_ax12_check(m, SETTING_AX12_ID_RIGHT_CLAMP_B);
-  actuators_ax12_check(m, SETTING_AX12_ID_TOWER);
+  actuators_ax12_check(m, SETTING_AX12_ID_SCANNER);
 
   return;
 }

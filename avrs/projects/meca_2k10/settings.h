@@ -26,11 +26,18 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+// --
+
+//#define SETTING_OVERRIDE_CPUUSAGE
+
 // -- I2C --
 
-#define SETTING_I2C_ADDRESS (0x51)
+#define SETTING_I2C_ADDRESS (0x21)
 
 // -- schedulers --
+
+#define SETTING_SCHED_SYS_PERIOD (100)
+#define SETTING_SCHED_SYS_PRIORITY (100)
 
 #define SETTING_SCHED_SAFEKEY_PERIOD   (100)
 #define SETTING_SCHED_SAFEKEY_PRIORITY (50)
@@ -50,29 +57,46 @@
 #define SETTING_AX12_ID_LEFT_CLAMP_B  (0x02)
 #define SETTING_AX12_ID_RIGHT_CLAMP_A (0x03)
 #define SETTING_AX12_ID_RIGHT_CLAMP_B (0x04)
-#define SETTING_AX12_ID_TOWER         (0x05)
+#define SETTING_AX12_ID_SCANNER       (0x05)
 
 #define SETTING_AX12_MODEL_NUMBER (0x000C)
 
-#define SETTING_AX12_DEFAULT_SPEED (0x3FF)
+#define SETTING_AX12_DEFAULT_SPEED (0x010)
 #define SETTING_AX12_DEFAULT_TORQUE (0x3FF)
+
+
+// -- AX12/clamps --
 
 // AX12 position window
 #define SETTING_AX12_WINDOW (0x10)
+// AX12 clamping torque
+#define SETTING_AX12_CLAMPING_TORQUE (0x200)
+
 
 // LEFT CLAMP A closed position
-#define SETTING_AX12_POS_LCA_CLOSED (0x000)
+#define SETTING_AX12_POS_LCA_CLOSED (0x260)
 // RIGHT CLAMP A closed position
-#define SETTING_AX12_POS_RCA_CLOSED (0x000)
+#define SETTING_AX12_POS_RCA_CLOSED (0x1B0)
 
 // LEFT CLAMP A opened position
-#define SETTING_AX12_POS_LCA_OPENED (0x000)
+#define SETTING_AX12_POS_LCA_OPENED (0x190)
 // RIGHT CLAMP A opened position
-#define SETTING_AX12_POS_RCA_OPENED (0x000)
+#define SETTING_AX12_POS_RCA_OPENED (0x270)
 
 // LEFT CLAMP B horizontal position
-#define SETTING_AX12_POS_LCB_HORIZ (0x000)
+#define SETTING_AX12_POS_LCB_LOWERED (0x200)
 // RIGHT CLAMP B horizontal position
-#define SETTING_AX12_POS_RCB_HORIZ (0x000)
+#define SETTING_AX12_POS_RCB_LOWERED (0x335)
+
+// LEFT CLAMP B horizontal position
+#define SETTING_AX12_POS_LCB_RAISED (0x190)
+// RIGHT CLAMP B horizontal position
+#define SETTING_AX12_POS_RCB_RAISED (0x3A5)
+
+// -- AX12/scanner
+
+// AX12 scanner center position
+#define SETTING_AX12_SCANNER_CENTER (0x1FE)
+
 
 #endif/*SETTINGS_H*/

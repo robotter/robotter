@@ -3,36 +3,44 @@
 #include <aversive/error.h>
 #include <uart.h>
 #include <time.h>
+#include <timer.h>
 #include <scheduler.h>
 #include <math.h>
+#include <i2cs.h>
 
 #include <ax12.h>
 #include "ax12_user.h"
 
+#include "sys.h"
 #include "actuators.h"
 #include "led.h"
 #include "logging.h"
 #include "cli.h"
-#include "setting.h"
-
+#include "settings.h"
+#include "stratcomm.h"
 
 #define MAIN_ERROR 0x30
 
 // log level
 extern uint8_t log_level;
 
+// stratcomm
+stratcomm_t stratcomm;
+
 // ax12 modules
-AX12 ax12;
+extern AX12 ax12;
 
 // actuators
-actuators_t actuators;
+extern actuators_t actuators;
 
 // safe key
 void safe_key_pressed(void*);
 
+
 // paddocks
 void paddock_setAX12EEPROMs(void);
 void paddock_AX12manual(void);
+void paddock_actuatorsManual(void);
 
 int main(void)
 {
@@ -78,13 +86,24 @@ int main(void)
   time_init(160);
 
   //--------------------------------------------------------
-  // AX12 
-  NOTICE(0,"Initializing AX12s");
-  ax12_user_init();
+  // TIMER3
+  NOTICE(0,"Initializing TIMER3");
+  timer_init();
 
   //--------------------------------------------------------
-  // Actuators 
-  NOTICE(0,"Initializing actuators");
+  // systems
+  NOTICE(0,"Initializing systems");
+  sys_init();
+
+  //--------------------------------------------------------
+  // I2CS
+  NOTICE(0,"Initializing i2c slave");
+  i2cs_init(SETTING_I2C_ADDRESS);
+
+  //--------------------------------------------------------
+  // stratcomm
+  NOTICE(0,"Initializing communications");
+  stratcomm_init(&stratcomm);
 
   //--------------------------------------------------------
   // Safe key event
@@ -93,10 +112,18 @@ int main(void)
                                               SETTING_SCHED_SAFEKEY_PRIORITY);
 
   //--------------------------------------------------------
- 
-  NOTICE(0,"Strike 'x' to reboot / 'e' AX12 EEPROM load / 'm' AX12 manual control");
+  // Unleash systems
+  scheduler_add_periodical_event_priority(&sys_update, NULL,
+                                            SETTING_SCHED_SYS_PERIOD,
+                                            SETTING_SCHED_SYS_PRIORITY);
+
 
   uint8_t c;
+
+  NOTICE(0,"Strike 'x' to reboot / 'e' AX12 EEPROM load / 'm' AX12 manual control / 'a' actuators manual control");
+
+  led_off(1);
+
   while(1)
   {
     c = cli_getkey();
@@ -109,9 +136,10 @@ int main(void)
 
     if(c == 'm')
       paddock_AX12manual();
-  }
 
-  // ---- 
+    if(c == 'a')
+      paddock_actuatorsManual();
+  }
 
   while(1) nop();
 }
@@ -123,12 +151,45 @@ void paddock_setAX12EEPROMs(void)
   EMERG(MAIN_ERROR,"done");
 }
 
+void paddock_actuatorsManual(void)
+{
+  uint8_t c;  
+
+  NOTICE(0,"ACT MAN CONTROL | u/j LCA | i/k RCA | o/l LCB | p/m RCB");
+
+  while(1)
+  {
+    c = cli_getkey();
+    
+    switch(c)
+    {
+      case 'x':
+        EMERG(MAIN_ERROR,"safe key 'x' pressed");
+      
+      case 'u': actuators_clamp_open(&actuators, CT_LEFT); break;
+      case 'j': actuators_clamp_close(&actuators, CT_LEFT); break;
+
+      case 'i': actuators_clamp_open(&actuators, CT_RIGHT); break;
+      case 'k': actuators_clamp_close(&actuators, CT_RIGHT); break;
+       
+      case 'o': actuators_clamp_raise(&actuators, CT_LEFT); break;
+      case 'l': actuators_clamp_lower(&actuators, CT_LEFT); break;
+
+      case 'p': actuators_clamp_raise(&actuators, CT_RIGHT); break;
+      case 'm': actuators_clamp_lower(&actuators, CT_RIGHT); break;
+
+      default: break;
+    }
+  }
+  
+}
+
 void paddock_AX12manual(void)
 {
   uint8_t c;
   uint8_t id = 0x01;
   uint16_t incr = 0x10;
-  uint16_t pos = 0x000;
+  uint16_t pos = 0x100;
   uint16_t speed = 0x3FF;
   uint16_t torque = 0x3FF;
 
@@ -143,6 +204,10 @@ void paddock_AX12manual(void)
     
     switch(c)
     {
+      case 'x':
+        EMERG(MAIN_ERROR,"safe key 'x' pressed");
+
+      case ' ': break;
       case 'a': id++; break;
       case 'z': id--; break;
       
@@ -188,15 +253,16 @@ void paddock_AX12manual(void)
     // rescaling
     if(incr == 0) incr = 1;
 
-    NOTICE(0,"ID=0x%02x | +/- 0x%02x | p=0x%03x | s=0x%03x | t=0x%03x",
+    NOTICE(0,"ID=0x%02x | +/- 0x%04x | p=0x%03x | s=0x%03x | t=0x%03x",
               id, incr, pos, speed, torque);
     
-    ax12_user_write_int(&ax12, id, AA_GOAL_POSITION_L, pos);
     ax12_user_write_int(&ax12, id, AA_MOVING_SPEED_L, speed);
     ax12_user_write_int(&ax12, id, AA_TORQUE_LIMIT_L, torque);
+    ax12_user_write_int(&ax12, id, AA_GOAL_POSITION_L, pos);
   }
   
 }
+
 
 void safe_key_pressed(void* dummy)
 {

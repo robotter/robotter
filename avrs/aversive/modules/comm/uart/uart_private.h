@@ -66,6 +66,7 @@ static inline char uart_get_udr(uint8_t num)
 
 static inline void uart_set_udr(uint8_t num, char c)
 {
+  sbi(*uart_regs[num].ucsra, TXC);
 	*uart_regs[num].udr = c;
 	/* tx event function. We suppose interrupts are already
 	 * locked, so no pb with tx_event pointer */

@@ -28,8 +28,7 @@
 #include <ax12.h>
 #include "ax12_user.h"
 
-
-#define ACTUATORS_ERROR 0x40
+#define ACTUATORS_ERROR 0x70
 
 typedef struct
 {
@@ -40,7 +39,7 @@ typedef struct
 
 typedef enum
 {
-  CT_LEFT,
+  CT_LEFT = 0,
   CT_RIGHT
 }clampPos_t;
 
@@ -60,9 +59,16 @@ void actuators_clamp_open(actuators_t*, clampPos_t);
 uint8_t actuators_clamp_isClosed(actuators_t*, clampPos_t);
 uint8_t actuators_clamp_isOpened(actuators_t*, clampPos_t);
 
-/** @brief Set clamp elevation */
-void actuators_clamp_setElevation(actuators_t*, clampPos_t, int16_t);
+void actuators_clamp_raise(actuators_t*, clampPos_t);
+void actuators_clamp_lower(actuators_t*, clampPos_t);
 
+uint8_t actuators_clamp_isRaised(actuators_t*, clampPos_t);
+uint8_t actuators_clamp_isLowered(actuators_t*, clampPos_t);
+
+// -- scanner --
+
+/** @brief Set scanner angle */
+void actuators_scanner_setAngle(actuators_t*, int16_t);
 
 // -- ax12 --
 

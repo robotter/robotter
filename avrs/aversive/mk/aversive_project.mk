@@ -256,32 +256,32 @@ $(MODULES):
 $(OUTPUT): $(PREPROC) $(OBJ) $(MODULES_LIB)
 	@echo
 	@echo $(MSG_LINKING) $@
-	$(CC) $(OBJ) $(MODULES_LIB) --output $@ $(LDFLAGS)
+	@$(CC) $(OBJ) $(MODULES_LIB) --output $@ $(LDFLAGS)
 
 
 # Compile: create object files from C source files.
 compiler_files/%.$(HOST).preproc : %.c
 	@echo
 	@echo $(MSG_PREPROC) $<
-	$(CC) -E $(ALL_CFLAGS) $< -o $@
+	@$(CC) -E $(ALL_CFLAGS) $< -o $@
 
 # Compile: create object files from C source files.
 compiler_files/%.$(HOST).o : %.c
 	@echo
 	@echo $(MSG_COMPILING) $<
-	$(CC) -c $(ALL_CFLAGS) $(ABS_PROJECT_DIR)/$< -o $@
+	@$(CC) -c $(ALL_CFLAGS) $(ABS_PROJECT_DIR)/$< -o $@
 
 
 # Compile: create assembler files from C source files.
 compiler_files/%.$(HOST).s : %.c
-	$(CC) -S $(ALL_CFLAGS) $< -o $@
+	@$(CC) -S $(ALL_CFLAGS) $< -o $@
 
 
 # Assemble: create object files from assembler source files.
 compiler_files/%.$(HOST).o : %.S
 	@echo 
 	@echo $(MSG_ASSEMBLING) $<
-	$(CC) -c $(ASFLAGS) $< -o $@
+	@$(CC) -c $(ASFLAGS) $< -o $@
 
 
 

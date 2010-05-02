@@ -35,7 +35,7 @@
 
 #define AX12_ERROR(args...) ERROR(AX12USER_ERROR, args)
 #define AX12_NOTICE(args...) NOTICE(AX12USER_ERROR, args)
-#define AX12_MAX_TRIES 3
+#define AX12_MAX_TRIES 1
 
 /*
  * Cmdline interface for AX12. Use the PC to command a daisy-chain of
@@ -58,7 +58,7 @@
  */
 
 #define UCSRxB UCSR1B
-#define AX12_TIMEOUT 15000L /* in us */
+#define AX12_TIMEOUT 50000L /* in us */
 
 extern AX12 ax12;
 
@@ -106,7 +106,11 @@ static void ax12_send_callback(__attribute__((unused)) char c)
 	if (ax12_state == AX12_STATE_READ) {
 		/* disable TX when last byte is pushed. */
 		if (CIRBUF_IS_EMPTY(&g_tx_fifo[UART_AX12_NUM]))
+    {
 			UCSRxB &= ~(1<<TXEN);
+      while(!bit_is_set(UCSR1A,TXC1));
+      cbi(PORTD,4);
+    }
 	}
 }
 
@@ -146,7 +150,6 @@ static void ax12_switch_uart(uint8_t state)
 		ax12_nsent=0;
 		while (uart_recv_nowait(UART_AX12_NUM) != -1);
 		UCSRxB |= (1<<TXEN);
-
     sbi(PORTD,4);
 
 		ax12_state = AX12_STATE_WRITE;
@@ -156,9 +159,11 @@ static void ax12_switch_uart(uint8_t state)
 		IRQ_LOCK(flags);
 
 		if (CIRBUF_IS_EMPTY(&g_tx_fifo[UART_AX12_NUM]))
+    {
 			UCSRxB &= ~(1<<TXEN);
-    
-    cbi(PORTD,4);
+      while(!bit_is_set(UCSR1A,TXC1));
+      cbi(PORTD,4);
+    }
 
 		ax12_state = AX12_STATE_READ;
 

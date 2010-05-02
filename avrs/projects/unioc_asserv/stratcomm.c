@@ -48,7 +48,6 @@ void stratcomm_init(stratcomm_t* sc)
 
 void stratcomm_update(stratcomm_t* sc)
 {
-  uint8_t payloadCRC,recvCRC;
   stratcommOrder_t order;
   uint8_t flags;
 
@@ -62,13 +61,13 @@ void stratcomm_update(stratcomm_t* sc)
 
     IRQ_LOCK(flags);
 
-    // copy i2c received data to local buffer
-    memcpy(data_recv, (uint8_t*)i2cs_recv_buf, I2CS_RECV_BUF_SIZE*sizeof(uint8_t));
-    
     // release RX i2c
     i2cs_recv_size = 0;
     // block TX i2c
     i2cs_send_size = 0;
+
+    // copy i2c received data to local buffer
+    memcpy(data_recv, (uint8_t*)i2cs_recv_buf, I2CS_RECV_BUF_SIZE*sizeof(uint8_t));
 
     IRQ_UNLOCK(flags);
 
@@ -90,25 +89,7 @@ void stratcomm_update(stratcomm_t* sc)
       return;
     }
     
-    // -- PAYLOAD CRC --
-    // last byte should be CRC
-    payloadCRC = data_recv[sc->payloadSize+2];
-    
-    // compute CRC
-    recvCRC =
-      stratcomm_computeChecksum(data_recv+2, sc->payloadSize);
-    
-    // in case of CRCs mismatch
-    if( payloadCRC != recvCRC )
-    {
-      WARNING(STRATCOMM_ERROR,
-        "i2c message CRC mismatch (payloadCRC=0x%2.2x recvCRC=0x%2.2x)",
-        payloadCRC, recvCRC);
-
-      return;
-    }
-    
-    DEBUG(0,"ORDER RCV : order=0x%2.2x psize=0x%2.2x crc=0x%2.2x",order,sc->payloadSize,recvCRC);
+    DEBUG(0,"ORDER RCV : order=0x%2.2x psize=0x%2.2x",order,sc->payloadSize);
 
     // --
     stratcomm_resetPayload(sc);
@@ -129,13 +110,8 @@ void stratcomm_update(stratcomm_t* sc)
     // prepare returned payload
     memcpy((uint8_t*)i2cs_send_buf + 1, sc->returnPayload, sc->returnPayloadIt);
 
-    // compute CRC and add it to payload
-    payloadCRC =
-      stratcomm_computeChecksum(sc->returnPayload, sc->returnPayloadIt);
-    i2cs_send_buf[ sc->returnPayloadIt + 2 ] = payloadCRC;
-
     // set i2c state machine to READY (data OK to be sent)
-    i2cs_send_size = sc->returnPayloadIt + 3;
+    i2cs_send_size = sc->returnPayloadIt + 1;
   }
 
   return;

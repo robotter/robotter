@@ -24,14 +24,14 @@
 
 #include "cli.h"
 #include "logging.h"
-#include "setting.h"
+#include "settings.h"
 
 void led_init(void)
 {
   // WARNING : LEDs logic is inverted on meca 2k10 board
 
   // set all LEDs to OFF
-  SETTING_LEDS_PORT |= SETTING_LEDS_MASK;
+  SETTING_LEDS_PORT &= ~SETTING_LEDS_MASK;
 
   // set all LEDs pins to output
   SETTING_LEDS_DDR |= SETTING_LEDS_MASK;
@@ -44,8 +44,8 @@ void led_on(uint8_t n)
   if(n > SETTING_LEDS_N)
     ERROR(LED_ERROR,"LED %d is out of range",n);
 
-  // turn on LED n (write 0 to PORT)
-  SETTING_LEDS_PORT &= ~(1<<n);
+  // turn on LED n (write 1 to PORT)
+  sbi(SETTING_LEDS_PORT,n+4);
   return;
 }
 
@@ -54,8 +54,8 @@ void led_off(uint8_t n)
   if(n > SETTING_LEDS_N)
     ERROR(LED_ERROR,"LED %d is out of range",n);
 
-  // turn off LED n (write 1 to PORT)
-  SETTING_LEDS_PORT |= (1<<n);
+  // turn off LED n (write 0 to PORT)
+  cbi(SETTING_LEDS_PORT,n+4);
 
   return;
 }
@@ -66,7 +66,7 @@ void led_toggle(uint8_t n)
     ERROR(LED_ERROR,"LED %d is out of range",n);
     
   // toggle LED n 
-  SETTING_LEDS_PORT ^= (1<<n);
+  SETTING_LEDS_PORT ^= (1<<(n+4));
 
   return;
 }

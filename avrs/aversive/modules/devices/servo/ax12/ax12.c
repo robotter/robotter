@@ -25,6 +25,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <aversive/error.h>
 #include "ax12.h"
 #ifdef CONFIG_MODULE_SCHEDULER
 #include <scheduler.h>
@@ -135,7 +136,7 @@ uint8_t AX12_send(AX12 *s, AX12_Packet *packet)
 	}
 
 	IRQ_LOCK(flags); /* needed if hardware_switch is
-			    synchronous  */
+	//		    synchronous  */
 
 	/* Checksum */
 	if (s->hardware_send(AX12_checksum(packet))) {

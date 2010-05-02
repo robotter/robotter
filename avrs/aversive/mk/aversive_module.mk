@@ -29,7 +29,7 @@ all: compiler_files/$(TARGET).$(HOST).a
 
 # Module library file
 compiler_files/$(TARGET).$(HOST).a: $(PREPROC) $(OBJ)
-	${AR} rs $@ $(OBJ) 2>&1
+	@${AR} rs $@ $(OBJ) 2>&1
 
 # Automatically generate C source code dependencies. 
 compiler_files/%.$(HOST).d : %.c
@@ -41,19 +41,19 @@ compiler_files/%.$(HOST).d : %.c
 
 compiler_files/%.$(HOST).o : %.c
 	@echo $(MSG_COMPILING) $< 
-	$(CC) $(CFLAGS) $< -c -o $@
+	@$(CC) $(CFLAGS) $< -c -o $@
 
 compiler_files/%.$(HOST).preproc : %.c
 	@echo $(MSG_PREPROC) $< 
-	$(CC) $(CFLAGS) $< -E -o $@
+	@$(CC) $(CFLAGS) $< -E -o $@
 
 # Compile: create assembler files from C source files.
 compiler_files/%.$(HOST).s : %.c
-	$(CC) -S $(CFLAGS) $< -o $@
+	@$(CC) -S $(CFLAGS) $< -o $@
 
 # Assemble: create object files from assembler source files.
 compiler_files/%.$(HOST).o : %.S
-	$(CC) -c -Wa,-adhlns=$(@:.o=.lst) $(ASFLAGS) $< -o $@
+	@$(CC) -c -Wa,-adhlns=$(@:.o=.lst) $(ASFLAGS) $< -o $@
 
 
 # Remove the '-' if you want to see the dependency files generated.

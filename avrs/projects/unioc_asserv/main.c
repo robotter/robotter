@@ -243,16 +243,6 @@ int main(void)
   
   NOTICE(0,"Go");
  
-  while(1)
-  {
-    htrajectory_gotoXY_R((htrajectory_t*)&trajectory, 500.0, 0.0);
-    while(!htrajectory_doneXY((htrajectory_t*)&trajectory));
-    htrajectory_gotoXY_R((htrajectory_t*)&trajectory, -500.0, 0.0);
-    while(!htrajectory_doneXY((htrajectory_t*)&trajectory));
-
-    wait_ms(200);
-  }
-
   NOTICE(0,"Done");
   while(1);
 

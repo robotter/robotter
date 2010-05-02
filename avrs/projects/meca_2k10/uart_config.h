@@ -84,7 +84,7 @@
  * if you enable this, the maximum baudrate you can reach is 
  * higher, but the precision is lower. 
  */
-#define UART1_USE_DOUBLE_SPEED 1
+#define UART1_USE_DOUBLE_SPEED 0
 
 #define UART1_RX_FIFO_SIZE 32
 #define UART1_TX_FIFO_SIZE 32
