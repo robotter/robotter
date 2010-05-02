@@ -1,37 +1,14 @@
---
--- Sample use of cvg.lua
---
+
+require('as_i2c')
+i2ch = as_i2c.open(1)
 
 require('cvg')
+function cvg.cb_recv(addr, data) return i2ch:read(addr, data) end
+function cvg.cb_send(addr, data) i2ch:write(addr, data) end
+function cvg.cb_sleep(usec) os.execute("usleep "..tonumber(usec)) end
 
 
-function i2c_send(addr, data)
-  local s = ''
-  for i=1,#data do
-    s = s .. string.format(" %02X", data:byte(i))
-  end
-  print(string.format("SEND @ %02X : %s", addr, s))
-end
-function i2c_recv(addr, size)
-  local data = ''
-  for i=1,size-1 do
-    local n = (i*0x42) % 256
-    data = data .. string.char(n)
-  end
-  data = string.char(#data)..data
-  local s = ''
-  for i=1,#data do
-    s = s .. string.format(" %02X", data:byte(i))
-  end
-  print(string.format("RECV @ %02X : %s", addr, s))
-  return data
-end
-
-cvg.set_callbacks(i2c_recv, i2c_send)
-
-
--- slave description
-slave = {
+unioc = cvg.slave_init({
   roid = 0x20,
   name = 'UNIOC-NG',
   orders = {
@@ -96,7 +73,7 @@ slave = {
       {name='y', size=2, fmt='d'},
       {name='a', size=2, fmt='d'}
     } },
-    { id=0x50, name = 'SET_BRAKE', ret = {
+    { id=0x50, name = 'BRAKE', ret = {
       {name='b', size=1, fmt='b'},
     } },
     { id=0x51, name = 'GET_ADNSFAULT', ret = {
@@ -112,16 +89,6 @@ slave = {
       {name='usec', size=4, fmt='u'},
     } },
   },
-}
-
-
--- create slave
-slave = cvg.slave_init(slave)
-
--- interact!
-slave:send('SET_A_SPEED', {0x61,0x62,0x63,42})
-slave:send('GOTO_R_XYA', { x=':)', y=0x63, a=-2 })
-t = slave:recv('GET_XYA')
-print(string.format("  x: %d, y: %d, a: %d", t.x, t.y, t.a))
+})
 
 

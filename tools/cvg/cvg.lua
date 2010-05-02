@@ -1,13 +1,24 @@
 
--- Table with module elements.
-local M = {}
+cvg = {}
 
+-- Default callback, raise an error.
+local cb_default = function()
+  error("callbacks not set")
+end
+
+-- Configuration attributes.
+-- Can be modified by the user.
 
 -- Recv and send methods which will be used.
-local cb_send  -- cb_send(addr, data)
-local cb_recv  -- cb_recv(addr, size) -> string
+cvg.cb_send = cb_default -- cb_send(addr, data)
+cvg.cb_recv = cb_default -- cb_recv(addr, size) -> string
 -- Sleep method
-local cb_sleep -- cb_sleep(usec)
+cvg.cb_sleep = cb_default -- cb_sleep(usec)
+
+-- Default polldt value for call method.
+cvg.default_polldt = 0.1
+-- Default tout value for call method.
+cvg.default_tout = 3
 
 
 -- Slave metatable, define slave methods.
@@ -26,50 +37,47 @@ local slave_mt = {
   -- Send raw order payload.
   send_raw = function(self, o, data)
     assert(#data == o.args.size, "invalid params size: expected "..tostring(o.args.size).." got "..tostring(#data))
-    cb_send(self.roid, string.char(o.id, #data)..data)
+    cvg.cb_send(self.roid, string.char(o.id, #data)..data)
   end,
 
   -- Send data.
   --   id: order id or name
   --   params: string or table of byte values (raw data), or table of named
-  --           (typed) values
+  --           (typed) values, defaults to an empty table
   send = function(self, id, params)
 
     local o = self:get_order(id)
     assert(o ~= nil, "order not found: "..tostring(id))
 
     local sout  -- output string
+    if params == nil then params = {} end
     if type(params) == 'string' then
       -- raw params (string)
       sout = params
     elseif type(params) == 'table' then
       -- table params
-      if params[1] == nil then
-        -- named values
-        sout = ''
-        for pk,pv in ipairs(o.args) do
-          local x = params[pv.name]
-          if type(x) == 'string' then
-            -- string
-            assert(#x == pv.size, "invalid size for param '"..pv.name.."'")
-            sout = sout .. x
-          elseif type(x) == 'number' then
-            -- number
-            x = math.floor(x)
-            for i=1,pv.size do
-              sout = sout .. string.char( x % 256 )
-              x = math.floor(x / 256)
-            end
-            assert(x==0 or x==-1, "value overflow for param '"..pv.name.."'")
-          elseif type(x) == 'boolean' then
-            sout = sout .. (x and '\1' or '\0')
-          else
-            error("invalid type for param '"..pv.name.."'")
+      local named_values = params[1] == nil
+      sout = ''
+      for pk,pv in ipairs(o.args) do
+        if named_values then pk = pv.name end
+        local x = params[pk]
+        if type(x) == 'string' then
+          -- string
+          assert(#x == pv.size, "invalid size for param '"..pv.name.."'")
+          sout = sout .. x
+        elseif type(x) == 'number' then
+          -- number
+          x = math.floor(x)
+          for i=1,pv.size do
+            sout = sout .. string.char( x % 256 )
+            x = math.floor(x / 256)
           end
+          assert(x==0 or x==-1, "value overflow for param '"..pv.name.."'")
+        elseif type(x) == 'boolean' then
+          sout = sout .. (x and '\1' or '\0')
+        else
+          error("invalid type for param '"..pv.name.."'")
         end
-      else
-        -- anonymous values
-        sout = string.char( unpack(params) )
       end
     else
       error("invalid params type")
@@ -80,20 +88,26 @@ local slave_mt = {
   end,
 
   -- Receive raw order response as a string.
+  -- If payload is empty and order has an non-empty, nil is returned.
   recv_raw = function(self, o)
 
-    local data = cb_recv(self.roid, o.ret.size+1)
-    if data:byte(1) == 0 then
-      return nil -- no payload
+    local data = cvg.cb_recv(self.roid, o.ret.size+1)
+    if o.ret.size == 0 then
+      assert( data == '\0', "invalid data for empty response")
+      return ''
+    else
+      if data:byte(1) == 0 then
+        return nil -- no payload
+      end
+      assert( #data == o.ret.size+1, "invalid data size")
+      local ret = data:sub(2)
+      assert( data:byte(1) == o.ret.size, "invalid payload size")
+      return ret
     end
-    assert( #data == o.ret.size+1, "invalid data size")
-    local ret = data:sub(2)
-    assert( data:byte(1) == o.ret.size, "invalid payload size")
-    return ret
 
   end,
 
-  -- Receive data as a table of data.
+  -- Receive data as a table indexed by parameters names and integers.
   -- Return nil if data is not ready.
   recv = function(self, id)
 
@@ -109,10 +123,11 @@ local slave_mt = {
     local i = 1
     for pk,pv in ipairs(o.ret) do
       s = sdata:sub(i,i+pv.size-1)
+      local v
       if pv.fmt == 's' then
-        t[pv.name] = s
+        v = s
       elseif pv.fmt == 'b' then
-        t[pv.name] = s[1] ~= 0
+        v = s[1] ~= 0
       else -- 'd' or 'u'
         local x = 0
         local m = 1
@@ -124,9 +139,12 @@ local slave_mt = {
         if pv.fmt == 'o' and x > m/2 then
           x = x - m
         end
-        t[pv.name] = x
+        v = x
       end
       i = i + pv.size
+      -- values stored for named key and integer key
+      t[pv.name] = v
+      t[pk] = v
     end
 
     return t
@@ -137,6 +155,8 @@ local slave_mt = {
   -- Send data and poll until a response is received or timeout expires.
   -- Return data as a table or nil on timeout.
   call = function(self, id, params, polldt, tout)
+    if not polldt then polldt = cvg.default_polldt end
+    if not tout then tout = cvg.default_tout end
     self:send(id, params)
     local ttot = 0
     while true do
@@ -146,22 +166,43 @@ local slave_mt = {
         return nil
       end
       if ttot + polldt then
-        cb_sleep( tout-ttot )
+        cvg.cb_sleep( tout-ttot )
         ttot = tout
       else
-        cb_sleep( polldt )
+        cvg.cb_sleep( polldt )
         ttot = ttot + polldt
       end
     end
     return ret
-  end
+  end,
 
 }
 slave_mt.__index = slave_mt
 
 
+-- Check a slave parameter table, set its size.
+local function check_params(t)
+  local poffset = 0
+  for pk,pv in ipairs(t) do
+    assert(type(t) == 'table', "invalid parameter element")
+    -- checks fields
+    assert(type(pv.name) == 'string', "invalid 'name' field")
+    assert(type(pv.size) == 'number', "invalid 'size' field")
+    pv.size = math.floor(pv.size)
+    assert(pv.size > 0, "invalid 'size' value: "..tostring(pv.size))
+    s = pv.fmt
+    assert(s=='u' or s=='d' or s=='b' or s=='s', "unexpected 'fmt' value: "..tostring(s))
+    if s == 'b' then assert(pv.size == 1, "size must be 1 for boolean values") end
+    pv.offset = poffset
+    poffset = poffset + pv.size
+  end
+  t.size = poffset
+end
+
+
 -- Create a slave from a table.
 -- Check data and fill out some fields.
+-- Note: given table is modified in-place.
 --
 -- t should have the following format (some fields are optional)
 --   t = {
@@ -179,7 +220,7 @@ slave_mt.__index = slave_mt
 --
 -- <FMT> is 'u' (unsigned), 'd' (signed), 'b' (boolean) or 's' (string)
 --
-function M.slave_init(t)
+function cvg.slave_init(t)
 
   assert(type(t) == 'table', "invalid slave type")
   assert(t.roid, "invalid 'roid' value")
@@ -205,71 +246,15 @@ function M.slave_init(t)
     assert(type(v.ret) == 'table', "invalid 'ret' field")
 
     -- check parameters, compute size
-    M.check_params(v.args)
-    M.check_params(v.ret)
+    check_params(v.args)
+    check_params(v.ret)
   end
 
   return setmetatable(t, slave_mt)
 
 end
 
--- Compute a checksum of given data.
-function M.checksum(data)
-  local sum = 0
-  for i=1,#data do sum = sum + data:byte(i) end
-  return sum % 256
-end
-
--- Check a parameter table, set its size.
-function M.check_params(t)
-  local poffset = 0
-  for pk,pv in ipairs(t) do
-    assert(type(t) == 'table', "invalid parameter element")
-    -- checks fields
-    assert(type(pv.name) == 'string', "invalid 'name' field")
-    assert(type(pv.size) == 'number', "invalid 'size' field")
-    pv.size = math.floor(pv.size)
-    assert(pv.size > 0, "invalid 'size' value: "..tostring(pv.size))
-    s = pv.fmt
-    assert(s=='u' or s=='d' or s=='b' or s=='s', "unexpected 'fmt' value: "..tostring(s))
-    if s == 'b' then assert(pv.size == 1, "size must be 1 for boolean values") end
-    pv.offset = poffset
-    poffset = poffset + pv.size
-  end
-  t.size = poffset
-end
-
-
--- Default callback, raise an error.
-local cb_default = function()
-  error("callbacks not set")
-end
-cb_recv = cb_default
-cb_send = cb_default
-cb_sleep = function(usec)
-  os.execute("usleep "..tonumber(usec))
-end
-
--- Register recv/send methods
-function M.set_callbacks(f_recv, f_send, f_sleep)
-  if f_recv ~= nil then
-    assert(type(f_recv) == 'function', "invalid recv callback")
-    cb_recv = f_recv
-  end
-  if f_send ~= nil then
-    assert(type(f_send) == 'function', "invalid send callback")
-    cb_send = f_send
-  end
-  if f_sleep ~= nil then
-    assert(type(f_sleep) == 'function', "invalid sleep callback")
-    cb_sleep = f_sleep
-  end
-end
-
 
 -- Create module
 module('cvg')
-
-slave_init = M.slave_init
-set_callbacks = M.set_callbacks
 
