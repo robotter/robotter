@@ -12,7 +12,8 @@ def midi_unpack(fmt, f):
   """Unpack from an I/O object."""
   fmt = '>'+fmt
   n = struct.calcsize(fmt)
-  return struct.unpack(fmt, f.read(n))
+  s = f.read(n)
+  return struct.unpack(fmt, s)
 
 def midi_unpack_varlen(f):
   """Read a variable length number."""
@@ -22,6 +23,10 @@ def midi_unpack_varlen(f):
     n = (n<<7) | (b & 0x7F)
     if not b & 0x80:
       return n
+
+def midi_pack_back(fmt, f):
+  """Cancel consuming from an I/O object."""
+  f.seek(-struct.calcsize(fmt), 1)
 
 
 class MidiFile:
@@ -109,12 +114,7 @@ class MidiTrack:
     assert ch_id == "MTrk", "invalid track chunk ID"
     
     # events
-    def gen_events(s):
-      n = len(s)
-      sio = StringIO(s)
-      while sio.tell() < n:
-        yield MidiEvent.parse(sio)
-    mt.events = tuple( gen_events(f.read(ch_size)) )
+    mt.events = tuple( MidiEvent.parse_list(f.read(ch_size)) )
 
     return mt
 
@@ -130,17 +130,27 @@ class MidiEvent:
   """
 
   @classmethod
-  def parse(cls, f):
-    dt = midi_unpack_varlen(f)
-    type, = midi_unpack('B', f)
-    if type == 0xFF:
-      me = MidiMetaEvent.parse(f)
-    elif type in (0xF0, 0xF7):
-      me = MidiSysExEvent.parse(f, type)
-    else:
-      me = MidiChannelEvent.parse(f, type)
-    me.dt = dt
-    return me
+  def parse_list(cls, s):
+    n = len(s)
+    f = StringIO(s)
+    last_type = None
+    while f.tell() < n:
+      dt = midi_unpack_varlen(f)
+      type, = midi_unpack('B', f)
+      if type == 0xFF:
+        me = MidiMetaEvent.parse(f)
+      elif type >= 0xF0:
+        me = MidiSystemEvent.parse(f, type)
+      elif type >= 0x80:
+        me = MidiChannelEvent.parse(f, type)
+        last_type = type
+      else:
+        # running status
+        assert last_type != None, "running status without previous status"
+        midi_pack_back('B', f)
+        me = MidiChannelEvent.parse(f, last_type)
+      me.dt = dt
+      yield me
 
 
 
@@ -151,7 +161,6 @@ class MidiChannelEvent(MidiEvent):
   Attributes:
     type -- channel event type as a string (see CHANNEL_EVENT_TYPES)
     channel -- MIDI channel
-    p1, p2 -- event parameters
     type specific fields
 
   """
@@ -169,25 +178,32 @@ class MidiChannelEvent(MidiEvent):
   @classmethod
   def parse(cls, f, type):
 
-    assert 0x80 <= type < 0xF0, "invalid channel event type"
+    #XXX:debug
+    if type < 0x80:
+      print '==> type: 0x%02X / %u' % (type, f.tell())
+      print '  > %s' % ' '.join( '%02X'%ord(x) for x in f.getvalue() )
+    assert 0x80 <= type < 0xF0, "invalid channel event type: %d"%type
     me = cls()
 
     ch_type = type >> 4
     me.type = cls.CHANNEL_EVENT_TYPES[ch_type]
     me.channel = type & 0xF
-    me.p1, me.p2 = midi_unpack('BB', f)
     if ch_type in (0x8, 0x9):
-      me.note, me.velocity = me.p1, me.p2
+      me.note, me.velocity = midi_unpack('BB', f)
+      if ch_type == 0x9 and me.velocity == 0:
+        # convert ON with velocity 0 to OFF
+        me.type = 'NOTE_OFF'
     elif ch_type == 0xA:
-      me.note, me.aftertouch = me.p1, me.p2
+      me.note, me.aftertouch = midi_unpack('BB', f)
     elif ch_type == 0xB:
-      me.ctrl_type, me.ctrl_val = me.p1, me.p2
+      me.ctrl_type, me.ctrl_val = midi_unpack('BB', f)
     elif ch_type == 0xC:
-      me.prog_nb = me.p1
+      me.prog_nb = midi_unpack('B', f)
     elif ch_type == 0xD:
-      me.aftertouch = me.p1
+      me.aftertouch = midi_unpack('B', f)
     elif ch_type == 0xE:
-      me.pitch = me.p1 + (me.p2 << 4)
+      p1, p2 = midi_unpack('BB', f)
+      me.pitch = p1 + (p2 << 4)
 
     return me
 
@@ -213,7 +229,8 @@ class MidiMetaEvent(MidiEvent):
       0x05 : 'LYRICS',
       0x06 : 'MARKER',
       0x07 : 'CUE_POINT',
-      0x20 : 'MIDI_CHANNEL_PREFIX',
+      0x20 : 'CHANNEL_PREFIX',
+      0x21 : 'PORT_PREFIX',
       0x2f : 'END_OF_TRACK',
       0x51 : 'SET_TEMPO',
       0x54 : 'SMPTE_OFFSET',
@@ -228,7 +245,7 @@ class MidiMetaEvent(MidiEvent):
     me = cls()
 
     type, = midi_unpack('B', f)
-    assert type in cls.META_EVENT_TYPES, "invalid meta event type"
+    assert type in cls.META_EVENT_TYPES, "invalid meta event type: %d"%type
     me.type = cls.META_EVENT_TYPES[type]
     n = midi_unpack_varlen(f)
     me.data = f.read(n)
@@ -267,25 +284,55 @@ class MidiMetaEvent(MidiEvent):
 
 
 
-class MidiSysExEvent(MidiEvent):
+class MidiSystemEvent(MidiEvent):
   """
   Midi system exclusive event.
 
   Attributes:
-    data -- data as a string
-    type -- SysEx type, 0xF0 or 0xF7
+    type -- meta event type as a string (see SYSTEM_EVENT_TYPES)
+    type specific fields
 
   """
+
+  SYS_EVENT_TYPES = {
+      0x0 : 'SYSTEM_EXCLUSIVE',
+      0x1 : 'TIME_CODE',
+      0x2 : 'SONG_POSITION_POINTER',
+      0x3 : 'SONG_SELECT',
+      0x8 : 'CLOCK',
+      0xA : 'START',
+      0xB : 'CONTINUE',
+      0xC : 'STOP',
+      0xE : 'ACTIVE_SENSING',
+      }
+
 
   @classmethod
   def parse(cls, f, type):
 
-    assert type in (0xF0,0xF7), "invalid SysEx event type"
+    assert 0xF0 <= type < 0xFF, "invalid system event type"
     me = cls()
 
-    me.type = type
-    n = midi_unpack_varlen(f)
-    me.data = f.read(n)
+    sys_type = type & 0xF
+    me.type = cls.SYS_EVENT_TYPES[sys_type]
+    if sys_type == 0:
+      # we have to read until an EOX (0xF7) or before an 0xFx
+      # (which must not be consumed)
+      me.data = ''
+      while True:
+        b, = midi_unpack('B', f)
+        if b == 0xF7: break
+        if (b>>4) == 0xF:
+          midi_pack_back('B', f) # don't consume
+          break
+        me.data += chr(b)
+    elif sys_type in (1, 3):
+      me.p1 = midi_unpack('B', f) # one data byte
+    elif sys_type in (2,):
+      me.p1, me.p2 = midi_unpack('BB', f) # two data bytes
+    elif sys_type >= 8:
+      pass # no data byte
+
     return me
 
 
@@ -330,11 +377,12 @@ class SongNote:
     return 440.0 * 2**((n-69)/12.0)
 
   @classmethod
-  def track2notes(cls, track, lspt, octave=0):
+  def track2notes(cls, track, lspt, ch, octave=0):
     """Retrieve notes from a MidiTrack.
 
       track -- MidiTrack to convert
       lspt -- list of (dt, second per tick) pairs
+      channel -- retrieved channel
       octave -- octave variation
 
     Return a list of SongNotes.
@@ -342,7 +390,7 @@ class SongNote:
     """
 
     # Generator which filter events and group them by time offset.
-    def gen_simultaneous(events, lspt):
+    def gen_simultaneous(events, lspt, ch):
       cur = []
       it_spt = iter(lspt)
       try:
@@ -359,7 +407,8 @@ class SongNote:
       for e in events:
         cur_dt_spt += e.dt
         if not isinstance(e, MidiChannelEvent): continue
-        assert e.channel==1, "multi channel not supported"
+        if e.channel != ch: continue
+
         if e.dt != 0 and len(cur) != 0:
           yield e.dt*cur_spt, cur
           cur = []
@@ -382,14 +431,18 @@ class SongNote:
     notes_on = set()  # active midi notes
     vol = 0.5
     dt_prev = 0  # previous dt
-    for dt, evs in gen_simultaneous(track.events, lspt):
+    for dt, evs in gen_simultaneous(track.events, lspt, ch):
 
       notes_off = set( e.note for e in evs if e.type == 'NOTE_OFF' )
-      assert notes_off == notes_on, "simultaneous notes not part of a chord"
+      new_notes_on = set( e.note for e in evs if e.type == 'NOTE_ON' )
+      # OFF not needed to change velocity
+      # XXX:lazy ignore extra OFF
+      #assert notes_off == notes_on-new_notes_on, "simultaneous notes not part of a chord"
+
       notes.append( SongNote( list(n+12*octave for n in notes_on), dt_prev, vol) )
       dt_prev = dt
 
-      notes_on = set( e.note for e in evs if e.type == 'NOTE_ON' )
+      notes_on = new_notes_on
       for e in evs:
         if e.type in ('NOTE_ON','NOTE_OFF'): continue
         if e.type == 'CONTROLLER' and e.ctrl_type == 7:
@@ -410,6 +463,12 @@ if __name__ == '__main__':
       description="Convert MIDI to PWM frequencies",
       usage="%prog [OPTIONS] FILE",
       )
+  parser.add_option('-i', '--infos', dest='infos', action='store_true',
+      help="display info on the file and exits")
+  parser.add_option('-k', '--track', dest='track',
+      help="processed track")
+  parser.add_option('-c', '--channel', dest='channel',
+      help="processed channel")
   parser.add_option('-t', '--tempo-scale', dest='tempo',
       help="tempo scale")
   parser.add_option('-g', '--note-gap', dest='gap',
@@ -419,12 +478,16 @@ if __name__ == '__main__':
   parser.add_option('-8', '--octave', dest='octave',
       help="change octave")
   parser.set_defaults(
+      track=1,
+      channel=1,
       tempo=1.0,
       gap=0,
       volref = 0.5,
       octave = 0,
       )
   (opts, args) = parser.parse_args()
+  opts.track = int(opts.track)
+  opts.channel = int(opts.channel)
   opts.tempo = float(opts.tempo)
   opts.gap = float(opts.gap)
   opts.volref = float(opts.volref)/100  # convert
@@ -434,7 +497,13 @@ if __name__ == '__main__':
     parser.parse_error("MIDI file missing")
 
   mf = MidiFile.parse( open(args[0], 'rb') )
-  notes = SongNote.track2notes(mf.tracks[1], mf.get_sec_per_tick(), octave=opts.octave)
+  if opts.infos:
+    for i,tk in enumerate(mf.tracks):
+      chs = set( str(e.channel) for e in tk.events if e.type == 'NOTE_ON' )
+      print "Track %d, channels: %s" % (i, ' '.join(chs))
+    sys.exit(0)
+
+  notes = SongNote.track2notes(mf.tracks[opts.track], mf.get_sec_per_tick(), ch=opts.channel, octave=opts.octave)
 
   #XXX output for Bookie (periodm12)
   for n in notes:
@@ -443,7 +512,9 @@ if __name__ == '__main__':
       p1 = 0
       p2 = 0
     else:
-      p1 = round(1000000*n.period)
+      #XXX chords: get the higher note
+      #p1 = round(1000000*n.period)
+      p1 = round(1000000*min(n.periods))
       if len(n.periods) > 1 and False: #XXX disable chords, render is bad
         # chord
         p2 = round(1000000*sum(n.periods[1:])/(len(n.periods)-1))
@@ -464,11 +535,11 @@ if __name__ == '__main__':
       gap = opts.gap * t
       t *= 1-opts.gap
     else:
-      gap = opts.gap
+      gap = opts.gap/1000.0
     time.sleep( t )
     if gap:
       sys.stdout.write("0 0 0\n")
       sys.stdout.flush()
-      time.sleep( opts.gap )
+      time.sleep( gap )
 
 
