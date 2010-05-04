@@ -70,7 +70,7 @@ project.connectbus atmega_nodir_wb8_wrapper00.mwb8 led00.swb8
 # syscon connections
 project.addbusclock rstext_syscon00.candr atmega_nodir_wb8_wrapper00.mwb8
 project.connectpin rstext_syscon00.ext.ext_clk unioc_ng.fpga.CLK0
-project.connectpin rstext_syscon00.ext.ext_rst_n unioc_ng.fpga.nRST_fpga
+project.connectpin rstext_syscon00.ext.ext_rst_n unioc_ng.fpga.IRQ_fpga
 
 # memory mapping 
 project.setaddr adns601000.swb8 0x1300
@@ -85,6 +85,8 @@ project.intercon atmega_nodir_wb8_wrapper00.mwb8
 
 # set pin
 project.setpin unioc_ng.fpga.CLK_mega z
+project.setpin unioc_ng.fpga.SDA_fpga z
+project.setpin unioc_ng.fpga.SCL_fpga z
 
 # top gen.
 project.top
