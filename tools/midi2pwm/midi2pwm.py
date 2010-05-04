@@ -94,7 +94,6 @@ class MidiFile:
     return list( (dt, float(spb)/self.ticks_per_beat) for dt,spb in lspb )
 
 
-
 class MidiTrack:
   """
   Midi track content.
@@ -117,6 +116,13 @@ class MidiTrack:
     mt.events = tuple( MidiEvent.parse_list(f.read(ch_size)) )
 
     return mt
+
+  def channels(self):
+    """Return a set of channels used by the track."""
+    return set(
+        e.channel for e in self.events
+        if e.type == 'NOTE_ON'
+        )
 
 
 
@@ -479,7 +485,7 @@ if __name__ == '__main__':
       help="change octave")
   parser.set_defaults(
       track=1,
-      channel=1,
+      channel=None,
       tempo=1.0,
       gap=0,
       volref = 0.5,
@@ -487,23 +493,36 @@ if __name__ == '__main__':
       )
   (opts, args) = parser.parse_args()
   opts.track = int(opts.track)
-  opts.channel = int(opts.channel)
   opts.tempo = float(opts.tempo)
   opts.gap = float(opts.gap)
   opts.volref = float(opts.volref)/100  # convert
   opts.octave = int(opts.octave)
 
-  if len(args) < 0:
-    parser.parse_error("MIDI file missing")
+  if len(args) <= 0:
+    parser.error("MIDI file missing")
 
   mf = MidiFile.parse( open(args[0], 'rb') )
   if opts.infos:
     for i,tk in enumerate(mf.tracks):
-      chs = set( str(e.channel) for e in tk.events if e.type == 'NOTE_ON' )
-      print "Track %d, channels: %s" % (i, ' '.join(chs))
+      print "Track %d, channels: %s" % (i, ' '.join( str(ch) for ch in tk.channels() ))
     sys.exit(0)
 
-  notes = SongNote.track2notes(mf.tracks[opts.track], mf.get_sec_per_tick(), ch=opts.channel, octave=opts.octave)
+  track = mf.tracks[opts.track]
+
+  if opts.channel is None:
+    # default: first channel of the track
+    l = sorted(track.channels())
+    if len(l) == 0:
+      parser.error("no channel for this track")
+    opts.channel = l[0]
+  else:
+    opts.channel = int(opts.channel)
+    if opts.channel not in track.channels():
+      parser.error("invalid channel for this track")
+
+  notes = SongNote.track2notes(track, mf.get_sec_per_tick(), ch=opts.channel, octave=opts.octave)
+  if len(notes) == 0:
+    parser.error("nothing to play for track %d, channel %d" % (opts.track, opts.channel))
 
   #XXX output for Bookie (periodm12)
   for n in notes:
