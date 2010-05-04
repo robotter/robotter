@@ -36,6 +36,7 @@ void actuators_init(actuators_t* m)
 {
   m->ax12Speed = SETTING_AX12_DEFAULT_SPEED;
   m->ax12Torque = SETTING_AX12_DEFAULT_TORQUE;
+  m->ax12Punch = SETTING_AX12_DEFAULT_PUNCH;
 
   NOTICE(ACTUATORS_ERROR,"Initializing AX12s");
   actuators_ax12_init(m);
@@ -74,67 +75,22 @@ void actuators_clamp_open(actuators_t* m, clampPos_t p)
 
 uint8_t actuators_clamp_isClosed(actuators_t* m, clampPos_t p)
 {
-  uint8_t id;
-  uint16_t pos;
-  uint16_t goal;
-  uint16_t trq;
-
   if( p == CT_LEFT )
-  {
-    id = SETTING_AX12_ID_LEFT_CLAMP_A;
-    goal = SETTING_AX12_POS_LCA_CLOSED;
-  }
+    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_LEFT_CLAMP_A,
+                                        SETTING_AX12_POS_LCA_CLOSED);
   else
-  {
-    id = SETTING_AX12_ID_RIGHT_CLAMP_A;
-    goal = SETTING_AX12_POS_RCA_CLOSED;
-  }
-  
-  // -- AX12 in position
-
-  // get AX12 position
-  ax12_user_read_int(&ax12, id, AA_PRESENT_POSITION_L, &pos);
-
-  // if AX12 is in "opened" position
-  if( abs(goal-pos) < SETTING_AX12_WINDOW )
-    return 1;
-
-  // -- AX12 overtorque
-  
-  // get AX12 torque
-  ax12_user_read_int(&ax12, id, AA_PRESENT_LOAD_L, &trq);
-  
-  if( trq > SETTING_AX12_CLAMPING_TORQUE )
-    return 1;
-
-  return 0;
+    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_A,
+                                        SETTING_AX12_POS_RCA_CLOSED);
 }
 
 uint8_t actuators_clamp_isOpened(actuators_t* m, clampPos_t p)
 {
-  uint8_t id;
-  uint16_t pos;
-  uint16_t goal;
-
   if( p == CT_LEFT )
-  {
-    id = SETTING_AX12_ID_LEFT_CLAMP_A;
-    goal = SETTING_AX12_POS_LCA_OPENED;
-  }
+    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_LEFT_CLAMP_A,
+                                        SETTING_AX12_POS_LCA_OPENED);
   else
-  {
-    id = SETTING_AX12_ID_RIGHT_CLAMP_A;
-    goal = SETTING_AX12_POS_RCA_OPENED;
-  }
-  
-  // get AX12 position
-  ax12_user_read_int(&ax12, id, AA_PRESENT_POSITION_L, &pos);
-
-  // if AX12 is in "opened" position
-  if( abs(goal-pos) < SETTING_AX12_WINDOW )
-    return 1;
-  
-  return 0;
+    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_A,
+                                        SETTING_AX12_POS_RCA_OPENED);
 }
 
 void actuators_clamp_raise(actuators_t* m, clampPos_t p)
@@ -160,14 +116,22 @@ void actuators_clamp_lower(actuators_t* m, clampPos_t p)
 
 uint8_t actuators_clamp_isRaised(actuators_t* m, clampPos_t p)
 {
-  ERROR(ACTUATORS_ERROR,"%s not implemented",__func__);
-  return 0;
+  if( p == CT_LEFT )
+    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_LEFT_CLAMP_B,
+                                        SETTING_AX12_POS_LCB_RAISED);
+  else
+    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_B,
+                                        SETTING_AX12_POS_RCB_RAISED);
 }
 
 uint8_t actuators_clamp_isLowered(actuators_t* m, clampPos_t p)
 {
-  ERROR(ACTUATORS_ERROR,"%s not implemented",__func__);
-  return 0;
+  if( p == CT_LEFT )
+    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_LEFT_CLAMP_B,
+                                        SETTING_AX12_POS_LCB_LOWERED);
+  else
+    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_B,
+                                        SETTING_AX12_POS_RCB_LOWERED);
 }
 
 void actuators_scanner_setAngle(actuators_t* m, int16_t angle)
@@ -186,7 +150,7 @@ void actuators_loadDefaults(actuators_t* m)
   actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_LEFT_CLAMP_B);
   actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_RIGHT_CLAMP_A);
   actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_RIGHT_CLAMP_B);
-  actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_SCANNER);
+  //actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_SCANNER);
 }
 
 void actuators_ax12_init(actuators_t* m)
@@ -232,14 +196,33 @@ uint8_t actuators_ax12_check(actuators_t* m, uint8_t id)
 uint8_t actuators_ax12_setPosition(actuators_t* m,
                                    uint8_t id, uint16_t pos)
 {
-  // set AX12 speed 
+  ax12_user_write_byte(&ax12, id, AA_TORQUE_ENABLE, 1);
   ax12_user_write_int(&ax12, id, AA_MOVING_SPEED_L, m->ax12Speed);
-  // set AX12 torque
+  // set max torque (alarm value)
   ax12_user_write_int(&ax12, id, AA_TORQUE_LIMIT_L, m->ax12Torque);
-  // set AX12 position
+  // set punch (applied torque)
+  ax12_user_write_int(&ax12, id, AA_PUNCH_L, m->ax12Punch);
   ax12_user_write_int(&ax12, id, AA_GOAL_POSITION_L, pos);
 
   return 1;
 }
 
+
+uint8_t actuators_ax12_checkPosition(actuators_t* m, uint8_t id, uint16_t pos)
+{
+  // in position?
+  uint16_t read_pos;
+  ax12_user_read_int(&ax12, id, AA_PRESENT_POSITION_L, &read_pos);
+  if( abs(pos-read_pos) < SETTING_AX12_WINDOW )
+    return 1;
+
+  // overtorque?
+  uint16_t trq;
+  ax12_user_read_int(&ax12, id, AA_PRESENT_LOAD_L, &trq);
+  trq &= 0x3FF; // load value (remove sign)
+  if( trq > SETTING_AX12_CLAMPING_TORQUE )
+    return 2;
+
+  return 0;
+}
 

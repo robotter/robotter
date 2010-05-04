@@ -34,6 +34,7 @@ typedef struct
 {
   uint16_t ax12Speed;
   uint16_t ax12Torque;
+  uint16_t ax12Punch; // high value = danger
 
 }actuators_t;
 
@@ -88,5 +89,13 @@ uint8_t actuators_ax12_check(actuators_t*, uint8_t id);
 uint8_t actuators_ax12_setPosition(actuators_t*, 
                                     uint8_t id, 
                                     uint16_t pos);
+
+/** @brief Check AX12 angle
+ *
+ * @retval 1  AX12 is in position
+ * @retval 2  overtorque
+ * @retval 0  not in position, no overtorque
+ */
+uint8_t actuators_ax12_checkPosition(actuators_t*, uint8_t id, uint16_t pos);
 
 #endif/*_ACTUATORS_H_*/

@@ -61,8 +61,9 @@
 
 #define SETTING_AX12_MODEL_NUMBER (0x000C)
 
-#define SETTING_AX12_DEFAULT_SPEED (0x010)
+#define SETTING_AX12_DEFAULT_SPEED (0x3FF)
 #define SETTING_AX12_DEFAULT_TORQUE (0x3FF)
+#define SETTING_AX12_DEFAULT_PUNCH (0x020) // high value = danger
 
 
 // -- AX12/clamps --
@@ -74,7 +75,7 @@
 
 
 // LEFT CLAMP A closed position
-#define SETTING_AX12_POS_LCA_CLOSED (0x260)
+#define SETTING_AX12_POS_LCA_CLOSED (0x270)
 // RIGHT CLAMP A closed position
 #define SETTING_AX12_POS_RCA_CLOSED (0x1B0)
 
@@ -89,9 +90,9 @@
 #define SETTING_AX12_POS_RCB_LOWERED (0x335)
 
 // LEFT CLAMP B horizontal position
-#define SETTING_AX12_POS_LCB_RAISED (0x190)
+#define SETTING_AX12_POS_LCB_RAISED (0x1D0)
 // RIGHT CLAMP B horizontal position
-#define SETTING_AX12_POS_RCB_RAISED (0x3A5)
+#define SETTING_AX12_POS_RCB_RAISED (0x365)
 
 // -- AX12/scanner
 

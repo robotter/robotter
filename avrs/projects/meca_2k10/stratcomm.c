@@ -130,7 +130,7 @@ void stratcomm_doOrder(stratcomm_t* sc,
     case SO_NONE:
       DEBUG(0,"new order NONE received");
       break;
-    
+
     //---------------------------------------------------------
     // 42 order
     case SO_FORTYTWO:
@@ -138,47 +138,49 @@ void stratcomm_doOrder(stratcomm_t* sc,
 
       b = 0x42;
       stratcomm_pushReturnPayload(sc, PACK_UINT8(b), sizeof(uint8_t));
-      
+
       break;
 
     //---------------------------------------------------------
     // open clamp
     case SO_CLAMP_OPEN:
-      
+
       // unpack payload
       n = UNPACK_UINT8(sc,payload);
-      
+
       DEBUG(0,"new order CLAMP(%d) OPEN received",n);
 
       // perform order
       actuators_clamp_open(&actuators,n);
-      
+
       break;
 
     //---------------------------------------------------------
     // close clamp
     case SO_CLAMP_CLOSE:
-      DEBUG(0,"new order CLAMP(%d) CLOSE received",n);
-      
+
       // unpack payload
       n = UNPACK_UINT8(sc,payload);
-      
+
+      DEBUG(0,"new order CLAMP(%d) CLOSE received",n);
+
       // perform order
       actuators_clamp_close(&actuators,n);
-      
+
       break;
 
     //---------------------------------------------------------
     // clamp is opened
     case SO_CLAMP_IS_OPENED:
-      DEBUG(0,"new order CLAMP(%d) IS OPENED received",n);
-      
+
       // unpack payload
       n = UNPACK_UINT8(sc,payload);
-      
+
+      DEBUG(0,"new order CLAMP(%d) IS OPENED received",n);
+
       // prepare data
       b = actuators_clamp_isOpened(&actuators,n);
-      
+
       // push payload
       stratcomm_pushReturnPayload(sc, PACK_UINT8(b), sizeof(uint8_t));
 
@@ -187,14 +189,15 @@ void stratcomm_doOrder(stratcomm_t* sc,
     //---------------------------------------------------------
     // clamp is closed
     case SO_CLAMP_IS_CLOSED:
-      DEBUG(0,"new order CLAMP(%d) IS CLOSED received",n);
-      
+
       // unpack payload
       n = UNPACK_UINT8(sc,payload);
-      
+
+      DEBUG(0,"new order CLAMP(%d) IS CLOSED received",n);
+
       // prepare data
       b = actuators_clamp_isClosed(&actuators,n);
-      
+
       // push payload
       stratcomm_pushReturnPayload(sc, PACK_UINT8(b), sizeof(uint8_t));
 
@@ -203,40 +206,43 @@ void stratcomm_doOrder(stratcomm_t* sc,
     //---------------------------------------------------------
     // raise clamp
     case SO_CLAMP_RAISE:
-      DEBUG(0,"new order CLAMP(%d) RAISE received",n);
-      
+
       // unpack payload
       n = UNPACK_UINT8(sc,payload);
-      
+
+      DEBUG(0,"new order CLAMP(%d) RAISE received",n);
+
       // perform order
       actuators_clamp_raise(&actuators,n);
-      
+
       break;
 
     //---------------------------------------------------------
     // lower clamp
     case SO_CLAMP_LOWER:
-      DEBUG(0,"new order CLAMP(%d) LOWER received",n);
-      
+
       // unpack payload
       n = UNPACK_UINT8(sc,payload);
-      
+
+      DEBUG(0,"new order CLAMP(%d) LOWER received",n);
+
       // perform order
       actuators_clamp_lower(&actuators,n);
-      
+
       break;
 
     //---------------------------------------------------------
     // clamp is raised
     case SO_CLAMP_IS_RAISED:
-      DEBUG(0,"new order CLAMP(%d) IS RAISED received",n);
-      
+
       // unpack payload
       n = UNPACK_UINT8(sc,payload);
-      
+
+      DEBUG(0,"new order CLAMP(%d) IS RAISED received",n);
+
       // prepare data
       b = actuators_clamp_isRaised(&actuators,n);
-      
+
       // push payload
       stratcomm_pushReturnPayload(sc, PACK_UINT8(b), sizeof(uint8_t));
 
@@ -245,14 +251,15 @@ void stratcomm_doOrder(stratcomm_t* sc,
     //---------------------------------------------------------
     // clamp is closed
     case SO_CLAMP_IS_LOWERED:
-      DEBUG(0,"new order CLAMP(%d) IS LOWERED received",n);
-      
+
       // unpack payload
       n = UNPACK_UINT8(sc,payload);
-      
+
+      DEBUG(0,"new order CLAMP(%d) IS LOWERED received",n);
+
       // prepare data
       b = actuators_clamp_isLowered(&actuators,n);
-      
+
       // push payload
       stratcomm_pushReturnPayload(sc, PACK_UINT8(b), sizeof(uint8_t));
 
@@ -263,9 +270,9 @@ void stratcomm_doOrder(stratcomm_t* sc,
     case SO_GET_TIME:
 
       DEBUG(0,"new order GET_TIME received");
-      
+
       // no payload to unpack
-      
+
       // get current time
       tv = time_get_time();
 

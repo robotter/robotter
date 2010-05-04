@@ -34,7 +34,7 @@
 #define AX12USER_ERROR 0x40
 
 #define AX12_ERROR(args...) ERROR(AX12USER_ERROR, args)
-#define AX12_NOTICE(args...) NOTICE(AX12USER_ERROR, args)
+#define AX12_WARNING(args...) WARNING(AX12USER_ERROR, args)
 #define AX12_MAX_TRIES 1
 
 /*
@@ -181,11 +181,13 @@ static void ax12_print_error(uint8_t err, uint16_t line)
 	/* no more than 1 log per sec */
 	t2 = time_get_us2();
 
+#if 0
 	if (t2 - t_prev_msg < 1000000L) {
 		ax12_dropped_logs++;
 		return;
 	}
-	AX12_ERROR("AX12 error %x at line %d (%ld messages dropped)",
+#endif
+	AX12_WARNING("AX12 error %x at line %d (%ld messages dropped)",
 		   err, line, ax12_dropped_logs);
 	ax12_dropped_logs = 0;
 	t_prev_msg = t2;
