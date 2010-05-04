@@ -5,7 +5,7 @@ i2ch = as_i2c.open(1)
 require('cvg')
 function cvg.cb_recv(addr, data) return i2ch:read(addr, data) end
 function cvg.cb_send(addr, data) i2ch:write(addr, data) end
-function cvg.cb_sleep(usec) os.execute("usleep "..tonumber(usec)) end
+function cvg.cb_sleep(sec) os.execute("usleep "..math.floor(sec*1000000)) end
 
 
 unioc = cvg.slave_init({
@@ -83,6 +83,56 @@ unioc = cvg.slave_init({
       {name='squal1', size=1, fmt='u'},
       {name='squal2', size=1, fmt='u'},
       {name='squal3', size=1, fmt='u'},
+    } },
+    { id=0x53, name = 'GET_TIME', ret = {
+      {name='sec',  size=4, fmt='u'},
+      {name='usec', size=4, fmt='u'},
+    } },
+  },
+})
+
+
+meca = cvg.slave_init({
+  -- n = 0: left
+  -- n = 1: right
+  roid = 0x21,
+  name = 'Meca',
+  orders = {
+    { id=0x00, name = 'NONE' },
+    { id=0x01, name = 'FORTYTWO', ret = {
+      {name='v', size=1, fmt='u'},
+    } },
+    { id=0x10, name = 'CLAMP_OPEN', args = {
+      {name='n', size=1, fmt='u'},
+    } },
+    { id=0x11, name = 'CLAMP_CLOSE', args = {
+      {name='n', size=1, fmt='u'},
+    } },
+    { id=0x15, name = 'CLAMP_IS_OPENED', args = {
+      {name='n', size=1, fmt='u'},
+    }, ret = {
+      {name='v', size=1, fmt='b'},
+    } },
+    { id=0x16, name = 'CLAMP_IS_CLOSED', args = {
+      {name='n', size=1, fmt='u'},
+    }, ret = {
+      {name='v', size=1, fmt='b'},
+    } },
+    { id=0x20, name = 'CLAMP_RAISE', args = {
+      {name='n', size=1, fmt='u'},
+    } },
+    { id=0x21, name = 'CLAMP_LOWER', args = {
+      {name='n', size=1, fmt='u'},
+    } },
+    { id=0x25, name = 'CLAMP_IS_RAISED', args = {
+      {name='n', size=1, fmt='u'},
+    }, ret = {
+      {name='v', size=1, fmt='b'},
+    } },
+    { id=0x26, name = 'CLAMP_IS_LOWERED', args = {
+      {name='n', size=1, fmt='u'},
+    }, ret = {
+      {name='v', size=1, fmt='b'},
     } },
     { id=0x53, name = 'GET_TIME', ret = {
       {name='sec',  size=4, fmt='u'},

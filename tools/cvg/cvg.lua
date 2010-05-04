@@ -13,7 +13,7 @@ end
 cvg.cb_send = cb_default -- cb_send(addr, data)
 cvg.cb_recv = cb_default -- cb_recv(addr, size) -> string
 -- Sleep method
-cvg.cb_sleep = cb_default -- cb_sleep(usec)
+cvg.cb_sleep = cb_default -- cb_sleep(sec)
 
 -- Default polldt value for call method.
 cvg.default_polldt = 0.1
@@ -127,7 +127,7 @@ local slave_mt = {
       if pv.fmt == 's' then
         v = s
       elseif pv.fmt == 'b' then
-        v = s[1] ~= 0
+        v = s:byte(1) ~= 0
       else -- 'd' or 'u'
         local x = 0
         local m = 1
@@ -154,26 +154,26 @@ local slave_mt = {
 
   -- Send data and poll until a response is received or timeout expires.
   -- Return data as a table or nil on timeout.
+  -- The method always wait polldt between send and receive.
+  -- Warning: the timeout only consider the polling waiting time and not the
+  -- actual elapsed time.
   call = function(self, id, params, polldt, tout)
     if not polldt then polldt = cvg.default_polldt end
     if not tout then tout = cvg.default_tout end
     self:send(id, params)
     local ttot = 0
-    while true do
-      local ret = self:recv(id)
-      if ret ~= nil then break end
-      if ttot >= tout then
-        return nil
-      end
-      if ttot + polldt then
+    while ttot < tout do
+      if ttot + polldt >= tout then
         cvg.cb_sleep( tout-ttot )
         ttot = tout
       else
         cvg.cb_sleep( polldt )
         ttot = ttot + polldt
       end
+      local ret = self:recv(id)
+      if ret ~= nil then return ret end
     end
-    return ret
+    return nil
   end,
 
 }
