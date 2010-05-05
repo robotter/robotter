@@ -162,7 +162,7 @@ begin
   begin 
 
     if reset_ni = '0' then
-      data_out_o <= (others => 'Z');
+      data_out_o <= (others => '0');
 
     elsif rising_edge(clk_i) then
       if spi_rising_s = true and transfer_s = true then
