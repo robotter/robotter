@@ -39,7 +39,7 @@ entity adns6010_controlunit is
   generic (
     ---------- FPGA ---------------------------------------------------------
     -- FPGA clock period in ns
-    fpga_clock_period_c : natural := 40;
+    fpga_clock_period_c : natural := 20;
 
     ---------- REGISTERS ----------------------------------------------------
     -- register Motion_Burst address

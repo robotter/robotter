@@ -29,7 +29,7 @@ ENTITY adns6010 IS
     wb_size_c    : natural := 8;           -- data port size
     adns_size_c  : natural RANGE 8 TO 32:= 32;        -- data sensor port size
     squal_size_c : natural RANGE 8 TO 32:= 8;  -- squal port size
-    freq_fpga_c  : natural := 25000
+    freq_fpga_c  : natural := 50000
     );
 
   PORT (

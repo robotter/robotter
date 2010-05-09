@@ -61,7 +61,10 @@ entity top_uniocng is
     -- compass00-pwm
     compass00_pwm_i : in std_logic;
     -- led00-int_led
-    led00_led : out std_logic
+    led00_led : out std_logic;
+
+    -- XXX hack pod to prevent ATmega RESET to be pulled low
+    reset_uc_i : in std_logic
     );
 end entity top_uniocng;
 
