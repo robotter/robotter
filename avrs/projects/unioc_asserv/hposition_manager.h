@@ -52,6 +52,8 @@ typedef struct
   double adns_alpha;
   // Previous step ADNS vectors
   int32_t pAdnsVectors[6];
+  // Previous step motor encoders vectors
+  int32_t pMotorVectors[3];
   // Is it first time update 
   uint8_t firstUpdate;
 

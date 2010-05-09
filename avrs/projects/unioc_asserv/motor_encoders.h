@@ -1,5 +1,6 @@
+
 /*  
- *  Copyright RobOtter (2009) 
+ *  Copyright RobOtter (2010) 
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,27 +17,20 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** \file fpga.h
+/** \file motor_encoders.h
   * \author JD
   */
 
-#ifndef _FPGA_H_
-#define _FPGA_H_
+#ifndef MOTOR_ENCODERS_H
+#define MOTOR_ENCODERS_H
 
-#define FPGA_RESET_DDR  DDRE
-#define FPGA_RESET_PORT PORTE
-#define FPGA_RESET_PIN  6
+#include <aversive.h>
 
-/**@brief Initialize FPGA communicatin through direct access memory.
-  */
-void fpga_init(void);
+typedef struct
+{
+  int32_t vectors[3];
+}motor_encoders_t;
 
-/**@brief Reset FPGA
-  */
-void fpga_reset(void);
+void motor_encoders_get_value(motor_encoders_t*);
 
-/**@brief Test FPGA mapping
-  */
-void fpga_test(void);
-
-#endif/*_FPGA_H_*/
+#endif/*COMPASS_H*/

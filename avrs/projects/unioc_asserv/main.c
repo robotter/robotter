@@ -52,6 +52,7 @@ void safe_key_pressed(void* dummy);
 
 void paddock_manualControl(void);
 void paddock_adnsFeedback(void);
+void paddock_positionTest(void);
 void paddock_testCode(void);
 void paddock_pwmTest(void);
 //-----
@@ -132,7 +133,7 @@ int main(void)
 
   // turn off led
   _SFR_MEM8(0x1800) = 1;
-
+  
   //--------------------------------------------------------
   // ADNS6010
   //--------------------------------------------------------
@@ -212,7 +213,7 @@ int main(void)
 
   //----------------------------------------------------------------------
 
-  NOTICE(0,"Strike 'x' to reboot / 'c' manual control / 'a' ADNS test / 'p' PWM test / 't' test code / any other key to go");
+  NOTICE(0,"Strike 'x' to reboot / 'c' manual control / 'a' ADNS test / 'z' position test / 'p' PWM test / 't' test code / any other key to go");
  
   uint8_t c;
   while(1)
@@ -227,6 +228,9 @@ int main(void)
     
     if(c == 'a')
       paddock_adnsFeedback();
+    
+    if(c == 'z')
+      paddock_positionTest();
 
     if(c == 't')
       paddock_testCode();
@@ -240,8 +244,6 @@ int main(void)
 
   //----------------------------------------------------------------------
   //----------------------------------------------------------------------
-  
-  NOTICE(0,"Go");
  
   NOTICE(0,"Done");
   while(1);
@@ -252,7 +254,19 @@ int main(void)
 void paddock_testCode(void)
 {
   NOTICE(0, "Entering TEST CODE");
-
+  
+  vect_xy_t t[] = {
+    (vect_xy_t){100.0,0.0},
+    (vect_xy_t){100.0,100.0},
+    (vect_xy_t){0.0,100.0},
+    (vect_xy_t){0.0,0.0}
+  };
+  
+  while(1)
+  {
+    htrajectory_run(&trajectory, t, 4);
+    while(! htrajectory_doneXY(&trajectory) );
+  }
 
   while(1) nop();
 }
@@ -271,7 +285,7 @@ void paddock_adnsFeedback(void)
   {
     adns6010_encoders_get_value(&adns6010);
     
-    NOTICE(0,"ADNS 0x%2.2x | %6ld %6ld %6ld %6ld %6ld %6ld | %d %d %d",
+    NOTICE(0,"ADNS 0x%2.2x | %6ld %6ld %6ld %6ld %6ld %6ld | %3.3f %3.3f %3.3f | %d %d %d",
               adns6010.fault,
               adns6010.vectors[0],
               adns6010.vectors[1],
@@ -279,10 +293,31 @@ void paddock_adnsFeedback(void)
               adns6010.vectors[3],
               adns6010.vectors[4],
               adns6010.vectors[5],
+              sqrt(adns6010.vectors[0]*adns6010.vectors[0] + adns6010.vectors[1]*adns6010.vectors[1]),
+              sqrt(adns6010.vectors[2]*adns6010.vectors[2] + adns6010.vectors[3]*adns6010.vectors[3]),
+              sqrt(adns6010.vectors[4]*adns6010.vectors[4] + adns6010.vectors[5]*adns6010.vectors[5]),
               adns6010.squals[0],
               adns6010.squals[1],
               adns6010.squals[2]);
   }
+}
+
+void paddock_positionTest(void)
+{
+  NOTICE(0, "Entering position test");
+  
+  vect_xy_t vxy;
+  double a;
+
+  while(1)
+  {
+    hposition_get_xy(&position, &vxy);
+    hposition_get_a(&position, &a);
+    NOTICE(0,"POSITION (X,Y,A) : x=%3.3f y=%3.3f a=%3.3f %3.3f°)",
+                vxy.x, vxy.y, a, a*180/M_PI);
+
+  }
+
 }
 
 void paddock_manualControl(void)

@@ -31,6 +31,7 @@
 #include "acfilter.h"
 #include "compass.h"
 #include "settings.h"
+#include "motor_encoders.h"
 
 #include "hposition_manager.h"
 #include "hposition_manager_config.h"
@@ -121,16 +122,21 @@ void hposition_update(void *dummy)
   int i,k;
   int32_t v;
   double dp[3];
+  double dpm[3];
+  double *s_dp;
   hrobot_vector_t vec;
   double _ca,_sa;
 	double compass_a;
+  motor_encoders_t motors;
 
   hrobot_position_t* hpos  = dummy;
 
-
   //------------------------
-  // Access ADNS6010 values
+  // access ADNS6010 values
   adns6010_encoders_get_value(&adns6010);
+
+  // access motor encoders values
+  motor_encoders_get_value(&motors);
 
   // override warning if ADNS boot was previously skipped
   #ifndef SETTING_OVERRIDE_ADNSBOOT 
@@ -146,6 +152,9 @@ void hposition_update(void *dummy)
     for(i=0;i<6;i++)
       hpos->pAdnsVectors[i] = adns6010.vectors[i];
 
+    for(i=0;i<3;i++)
+      hpos->pMotorVectors[i] = motors.vectors[i];
+
     hpos->firstUpdate = 0;
     return;
   }
@@ -155,6 +164,9 @@ void hposition_update(void *dummy)
 
   for(k=0;k<3;k++)
     dp[k] = 0.0;
+
+  for(k=0;k<3;k++)
+    dpm[k] = 0.0;
 
   // for each ADNS coordinate (vx1,vy1,vx2,vy2,vx3,vy3) 
   for(i=0;i<6;i++)
@@ -169,15 +181,40 @@ void hposition_update(void *dummy)
       dp[k] += hrobot_adnsMatrix[k][i]*v;
   }
 
+  // for each motor encoder coordinate (vm1,vm2,vm3)
+  for(i=0;i<3;i++)
+  {
+    // compute speed in motor coordinates
+    v = hpos->pMotorVectors[i] - motors.vectors[i];
+    // update previous motor vectors
+    hpos->pMotorVectors[i] = motors.vectors[i];
+    
+    for(k=0;k<3;k++)
+      dpm[k] += hrobot_motorEncodersMatrix[k][i]*v;
+  }
+
   // convert d(movement) from (2^14mm) to (mm)
   for(k=0;k<3;k++)
-    dp[k] = dp[k]/(double)(1<<HPOSITION_MANAGER_ADNSMATRIX_UNITPOW);
+    dp[k] = dp[k]/(double)(1<<HPOSITION_MANAGER_MATRIX_UNITPOW);
+  
+  // convert d(movement) from (2^14mm) to (mm)
+  for(k=0;k<3;k++)
+    dpm[k] = dpm[k]/(double)(1<<HPOSITION_MANAGER_MATRIX_UNITPOW);
 
 	// apply ADNS/Compass filtering
 	compass_a = compass_get_heading_rad(&compass);
 	
 	// compute filtered alpha
 	vec.alpha = hpos->adns_alpha;//acfilter_do(&acfilter, hpos->adns_alpha, compass_a);
+
+  #ifdef SETTING_ENCODERS_ADNS
+    s_dp = dp;
+  #else
+    s_dp = dpm;
+  #endif
+
+	// update ADNS angular position
+	hpos->adns_alpha += s_dp[HROBOT_DA];
 
 	// transform ADNS position to table  
   _ca = cos(vec.alpha);
@@ -186,15 +223,12 @@ void hposition_update(void *dummy)
   //--------------------------------------------------
   // Integrate speed in robot coordinates to position
 
-  vec.x = hpos->position.x + dp[HROBOT_DX]*_ca - dp[HROBOT_DY]*_sa;
-  vec.y = hpos->position.y + dp[HROBOT_DX]*_sa + dp[HROBOT_DY]*_ca;
+  vec.x = hpos->position.x + s_dp[HROBOT_DX]*_ca - s_dp[HROBOT_DY]*_sa;
+  vec.y = hpos->position.y + s_dp[HROBOT_DX]*_sa + s_dp[HROBOT_DY]*_ca;
 
   //------------------------------------
   // Latch computed values to accessors
   IRQ_LOCK(flags);
-
-	// update ADNS angular position
-	hpos->adns_alpha += dp[HROBOT_DA];
 
   hpos->position = vec;
   

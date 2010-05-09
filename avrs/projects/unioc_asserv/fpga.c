@@ -21,7 +21,10 @@
   */
 
 #include <aversive.h>
+#include <aversive/error.h>
 #include <aversive/wait.h>
+#include <stdio.h>
+
 #include "fpga.h"
 #include "settings.h"
 
@@ -58,4 +61,27 @@ void fpga_reset()
   cbi(FPGA_RESET_PORT,FPGA_RESET_PIN);
   wait_ms(10);
   sbi(FPGA_RESET_PORT,FPGA_RESET_PIN);
+}
+
+void fpga_test()
+{
+  uint16_t addrA;
+  uint16_t addrB;
+ 
+  NOTICE(0,"Performing FPGA TEST");
+
+  printf("    ");
+
+  for(addrA=0x00;addrA<=0x20;addrA++)
+    printf(" %02x",addrA);
+  printf("\n");
+  for(addrA=0x13;addrA<=0x18;addrA++)
+  {
+    printf("%04x",addrA*0x100);
+    for(addrB=0x00; addrB<=0x20; addrB++)
+    {
+      printf(" %02x",_SFR_MEM8(addrA*0x100+addrB));
+    }
+    printf("\n");
+  }
 }
