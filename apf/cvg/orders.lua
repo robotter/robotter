@@ -1,11 +1,24 @@
+--
+-- Include and configure elements related to I2C orders.
+--
+-- Loaded modules:
+--   as_i2c  low level I2C interface
+--   cvg     the CVG module
+-- Elements are added to the global environment:
+--   i2ch    low level I2C object (from as_i2c)
+--   unioc   UNIOC-NG CVG slave
+--   meca    Meca board CVG slave
+--
 
 require('as_i2c')
 i2ch = as_i2c.open(1)
 
 require('cvg')
-function cvg.cb_recv(addr, data) return i2ch:read(addr, data) end
+function cvg.cb_recv(addr, size) return i2ch:read(addr, size) end
 function cvg.cb_send(addr, data) i2ch:write(addr, data) end
 function cvg.cb_sleep(sec) os.execute("usleep "..math.floor(sec*1000000)) end
+cvg.default_polldt = 0.02
+cvg.default_tout = 5
 
 
 unioc = cvg.slave_init({
