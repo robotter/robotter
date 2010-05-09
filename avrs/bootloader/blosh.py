@@ -243,6 +243,15 @@ class Blosh(cmd.Cmd):
     self.last_hex = None
 
 
+  def _trap_keyboardinterrupt(f):
+    """Method decorator to catch interrupts."""
+    def ret(self, *args):
+      try: f(self, *args)
+      except (KeyboardInterrupt, SystemExit):
+        print self.theme.do_error('interrupted')
+    return ret
+
+  
   def bl_enter(self):
     """Enter bootloader mode.
     Return True on success, None if bootloader was already active.
@@ -275,6 +284,7 @@ class Blosh(cmd.Cmd):
     return True
 
 
+  @_trap_keyboardinterrupt
   def terminal_mode(self):
     """Enter terminal mode."""
 
@@ -458,8 +468,12 @@ class Blosh(cmd.Cmd):
           if c == tkey_reset: c = self.opts['reset_str'].val
           if c == tkey_prog:
             sys.stdout.write('\r\n')
+            # reenable keyboard interrupt
+            tio_attr_bak2 = termios.tcgetattr(sys.stdin)
+            termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr_bak)
             self.reprogram()
             self.bl_exit()
+            termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr_bak2)
           if c == '\n': c = crlf
           if pfeed:
             pfeed.stdin.write(c)
@@ -627,6 +641,7 @@ class Blosh(cmd.Cmd):
     return self.do_set('feed_cmd %s' %line)
 
 
+  @_trap_keyboardinterrupt
   def do_program(self, line):
     if len(line) and line[0] == '!':
       self.last_hex = None
@@ -637,6 +652,7 @@ class Blosh(cmd.Cmd):
       self.opts['prog_file'].set(line)
     self.reprogram()
 
+  @_trap_keyboardinterrupt
   def do_check(self, line):
     if line:
       f = line
@@ -664,6 +680,7 @@ class Blosh(cmd.Cmd):
     self.bl.clear_infos()
     self.last_hex = None
 
+  @_trap_keyboardinterrupt
   def do_infos(self, line):
     self.bl_enter()
     self.bl.update_infos()
