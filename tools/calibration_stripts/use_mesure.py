@@ -13,7 +13,7 @@ for line in f.readlines():
     S.append(mesure[3:])
 
 E = numpy.array(E).T
-E = E*1e14
+E = E*pow(2, 14)
 S = numpy.array(S).T
 
 M =  numpy.linalg.lstsq(S.T, E.T)[0].T
