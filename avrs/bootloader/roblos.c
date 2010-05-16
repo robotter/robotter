@@ -42,9 +42,9 @@
  * uppercase digits but only sends lowercase ones. Numbers sent by the server
  * always have an even number of digits.
  * 
- * @note The server should send non-number sequences with may be confused with
- * a number. This means sending fields which match <tt>([0-9a-f][0-9a-f])+</tt>
- * is strongly discouraged.
+ * @note The server should not send non-number sequences with may be confused
+ * with a number. This means sending fields which match
+ * <tt>([0-9a-f][0-9a-f])+</tt> is strongly discouraged.
  *
  * All CRC computation use the CRC-16-CCITT.
  *

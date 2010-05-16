@@ -304,7 +304,7 @@ class Blosh(cmd.Cmd):
     if tkey_quit in '\r\n':
       print self.theme.do_error('using CR or LF for tkey_quit is not safe')
       return
-    print self.theme.fmt('{info}entering teminal mode, {bold}%s{info} to quit{}') % self.opts['tkey_quit']
+    print self.theme.fmt('{info}entering terminal mode, {bold}%s{info} to quit{}') % self.opts['tkey_quit']
 
     l = filter(None, (tkey_reset, tkey_prog, tkey_quit))
     if len(l) != len(set(l)):
@@ -539,6 +539,7 @@ class Blosh(cmd.Cmd):
 
   def precmd(self, line):
     last_alias = None
+    if not line: return line
     while True:
       l = line.split(None, 1)
       if l[0] == last_alias: break  # avoid self-recursive aliases
