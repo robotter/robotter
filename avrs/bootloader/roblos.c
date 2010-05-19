@@ -71,6 +71,21 @@
 #define IVCR MCUCR
 #endif
 
+/** @brief Type for memory addresses and sizes.
+ *
+ * The bootloader address is the highest possible address. (Another way could
+ * be to test whether the RAMPZ register is defined.)
+ */
+#if BOOTLOADER_ADDR > 0x10000
+// more than 64k
+typedef uint32_t addr_type;
+#define pgm_read_byte_bootloader pgm_read_byte_far
+#else
+// less than 64k
+typedef uint16_t addr_type;
+#define pgm_read_byte_bootloader pgm_read_byte_near
+#endif
+
 
 /** @name UART functions and configuration
  *
@@ -233,17 +248,19 @@ static void recv_line(char *buf)
 }
 
 
-/** @brief Parse an hex32 number.
+/** @brief Parse an hexadecimal number.
+ *
+ * This method is currently used to parse only addresses or sizes. Thus it uses
+ * the appropriate type for val.
  *
  * @return Address of the first character following the parsed number, \e NULL
  * on error.
  */
-static const char *parse_hex32(const char *p, uint32_t *val)
+static const char *parse_hex(const char *p, addr_type *val)
 {
-  uint32_t tmp = 0;
-  uint8_t i = 0; // digit count
-
-  for( i=0; i<8; i++ )
+  addr_type tmp = 0;
+  uint8_t i; // digit count
+  for( i=0; i<2*sizeof(tmp); i++ )
   {
     if( *p == ' ' || *p == '\0' )
     {
@@ -420,17 +437,17 @@ static int8_t cmd_infos(const char *p)
  */
 static int8_t cmd_prog_page(const char *p)
 {
-  uint32_t addr;
+  addr_type addr;
   uint8_t buf[SPM_PAGESIZE]; // data buffer
   uint16_t crc = 0xffff;
   char c;
-  int i;
+  uint16_t i;
 
   // Read and check address
   if( *p != ' ' ) return -1;
-  if( (p = parse_hex32(p+1, &addr)) == NULL ) return -1;
+  if( (p = parse_hex(p+1, &addr)) == NULL ) return -1;
   if( *p != '\0' ) return -1;
-  if( (addr & ((uint32_t)SPM_PAGESIZE-1)) != 0 ) return -1;
+  if( (addr & ((addr_type)SPM_PAGESIZE-1)) != 0 ) return -1;
   if( addr > BOOTLOADER_ADDR ) return -1;
   send_msg("?data");
 
@@ -518,23 +535,23 @@ static int8_t cmd_execute(const char *p)
  */
 static int8_t cmd_mem_crc(const char *p)
 {
-  uint32_t start, size;
+  addr_type start, size;
   uint16_t crc = 0xffff;
 
   // Read and check address and size
   if( *p != ' ' ) return -1;
-  if( (p = parse_hex32(p+1, &start)) == NULL ) return -1;
+  if( (p = parse_hex(p+1, &start)) == NULL ) return -1;
   if( *p != ' ' ) return -1;
-  if( (p = parse_hex32(p+1, &size)) == NULL ) return -1;
+  if( (p = parse_hex(p+1, &size)) == NULL ) return -1;
   if( *p != '\0' ) return -1;
   if( start+size > BOOTLOADER_ADDR ) return -1;
 
   // Compute CRC
-  uint32_t addr;
+  addr_type addr;
   uint8_t c;
   for( addr=start; addr<start+size; addr++ )
   {
-		c = pgm_read_byte_far(addr);
+		c = pgm_read_byte_bootloader(addr);
     crc = _crc_ccitt_update(crc, c);
   }
 
