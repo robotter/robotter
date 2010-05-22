@@ -40,6 +40,7 @@
 #include "logging.h"
 #include "cli.h"
 #include "stratcomm.h"
+#include "cord.h"
 
 #include "settings.h"
 
@@ -74,6 +75,8 @@ extern hrobot_position_t position;
 // XXX
 extern hrobot_system_t system;
 
+// ADNS sensors validity
+extern sensorsValidity_t sensors_validity;
 
 // communications
 extern stratcomm_t stratcomm;
@@ -84,6 +87,10 @@ extern uint8_t cs_cpuUsage;
 // scheduler events
 uint8_t event_position;
 uint8_t event_cs;
+
+// time in seconds at startup
+seconds time_startup;
+uint8_t time_startup_ok = 0;
 
 int main(void)
 {
@@ -184,6 +191,9 @@ int main(void)
   NOTICE(0,"Initializing I2C slave");
   i2cs_init(SETTING_I2C_ADDRESS);
  
+  NOTICE(0,"Initializing startup cord");
+  cord_init();
+
   NOTICE(0,"Initializing communications");
   stratcomm_init(&stratcomm);
 
@@ -213,18 +223,36 @@ int main(void)
 
   //----------------------------------------------------------------------
 
-  NOTICE(0,"Strike 'x' to reboot / 'c' manual control / 'a' ADNS test / 'z' position test / 'p' PWM test / 't' test code / any other key to go");
+  NOTICE(0,"'x' to reboot / 'c' manual control / 'a' ADNS test / 'z' position test / 'p' PWM test / 't' test code / (key/cord) to go ");
  
-  uint8_t c;
+  uint8_t c, cord_status, lock;
+  lock = 0;
   while(1)
   {
-    c = cli_getkey();
+    // get input key
+    c = cli_getkey_nowait();
+
+    // get cord status
+    cord_status = cord_isPlugged();
+
+    if(cord_status == 1)
+      lock = 1;
+
+    // if cord not plugged
+    if( (cord_status == 0) && lock )
+      break;
+
+    // ------------------
+
+    if(c == 0)
+      continue;
     
     if(c == 'x')
       EMERG(MAIN_ERROR,"safe key 'x' pressed");
   
     if(c == 'c')
       paddock_manualControl();
+
     
     if(c == 'a')
       paddock_adnsFeedback();
@@ -238,14 +266,42 @@ int main(void)
     if(c == 'p')
       paddock_pwmTest();
 
-    if(c != -1)
+    if(c != 0xFF)
       break;
   }
 
   //----------------------------------------------------------------------
   //----------------------------------------------------------------------
- 
+  NOTICE(0,"Starting *homologuation*");
+  
+  // get time at startup
+  time_startup_ok = 1;
+  time_startup = time_get_s();
+
+  vect_xy_t path[2];
+
+  double color = -1.0; // 1.0 = jaune | -1.0 = bleu
+
+  path[0] = (vect_xy_t){color*(1500 + 18 - 1125), 1050 + 12 - 453.0};
+  if(color == 1.0) // jaune
+    path[1] = (vect_xy_t){color*(1500 + 18 + 1075), 1050 + 12 + 797.0};
+  else // bleu
+    path[1] = (vect_xy_t){color*(1500 + 18 + 1185), 1050 + 12 + 797.0};
+
+  htrajectory_run(&trajectory, path, 2);
+  while(!htrajectory_doneXY(&trajectory)) nop();
+
+  if(color == 1.0) // jaune
+    htrajectory_gotoXY_R(&trajectory, color*120, 70);
+  else
+    htrajectory_gotoXY_R(&trajectory, color*150, 70);
+
+  while(!htrajectory_doneXY(&trajectory)) nop();
+
+  htrajectory_gotoA_R(&trajectory, color*M_PI/3);
+
   NOTICE(0,"Done");
+
   while(1);
 
   return 0;
@@ -254,20 +310,12 @@ int main(void)
 void paddock_testCode(void)
 {
   NOTICE(0, "Entering TEST CODE");
-  
-  vect_xy_t t[] = {
-    (vect_xy_t){100.0,0.0},
-    (vect_xy_t){100.0,100.0},
-    (vect_xy_t){0.0,100.0},
-    (vect_xy_t){0.0,0.0}
-  };
-  
+
   while(1)
   {
-    htrajectory_run(&trajectory, t, 4);
-    while(! htrajectory_doneXY(&trajectory) );
+    wait_ms(300);
   }
-
+  
   while(1) nop();
 }
 
@@ -313,8 +361,8 @@ void paddock_positionTest(void)
   {
     hposition_get_xy(&position, &vxy);
     hposition_get_a(&position, &a);
-    NOTICE(0,"POSITION (X,Y,A) : x=%3.3f y=%3.3f a=%3.3f %3.3f°)",
-                vxy.x, vxy.y, a, a*180/M_PI);
+    NOTICE(0,"POSITION (X,Y,A) : x=%3.3f y=%3.3f a=%3.3f (%3.3f°) VALIDITY %d",
+                vxy.x, vxy.y, a, a*180/M_PI, sensors_validity);
 
   }
 
@@ -323,9 +371,9 @@ void paddock_positionTest(void)
 void paddock_manualControl(void)
 {
   uint8_t key;
-  double x = 0.0;
-  double y = 0.0;
-  double a = 0.0;
+  double x = SETTING_POSITION_INIT_X;
+  double y = SETTING_POSITION_INIT_Y;
+  double a = SETTING_POSITION_INIT_A;
 
   NOTICE(0,"Entering manual control");
 
@@ -339,7 +387,9 @@ void paddock_manualControl(void)
     switch(key)
     {
       case 'z':
-        x=0.0; y=0.0; a=0.0;
+        x=SETTING_POSITION_INIT_X;
+        y=SETTING_POSITION_INIT_Y;
+        a=SETTING_POSITION_INIT_A;
         break;
 
       case 'j':

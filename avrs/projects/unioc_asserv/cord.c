@@ -1,5 +1,5 @@
 /*  
- *  Copyright RobOtter (2010) 
+ *  Copyright RobOtter (2010)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,20 +16,40 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** \file motor_encoders.c
+/** \file cord.c
   * \author JD
   */
 
 #include <aversive.h>
-#include "motor_cs_config.h"
-#include "motor_encoders.h"
+#include <aversive/error.h>
+#include "cord.h"
 
-void motor_encoders_get_value(motor_encoders_t* me)
+#include "settings.h"
+
+void cord_init(void)
 {
-  me->vectors[0] = _SFR_MEM32(MOTOR_CS_ENCODER1_ADDR);
-  me->vectors[1] = _SFR_MEM32(MOTOR_CS_ENCODER2_ADDR);
-  me->vectors[2] = _SFR_MEM32(MOTOR_CS_ENCODER3_ADDR);
-  me->vectors[3] = 0;
-  me->vectors[4] = 0;
-  me->vectors[5] = 0;
+  // set DDR to input
+  cbi(SETTING_CORD_DDR, SETTING_CORD_N);
+
+  // set PORT to '1' (pull-up resistor to VCC)
+  sbi(SETTING_CORD_PORT, SETTING_CORD_N);
+}
+
+uint8_t cord_isPlugged(void)
+{
+  uint8_t state;
+  static uint8_t pstate = 1;
+
+  // if PIN is not set
+  if( bit_is_set(SETTING_CORD_PIN, SETTING_CORD_N) )
+    state = 0;
+  else 
+    state = 1;
+  
+  if(pstate != state)
+    DEBUG(0,"CORD state changed (state=%d)",state);
+
+  pstate = state;
+
+  return state;
 }

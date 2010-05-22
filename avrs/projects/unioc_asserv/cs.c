@@ -37,6 +37,7 @@
 #include "compass.h"
 #include "time.h"
 #include "stratcomm.h"
+#include "avoidance.h"
 
 #include "settings.h"
 
@@ -64,8 +65,18 @@ acfilter_t acfilter;
 // robot_cs quadramps
 extern struct quadramp_filter qramp_angle;
 
+// Avoidance system
+avoidance_t avoidance;
+
+// time in secs at startup
+extern seconds time_startup;
+extern uint8_t time_startup_ok;
+
 // CSs cpu usage in percents
 uint8_t cs_cpuUsage;
+
+// over pwm counter
+extern uint8_t motor_overpwm_count[3];
 
 void cs_initialize(void)
 {
@@ -87,7 +98,6 @@ void cs_initialize(void)
   // Initialize position manager
   NOTICE(0,"Initializing position manager");
   hposition_init( &position );
-  hposition_set( &position, 0.0, 0.0, 0.0 );
 
   // Initialize control systems for motors
   NOTICE(0,"Initializing motors control systems");
@@ -114,12 +124,30 @@ void cs_initialize(void)
   htrajectory_setSteeringWindow(&trajectory, SETTING_TRAJECTORY_STEERING_XYWIN);
   htrajectory_setStopWindows(&trajectory, SETTING_TRAJECTORY_STOP_XYWIN,
                                           SETTING_TRAJECTORY_STOP_AWIN);
+
+  // Set position manager
+  NOTICE(0,"Set robot position to (%2.2f,%2.2f,%2.2f)",
+            SETTING_POSITION_INIT_X,
+            SETTING_POSITION_INIT_Y,
+            SETTING_POSITION_INIT_A);
+
+  hposition_set( &position, SETTING_POSITION_INIT_X,
+                            SETTING_POSITION_INIT_Y,
+                            SETTING_POSITION_INIT_A);
+
+
+
+  // Initialize avoidance system
+  NOTICE(0,"Initializing avoidance system");
+  avoidance_init(&avoidance);
+
 }
 
 uint16_t dbg_timer;
 
 void cs_update(void* dummy)
 {
+  uint8_t i;
   uint16_t dt;
   static uint8_t led = 0;
 
@@ -127,11 +155,23 @@ void cs_update(void* dummy)
   // (quite strange code for a great flashing effect :p)
   _SFR_MEM8(0x1800) = (led+=10)>50;
 
+  // match over
+  if( time_startup_ok 
+      && ((time_get_s() - time_startup) > SETTING_MATCH_DURATION_SECS ) )
+    EMERG(0,"Match over");
+
+  // overpwm
+  for(i=0;i<3;i++)
+    if( motor_overpwm_count[i] >= 255 )
+      EMERG(0,"Over PWM detected (i=%d)",i);
   // reset TIMER3
   timer3_set(0);
 
   // update communications with stratcomm
   stratcomm_update(&stratcomm);
+
+  // update avoidance system
+  avoidance_update(&avoidance);
 
   // update trajectory management
   htrajectory_update(&trajectory);
@@ -144,6 +184,7 @@ void cs_update(void* dummy)
 
 	// update control systems
 	robot_cs_update(&robot_cs);
+
 
   // compute CPU usage
   dt = timer3_get();

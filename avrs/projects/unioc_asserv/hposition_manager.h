@@ -26,6 +26,7 @@
 #ifndef _HPOSITION_MANAGER_H_
 #define _HPOSITION_MANAGER_H_
 
+#include <adns6010.h>
 #include "vector.h"
 
 #define HROBOT_DX 0
@@ -33,6 +34,15 @@
 #define HROBOT_DA 2
 
 #define HROBOT_ERROR 0x60
+
+typedef enum
+{
+  DIR_NONE = 0,
+  DIR_60 = 1,
+  DIR_180 = 2,
+  DIR_300 = 4
+
+}direction_t;
 
 typedef struct
 {
@@ -53,12 +63,22 @@ typedef struct
   // Previous step ADNS vectors
   int32_t pAdnsVectors[6];
   // Previous step motor encoders vectors
-  int32_t pMotorVectors[3];
+  int32_t pMotorVectors[6];
   // Is it first time update 
   uint8_t firstUpdate;
 
 } hrobot_position_t;
 
+typedef enum
+{
+  SV_NONE = 0,
+  SV_ADNS_123,
+  SV_ADNS_23,
+  SV_ADNS_13,
+  SV_ADNS_12,
+  SV_MOTORS
+
+}sensorsValidity_t;
 
 /**@brief Initialize position management
   */
@@ -86,5 +106,10 @@ void hposition_get( hrobot_position_t*, hrobot_vector_t* );
 /**@brief Update robot position
   */
 void hposition_update( void* );
+
+/**@brief Compute sensors validity
+  */
+sensorsValidity_t hposition_getSensorsValidity( hrobot_position_t*,
+                                                adns6010_encoders_t* );
 
 #endif/*_HPOSITION_MANAGER_H_*/

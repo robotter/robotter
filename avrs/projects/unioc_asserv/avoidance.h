@@ -1,5 +1,5 @@
 /*  
- *  Copyright RobOtter (2010) 
+ *  Copyright RobOtter (2010)
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,20 +16,38 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** \file motor_encoders.c
+/** \file avoidance.h
   * \author JD
   */
 
-#include <aversive.h>
-#include "motor_cs_config.h"
-#include "motor_encoders.h"
+#ifndef _AVOIDANCE_H_
+#define _AVOIDANCE_H_
 
-void motor_encoders_get_value(motor_encoders_t* me)
+#include "hposition_manager.h"
+#include "settings.h"
+
+#define AVOIDANCE_ERROR 0x90
+
+typedef struct 
 {
-  me->vectors[0] = _SFR_MEM32(MOTOR_CS_ENCODER1_ADDR);
-  me->vectors[1] = _SFR_MEM32(MOTOR_CS_ENCODER2_ADDR);
-  me->vectors[2] = _SFR_MEM32(MOTOR_CS_ENCODER3_ADDR);
-  me->vectors[3] = 0;
-  me->vectors[4] = 0;
-  me->vectors[5] = 0;
-}
+  // sensor multiplexing
+  uint8_t gp2_it;
+  
+  // sensors ADCs
+  uint16_t gp2_muxs[SETTING_AVOIDANCE_GP2ARRAY_SIZE];
+
+  // gp2 detections status
+  uint8_t gp2_detections[SETTING_AVOIDANCE_GP2ARRAY_SIZE];
+
+}avoidance_t;
+
+/** @brief Initialize avoidance systems */
+void avoidance_init(avoidance_t*);
+
+/** @brief Update avoidance system */
+void avoidance_update(avoidance_t*);
+
+/** @brief Check avoidance sensors */
+direction_t avoidance_check(avoidance_t*);
+
+#endif/*_AVOIDANCE_H_*/

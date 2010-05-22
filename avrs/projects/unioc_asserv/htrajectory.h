@@ -42,9 +42,20 @@ typedef enum
   STATE_STOP = 0,
 
   STATE_PATH_MID,
-  STATE_PATH_LAST
+  STATE_PATH_LAST,
+
+  STATE_AUTOSET_HEADING,
+  STATE_AUTOSET_MOVE
 
 }htrajectory_state_t;
+
+typedef enum
+{
+  RS_0 = 0,
+  RS_120,
+  RS_240
+
+}robotSide_t;
 
 typedef struct
 {
@@ -88,6 +99,15 @@ typedef struct
   uint8_t pathIndex;
 
   htrajectory_state_t state;
+
+  uint8_t blocked;
+
+  // autoset
+  uint8_t autosetSide;
+  uint8_t autosetCount;
+
+  vect_xy_t lpos;
+  double la;
 
 } htrajectory_t;
 
@@ -137,7 +157,7 @@ void htrajectory_gotoA_R( htrajectory_t *htj, double a);
 void htrajectory_gotoXY_R( htrajectory_t *htj, double x, double y);
 
 /**\brief Perform robot autoset */
-void htrajectory_autoset( htrajectory_t *htj, uint8_t side);
+void htrajectory_autoset( htrajectory_t *htj, robotSide_t side);
 
 /* -- status -- */
 
@@ -146,6 +166,12 @@ uint8_t htrajectory_doneA( htrajectory_t *htj );
 
 /**\brief Return 1 if robot is in (x,y) position, 0 otherwise */
 uint8_t htrajectory_doneXY( htrajectory_t *htj );
+
+/**\brief Return 1 if robot is currently blocked, 0 otherwise */
+uint8_t htrajectory_blocked( htrajectory_t *htj );
+
+/**\brief Return 1 if robot is performing autoset, 0 otherwise */
+uint8_t htrajectory_doneAutoset( htrajectory_t *htj );
 
 /* -- trajectory update -- */
 

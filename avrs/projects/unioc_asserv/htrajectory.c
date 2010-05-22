@@ -25,8 +25,16 @@
  */
 
 #include "htrajectory.h"
+
+#include "avoidance.h"
 #include "logging.h"
 #include <math.h>
+
+// avoidance system
+extern avoidance_t avoidance;
+
+// robot system
+extern hrobot_system_t system;
 
 /* -- private functions -- */
 
@@ -172,6 +180,10 @@ void htrajectory_init( htrajectory_t *htj,
 
   htj->pathIndex = 0;
   htj->state = STATE_STOP;
+  htj->blocked = 0;
+
+  htj->lpos = (vect_xy_t){0.0,0.0};
+  htj->la = 0.0;
 
   return;
 }
@@ -240,11 +252,6 @@ void htrajectory_gotoXY_R( htrajectory_t *htj, double dx, double dy)
   htrajectory_gotoXY( htj, rp.x + dx, rp.y + dy);
 }
 
-void htrajectory_autoset( htrajectory_t *htj, uint8_t side)
-{
-  ERROR(HTRAJECTORY_ERROR, "AUTOSET(%u) not implemented",side);
-}
-
 /* -- speed management -- */
 
 void htrajectory_setASpeed( htrajectory_t *htj, double speed, double acc )
@@ -309,16 +316,145 @@ uint8_t htrajectory_doneA( htrajectory_t *htj )
     return 0;
 }
 
+uint8_t htrajectory_blocked( htrajectory_t *htj )
+{
+  return htj->blocked;
+}
+
+uint8_t htrajectory_doneAutoset( htrajectory_t *htj )
+{
+  if( (htj->state == STATE_AUTOSET_HEADING)
+    || (htj->state == STATE_AUTOSET_MOVE) )
+    return 1;
+  else
+    return 0;
+}
+
 /* -- trajectory update -- */
 
 void htrajectory_update( htrajectory_t *htj )
 {
   double sqErrorLength;
   vect_xy_t *point;
-  double dx,dy;
-  
-  if(htj->state == STATE_STOP)
+  double dx,dy,da;
+  direction_t dir;
+  vect_xy_t robot;
+  double a;
+  double dv;
+
+  if( htj->state == STATE_STOP )
     /* nothing to do */
+    return;
+
+  if( htj->state == STATE_AUTOSET_HEADING )
+  {
+    // wait for robot heading OK
+    if( htrajectory_doneA(htj) )
+    {
+      DEBUG(0,"AUTOSET HEADING done (a=%2.2f)",htj->carrotA);
+
+      // set autoset to next step
+      htj->state = STATE_AUTOSET_MOVE;
+
+      // shutdown robot CSs
+      robot_cs_activate(htj->rcs, 0);
+    
+      dx = SETTING_AUTOSET_SPEED*cos(htj->carrotA+1.5*M_PI);
+      dy = SETTING_AUTOSET_SPEED*sin(htj->carrotA+1.5*M_PI);
+      
+      DEBUG(0,"AUTOSET MOTORS (dx=%2.2f dy=%2.2f)",dx,dy);
+
+      // set course
+      hrobot_set_motors(&system, dx, dy, 0.0);
+
+      // reset autoset count
+      htj->autosetCount = 0;
+    }
+
+    return;
+  }
+
+  if( htj->state == STATE_AUTOSET_MOVE )
+  {
+    // get robot position
+    hposition_get_xy(htj->hrp,&robot);
+    hposition_get_a(htj->hrp,&a);
+    
+    // compute speed in configuration space
+    dx = robot.x - htj->lpos.x;
+    dy = robot.y - htj->lpos.y;
+    da = a - htj->la;
+    dv = dx*dx + dy*dy + da*da;
+    
+    //
+    if( dv < SETTING_AUTOSET_ZEROSPEED )
+    {
+      htj->autosetCount++;
+
+      if( htj->autosetCount > SETTING_AUTOSET_ZEROCOUNT )
+      {
+        // autoset done
+        
+        // reactivate robot CSs damn it !
+        robot_cs_activate(htj->rcs, 1);
+
+        // set trajectory status to stop
+        htj->state = STATE_STOP;
+      }
+    }
+    else
+      htj->autosetCount = 0;
+
+    // remember last position
+    htj->lpos = robot;
+    htj->la = a;
+  }
+
+  // is robot blocked by something ?
+  dir = avoidance_check(&avoidance);
+
+  // if blocked ...
+  if( dir != DIR_NONE )
+  {
+    // ... and previously not blocked
+    if( !(htj->blocked) )
+    {
+
+      // get robot position
+      hposition_get_xy( htj->hrp, &robot);
+      
+      // set carrot to current position
+      setCarrotXYPosition(htj, robot);
+
+      DEBUG(0,"AVOID BLOCK(dir=%d) (%2.2f,%2.2f)", 
+                dir, robot.x, robot.y);
+
+      // reset carrot speed
+      htj->carrotSpeed = 0;
+      htj->blocked = 1;
+    }
+    
+    // if robot blocked do not update anything more
+    return;
+  }
+
+  // if NOT blocked and previously blocked
+  if( (dir == DIR_NONE) && (htj->blocked) )
+  {
+    DEBUG(0,"AVOID NOBLOCK carrot (%2.2f,%2.2f)",
+              htj->carrot.x, htj->carrot.y);
+
+    hposition_get_xy( htj->hrp, &robot);
+
+    htj->carrot = robot;
+
+    // resume target to carrot
+    setCarrotXYPosition(htj, htj->carrot);
+
+    htj->blocked = 0;
+  }
+
+  if( htj->blocked )
     return;
 
   // is robot in position ?
@@ -434,3 +570,46 @@ void htrajectory_update( htrajectory_t *htj )
   setCarrotXYPosition( htj, htj->carrot );
 
 }
+
+// --- AUTOSET ---
+
+void htrajectory_autoset( htrajectory_t *htj, robotSide_t side)
+{
+  vect_xy_t robot;
+
+  // reset trajectory and start autoset
+  htj->pathIndex = 0;
+  htj->state = STATE_AUTOSET_HEADING;
+
+  // get robot position
+  hposition_get_xy( htj->hrp, &robot);
+
+  // set carrot position to current position
+  setCarrotXYPosition( htj, robot);
+
+  DEBUG(0,"Robot AUTOSET initiated");
+
+  // set carrot heading
+  switch(side)
+  {
+    case RS_0:
+      htj->carrotA = 0;
+      break;
+
+    case RS_120:
+      htj->carrotA = 2.0*M_PI/3;
+      break;
+
+    case RS_240:
+      htj->carrotA = 4.0*M_PI/3;
+      break;
+
+    default:
+      ERROR(HTRAJECTORY_ERROR,
+        "AUTOSET launched with invalid side (side=%d)", side);
+  }
+
+  htj->autosetSide = side;
+}
+
+

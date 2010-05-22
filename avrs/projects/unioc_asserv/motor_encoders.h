@@ -28,7 +28,7 @@
 
 typedef struct
 {
-  int32_t vectors[3];
+  int32_t vectors[6];
 }motor_encoders_t;
 
 void motor_encoders_get_value(motor_encoders_t*);

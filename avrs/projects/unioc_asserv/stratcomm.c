@@ -255,6 +255,12 @@ void stratcomm_doOrder(stratcomm_t* sc,
       if(htrajectory_doneA(&trajectory))
         b &= 0x02;
 
+      if(htrajectory_blocked(&trajectory))
+        b &= 0x04;
+      
+      if(htrajectory_doneAutoset(&trajectory))
+        b &= 0x08;
+
       stratcomm_pushReturnPayload(sc, PACK_UINT8(b), sizeof(uint8_t));
 
       break;

@@ -53,6 +53,8 @@ volatile uint8_t motor1_sign;
 volatile uint8_t motor2_sign;
 volatile uint8_t motor3_sign;
 
+uint8_t motor_overpwm_count[3];
+
 // PWM overflow event
 ISR(SIG_OVERFLOW1)
 {
@@ -98,6 +100,11 @@ void motor_cs_init()
   pwm_set_1B(0);
   pwm_set_1C(0);
   
+  // over pwms
+  motor_overpwm_count[0] = 0;
+  motor_overpwm_count[1] = 0;
+  motor_overpwm_count[2] = 0;
+
   // setup brake
   sbi(MOTOR_CS_BREAK_DDR, MOTOR_CS_BREAK_PIN);
   cbi(MOTOR_CS_BREAK_PORT, MOTOR_CS_BREAK_PIN);
@@ -228,16 +235,22 @@ void set_pwm_motor1(void* dummy, int32_t pwm)
 {
   S_MAX(pwm,4095);
 
+  if( pwm >= SETTING_MOTORS_MAXPWM )
+  {
+    if(motor_overpwm_count[0] < 255)
+      motor_overpwm_count[0]++;
+  }
+  else
+    motor_overpwm_count[0] = 0;
+
   if(pwm>0)
   {
     pwm_set_1C(4095-pwm);
-    //sbi(MOTOR_CS_PWM1_PORT,MOTOR_CS_PWM1_PIN);
     motor1_sign = 1;
   }
   else
   {
     pwm_set_1C(-pwm);
-    //cbi(MOTOR_CS_PWM1_PORT,MOTOR_CS_PWM1_PIN);
     motor1_sign = 0;
   }
 
@@ -248,16 +261,22 @@ void set_pwm_motor2(void* dummy, int32_t pwm)
 {
   S_MAX(pwm,4095);
 
+  if( pwm >= SETTING_MOTORS_MAXPWM )
+  {
+    if(motor_overpwm_count[1] < 255)
+      motor_overpwm_count[1]++;
+  }
+  else
+    motor_overpwm_count[1] = 0;
+
   if(pwm>0)
   {
     pwm_set_1B(4095-pwm);
-    //sbi(MOTOR_CS_PWM2_PORT,MOTOR_CS_PWM2_PIN);
     motor2_sign = 1;
   }
   else
   {
     pwm_set_1B(-pwm);
-    //cbi(MOTOR_CS_PWM2_PORT,MOTOR_CS_PWM2_PIN);
     motor2_sign = 0;
   }
 
@@ -267,17 +286,23 @@ void set_pwm_motor2(void* dummy, int32_t pwm)
 void set_pwm_motor3(void* dummy, int32_t pwm)
 {
   S_MAX(pwm,4095);
+  
+  if( pwm >= SETTING_MOTORS_MAXPWM )
+  {
+    if(motor_overpwm_count[2] < 255)
+      motor_overpwm_count[2]++;
+  }
+  else
+    motor_overpwm_count[2] = 0;
 
 	if(pwm>0)
   {
     pwm_set_1A(4095-pwm);
-    //sbi(MOTOR_CS_PWM3_PORT,MOTOR_CS_PWM3_PIN);
     motor3_sign = 1;
   }
   else
   {
     pwm_set_1A(-pwm);
-    //cbi(MOTOR_CS_PWM3_PORT,MOTOR_CS_PWM3_PIN);
     motor3_sign = 0;
   }
 
