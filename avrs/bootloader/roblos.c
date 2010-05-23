@@ -57,7 +57,6 @@
 #include <avr/pgmspace.h>
 #include <util/crc16.h>
 #include <util/delay.h>
-#include "roblos_config.h"
 
 
 /** @brief Interrupt vector control register.
@@ -182,11 +181,11 @@ typedef uint16_t addr_type;
 #endif
 #define UART_NBITS_VAL ((UART_NBITS-5)&0x03)<<UCSZx0
 
-#if UART_PARITY == UART_PARTITY_NONE
+#if UART_PARITY == UART_PARITY_NONE
 #define UART_PARITY_VAL  0
-#elif UART_PARITY == UART_PARTITY_ODD
+#elif UART_PARITY == UART_PARITY_ODD
 #define UART_PARITY_VAL  (_BV(UPM0)|_BV(UPM1))
-#elif UART_PARITY == UART_PARTITY_EVEN
+#elif UART_PARITY == UART_PARITY_EVEN
 #define UART_PARITY_VAL  _BV(UPM1)
 #else
 #error "invalid UART parity"
@@ -259,13 +258,19 @@ static void recv_line(char *buf)
 static const char *parse_hex(const char *p, addr_type *val)
 {
   addr_type tmp = 0;
+#ifndef ROBLOS_DISABLE_STRICT_CHECKS
   uint8_t i; // digit count
   for( i=0; i<2*sizeof(tmp); i++ )
+#else
+  for(;;)
+#endif
   {
     if( *p == ' ' || *p == '\0' )
     {
+#ifndef ROBLOS_DISABLE_STRICT_CHECKS
       if( i == 0 )
         return NULL;
+#endif
       *val = tmp;
       return p;
     }
@@ -279,7 +284,7 @@ static const char *parse_hex(const char *p, addr_type *val)
       tmp += 10 + *p - 'A';
     p++;
   }
-  return NULL; // overflow
+  return NULL; // overflow, only when strict checks enabled
 }
 
 /** @brief Parse a confirmation response.
@@ -295,8 +300,10 @@ static int8_t recv_yesno(void)
 {
   char rbuf[ROBLOS_BUF_SIZE];
   recv_line(rbuf);
+#ifndef ROBLOS_DISABLE_STRICT_CHECKS
   if( rbuf[1] != '\0' )
     return -1;
+#endif
   if( rbuf[0] == 'y' )
     return 1;
   else if( rbuf[0] == 'n' )
@@ -390,7 +397,11 @@ static void send_hex16(uint16_t x)
  */
 static int8_t cmd_infos(const char *p)
 {
+#ifndef ROBLOS_DISABLE_STRICT_CHECKS
   if( *p != '\0' ) return -1;
+#else
+  (void)p;
+#endif
   send_str("info i"  // the 'i' command cannot be disabled
 #ifndef ROBLOS_DISABLE_EXECUTE
       "x"
@@ -424,6 +435,7 @@ static int8_t cmd_infos(const char *p)
  *  6. if the client confirmed, the server writes the page and replies \c ok
  *
  * @note The address page must be a valid aligned address.
+ * @note When ROBLOS_DISABLE_PROG_CRC is defined, steps 4. and 5. are skipped.
  *
  * Example:
 @verbatim
@@ -438,23 +450,30 @@ static int8_t cmd_infos(const char *p)
 static int8_t cmd_prog_page(const char *p)
 {
   addr_type addr;
+#ifndef ROBLOS_DISABLE_PROG_CRC
   uint8_t buf[SPM_PAGESIZE]; // data buffer
   uint16_t crc = 0xffff;
-  char c;
+#endif
   uint16_t i;
 
   // Read and check address
+#ifndef ROBLOS_DISABLE_STRICT_CHECKS
   if( *p != ' ' ) return -1;
   if( (p = parse_hex(p+1, &addr)) == NULL ) return -1;
   if( *p != '\0' ) return -1;
   if( (addr & ((addr_type)SPM_PAGESIZE-1)) != 0 ) return -1;
   if( addr > BOOTLOADER_ADDR ) return -1;
+#else
+  p = parse_hex(p+1, &addr);
+#endif
   send_msg("?data");
+
+#ifndef ROBLOS_DISABLE_PROG_CRC
 
   // Read data from UART and compute CRC
   for( i=0; i<SPM_PAGESIZE; i++ )
   {
-    c = uart_recv();
+    char c = uart_recv();
     crc = _crc_ccitt_update(crc, c);
     buf[i] = c;
   }
@@ -477,6 +496,25 @@ static int8_t cmd_prog_page(const char *p)
     uint16_t w = buf[i] + ((uint16_t)(buf[i+1])<<8);
     boot_page_fill(addr+i, w);
   }
+
+#else
+
+  // Erase page
+  eeprom_busy_wait();
+  boot_page_erase(addr);
+  boot_spm_busy_wait();
+
+  // Read data from UART and compute CRC
+  for( i=0; i<SPM_PAGESIZE; i+=2 )
+  {
+    char c1 = uart_recv();
+    char c2 = uart_recv();
+    // Set up little-endian word
+    uint16_t w = c1 | (((uint16_t)c2)<<8);
+    boot_page_fill(addr+i, w);
+  }
+
+#endif
 
   // Write the page
   boot_page_write(addr);
@@ -516,7 +554,11 @@ static void boot(void)
  */
 static int8_t cmd_execute(const char *p)
 {
+#ifndef ROBLOS_DISABLE_STRICT_CHECKS
   if( *p != '\0' ) return -1;
+#else
+  (void)p;
+#endif
   boot();
   return -1; // never happens
 }
@@ -539,12 +581,17 @@ static int8_t cmd_mem_crc(const char *p)
   uint16_t crc = 0xffff;
 
   // Read and check address and size
+#ifndef ROBLOS_DISABLE_STRICT_CHECKS
   if( *p != ' ' ) return -1;
   if( (p = parse_hex(p+1, &start)) == NULL ) return -1;
   if( *p != ' ' ) return -1;
   if( (p = parse_hex(p+1, &size)) == NULL ) return -1;
   if( *p != '\0' ) return -1;
   if( start+size > BOOTLOADER_ADDR ) return -1;
+#else
+  p = parse_hex(p+1, &start);
+  p = parse_hex(p+1, &size);
+#endif
 
   // Compute CRC
   addr_type addr;
@@ -575,7 +622,11 @@ static int8_t cmd_mem_crc(const char *p)
  */
 static int8_t cmd_fuse_read(const char *p)
 {
+#ifndef ROBLOS_DISABLE_STRICT_CHECKS
   if( *p != '\0' ) return -1;
+#else
+  (void)p;
+#endif
   send_str("fuse ");
   send_hex8(boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS));
   uart_send(' ');

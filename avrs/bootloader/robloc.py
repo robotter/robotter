@@ -114,7 +114,12 @@ class RobloClient:
     self.send_raw(buf)
 
     r = self.recv_msg()
-    if not r or not r.ask or r.cmd!='crc': return False
+    if not r: return False
+    if r.ok:
+      # CRC check not available
+      # TODO return an error if crc check has been requested
+      return True
+    if not r.ask or r.cmd!='crc': return False
     if not crc or r.args[0] == crc:
       self.send_yesno(True)
       r = self.recv_msg()
