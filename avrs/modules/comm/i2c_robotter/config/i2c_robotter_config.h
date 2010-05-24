@@ -1,5 +1,5 @@
 
-/**@name Slave specific options. */
+/** @name Slave specific options. */
 //@{
 #ifdef I2C_SLAVE
 
@@ -14,15 +14,19 @@
 #endif
 //@}
 
+/** @name Master specific options.
+ *
+ * See <em>Overview of the TWI Module / Bit Rate Generator Unit</em> section
+ * for details on I2C bus frequency.
+ */
+//@{
+#ifdef I2C_MASTER
 
-/** @brief Divider for I2C baudrate
- *
- * Refers to TWBR in specs for details.
- */
+/// Divider for I2C baudrate (TWBR).
 #define I2C_BITRATE   1
-/** @brief Prescaler configuration
- *
- * Rate is 2^(n*2)
- */
+/// Prescaler configuration (TWPS1:0).
 #define I2C_PRESCALER 3
+
+#endif
+//@}
 

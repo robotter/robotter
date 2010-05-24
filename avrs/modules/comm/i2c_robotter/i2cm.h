@@ -1,4 +1,4 @@
-#include <aversive.h>
+#include <stdint.h>
 
 #define I2C_MASTER
 #include "i2c_robotter_config.h"
@@ -9,7 +9,7 @@ void i2cm_init(void);
 /** @brief Send data frame to a slave
  *
  * @param  slave_addr  slave address
- * @param  n           size to send
+ * @param  n           size to send (max: 127)
  * @param  data        buffer to send
  *
  * @return -1  error before first byte has been sent
@@ -21,7 +21,7 @@ int8_t i2cm_send(uint8_t slave_addr, const uint8_t *data, uint8_t n);
 /** @brief Receive data frame from a slave
  *
  * @param  slave_addr  slave address
- * @param  n           size to read
+ * @param  n           size to read (max: 127)
  * @param  data        buffer for read data
  *
  * @return -1  error before first byte has been received

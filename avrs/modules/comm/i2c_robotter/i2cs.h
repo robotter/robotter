@@ -1,4 +1,4 @@
-#include <aversive.h>
+#include <stdint.h>
 
 #define I2C_SLAVE
 #include "i2c_robotter_config.h"
@@ -24,6 +24,9 @@
  * @note <tt>i2cs_*_size</tt> are volatile globals, which imply "costly"
  * accesses. Their values should be stored in temporary local variables,
  * especially when iterating through \c i2c_recv_buf buffer with e \c for.
+ *
+ * @note Maximum buffer sizes are 127 and not 255 because master methods return
+ * sent and received sizes as \e int8_t (which are signed).
  */
 
 
