@@ -11,6 +11,12 @@ comment 'RobOtter modules'
 comment 'RobOtter modules'
 
 #
+bool 'error (ROBOTTER)' CONFIG_MODULE_ERROR_ROBOTTER
+
+dep_bool '  |-- Create Default error config' CONFIG_MODULE_ERROR_ROBOTTER_CREATE_CONFIG \
+	$CONFIG_MODULE_ERROR_ROBOTTER
+
+#
 bool 'adns6010' CONFIG_MODULE_ADNS6010_ROBOTTER
 
 dep_bool '  |-- Create Default ADNS6010 config' CONFIG_MODULE_ADNS6010_ROBOTTER_CREATE_CONFIG \
