@@ -41,7 +41,7 @@
  * All numbers are written in hexadecimal. The server accepts both lowercase and
  * uppercase digits but only sends lowercase ones. Numbers sent by the server
  * always have an even number of digits.
- * 
+ *
  * @note The server should not send non-number sequences with may be confused
  * with a number. This means sending fields which match
  * <tt>([0-9a-f][0-9a-f])+</tt> is strongly discouraged.
@@ -51,12 +51,28 @@
  * @todo Store the ROID in EEPROM.
  */
 
-#include "roblos.h"
+// Required by "util/delay.h"
+#define F_CPU  ((unsigned long)QUARTZ_FREQ)
+
 #include <avr/io.h>
 #include <avr/boot.h>
 #include <avr/pgmspace.h>
 #include <util/crc16.h>
 #include <util/delay.h>
+#include <util/twi.h>
+
+/** @brief Simple software reset.
+ *
+ * Registers are not initialized.
+ *
+ * @note Macro retrieved from Aversive.
+ */
+#define reset()                      \
+do {				     \
+  __asm__ __volatile__ ("ldi r30,0\n");  \
+  __asm__ __volatile__ ("ldi r31,0\n");  \
+  __asm__ __volatile__ ("ijmp\n");  \
+} while(0)
 
 
 /** @brief Interrupt vector control register.
@@ -86,11 +102,13 @@ typedef uint16_t addr_type;
 #endif
 
 
-/** @name UART functions and configuration
+/** @name UART functions and configuration.
  *
  * Configuration definitions are compatible with \e uart_config.h fields.
  */
 //@{
+
+#ifdef ENABLE_UART
 
 #if UART_NUM == 0
 
@@ -203,14 +221,95 @@ typedef uint16_t addr_type;
 static void uart_send(char c)
 {
   while( !(UCSRxA & (1<<UDREx)) ) ;
-  UDRx = c; 
+  UDRx = c;
 }
 
-static char uart_recv(void) 
-{ 
-  while( !(UCSRxA & (1<<RXCx)) ) ; 
-  return UDRx; 
+static char uart_recv(void)
+{
+  while( !(UCSRxA & (1<<RXCx)) ) ;
+  return UDRx;
 }
+
+#endif
+
+//@}
+
+
+/** @name I2C functions and configuration.
+ */
+//@{
+
+#ifdef ENABLE_I2C_SLAVE
+
+#ifndef I2C_ADDR
+#error "undefined i2c slave address"
+#endif
+#if (I2C_ADDR < 0x08 || I2C_ADDR > 0x77)
+#error "invalid i2C slave address"
+#endif
+
+#define I2C_WAIT()  while( !( TWCR & _BV(TWINT) ) )
+#define I2C_ACK()    do{ TWCR=_BV(TWEN)|_BV(TWINT)|_BV(TWEA) ; I2C_WAIT(); }while(0)
+#define I2C_NACK()   do{ TWCR=_BV(TWEN)|_BV(TWINT);            I2C_WAIT(); }while(0)
+#define I2CM_START() do{ TWCR=_BV(TWEN)|_BV(TWINT)|_BV(TWSTA); I2C_WAIT(); }while(0)
+#define I2CM_STOP()  do{ TWCR=_BV(TWEN)|_BV(TWINT)|_BV(TWSTO); while( TWCR & _BV(TWSTO) ) ; }while(0)
+#define I2CM_SEND(d)      do{ TWDR = (d); I2C_ACK();  }while(0)
+#define I2CS_SEND(d)      do{ TWDR = (d); I2C_ACK();  }while(0)
+#define I2CS_SEND_LAST(d) do{ TWDR = (d); I2C_NACK(); }while(0)
+
+
+
+static void i2cs_send(char c)
+{
+  while( TW_STATUS != TW_ST_SLA_ACK && TW_STATUS != TW_ST_DATA_ACK ) {
+    I2C_ACK();
+  }
+  I2CS_SEND(c);
+}
+
+static char i2cs_recv(void)
+{
+  while( TW_STATUS != TW_SR_DATA_ACK ) {
+    I2C_ACK();
+  }
+  char c = TWDR;
+  I2C_ACK();
+  return c;
+}
+
+#endif
+
+//@}
+
+
+/** @name Methods used to communicate with the client.
+ *
+ * Depending of the configuration, it may be constant or determined at startup.
+ *
+ * @note When only one protocol is enabled, using function pointers produces
+ * smaller binaries than using macro (which is counter-intuitive).
+ */
+//@{
+
+#if (defined ENABLE_UART) && (defined ENABLE_I2C_SLAVE)
+
+// defaults to uart, to send the first prompt
+static void (*proto_send)(char) = uart_send;
+static char (*proto_recv)(void) = uart_recv;
+
+#elif (defined ENABLE_UART)
+
+static void (*proto_send)(char) = uart_send;
+static char (*proto_recv)(void) = uart_recv;
+
+#elif (defined ENABLE_I2C_SLAVE)
+
+static void (*proto_send)(char) = i2cs_send;
+static char (*proto_recv)(void) = i2cs_recv;
+
+#else
+#error "no communication protocol enabled"
+#endif
 
 
 //@}
@@ -236,29 +335,31 @@ static void recv_line(char *buf)
   char c;
   for( i=0; i<ROBLOS_BUF_SIZE; i++ )
   {
-    c = uart_recv();
+    c = proto_recv();
     if( c == '\r' || c == '\n' )
       break;
     buf[i] = c;
   }
   while( c != '\n' )
-    c = uart_recv();
+    c = proto_recv();
   buf[i] = '\0';
 }
 
 
 /** @brief Parse an hexadecimal number.
  *
- * This method is currently used to parse only addresses or sizes. Thus it uses
- * the appropriate type for val.
+ * This method is currently used to parse addresses, sizes or smaller data.
+ * Thus it uses the minimal appropriate type for val.
  *
  * @return Address of the first character following the parsed number, \e NULL
  * on error.
+ *
+ * @todo Try to use a dedicated parse_hex8() which may be more optimized.
  */
 static const char *parse_hex(const char *p, addr_type *val)
 {
   addr_type tmp = 0;
-#ifndef ROBLOS_DISABLE_STRICT_CHECKS
+#ifndef DISABLE_STRICT_CHECKS
   uint8_t i; // digit count
   for( i=0; i<2*sizeof(tmp); i++ )
 #else
@@ -267,7 +368,7 @@ static const char *parse_hex(const char *p, addr_type *val)
   {
     if( *p == ' ' || *p == '\0' )
     {
-#ifndef ROBLOS_DISABLE_STRICT_CHECKS
+#ifndef DISABLE_STRICT_CHECKS
       if( i == 0 )
         return NULL;
 #endif
@@ -300,7 +401,7 @@ static int8_t recv_yesno(void)
 {
   char rbuf[ROBLOS_BUF_SIZE];
   recv_line(rbuf);
-#ifndef ROBLOS_DISABLE_STRICT_CHECKS
+#ifndef DISABLE_STRICT_CHECKS
   if( rbuf[1] != '\0' )
     return -1;
 #endif
@@ -316,14 +417,14 @@ static int8_t recv_yesno(void)
 static void send_str(const char *s)
 {
   while( *s )
-    uart_send( *s++ );
+    proto_send( *s++ );
 }
 
 /// Send the EOL sequence.
 static void send_eol(void)
 {
-  uart_send('\r');
-  uart_send('\n');
+  proto_send('\r');
+  proto_send('\n');
 }
 
 /// Send a line ended by an EOL sequence.
@@ -353,9 +454,9 @@ static void send_status_ko(void)
  */
 static void send_digit_(uint8_t x)
 {
-  uart_send( x + ( x < 10 ? '0' : 'a'-10 ) );
+  proto_send( x + ( x < 10 ? '0' : 'a'-10 ) );
   // optimization, equivalent to
-  // uart_send( x < 10 ? x + '0' : x-10 + 'a' );
+  // proto_send( x < 10 ? x + '0' : x-10 + 'a' );
 }
 
 /// Send a 8-bit value.
@@ -397,27 +498,27 @@ static void send_hex16(uint16_t x)
  */
 static int8_t cmd_infos(const char *p)
 {
-#ifndef ROBLOS_DISABLE_STRICT_CHECKS
+#ifndef DISABLE_STRICT_CHECKS
   if( *p != '\0' ) return -1;
 #else
   (void)p;
 #endif
   send_str("info i"  // the 'i' command cannot be disabled
-#ifndef ROBLOS_DISABLE_EXECUTE
+#ifndef DISABLE_EXECUTE
       "x"
 #endif
-#ifndef ROBLOS_DISABLE_PROG_PAGE
+#ifndef DISABLE_PROG_PAGE
       "p"
 #endif
-#ifndef ROBLOS_DISABLE_MEM_CRC
+#ifndef DISABLE_MEM_CRC
       "c"
 #endif
-#ifndef ROBLOS_DISABLE_FUSE_READ
+#ifndef DISABLE_FUSE_READ
       "f"
 #endif
       " ");
-  send_hex8(ROBOTTER_ID);
-  uart_send(' ');
+  send_hex8(ROID);
+  proto_send(' ');
   send_hex16(SPM_PAGESIZE);
   send_eol();
   return 0;
@@ -435,7 +536,7 @@ static int8_t cmd_infos(const char *p)
  *  6. if the client confirmed, the server writes the page and replies \c ok
  *
  * @note The address page must be a valid aligned address.
- * @note When ROBLOS_DISABLE_PROG_CRC is defined, steps 4. and 5. are skipped.
+ * @note When DISABLE_PROG_CRC is defined, steps 4. and 5. are skipped.
  *
  * Example:
 @verbatim
@@ -450,14 +551,14 @@ static int8_t cmd_infos(const char *p)
 static int8_t cmd_prog_page(const char *p)
 {
   addr_type addr;
-#ifndef ROBLOS_DISABLE_PROG_CRC
+#ifndef DISABLE_PROG_CRC
   uint8_t buf[SPM_PAGESIZE]; // data buffer
   uint16_t crc = 0xffff;
 #endif
   uint16_t i;
 
   // Read and check address
-#ifndef ROBLOS_DISABLE_STRICT_CHECKS
+#ifndef DISABLE_STRICT_CHECKS
   if( *p != ' ' ) return -1;
   if( (p = parse_hex(p+1, &addr)) == NULL ) return -1;
   if( *p != '\0' ) return -1;
@@ -468,12 +569,12 @@ static int8_t cmd_prog_page(const char *p)
 #endif
   send_msg("?data");
 
-#ifndef ROBLOS_DISABLE_PROG_CRC
+#ifndef DISABLE_PROG_CRC
 
   // Read data from UART and compute CRC
   for( i=0; i<SPM_PAGESIZE; i++ )
   {
-    char c = uart_recv();
+    char c = proto_recv();
     crc = _crc_ccitt_update(crc, c);
     buf[i] = c;
   }
@@ -507,8 +608,8 @@ static int8_t cmd_prog_page(const char *p)
   // Read data from UART and compute CRC
   for( i=0; i<SPM_PAGESIZE; i+=2 )
   {
-    char c1 = uart_recv();
-    char c2 = uart_recv();
+    char c1 = proto_recv();
+    char c2 = proto_recv();
     // Set up little-endian word
     uint16_t w = c1 | (((uint16_t)c2)<<8);
     boot_page_fill(addr+i, w);
@@ -532,13 +633,26 @@ static int8_t cmd_prog_page(const char *p)
  */
 static void boot(void)
 {
+#ifdef ENABLE_UART
   // extra CRLF to make sure the boot message is properly sent
   send_msg("boot\r\n");
   // wait for the last byte
   while( !(UCSRxA & ((1<<UDREx)|(1<<TXCx))) ) ;
+  UCSRxB = 0; // disable
+#endif
+#ifdef ENABLE_I2C_SLAVE
+  TWCR = 0;
+  TWAR = 0;
+#endif
 
+  /* interruptions not used, moving interrupt vector not needed
   IVCR = (1<<IVCE);
   IVCR = (0<<IVSEL);
+   */
+
+#ifdef BOOT_CODE
+  do{ BOOT_CODE }while(0);
+#endif
   reset();
 }
 
@@ -554,7 +668,7 @@ static void boot(void)
  */
 static int8_t cmd_execute(const char *p)
 {
-#ifndef ROBLOS_DISABLE_STRICT_CHECKS
+#ifndef DISABLE_STRICT_CHECKS
   if( *p != '\0' ) return -1;
 #else
   (void)p;
@@ -581,7 +695,7 @@ static int8_t cmd_mem_crc(const char *p)
   uint16_t crc = 0xffff;
 
   // Read and check address and size
-#ifndef ROBLOS_DISABLE_STRICT_CHECKS
+#ifndef DISABLE_STRICT_CHECKS
   if( *p != ' ' ) return -1;
   if( (p = parse_hex(p+1, &start)) == NULL ) return -1;
   if( *p != ' ' ) return -1;
@@ -622,20 +736,136 @@ static int8_t cmd_mem_crc(const char *p)
  */
 static int8_t cmd_fuse_read(const char *p)
 {
-#ifndef ROBLOS_DISABLE_STRICT_CHECKS
+#ifndef DISABLE_STRICT_CHECKS
   if( *p != '\0' ) return -1;
 #else
   (void)p;
 #endif
   send_str("fuse ");
   send_hex8(boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS));
-  uart_send(' ');
+  proto_send(' ');
   send_hex8(boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS));
-  uart_send(' ');
+  proto_send(' ');
   send_hex8(boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS));
   send_eol();
   return 0;
 }
+
+
+#ifdef ENABLE_I2C_MASTER
+/** @brief Send a message to an I2C slave.
+ *
+ * @todo Doc/specs.
+ */
+static int8_t cmd_slave_msg(const char *p)
+{
+  uint8_t addr; // slave addr
+  //TODO parse uint16_t, not addr_type
+  addr_type addr16; // variable for parsing
+  addr_type size;
+
+#ifndef DISABLE_STRICT_CHECKS
+  if( *p != ' ' ) return -1;
+  if( (p = parse_hex(p+1, &addr16)) == NULL ) return -1;
+  if( *p != ' ' ) return -1;
+  if( (p = parse_hex(p+1, &size)) == NULL ) return -1;
+  if( *p != '\0' ) return -1;
+  if( addr16 < 0x08 || addr16 >= 0x78 ) return -1; // check address range
+#else
+  p = parse_hex(p+1, &addr16);
+  p = parse_hex(p+1, &size);
+#endif
+  addr = addr16;
+
+  //XXX move it elswhere(?)
+  TWBR = I2C_BITRATE;
+  TWCR = _BV(TWEN)|_BV(TWINT);
+  if(I2C_PRESCALER & 1)
+    TWSR |= _BV(TWPS0);
+  if(I2C_PRESCALER & 2)
+    TWSR |= _BV(TWPS1);
+
+  // poll slave
+  for(;;) {
+    //TODO abort on uart input, or timeout
+    I2CM_START();
+#ifndef DISABLE_STRICT_CHECKS
+    if( TW_STATUS != TW_START )
+      return -1;
+#endif
+    // slave address + Write bit (0)
+    I2CM_SEND(addr<<1);
+    if( TW_STATUS == TW_MT_SLA_ACK )
+      break;
+#ifndef DISABLE_STRICT_CHECKS
+    if( TW_STATUS != TW_MT_SLA_NACK )
+      return -1;
+#endif
+    I2CM_STOP();
+  }
+
+  send_msg("?msg");
+
+  // send msg
+  uint16_t i;
+  for( i=0; i<size-1; i++ ) {
+    I2CM_SEND( proto_recv() );
+#ifndef DISABLE_STRICT_CHECKS
+    if( TW_STATUS != TW_MT_DATA_ACK ) {
+      I2CM_STOP();
+      return -1;
+    }
+#endif
+  }
+  I2CM_SEND( proto_recv() );
+#ifndef DISABLE_STRICT_CHECKS
+  if( TW_STATUS != TW_MT_DATA_NACK ) {
+    I2CM_STOP();
+    return -1;
+  }
+#endif
+
+  I2CM_STOP();
+
+  // request transmitted, shall we process a response?
+  int8_t yn = recv_yesno();
+  if( yn == 0 ) {
+    send_status_ok();
+    return 0;
+  } else if( yn != 1 ) {
+    return -1;
+  }
+
+  // receive response
+  I2CM_START();
+#ifndef DISABLE_STRICT_CHECKS
+  if( TW_STATUS != TW_START )
+    return -1;
+#endif
+  // slave address + Read bit (1)
+  I2CM_SEND((addr<<1)+1);
+#ifndef DISABLE_STRICT_CHECKS
+  if( TW_STATUS == TW_MR_SLA_NACK ) {
+    I2CM_STOP();
+    return -1;
+  }
+  if( TW_STATUS != TW_MR_SLA_ACK )
+    return -1;
+#endif
+  for(;;) {
+    I2C_ACK();
+    char c = TWDR;
+    if( c == 0xff )
+      break;
+    proto_send(c);
+  }
+  I2C_NACK();
+  I2CM_STOP();
+  send_eol();
+
+  return 0;
+}
+#endif
 
 
 //@}
@@ -645,60 +875,92 @@ static int8_t cmd_fuse_read(const char *p)
  */
 int main(void)
 {
-#ifdef ROBLOS_INIT
-  do{ ROBLOS_INIT }while(0);
+#ifdef INIT_CODE
+  do{ INIT_CODE }while(0);
 #endif
 
+  /* interruptions not used, moving interrupt vector not needed
+  IVCR = (1<<IVCE);
+  IVCR = (1<<IVSEL);
+   */
+
+#ifdef ENABLE_UART
   // UART init (all values have been already computed)
   UBRRxH = (uint8_t)(UART_UBRR_VAL>>8);
   UBRRxL = (uint8_t)UART_UBRR_VAL;
   UCSRxA = UART_U2X_VAL;
   UCSRxB = (1<<RXENx) | (1<<TXENx);
   UCSRxC = UART_NBITS_VAL | UART_PARITY_VAL | UART_STOP_BIT_VAL;
+#endif
+#ifdef ENABLE_I2C_SLAVE
+  // I2C init
+  TWAR = I2C_ADDR << 1;
+  TWCR = (1<<TWIE)|(1<<TWEN)|(1<<TWINT)|(1<<TWEA);
+#endif
 
-  // move interrupt vector in bootloader section
-  IVCR = (1<<IVCE);
-  IVCR = (1<<IVSEL);
-
-  sei();
-
-  // first prompt, timeout before booting
+#ifdef ENABLE_UART
+  // first prompt
   send_eol();
   send_prompt();
-  uint8_t i = (ROBLOS_BOOT_TIMEOUT)*F_CPU/(65536*4*1000);
-  while( !(UCSRxA & (1<<RXCx)) )
-  {
+#endif
+  // timeout before booting
+  uint8_t i = (BOOT_TIMEOUT)*F_CPU/(65536*4*1000);
+  for(;;) {
+    // detect activity from client
+    // set the proto_* method if needed
+
+    // from UART
+#ifdef ENABLE_UART
+    if( (UCSRxA & (1<<RXCx)) ) {
+      // uart is the default for proto_*
+      break;
+    }
+#endif
+
+    // from I2C
+#ifdef ENABLE_I2C_SLAVE
+    if( (TWCR & (1<<TWINT)) ) {
+#ifdef ENABLE_UART
+      proto_send = i2cs_send;
+      proto_recv = i2cs_recv;
+#endif
+      break;
+    }
+#endif
+
     if( i == 0 )
-      boot();
+      boot(); // timeout
     i--;
     _delay_loop_2(0); // 65536*4 cycles
   }
 
 
   char rbuf[ROBLOS_BUF_SIZE];
-  while(1)
-  {
+  for(;;) {
     recv_line(rbuf);
-    if( *rbuf != '\0' )
-    {
+    if( *rbuf != '\0' ) {
       int8_t ret;
       if( *rbuf == 'i' )
         ret = cmd_infos(rbuf+1);
-#ifndef ROBLOS_DISABLE_EXECUTE
+#ifndef DISABLE_EXECUTE
       else if( *rbuf == 'x' )
         ret = cmd_execute(rbuf+1);
 #endif
-#ifndef ROBLOS_DISABLE_PROG_PAGE
+#ifndef DISABLE_PROG_PAGE
       else if( *rbuf == 'p' )
         ret = cmd_prog_page(rbuf+1);
 #endif
-#ifndef ROBLOS_DISABLE_MEM_CRC
+#ifndef DISABLE_MEM_CRC
       else if( *rbuf == 'c' )
         ret = cmd_mem_crc(rbuf+1);
 #endif
-#ifndef ROBLOS_DISABLE_FUSE_READ
+#ifndef DISABLE_FUSE_READ
       else if( *rbuf == 'f' )
         ret = cmd_fuse_read(rbuf+1);
+#endif
+#ifdef ENABLE_I2C_MASTER
+      else if( *rbuf == 's' )
+        ret = cmd_slave_msg(rbuf+1);
 #endif
       else
         ret = -1;

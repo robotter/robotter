@@ -17,19 +17,22 @@ CFLAGS += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -mmcu
 
 # export conf shared with C
 
-CONFIG_VARS = QUARTZ_FREQ BOOTLOADER_ADDR ROBOTTER_ID \
-							ROBLOS_BOOT_TIMEOUT ROBLOS_INIT \
+CONFIG_VARS = QUARTZ_FREQ BOOTLOADER_ADDR ROID \
+							BOOT_TIMEOUT INIT_CODE BOOT_CODE \
 							UART_NUM UART_BAUDRATE UART_USE_DOUBLE_SPEED UART_NBITS \
-							UART_PARITY UART_STOP_BIT
+							UART_PARITY UART_STOP_BIT \
+							I2C_ADDR I2C_BITRATE I2C_PRESCALER
 
-CONFIG_FLAGS = ROBLOS_DISABLE_PROG_PAGE ROBLOS_DISABLE_EXECUTE \
-							 ROBLOS_DISABLE_MEM_CRC ROBLOS_DISABLE_FUSE_READ \
-							 ROBLOS_DISABLE_PROG_CRC \
-							 ROBLOS_DISABLE_STRICT_CHECKS
+CONFIG_FLAGS = DISABLE_PROG_PAGE DISABLE_EXECUTE DISABLE_MEM_CRC \
+							 DISABLE_PROG_CRC DISABLE_FUSE_READ \
+							 DISABLE_STRICT_CHECKS \
+							 ENABLE_UART ENABLE_I2C_SLAVE ENABLE_I2C_MASTER
 
 
 define define_config_var
+ifdef $(1)
 CFLAGS += -D$(1)=$($(1))
+endif
 endef
 define define_config_flag
 ifdef $(1)
@@ -57,6 +60,9 @@ default: $(TARGET).hex
 # compile + link
 $(TARGET).elf: $(OBJ).c
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
+$(TARGET).E: $(OBJ).c
+	$(CC) -E $(CFLAGS) -o $@ $<
 
 # final output file
 $(TARGET).hex: $(TARGET).elf
