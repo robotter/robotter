@@ -239,15 +239,6 @@ static char uart_recv(void)
  */
 //@{
 
-#ifdef ENABLE_I2C_SLAVE
-
-#ifndef I2C_ADDR
-#error "undefined i2c slave address"
-#endif
-#if (I2C_ADDR < 0x08 || I2C_ADDR > 0x77)
-#error "invalid i2C slave address"
-#endif
-
 #define I2C_WAIT()  while( !( TWCR & _BV(TWINT) ) )
 #define I2C_ACK()    do{ TWCR=_BV(TWEN)|_BV(TWINT)|_BV(TWEA) ; I2C_WAIT(); }while(0)
 #define I2C_NACK()   do{ TWCR=_BV(TWEN)|_BV(TWINT);            I2C_WAIT(); }while(0)
@@ -257,6 +248,15 @@ static char uart_recv(void)
 #define I2CS_SEND(d)      do{ TWDR = (d); I2C_ACK();  }while(0)
 #define I2CS_SEND_LAST(d) do{ TWDR = (d); I2C_NACK(); }while(0)
 
+
+#ifdef ENABLE_I2C_SLAVE
+
+#ifndef I2C_ADDR
+#error "undefined i2c slave address"
+#endif
+#if (I2C_ADDR < 0x08 || I2C_ADDR > 0x77)
+#error "invalid i2C slave address"
+#endif
 
 
 static void i2cs_send(char c)
@@ -299,13 +299,13 @@ static char (*proto_recv)(void) = uart_recv;
 
 #elif (defined ENABLE_UART)
 
-static void (*proto_send)(char) = uart_send;
-static char (*proto_recv)(void) = uart_recv;
+static void (*const proto_send)(char) = uart_send;
+static char (*const proto_recv)(void) = uart_recv;
 
 #elif (defined ENABLE_I2C_SLAVE)
 
-static void (*proto_send)(char) = i2cs_send;
-static char (*proto_recv)(void) = i2cs_recv;
+static void (*const proto_send)(char) = i2cs_send;
+static char (*const proto_recv)(void) = i2cs_recv;
 
 #else
 #error "no communication protocol enabled"
@@ -376,6 +376,7 @@ static const char *parse_hex(const char *p, addr_type *val)
       return p;
     }
 
+#ifndef DISABLE_STRICT_CHECKS
     tmp <<= 4;
     if( *p >= '0' && *p <= '9' )
       tmp += *p - '0';
@@ -383,6 +384,15 @@ static const char *parse_hex(const char *p, addr_type *val)
       tmp += 10 + *p - 'a';
     else if( *p >= 'A' && *p <= 'F' )
       tmp += 10 + *p - 'A';
+    else
+      return NULL; // invalid digit
+#else
+    tmp <<= 4;
+    if( *p <= '9' )
+      tmp += *p - '0';
+    else
+      tmp += (*p|' ') - 'a';
+#endif
     p++;
   }
   return NULL; // overflow, only when strict checks enabled
@@ -428,7 +438,7 @@ static void send_eol(void)
 }
 
 /// Send a line ended by an EOL sequence.
-#define send_msg(s) send_str(s "\r\n")
+#define send_msg(s) do{ send_str(s); send_eol(); }while(0)
 
 /// Send the prompt.
 static void send_prompt(void)
@@ -454,9 +464,7 @@ static void send_status_ko(void)
  */
 static void send_digit_(uint8_t x)
 {
-  proto_send( x + ( x < 10 ? '0' : 'a'-10 ) );
-  // optimization, equivalent to
-  // proto_send( x < 10 ? x + '0' : x-10 + 'a' );
+  proto_send( x < 10 ? x+'0' : x-10 + 'a' );
 }
 
 /// Send a 8-bit value.
