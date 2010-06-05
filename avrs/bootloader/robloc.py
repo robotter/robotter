@@ -42,13 +42,14 @@ class RobloClient:
   # Data transmission
 
   def send_raw(self, buf):
-    """Send raw data to the server."""
+    """Send raw data to the server.
+    
+    Note: data should not split and sent with several calls to send_raw(): this
+    would be inefficient for I2C sessions since each call produces a distinct
+    frame.
+    """
     self.conn.write(buf)
     self.output_write(buf)
-
-  def send_eol(self):
-    """Send an end-of-line sequence."""
-    self.send_raw(self.EOL)
 
   def send_msg(self, *args):
     """Send a line ended by an EOL sequence.
@@ -60,10 +61,6 @@ class RobloClient:
         a = '%x' % a
       l.append(a)
     self.send_raw(' '.join(l) + self.EOL)
-
-  def send_hex(self, n):
-    """Send a number."""
-    self.send_raw("%x" % n)
 
   def send_yesno(self, b):
     """Send a confirmation response."""
@@ -85,7 +82,7 @@ class RobloClient:
 
   def cmd_infos(self):
     """Retrieve server infos.
-    Return a the tuple (supported commands, ROID, pagesize) or False on error.
+    Return a the tuple (supported features, ROID, pagesize) or False on error.
     """
     self.send_msg('i')
     r = self.recv_msg()
@@ -146,6 +143,50 @@ class RobloClient:
     self.send_msg('x')
     r = self.recv_msg()
     if not r or r.cmd!='boot': return False
+    return True
+
+  def cmd_slave_start(self, addr):
+    """Start an I2C session with a slave.
+    Return True on success, False on error.
+    """
+    self.send_msg('s', addr)
+    r = self.recv_msg()
+    if not r or not r.ask or r.cmd!='rw': return False
+    return True
+
+  def cmd_slave_write(self, buf):
+    """Send data to an I2C slave.
+    An I2C session should have been started.
+    Return True on success, False on error.
+    """
+    self.send_msg('>', len(buf))
+    r = self.recv_msg()
+    if not r or not r.ask or r.cmd!='data': return False
+    self.send_raw(buf) # send data
+    r = self.recv_msg()
+    if not r or not r.ask or r.cmd!='rw': return False
+    return True
+
+  def cmd_slave_read(self):
+    """Receive data to an I2C slave.
+    An I2C session should have been started.
+    Return received data or False on error.
+    """
+    self.send_msg('<')
+    s = self._readline()
+    self.output_read(s)
+    if not s or s[0] != '<': return False
+    r = self.recv_msg()
+    if not r or not r.ask or r.cmd!='rw': return False
+    return s[1:]
+
+  def cmd_slave_stop(self):
+    """Ends an I2C session with a slave.
+    Return True on success, False on error.
+    """
+    self.send_msg('-')
+    r = self.recv_msg()
+    if not r or not r.ok: return False
     return True
 
 
@@ -239,7 +280,7 @@ class Roblochon(RobloClient):
   for a better (and safer) behavior.
 
   Attributes:
-    cmds -- supported commands (as a string)
+    features -- supported features (as a string)
     roid -- server's Rob'Otter ID
     pagesize -- server's page size
     response -- last received response, or None
@@ -347,6 +388,8 @@ class Roblochon(RobloClient):
     """
 
     self._assert_supported_cmd('p')
+    if 'C' not in self.features:
+      force = True  # cannot use CRC check
 
     if type(pages) in (str, buffer):
       pages = list(
@@ -365,7 +408,7 @@ class Roblochon(RobloClient):
       assert addr%self.pagesize == 0, "page address not aligned %s" % err_info
       assert len(data) == self.pagesize, "invalid page size %s" % err_info
 
-      crc = self.compute_crc(d) if force else False
+      crc = self.compute_crc(data) if not force else None
       n = self.CRC_RETRY
       while True:
         self.wait_prompt(False)
@@ -414,12 +457,12 @@ class Roblochon(RobloClient):
     self.wait_prompt()
     r = self.cmd_infos()
     if not r: raise RoblochonError("cannot retrieve device info")
-    self.cmds, self.roid, self.pagesize = r
+    self.features, self.roid, self.pagesize = r
     return r
 
   def clear_infos(self):
     """Clear cached device infos."""
-    self.cmds, self.roid, self.pagesize = None, None, None
+    self.features, self.roid, self.pagesize = None, None, None
 
 
   def read_fuses(self):
@@ -442,6 +485,11 @@ class Roblochon(RobloClient):
     if r is False:
       raise RoblochonError("boot failed")
     return
+
+
+  def slave_conn(self, addr):
+    """Return a SlaveConn for a slave of instance's device."""
+    return SlaveConn(self, addr)
 
 
   def diff_pages(self, data1, data2):
@@ -503,8 +551,8 @@ class Roblochon(RobloClient):
     return buffer(data)
 
   def _assert_supported_cmd(self, c):
-    if self.cmds is None: self.update_infos()
-    if c not in self.cmds:
+    if self.features is None: self.update_infos()
+    if c not in self.features:
       raise RoblochonError("command '%c' not supported by the device" % c)
 
 
@@ -523,6 +571,43 @@ class Roblochon(RobloClient):
     sys.stdout.flush()
   def output_program_end(self):
     sys.stdout.write("\n")
+
+
+class SlaveConn:
+  """Connection interface for I2C slaves.
+
+  Instances fill requirements of connection objects and can be used to
+  instantiate RobloClient instances.
+
+  Attributes:
+    master -- master RobloClient instance
+    addr -- I2C address
+
+  """
+
+  def __init__(self, master, addr):
+    self.master = master
+    self.addr = addr
+
+  def connect(self):
+    """Start an I2C session."""
+    self.master.wait_prompt()
+    if not self.master.cmd_slave_start(self.addr):
+      raise RoblochonError("failed to start I2C session")
+
+  def close(self):
+    """End an I2C session."""
+    self.master.cmd_slave_stop() # ignore errors
+
+  def readline(self):
+    ret = self.master.cmd_slave_read()
+    if ret is False:
+      raise RoblochonError("I2C read failed")
+    return ret
+
+  def write(self, data):
+    if not self.master.cmd_slave_write(data):
+      raise RoblochonError("I2C write failed")
 
 
 
@@ -600,112 +685,6 @@ class BasicSerial:
     termios.tcflush(self.fd, termios.TCIOFLUSH)
 
 
-class TermColor:
-
-  """ Terminal color codes """
-  normal = "\033[0m"
-  black = "\033[30m"
-  red = "\033[31m"
-  green = "\033[32m"
-  yellow = "\033[33m"
-  blue = "\033[34m"
-  purple = "\033[35m"
-  cyan = "\033[36m"
-  grey = "\033[37m"
-  bold = "\033[1m"
-  uline = "\033[4m"
-  blink = "\033[5m"
-  invert = "\033[7m"
-
-
-class BasicUIO:
-  """ Basic User I/O """
-
-  def __init__(self):
-    self.saveLocalTermios()
-    self.setLocalTermios()
-
-  def setColorSpecial(self):
-    sys.stderr.write("%s%s"%(TermColor.blue,TermColor.bold))
-
-  def setColorNormal(self):
-    sys.stderr.write("%s"%(TermColor.normal))
-
-  def showMenu(self,opts):
-    self.setColorSpecial()
-    sys.stderr.write(">> . | p ")
-    self.setColorNormal()
-
-    c = os.read(sys.stdin.fileno(), 1)
-
-    sys.stderr.write("\n")
-
-    # quit
-    if c == ".":
-      return 0
-
-    # program
-    elif c == "p":
-      return 1
-
-  def saveLocalTermios(self):
-    """ Save local termios
-    """
-    self.savetio_local = termios.tcgetattr(sys.stdout)
-
-  def restoreLocalTermios(self):
-    """ Restore local termios
-    """
-    termios.tcsetattr(sys.stdout, termios.TCSANOW, self.savetio_local)
-
-  def setLocalTermios(self):
-    """ Set local termios
-    """
-
-    # get current termios
-    tio = termios.tcgetattr(sys.stdout)
-
-    # do not translate carriage return to newline
-    tio[0] = tio[0] & ~termios.ICRNL
-
-    # various magic from tip
-    tio[3] = 0
-    tio[6][termios.VMIN] = 1
-    tio[6][termios.VTIME] = 0
-
-    # set new termios
-    termios.tcsetattr(sys.stdout, termios.TCSANOW, tio)
-
-
-
-def startBootloader():
-  print "bootloader waiting..."
-  client = Roblochon(conn, verbose=opts.verbose, init_send=opts.init_send)
-  client.update_infos()
-
-  if opts.roid is not None:
-    assert opts.roid == client.roid, "ROID mismatch"
-
-  if opts.infos:
-    print "device infos :  ROID: %d, commands: %s" % (client.roid, client.cmds)
-  if opts.fuses:
-    print "fuses (low high ex): %02x %02x %02x" % client.read_fuses()
-  if opts.program:
-    print "programming..."
-    ret = client.program(args[0], args[1] if len(args)>1 else None, opts.force)
-    if ret is None:
-      print "nothing to program"
-  if opts.check:
-    print "CRC check..."
-    if client.check(args[0]):
-      print "CRC OK"
-    else:
-      print "CRC mismatch"
-      opts.boot = False
-  if opts.boot:
-    print "boot"
-    client.boot()
-
 
 if __name__ == '__main__':
   from optparse import OptionParser
@@ -714,8 +693,6 @@ if __name__ == '__main__':
       description="Rob'Otter Bootloader Client",
       usage="%prog [OPTIONS] [file.hex] [previous.hex]",
       )
-  parser.add_option('-t', '--terminal', dest='terminal', action='store_true',
-      help="work as a serial terminal")
   parser.add_option('-p', '--program', dest='program', action='store_true',
       help="program the device")
   parser.add_option('-c', '--check', dest='check', action='store_true',
@@ -726,6 +703,8 @@ if __name__ == '__main__':
       help="print device infos")
   parser.add_option('-f', '--read-fuses', dest='fuses', action='store_true',
       help="print value of fuse bytes")
+  parser.add_option('--slave', dest='slave_addr', metavar='ADDR',
+      help="I2C address of a slave to communicate with")
   parser.add_option('--roid', dest='roid',
       help="check device ROID before doing anything")
   parser.add_option('--force', dest='force', action='store_true',
@@ -739,12 +718,12 @@ if __name__ == '__main__':
   parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
       help="print transferred data on stderr")
   parser.set_defaults(
-      terminal=False,
       program=False,
       check=False,
       boot=False,
       infos=False,
       fuses=False,
+      slave_addr=None,
       roid=None,
       force=False,
       init_send=None,
@@ -770,49 +749,41 @@ if __name__ == '__main__':
   # Connect to serial line and setup stdin/out
   conn = BasicSerial(opts.port, opts.baudrate)
 
-  # not in terminal mode, just run bootloader 
-  if opts.terminal == False :
-    startBootloader()
+  master = Roblochon(conn, verbose=opts.verbose, init_send=opts.init_send)
+  print "bootloader waiting..."
+  master.update_infos()
+
+  if opts.slave_addr is not None:
+    addr = int(opts.slave_addr, 0)
+    slave_conn = master.slave_conn(addr)
+    slave_conn.connect()
+    client = Roblochon(slave_conn)
+    print "slave bootloader waiting..."
+    client.update_infos()
   else:
-    uio = BasicUIO()
-    try:
-      # Main loop
-      while 1:
+    client = master
 
-        # wait for data in either stdin or serial line
-        rds,_,_ = select.select([conn.fd,sys.stdin],[],[])
+  if opts.roid is not None:
+    assert opts.roid == client.roid, "ROID mismatch"
 
-        # select was trigged by the serial line
-        # transfer bytes to stdout
-        if conn.fd in rds :
-          buffer = conn.read(1024)
-          os.write(sys.stdout.fileno(), buffer)
+  if opts.infos:
+    print "device infos :  ROID: %d, features: %s" % (client.roid, client.features)
+  if opts.fuses:
+    print "fuses (low high ex): %02x %02x %02x" % client.read_fuses()
+  if opts.program:
+    print "programming..."
+    ret = client.program(args[0], args[1] if len(args)>1 else None, opts.force)
+    if ret is None:
+      print "nothing to program"
+  if opts.check:
+    print "CRC check..."
+    if client.check(args[0]):
+      print "CRC OK"
+    else:
+      print "CRC mismatch"
+      opts.boot = False
+  if opts.boot:
+    print "boot"
+    client.boot()
 
-        # select was trigged by stdin
-        # transfer bytes to serial line
-        if sys.stdin in rds:
-          buffer = os.read(sys.stdin.fileno(), 1)
-
-          # bring up menu
-          if buffer == "^":
-            r = uio.showMenu(opts)
-
-            if r == 0:
-              break
-            elif r == 1:
-
-              # switch to special color
-              uio.setColorSpecial()
-
-              startBootloader()
-
-              # switch back to normal color
-              uio.setColorNormal()
-
-          else:
-            conn.write(buffer)
-
-    finally:
-      # Final cleanup
-      uio.restoreLocalTermios()
 

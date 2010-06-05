@@ -86,6 +86,13 @@ do {				     \
 #define IVCR MCUCR
 #endif
 
+
+// Check bootloader address.
+#if BOOTLOADER_ADDR < FLASHEND/2
+#error "Suspicious bootloader address; it should be given in bytes, not words."
+#endif
+
+
 /** @brief Type for memory addresses and sizes.
  *
  * The bootloader address is the highest possible address. (Another way could
@@ -244,9 +251,8 @@ static char uart_recv(void)
 #define I2C_NACK()   do{ TWCR=_BV(TWEN)|_BV(TWINT);            I2C_WAIT(); }while(0)
 #define I2CM_START() do{ TWCR=_BV(TWEN)|_BV(TWINT)|_BV(TWSTA); I2C_WAIT(); }while(0)
 #define I2CM_STOP()  do{ TWCR=_BV(TWEN)|_BV(TWINT)|_BV(TWSTO); while( TWCR & _BV(TWSTO) ) ; }while(0)
-#define I2CM_SEND(d)      do{ TWDR = (d); I2C_ACK();  }while(0)
-#define I2CS_SEND(d)      do{ TWDR = (d); I2C_ACK();  }while(0)
-#define I2CS_SEND_LAST(d) do{ TWDR = (d); I2C_NACK(); }while(0)
+#define I2C_SEND(d)      do{ TWDR = (d); I2C_ACK();  }while(0)
+#define I2C_SEND_LAST(d) do{ TWDR = (d); I2C_NACK(); }while(0)
 
 
 #ifdef ENABLE_I2C_SLAVE
@@ -264,7 +270,7 @@ static void i2cs_send(char c)
   while( TW_STATUS != TW_ST_SLA_ACK && TW_STATUS != TW_ST_DATA_ACK ) {
     I2C_ACK();
   }
-  I2CS_SEND(c);
+  I2C_SEND(c);
 }
 
 static char i2cs_recv(void)
@@ -495,13 +501,18 @@ static void send_hex16(uint16_t x)
 
 /** @brief Dump general infos
  *
- * The server replies with supported commands, its Rob'Otter ID and the value
+ * The server replies with supported features, its Rob'Otter ID and the value
  * of \e SPM_PAGESIZE.
+ * Supported features are:
+ *  - supported commands (lowercase letters)
+ *  - \c U if UART is enabled
+ *  - \c S if I2C (as slave) is enabled
+ *  - \c C if CRC check while programming is enabled
  *
  * Example:
 @verbatim
   C -> S   i
-  C <- S   inf ipxc 42 80
+  C <- S   inf ipxcCU 42 80
 @endverbatim
  */
 static int8_t cmd_infos(const char *p)
@@ -523,6 +534,18 @@ static int8_t cmd_infos(const char *p)
 #endif
 #ifndef DISABLE_FUSE_READ
       "f"
+#endif
+#ifdef ENABLE_I2C_MASTER
+      "s"
+#endif
+#ifndef DISABLE_PROG_CRC
+      "C"
+#endif
+#ifdef ENABLE_UART
+      "U"
+#endif
+#ifdef ENABLE_I2C_SLAVE
+      "S"
 #endif
       " ");
   send_hex8(ROID);
@@ -761,117 +784,166 @@ static int8_t cmd_fuse_read(const char *p)
 
 
 #ifdef ENABLE_I2C_MASTER
-/** @brief Send a message to an I2C slave.
+/** @brief Run a session an I2C slave.
  *
- * @todo Doc/specs.
+ * A session consists of several frames.
+ * For each frame, the client provides a direction (read, write or end, to
+ * stop the session) and data size (only for writes); then, data is
+ * transmitted.
+ * Read frames ends on CR characters (following LF are consumed) and are
+ * prefixed to not be confused for a server's reply (especially for prompts or
+ * KOs).
+ *
+ * The slave part is intended to be minimalistic. Therefore, it has a (very)
+ * lazy handling of I2C states. Especially, the master should not except NACK
+ * from it.
+ *
+ * Example:
+@verbatim
+  C -> S   s 54
+  C <- S   ?rw
+  C -> S   > 30
+  C <- S   ?data
+  C -> S   ... data (0x30 bytes) ...
+  C <- S   ?rw
+  C -> S   <
+  C <- S   <... data received from slave, ends with LF ...
+  C <- S   ?rw
+  C -> S   -
+  C <- S   ok
+@endverbatim
  */
 static int8_t cmd_slave_msg(const char *p)
 {
   uint8_t addr; // slave addr
-  //TODO parse uint16_t, not addr_type
+  //XXX parse appropriated type, not addr_type
   addr_type addr16; // variable for parsing
-  addr_type size;
 
 #ifndef DISABLE_STRICT_CHECKS
   if( *p != ' ' ) return -1;
   if( (p = parse_hex(p+1, &addr16)) == NULL ) return -1;
-  if( *p != ' ' ) return -1;
-  if( (p = parse_hex(p+1, &size)) == NULL ) return -1;
   if( *p != '\0' ) return -1;
   if( addr16 < 0x08 || addr16 >= 0x78 ) return -1; // check address range
 #else
   p = parse_hex(p+1, &addr16);
-  p = parse_hex(p+1, &size);
 #endif
   addr = addr16;
 
+  // configure I2C
   //XXX move it elswhere(?)
   TWBR = I2C_BITRATE;
   TWCR = _BV(TWEN)|_BV(TWINT);
-  if(I2C_PRESCALER & 1)
-    TWSR |= _BV(TWPS0);
-  if(I2C_PRESCALER & 2)
-    TWSR |= _BV(TWPS1);
+  if(I2C_PRESCALER & 1) TWSR |= _BV(TWPS0);
+  if(I2C_PRESCALER & 2) TWSR |= _BV(TWPS1);
 
-  // poll slave
+  // poll the slave
+  do I2CM_START(); while( TW_STATUS != TW_START );
+  I2C_SEND(addr<<1); // write
+  I2CM_STOP();
+
   for(;;) {
-    //TODO abort on uart input, or timeout
-    I2CM_START();
-#ifndef DISABLE_STRICT_CHECKS
-    if( TW_STATUS != TW_START )
-      return -1;
-#endif
-    // slave address + Write bit (0)
-    I2CM_SEND(addr<<1);
-    if( TW_STATUS == TW_MT_SLA_ACK )
-      break;
-#ifndef DISABLE_STRICT_CHECKS
-    if( TW_STATUS != TW_MT_SLA_NACK )
-      return -1;
-#endif
-    I2CM_STOP();
-  }
+    send_msg("?rw");
+    char rbuf[ROBLOS_BUF_SIZE];
+    recv_line(rbuf);
+    p = rbuf;
 
-  send_msg("?msg");
-
-  // send msg
-  uint16_t i;
-  for( i=0; i<size-1; i++ ) {
-    I2CM_SEND( proto_recv() );
+    if( *p == '-' ) {
+      // end of session
+      p++;
 #ifndef DISABLE_STRICT_CHECKS
-    if( TW_STATUS != TW_MT_DATA_ACK ) {
+      if( *p != '\0' ) return -1;
+      send_status_ok();
+      return 0;
+#endif
+
+    } else if( *p == '>' ) {
+      // write frame
+      //XXX parse uint16_t, not addr_type
+      p++;
+      addr_type size;
+#ifndef DISABLE_STRICT_CHECKS
+      if( *p != ' ' ) return -1;
+      if( (p = parse_hex(p+1, &size)) == NULL ) return -1;
+      if( size == 0 ) return -1;
+      if( *p != '\0' ) return -1;
+#else
+      p = parse_hex(p+1, &size);
+#endif
+      I2CM_START();
+#ifndef DISABLE_STRICT_CHECKS
+      if( TW_STATUS != TW_START )
+        return -1;
+#endif
+      // slave address + Write bit (0)
+      I2C_SEND(addr<<1);
+#ifndef DISABLE_STRICT_CHECKS
+      if( TW_STATUS == TW_MT_SLA_NACK ) {
+        I2CM_STOP();
+        return -1;
+      }
+      if( TW_STATUS != TW_MT_SLA_ACK )
+        return -1;
+#endif
+      // transfer data
+      send_msg("?data");
+      while( size-- != 1 ) {
+        I2C_SEND( proto_recv() );
+#ifndef DISABLE_STRICT_CHECKS
+        if( TW_STATUS != TW_MT_DATA_ACK ) {
+          I2CM_STOP();
+          return -1;
+        }
+#endif
+      }
+      I2C_SEND_LAST( proto_recv() );
+#ifndef DISABLE_STRICT_CHECKS
+      if( TW_STATUS != TW_MT_DATA_ACK && TW_STATUS != TW_MT_DATA_NACK ) {
+        I2CM_STOP();
+        return -1;
+      }
       I2CM_STOP();
+#endif
+
+    } else if( *p == '<' ) {
+      // read frame
+      p++;
+#ifndef DISABLE_STRICT_CHECKS
+      if( *p != '\0' ) return -1;
+#endif
+      I2CM_START();
+#ifndef DISABLE_STRICT_CHECKS
+      if( TW_STATUS != TW_START )
+        return -1;
+#endif
+      // slave address + Read bit (1)
+      I2C_SEND((addr<<1)+1);
+#ifndef DISABLE_STRICT_CHECKS
+      if( TW_STATUS != TW_MR_SLA_ACK && TW_STATUS != TW_MR_SLA_NACK ) {
+        I2CM_STOP();
+        return -1;
+      }
+#endif
+      proto_send('<');
+      for(;;) {
+        I2C_ACK();
+        char c = TWDR;
+        proto_send(c);
+        if( c == '\r' )
+          break;
+      }
+      I2C_NACK();
+#ifndef DISABLE_STRICT_CHECKS
+      if( TWDR != '\n' )
+        return -1;
+#endif
+      proto_send('\n');
+      I2CM_STOP();
+    } else {
       return -1;
     }
-#endif
-  }
-  I2CM_SEND( proto_recv() );
-#ifndef DISABLE_STRICT_CHECKS
-  if( TW_STATUS != TW_MT_DATA_NACK ) {
-    I2CM_STOP();
-    return -1;
-  }
-#endif
-
-  I2CM_STOP();
-
-  // request transmitted, shall we process a response?
-  int8_t yn = recv_yesno();
-  if( yn == 0 ) {
-    send_status_ok();
-    return 0;
-  } else if( yn != 1 ) {
-    return -1;
   }
 
-  // receive response
-  I2CM_START();
-#ifndef DISABLE_STRICT_CHECKS
-  if( TW_STATUS != TW_START )
-    return -1;
-#endif
-  // slave address + Read bit (1)
-  I2CM_SEND((addr<<1)+1);
-#ifndef DISABLE_STRICT_CHECKS
-  if( TW_STATUS == TW_MR_SLA_NACK ) {
-    I2CM_STOP();
-    return -1;
-  }
-  if( TW_STATUS != TW_MR_SLA_ACK )
-    return -1;
-#endif
-  for(;;) {
-    I2C_ACK();
-    char c = TWDR;
-    if( c == 0xff )
-      break;
-    proto_send(c);
-  }
-  I2C_NACK();
-  I2CM_STOP();
-  send_eol();
-
-  return 0;
+  return -1; // never reached
 }
 #endif
 
@@ -967,6 +1039,7 @@ int main(void)
         ret = cmd_fuse_read(rbuf+1);
 #endif
 #ifdef ENABLE_I2C_MASTER
+      //XXX should be allowed only in UART mode
       else if( *rbuf == 's' )
         ret = cmd_slave_msg(rbuf+1);
 #endif

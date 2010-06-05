@@ -688,8 +688,8 @@ class Blosh(cmd.Cmd):
     roid_style = ''
     if self.opts['check_roid'].val > -1:
       roid_style = 'ok' if self.bl.roid == self.opts['check_roid'].val else 'error'
-    print self.theme.fmt('{bold}ROID:{'+roid_style+'} 0x%02x (%d){}   {bold}commands:{} %s') % (
-        self.bl.roid, self.bl.roid, self.bl.cmds )
+    print self.theme.fmt('{bold}ROID:{'+roid_style+'} 0x%02x (%d){}   {bold}features:{} %s') % (
+        self.bl.roid, self.bl.roid, self.bl.features )
     try:
       fuses = self.bl.read_fuses()
       print self.theme.fmt('{bold}fuses (low high ex):{} %02x %02x %02x') % fuses
