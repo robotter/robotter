@@ -19,7 +19,7 @@
  *
  */
 
-#define TIMER0_ENABLED
+//#define TIMER0_ENABLED
 /* some archs have TIMER0A_ENABLED or TIMER0B_ENABLED */
 
 #define TIMER1_ENABLED

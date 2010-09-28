@@ -7,177 +7,67 @@
 #include <uart.h>
 #include <avr/interrupt.h>
 #include <math.h>
+#include <scheduler.h>
+#include "r3d2.h"
+#include "logging.h"
+#include "uart_communication.h"
 
 
-#define MOTOR_SPEED 2000
+// log level
+extern uint8_t log_level;
 
-#define REFLECTOR_SIZE 2.0
-
-// angle , and distance of the object (measured in timer ticks), period of the motor
-volatile uint16_t object_beginnig_detection, object_end_detection, motor_period;
-volatile uint8_t position_updated;
-uint16_t object_angle, object_duty_cycle;
-
-typedef enum {irq_low_level= 0x00, irq_any_change = 0x01, irq_falling_edge = 0x02, irq_rising_edge= 0x03} e_irq_sense;
-
-typedef enum
+void init_led(void)
 {
-  OTTER_1 = 0,
-  OTTER_2,
-  OTTER_3
-}otter_t;
-
-// int0 initialisation (mirror)
-void int0_init(void)
-{
-    // int0 generates interrupt on falling edge of input signal
-    MCUCR |= (irq_falling_edge << ISC00);
-    
-    // enable interrupt
-    sbi(GICR, INT0);
-    
-    // clear previous interrupt
-    sbi(GIFR, INTF0);
-}
-
-
-ISR(INT0_vect)
-{
-    //uart_send(0, 'm'); 
-    motor_period = timer1_get();
-    timer1_set(0);
-
-	// initialise data to know when it has been updated
-    object_beginnig_detection = 0xFFFF;
-    object_end_detection = 0xFFFF;
-}
-
-// int1 initialisation (sick sensor)
-void int1_init(void)
-{
-    // int0 generates interrupt on rising edge of input signal
-    MCUCR |= (irq_rising_edge << ISC10 );
-    
-    // enable interrupt
-    sbi(GICR, INT1);
-    
-    // clear previous interrupt
-    sbi(GIFR, INTF1);
-}
-
-
-ISR(INT1_vect)
-{
-    uint16_t timer_value = timer1_get();
-    
-    if(!bit_is_set(MCUCR, ISC10))
-    {
-        //MCUCR |= (irq_rising_edge << ISC10 );
-        //MCUCR &= ~(irq_rising_edge << ISC10 );
-        object_end_detection= timer_value;
-        //uart_send(0, 'A');
-        sbi(MCUCR, ISC10);
-        position_updated ++;
-    }
-    else
-    {
-        //MCUCR |= (irq_falling_edge << ISC10 );
-        //MCUCR &= ~(irq_falling_edge << ISC10 );
-        cbi(MCUCR, ISC10);
-        object_beginnig_detection = timer_value;
-        //uart_send(0, 'B');
-    }
-}
-
-
-void init_mirror(void)
-{
-    motor_period = 0;
-    int0_init();
-}
-
-void init_sensor(void)
-{
-    	object_angle = 0xFFFF;
-    	object_duty_cycle = 0xFFFF;
-    	int1_init();
-
-	sbi(DDRB,1);
-	sbi(PORTB,1);
-}
-
-double convert_timer_ticks_to_rpm(uint16_t timer_ticks)
-{
-	return ((double)((F_CPU*60)/TIMER1_PRESCALER_DIV)/(double)timer_ticks);
-}
-
-double convert_timers_ticks_to_angle(uint16_t angle, uint16_t motor_period)
-{
-	 return (((double)angle *360)/(double)motor_period);
-}
-
-void motor_init(void)
-{
-	// direction	
-	sbi(DDRD, 4);
-	sbi(DDRD, 4);
-
-	// brake	
-	sbi(DDRD, 5);
-	sbi(PORTD, 5);
+	DDRA = 0xFF;
 }
 
 int main(void)
 {
-	struct pwm_ng pwm;
-	double f_an, f_dc, f_object_distance;
-	
+	//wait_ms(3000); /// XXX hack to give time to the person that tests the system to take a cofee
 	uart_init();
+	uart_com_init();
+	fdevopen(uart0_dev_send, uart0_dev_recv);
 	
-	timer_init();
+	//--------------------------------------------------------
+  // Error configuration
+  error_register_emerg(log_event);
+  error_register_error(log_event);
+  error_register_warning(log_event);
+  error_register_notice(log_event);
+  error_register_debug(log_event);
+
+  log_level = ERROR_SEVERITY_NOTICE;
+  log_level = ERROR_SEVERITY_DEBUG;
 
 	sei();
-	
-	// initialise H bridge
-	motor_init();
-	
-	// initialise sensor
-	init_sensor();
-	
-	init_mirror();
+	printf("%c[2J",0x1B);
+  printf("%c[0;0H",0x1B);
+  printf("Robotter 2011 - Galipeur - R3D2-2K10");
+  printf("Compiled "__DATE__" at "__TIME__".");
 
-	fdevopen(uart0_dev_send, uart0_dev_recv);
+	//NOTICE(0,"Initializing r3d2");
+	r3d2_init();
 
-	DDRA = 0xFF;        
-
-	PWM_NG_TIMER_8BITS_INIT(2, TIMER_8_MODE_PWM, 
-        	                 TIMER1_PRESCALER_DIV_256);
-        
-        PWM_NG_INIT8(&pwm, 2, 12, PWM_NG_MODE_NORMAL, NULL, 0); 
-
-	//----------------------------
+	//NOTICE(0,"Initializing leds");
+	init_led();  
 	
+	//NOTICE(0,"Initializing scheduler");
+	scheduler_init();
+
+  scheduler_add_periodical_event_priority(&r3d2_monitor, NULL,
+                                            300,
+                                            50);	
+	
+	scheduler_add_periodical_event_priority(&send_periodic_position_msg, NULL,
+                                            1000,
+                                           60);	
+		
 	PORTA = ~(0x55);
-	pwm_ng_set(&pwm, MOTOR_SPEED);
 	
-	timer1_start();
-	
+	NOTICE(0,"Strike '?' for help");
+
 	while (1)	
-	{		
-		// wait until new position
-		while(position_updated ==0);// <= 3);
-	    	object_duty_cycle = object_end_detection - object_beginnig_detection;
-    		object_angle = object_beginnig_detection + object_duty_cycle/2;
-
-		f_an = (((float)object_angle)*360)/motor_period;
-		f_dc = (((float)object_duty_cycle)*360)/motor_period;
-		f_object_distance = REFLECTOR_SIZE/(2 * tan((f_dc/2)*M_PI/180));
-
-		printf("angle : %4.2f \t| duty cycle %4.2f\t| motor period %3.2f | dist %3.2f\n", f_an,f_dc , convert_timer_ticks_to_rpm( motor_period), f_object_distance);//, motor_period, object_duty_cycle, object_angle);
-	
-		position_updated = 0;
-	
-		// led must blink
-		PORTA = ~ PORTA;
+	{	
+		uart_com_monitor();
 	}
 }
