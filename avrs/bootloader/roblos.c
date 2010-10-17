@@ -636,7 +636,7 @@ static int8_t cmd_prog_page(const char *p)
   boot_page_erase(addr);
   boot_spm_busy_wait();
 
-  // Read data from UART and compute CRC
+  // Read data from UART and fill temporary page buffer
   for( i=0; i<SPM_PAGESIZE; i+=2 )
   {
     char c1 = proto_recv();

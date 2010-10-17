@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import re, sys, select
+import re, sys, time
 
 
 class RobloClient:
@@ -325,6 +325,7 @@ class Roblochon(RobloClient):
     if self.response is None:
       # unknown state, read all we can
       if self._eof is not None:
+        time.sleep(0.1) # wait for any incoming data
         while not self._eof():
           r = self.recv_msg()
           if r is False: raise RoblochonError("recv_msg failed")
