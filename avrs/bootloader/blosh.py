@@ -109,7 +109,7 @@ class ShellOptInt(ShellOption):
 
 def ShellOptEnum(*opt_choices):
   class cls(ShellOption):
-    choices = tuple( x.upper() for x in opt_choices )
+    choices = set( x.upper() for x in opt_choices )
     def set(self, val):
       v = val.upper()
       if v not in self.choices:
@@ -621,7 +621,7 @@ class Blosh(cmd.Cmd):
 
   def execute(self, f):
     """Execute a file or a string."""
-    if type(f) is str:
+    if isinstance(f, basestring):
       f = f.strip()+'\n'
       f = StringIO.StringIO(f)
     bak = self.prompt, self.use_rawinput, self.stdin
@@ -770,12 +770,10 @@ class Blosh(cmd.Cmd):
   # arrange _help_topics to have (cmd, brief, desc) values
   d = {}
   for k,v in _help_topics.items():
-    if type(v) is tuple:
+    if isinstance(v, tuple):
       v = list(v)
-    elif type(v) is not list:
+    elif not isinstance(v, list):
       v = [v]
-    if type(v) is not list:
-      v = list(v)
     if len(v) == 1:
       v = [k, v[0], None]
     elif len(v) == 2:

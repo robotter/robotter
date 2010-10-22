@@ -57,7 +57,7 @@ class RobloClient:
     """
     l = []
     for a in args:
-      if type(a) is int:
+      if isinstance(a, int):
         a = '%x' % a
       l.append(a)
     self.send_raw(' '.join(l) + self.EOL)
@@ -328,7 +328,8 @@ class Roblochon(RobloClient):
         time.sleep(0.1) # wait for any incoming data
         while not self._eof():
           r = self.recv_msg()
-          if r is False: raise RoblochonError("recv_msg failed")
+          if r is False:
+            raise RoblochonError("recv_msg failed")
       self.response = None  # reset current state, again
     elif self.response and self.response.prompt:
       return # we already have a prompt
@@ -339,7 +340,8 @@ class Roblochon(RobloClient):
       if self.response is None or self.response.ask:
         self.send_msg('')  # force KO or prompt
       r = self.recv_msg()
-      if r is False: raise RoblochonError("recv_msg failed")
+      if r is False:
+        raise RoblochonError("recv_msg failed")
       if prev and prev.prompt and r.prompt: break
       prev = r
 
@@ -356,19 +358,21 @@ class Roblochon(RobloClient):
 
     """
 
-    if type(fhex) is buffer:
+    if isinstance(fhex, buffer):
       data = fhex
     else:
       data = self.parse_hex_file(fhex)
-    if len(data) == 0: raise ValueError("empty HEX data")
+    if len(data) == 0:
+      raise ValueError("empty HEX data")
     if fhex2 is None:
       return self.program_pages(data, force)
 
-    if type(fhex2) is buffer:
+    if isinstance(fhex, buffer):
       data2 = fhex2
     else:
       data2 = self.parse_hex_file(fhex2)
-    if len(data2) == 0: raise ValueError("empty previous HEX data")
+    if len(data2) == 0:
+      raise ValueError("empty previous HEX data")
     
     return self.program_pages(self.diff_pages(data, data2), force)
 
@@ -392,11 +396,11 @@ class Roblochon(RobloClient):
     if 'C' not in self.features:
       force = True  # cannot use CRC check
 
-    if type(pages) in (str, buffer):
-      pages = list(
+    if isinstance(pages, (basestring, buffer)):
+      pages = [
           (i, pages[i:i+self.pagesize])
-          for i in range(0, len(pages) ,self.pagesize)
-          )
+          for i in range(0, len(pages), self.pagesize)
+          ]
     page_count = len(pages)
     if page_count == 0:
       return None
@@ -439,7 +443,7 @@ class Roblochon(RobloClient):
     """
 
     self._assert_supported_cmd('c')
-    if type(fhex) is buffer:
+    if isinstance(fhex, buffer):
       data = fhex
     else:
       data = self.parse_hex_file(fhex)
@@ -457,7 +461,8 @@ class Roblochon(RobloClient):
     """Get device infos, update associated attributes."""
     self.wait_prompt()
     r = self.cmd_infos()
-    if not r: raise RoblochonError("cannot retrieve device info")
+    if not r:
+      raise RoblochonError("cannot retrieve device info")
     self.features, self.roid, self.pagesize = r
     return r
 
@@ -513,7 +518,7 @@ class Roblochon(RobloClient):
 
     Note: returned value is a buffer object, not a string.
     """
-    if type(f) is str:
+    if isinstance(f, basestring):
       f = open(f, 'rb')
 
     data = ''
