@@ -91,7 +91,7 @@ typedef struct
 } adns9500_configuration_t;
 
 /// Behaviour modes
-typedef enum 
+typedef enum
 {
   ADNS9500_BHVR_MODE_UC_DRIVEN = 0,
   ADNS9500_BHVR_MODE_AUTOMATIC
@@ -110,7 +110,7 @@ uint8_t adns9500_boot(adns9500_configuration_t*);
  */
 uint8_t adns9500_checks(void);
 
-/// Change behaviour mode 
+/// Change behaviour mode
 void adns9500_setMode(adns9500_behaviour_t);
 
 /** @brief Set reset on all ADNS
@@ -124,7 +124,7 @@ void adns9500_setReset(uint8_t value);
 void adns9500_uploadFirmware(uint8_t adns_i);
 
 /** @brief Compute atmega FLASH firmware CRC
- * @return computed firmware CRC 
+ * @return computed firmware CRC
  */
 uint8_t adns9500_computeFirmwareCRC(void);
 
@@ -132,7 +132,7 @@ uint8_t adns9500_computeFirmwareCRC(void);
  * @retval 0 check fail
  * @retval 1 check pass
  */
-uint8_t adns9500_checkFirmware(void);  
+uint8_t adns9500_checkFirmware(void);
 
 /** @brief Check SPI communication between ATMEGA and ADNS9500
  * @return error code

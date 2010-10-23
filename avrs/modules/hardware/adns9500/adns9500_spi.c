@@ -43,7 +43,7 @@ uint8_t adns9500_spi_sendrecv(uint8_t send)
   IRQ_LOCK(flags);
 
   while( bit_is_set(ADNS9500_SPI_CTRL,ADNS9500_SPICTRL_BIT_BUSY) );
-  
+
   // Drive senddata low to initiate SPI communication
   cbi(ADNS9500_SPI_CTRL, ADNS9500_SPICTRL_BIT_SENDDATA);
 
