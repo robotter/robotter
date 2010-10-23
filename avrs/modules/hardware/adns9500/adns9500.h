@@ -27,14 +27,13 @@
 
 #include "adns9500_fpga.h"
 #include "adns9500_timings.h"
-#include "adns9500_returns.h"
 
 
 /// ADNS9500 error code
 #define ADNS9500_ERROR 0x10
 
 /// Number of ADNS
-#define ADNS9500_NUM 1 // XXX must be 3 when used in normal mode (not debug)
+#define ADNS9500_NUM 1 //XXX:debug 3
 
 // Vectors
 #define ADNS9500_VX1 0
@@ -100,23 +99,17 @@ typedef enum
 /// Initialize ADNS9500
 void adns9500_init(void);
 
-/** @brief Launch ADNS9500s boot sequence
- * @return error code
- */
-uint8_t adns9500_boot(adns9500_configuration_t*);
+/// Launch ADNS9500s boot sequence
+void adns9500_boot(adns9500_configuration_t*);
 
-/** @brief Check ADNS9500s for GO
- * @return error code
- */
-uint8_t adns9500_checks(void);
+/// Check ADNS9500s for GO
+void adns9500_checks(void);
 
 /// Change behaviour mode
 void adns9500_setMode(adns9500_behaviour_t);
 
-/** @brief Set reset on all ADNS
- * @param value 0 - reset low / others - reset high
- */
-void adns9500_setReset(uint8_t value);
+/// Do a power up reset on an ADNS9500.
+void adns9500_reset(uint8_t adns_i);
 
 /** @brief Upload firmware to an ADNS9500
  * @param adns_i ADNS to load

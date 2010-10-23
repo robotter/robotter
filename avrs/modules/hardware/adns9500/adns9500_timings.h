@@ -19,7 +19,7 @@
 /** @file
  * @author JD
  * @brief ADNS9500 SPI timings
- * @note All timings shall be specified in microseconds (us)
+ * @note All timings must be specified in microseconds (us)
  */
 
 #ifndef ADNS9500_TIMINGS_H
@@ -27,7 +27,7 @@
 
 
 /// Internal CRC computation time
-#define ADNS9500_TIMINGS_CRC_DELAY 8000
+#define ADNS9500_TIMINGS_CRC_DELAY 10000
 
 /// Frame maximum period
 #define ADNS9500_TIMINGS_FRAME_PERIOD 150
@@ -35,8 +35,8 @@
 /// RESET pulse width
 #define ADNS9500_TIMINGS_PWRESET 10
 
-/// RESET pulse width
-#define ADNS9500_TIMINGS_SPICMDRESET 50
+/// Delay after RESET command
+#define ADNS9500_TIMINGS_SPICMDRESET 50000
 
 /// SPI read - address delay
 #define ADNS9500_TIMINGS_SRAD 50
@@ -50,11 +50,14 @@
 /// SPI time between write and read commands
 #define ADNS9500_TIMINGS_SWR 50
 
+/// SPI, NCS to SCLK active/inactive
+#define ADNS9500_TIMINGS_NCS_SCLK 1
+
 /// ADNS PROM download and frame capture byte-to-byte delay
 #define ADNS9500_TIMINGS_LOAD 15
 
 /// Time to drive NCS high in order to exit burst mode
-#define ADNS9500_TIMINGS_BEXIT 4
+#define ADNS9500_TIMINGS_BEXIT 1
 
 /// Time from VDD = 3.0V to RESET sampled
 #define ADNS9500_TIMINGS_OP 250
@@ -63,7 +66,7 @@
 #define ADNS9500_TIMINGS_INRST 550
 
 /// Time between firmware download end and first access
-#define ADNS9500_TIMINGS_FIRMWEND 100
+#define ADNS9500_TIMINGS_FIRMWEND 160
 
 
 #endif/*ADNS9500_TIMINGS_H*/

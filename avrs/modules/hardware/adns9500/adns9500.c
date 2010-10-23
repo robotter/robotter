@@ -41,101 +41,36 @@ void adns9500_init()
   // Default configuration
   ADNS9500_LOCK = 0;
   ADNS9500_ENABLE = 0;
-
-  wait_ms(100); // wait until 3V3 is stable
-
-  for(uint8_t it=1; it<=ADNS9500_NUM; it++)
-  {
-    DEBUG(ADNS9500_ERROR,"Performing reset of ADNS %u",it);
-
-    _delay_us(ADNS9500_TIMINGS_PWRESET);
-    // Set CS inactive
-    adns9500_spi_cs(0);
-
-    //_delay_us(ADNS9500_TIMINGS_PWRESET);
-    wait_ms(1);
-
-    // Set CS to current ADNS
-    adns9500_spi_cs(it);
-
-    // perform reset on all adns during pw-reset
-    _delay_us(ADNS9500_TIMINGS_PWRESET);
-    // Set CS inactive
-    adns9500_spi_cs(0);
-
-    _delay_us(1);
-    adns9500_spi_cs(it);
-    // Wait NCS-SCLK
-    _delay_us(1);
-
-    adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_POWERUPRESET);
-    adns9500_spi_send(ADNS9500_POWERUPRESET_RESET);
-
-    // Set CS inactive
-    adns9500_spi_cs(0);
-
-    wait_ms(50);//ADNS9500_TIMINGS_SPICMDRESET);
-
-  }
-  return;
 }
 
 
-uint8_t adns9500_boot(adns9500_configuration_t* config)
+void adns9500_boot(adns9500_configuration_t* config)
 {
   uint8_t byte,hbyte,lbyte,lpcfg;
-  uint8_t it;
+  uint8_t adns_i;
 
   // Wait OP + IN-RST for ADNS GO
   _delay_us(ADNS9500_TIMINGS_OP + ADNS9500_TIMINGS_INRST);
 
   // For each ADNS
-  for(it=1;it<=ADNS9500_NUM;it++)
+  for(adns_i=1;adns_i<=ADNS9500_NUM;adns_i++)
   {
-
     //------------------------------------------------
     // Perform reset on current ADNS
     //------------------------------------------------
 
     DEBUG(ADNS9500_ERROR,"Performing reset of ADNS");
 
-    _delay_us(ADNS9500_TIMINGS_PWRESET);
-    // Set CS inactive
-    adns9500_spi_cs(0);
-
-    _delay_us(ADNS9500_TIMINGS_PWRESET);
-    // Set CS to current ADNS
-    adns9500_spi_cs(it);
-
-    // perform reset on all adns during pw-reset
-    _delay_us(ADNS9500_TIMINGS_PWRESET);
-    // Set CS inactive
-    adns9500_spi_cs(0);
-
-    _delay_us(1);
-    adns9500_spi_cs(it);
-    // Wait NCS-SCLK
-    _delay_us(1);
-
-    adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_POWERUPRESET);
-    adns9500_spi_send(ADNS9500_POWERUPRESET_RESET);
-
-    // Set CS inactive
-    adns9500_spi_cs(0);
-
-    wait_ms(50);//ADNS9500_TIMINGS_SPICMDRESET);
+    adns9500_setReset(adns_i);
 
     // read register from 0x02 to 0x06
-    for (uint8_t reg_it = ADNS9500_SPIREGISTER_MOTION; reg_it <= ADNS9500_SPIREGISTER_DELTAYH; reg_it ++)
+    adns9500_spi_cs(adns_i);
+    _delay_us(ADNS9500_TIMINGS_NCS_SCLK);
+    uint8_t reg_it;
+    for(reg_it=0x02; reg_it<=0x06; reg_it++)
     {
-      adns9500_spi_cs(it);
-      // Wait NCS-SCLK
-      _delay_us(1);
       adns9500_spi_send(reg_it);
       adns9500_spi_recv();
-      // Set CS inactive
-      adns9500_spi_cs(0);
-
       _delay_us(ADNS9500_TIMINGS_SRWSRR);
     }
 
@@ -143,74 +78,61 @@ uint8_t adns9500_boot(adns9500_configuration_t* config)
     // Load FIRMWARE on current ADNS
     //------------------------------------------------
 
-    DEBUG(ADNS9500_ERROR,"Uploading firmware on ADNS9500 #%d",it);
-    adns9500_uploadFirmware(it);
+    DEBUG(ADNS9500_ERROR,"Uploading firmware on ADNS9500 #%u",adns_i);
+    adns9500_uploadFirmware(adns_i);
 
     //------------------------------------------------
     // Check firmware on ADNS
     //------------------------------------------------
 
-    // Set CS to current ADNS
-    adns9500_spi_cs(it);
-    // Wait NCS-SCLK
-    _delay_us(1);
+    adns9500_spi_cs(adns_i);
+    _delay_us(ADNS9500_TIMINGS_NCS_SCLK);
 
     // Read SROMID register
     adns9500_spi_send(ADNS9500_SPIREGISTER_SROMID);
     _delay_us(ADNS9500_TIMINGS_SRAD);
     byte = adns9500_spi_recv();
+    _delay_us(ADNS9500_TIMINGS_SRWSRR);
 
-    DEBUG(ADNS9500_ERROR,"ADNS9500 #%d SROM register=0x%02X",it,byte);
+    DEBUG(ADNS9500_ERROR, "ADNS9500 #%u SROM register=0x%02X", adns_i, byte);
 
     // Check if SROMID is the expected value
     if( byte != ADNS9500_FIRMWARE_ID )
     {
-      // Set CS inactive
       adns9500_spi_cs(0);
-
-      // Throw error
-      ERROR(ADNS9500_ERROR,"ADNS9500 #%d : SROMID doesn't match firmware ID",it);
+      ERROR(ADNS9500_ERROR, "ADNS9500 #%u : SROMID doesn't match firmware ID", adns_i);
     }
 
     //------------------------------------------------
     // Perform ADNS firmware CRC computation
     //------------------------------------------------
 
-    // delay read-write
-    _delay_us(ADNS9500_TIMINGS_SRWSRR);
-
     // Start firmware SROM CRC test
     adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_SROMENABLE);
     adns9500_spi_send(ADNS9500_SROMENABLE_CRC);
+    wait_ms(ADNS9500_TIMINGS_CRC_DELAY/1000);
 
-    // Wait for CRC to be completed
-    //_delay_us(ADNS9500_TIMINGS_CRC_DELAY);
-    wait_ms(10);
-
-    // Read CRC LO vlaue
+    // Read CRC LO value
     adns9500_spi_send(ADNS9500_SPIREGISTER_DOUTLOW);
     _delay_us(ADNS9500_TIMINGS_SRAD);
     lbyte = adns9500_spi_recv();
-
-    // delay read-read
     _delay_us(ADNS9500_TIMINGS_SRWSRR);
 
     // Read CRC HI value
     adns9500_spi_send(ADNS9500_SPIREGISTER_DOUTHI);
     _delay_us(ADNS9500_TIMINGS_SRAD);
     hbyte = adns9500_spi_recv();
+    _delay_us(ADNS9500_TIMINGS_SRWSRR);
 
-    DEBUG(ADNS9500_ERROR,"ADNS9500 #%d SROM CRC hbyte=0x%X lbyte=0x%X",it,hbyte,lbyte);
+    DEBUG(ADNS9500_ERROR, "ADNS9500 #%u SROM CRC lo=0x%02X hi=0x%02X", adns_i, hbyte, lbyte);
 
     // Check CRC value
-    if( !((lbyte == ADNS9500_FIRMWARE_CRCLO)
-       && (hbyte == ADNS9500_FIRMWARE_CRCHI) ))
+    if( lbyte != ADNS9500_FIRMWARE_CRCLO || hbyte != ADNS9500_FIRMWARE_CRCHI )
     {
-      // Set CS inactive
       adns9500_spi_cs(0);
       ERROR(ADNS9500_ERROR,
-            "ADNS9500 #%d : firmware CRC fail, lo=0x%X hi=0x%X",
-            it, lbyte, hbyte);
+            "ADNS9500 #%u : firmware CRC fail, got lo=0x%02X hi=0x%02X",
+            adns_i, lbyte, hbyte);
     }
 
     //------------------------------------------------
@@ -218,161 +140,29 @@ uint8_t adns9500_boot(adns9500_configuration_t* config)
     //------------------------------------------------
     _delay_us(ADNS9500_TIMINGS_SRWSRR);
 
-    adns9500_spi_cs(it);
+    adns9500_spi_cs(adns_i);
     // Read register current value
     adns9500_spi_send(ADNS9500_SPIREGISTER_LASERCTRL0);
     _delay_us(ADNS9500_TIMINGS_SRAD);
     byte = adns9500_spi_recv();
-    adns9500_spi_cs(0);
     _delay_us(ADNS9500_TIMINGS_SRWSRR);
 
-    DEBUG(ADNS9500_ERROR,"ADNS9500 #%d laser ctrl 0 register %02X",it,byte);
+    DEBUG(ADNS9500_ERROR,"ADNS9500 #%u laser ctrl 0 register %02X",adns_i,byte);
 
-    adns9500_spi_cs(it);
-    _delay_us(1);
-
-    // Write value to register
+    // Enable laser, set FORCE_DISABLE bit (bit-0) to 0
     adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_LASERCTRL0);
     adns9500_spi_send(byte&0xFE);
-
-    adns9500_spi_cs(0);
-
     _delay_us(ADNS9500_TIMINGS_SRWSRR);
 
-    adns9500_spi_cs(it);
-
-    // Read register current value
+    // Set resolution to the maximum value
     adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_CONFIGURATION1);
-    adns9500_spi_send(0x38);
-    adns9500_spi_cs(0);
-    _delay_us(ADNS9500_TIMINGS_SRWSRR);
-
-    //-------------------------------
-    // Load Configuration register
-
-    #if 0
-    // delay read-read
-    _delay_us(ADNS9500_TIMINGS_SRWSRR);
-
-    // Read register current value
-    adns9500_spi_send(ADNS9500_SPIREGISTER_CONFIGURATION);
-    _delay_us(ADNS9500_TIMINGS_SRAD);
-    byte = adns9500_spi_recv();
-
-    DEBUG(ADNS9500_ERROR,"ADNS9500 #%d configuration=0x%X",it,byte);
-
-    // Set laser shutter
-    if(config->shutter == ADNS9500_SHUTTER_ON)
-      sbi(byte,ADNS9500_CONFIGURATION_BIT_SHUTTER);
-    else
-      cbi(byte,ADNS9500_CONFIGURATION_BIT_SHUTTER);
-
-    // Set resolution
-    switch(config->res)
-    {
-      case ADNS9500_RES_400:
-        cbi(byte,ADNS9500_CONFIGURATION_BIT_RES1);
-        cbi(byte,ADNS9500_CONFIGURATION_BIT_RES0);
-        break;
-
-      case ADNS9500_RES_800:
-        sbi(byte,ADNS9500_CONFIGURATION_BIT_RES1);
-        cbi(byte,ADNS9500_CONFIGURATION_BIT_RES0);
-        break;
-
-      case ADNS9500_RES_1600:
-        cbi(byte,ADNS9500_CONFIGURATION_BIT_RES1);
-        sbi(byte,ADNS9500_CONFIGURATION_BIT_RES0);
-        break;
-
-      case ADNS9500_RES_2000:
-        sbi(byte,ADNS9500_CONFIGURATION_BIT_RES1);
-        sbi(byte,ADNS9500_CONFIGURATION_BIT_RES0);
-        break;
-
-      default:
-        adns9500_spi_cs(0);
-        ERROR(ADNS9500_ERROR,"ADNS9500 #%d : bad resolution configuration",it);
-    }
-
-    // Constant bits in register
-    sbi(byte,ADNS9500_CONFIGURATION2_BIT_ONE);
-
-    // delay read-write
-    _delay_us(ADNS9500_TIMINGS_SRWSRR);
-
-    // Write value to register
-    adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_CONFIGURATION);
-    adns9500_spi_send(byte);
-
-    //-------------------------------
-    // Load ConfigurationII register
-
-    DEBUG(ADNS9500_ERROR,"ADNS9500 #%d loading configurationII register",it);
-
-    // delay write-read
-    _delay_us(ADNS9500_TIMINGS_SWR);
-
-    // Read register current value
-    adns9500_spi_send(ADNS9500_SPIREGISTER_CONFIGURATION2);
-    _delay_us(ADNS9500_TIMINGS_SRAD);
-    byte = adns9500_spi_recv();
-
-    // LASER_NEN functions as normal
-    cbi(byte,ADNS9500_CONFIGURATION2_BIT_FORCEDISABLE);
-
-    // Constant bits in register
-    sbi(byte,ADNS9500_CONFIGURATION2_BIT_ONE);
-
-    // delay read-write
-    _delay_us(ADNS9500_TIMINGS_SRWSRR);
-
-    // Write value to register
-    adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_CONFIGURATION2);
-    adns9500_spi_send(byte);
-
-    //-------------------------------
-    // Set LASER power / load LP_CFG0 register
-
-    // bit7/Match shall be set to 0
-    lpcfg = (config->power) & 0x7F;
-
-    // LP_CFG1 shall be LP_CFG0 complement
-    byte = ~lpcfg;
-
-    DEBUG(ADNS9500_ERROR,"ADNS9500 #%d setting LPCFG0 register",it);
-
-    // delay write-write
-    _delay_us(ADNS9500_TIMINGS_SWW);
-    // Write value to register
-    adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_LPCFG0);
-    adns9500_spi_send(lpcfg);
-
-    //------------------------------
-    // Set LASER power / load LP_CFG1 register
-
-    DEBUG(ADNS9500_ERROR,"ADNS9500 #%d setting LPCFG1 register",it);
-
-    // delay write-write
-    _delay_us(ADNS9500_TIMINGS_SWW);
-    // Write value to register
-    adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_LPCFG1);
-    adns9500_spi_send(byte);
-
-    //-------------------------------
-    // Good to GO !
-
-    // Set CS inactive
-    adns9500_spi_cs(0);
-    #endif
+    adns9500_spi_send(ADNS9500_CONFIGURATION1_RESMAX);
   }
 
   // Wait maximum delay (a frame period) in case we've got
   // a command immediatly after this function.
   _delay_us(ADNS9500_TIMINGS_FRAME_PERIOD);
   _delay_us(ADNS9500_TIMINGS_FRAME_PERIOD);
-
-  return ADNS9500_RV_OK;
 }
 
 
@@ -386,8 +176,7 @@ uint8_t adns9500_checks()
   {
     // Set current ADNS CS active
     adns9500_spi_cs(it);
-    // Wait NCS-SCLK
-    _delay_us(1);
+    _delay_us(ADNS9500_TIMINGS_NCS_SCLK);
 
     //-------------------------------
     // Read Motion register
@@ -397,14 +186,14 @@ uint8_t adns9500_checks()
     _delay_us(ADNS9500_TIMINGS_SRAD);
     byte = adns9500_spi_recv();
 
-    DEBUG(ADNS9500_ERROR,"ADNS9500 #%d motion=0x%X",it,byte);
+    DEBUG(ADNS9500_ERROR,"ADNS9500 #%u motion=0x%X",it,byte);
 
     // Check if ADNS is Fault, if true, error.
     if( bit_is_set(byte,ADNS9500_MOTION_BIT_FAULT) )
     {
       adns9500_spi_cs(0);
       ERROR(ADNS9500_ERROR,
-              "ADNS9500 #%d : ADNS is fault, motion=0x%X",
+              "ADNS9500 #%u : ADNS is fault, motion=0x%X",
               it,byte);
     }
 
@@ -413,7 +202,7 @@ uint8_t adns9500_checks()
     {
       adns9500_spi_cs(0);
       ERROR(ADNS9500_ERROR,
-              "ADNS9500 #%d : LP_CFG* inconsistent, motion=0x%X",
+              "ADNS9500 #%u : LP_CFG* inconsistent, motion=0x%X",
               it,byte);
     }
 
@@ -437,14 +226,14 @@ uint8_t adns9500_checks()
     _delay_us(ADNS9500_TIMINGS_SRAD);
     byte = adns9500_spi_recv();
 
-    DEBUG(ADNS9500_ERROR,"ADNS9500 #%d observation=0x%X",it,byte);
+    DEBUG(ADNS9500_ERROR,"ADNS9500 #%u observation=0x%X",it,byte);
 
     // Check if ADNS is running on SROM code, if not, error.
     if( !bit_is_set(byte,ADNS9500_OBSERVATION_BIT_OB7) )
     {
       adns9500_spi_cs(0);
       ERROR(ADNS9500_ERROR,
-              "ADNS9500 #%d : ADNS is not running on SROM code, observation=0x%X",
+              "ADNS9500 #%u : ADNS is not running on SROM code, observation=0x%X",
               it,byte);
     }
 
@@ -453,7 +242,7 @@ uint8_t adns9500_checks()
     {
       adns9500_spi_cs(0);
       ERROR(ADNS9500_ERROR,
-              "ADNS9500 #%d : NPD pulse detected, observation=0x%X",
+              "ADNS9500 #%u : NPD pulse detected, observation=0x%X",
               it,byte);
     }
 
@@ -462,8 +251,6 @@ uint8_t adns9500_checks()
     adns9500_spi_cs(0);
 
   } /* for(it=1;it<=ADNS9500_NUM;it++) */
-
-  return ADNS9500_RV_OK;
 }
 
 
@@ -487,73 +274,45 @@ void adns9500_setMode(adns9500_behaviour_t behaviour)
 }
 
 
-void adns9500_setReset(uint8_t value)
+void adns9500_reset(uint8_t adns_i)
 {
-  if(value)
-    sbi(ADNS9500_SPI_CTRL,ADNS9500_SPICTRL_BIT_RESET);
-  else
-    cbi(ADNS9500_SPI_CTRL,ADNS9500_SPICTRL_BIT_RESET);
+  // drive NCS high, then low to reset the SPI port
+  _delay_us(ADNS9500_TIMINGS_PWRESET);
+  adns9500_spi_cs(0);
+  _delay_us(ADNS9500_TIMINGS_PWRESET);
+  adns9500_spi_cs(adns_i);
+  _delay_us(ADNS9500_TIMINGS_PWRESET);
 
-  return;
+  // Write 0x5A to POWERUP register
+  adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_POWERUPRESET);
+  adns9500_spi_send(ADNS9500_POWERUPRESET_RESET);
+  wait_ms(ADNS9500_TIMINGS_SPICMDRESET/1000);
+
 }
 
 
 void adns9500_uploadFirmware(uint8_t adns_i)
 {
-  uint16_t nb;
-  uint8_t byte;
-
-  // Set CS to current ADNS
   adns9500_spi_cs(adns_i);
+  _delay_us(ADNS9500_TIMINGS_NCS_SCLK);
 
-  // Wait NCS-SCLK
-  _delay_us(1);
-
-  // Write bit 1 to register 0x39
+  // Select the 3K bytes SROM size
   adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_CONFIGURATION4);
   adns9500_spi_send(ADNS9500_CONFIGURATION4_LOAD1);
-  // Set CS inactive
-  adns9500_spi_cs(0);
-
   _delay_us(ADNS9500_TIMINGS_SWW);
 
-  // Set CS to current ADNS
-  adns9500_spi_cs(adns_i);
-
-  // Wait NCS-SCLK
-  _delay_us(1);
-
-  // Write 0x1D to register SROMENABLE
+  // Write 0x1D to register SROMENABLE to initialize
   adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_SROMENABLE);
   adns9500_spi_send(ADNS9500_SROMENABLE_LOAD1);
 
-  // Set CS inactive
-  adns9500_spi_cs(0);
-
-  // Wait for new frame
+  // Wait for one frame
   _delay_us(ADNS9500_TIMINGS_FRAME_PERIOD);
   _delay_us(ADNS9500_TIMINGS_FRAME_PERIOD);
 
-  // Set CS to current ADNS
-  adns9500_spi_cs(adns_i);
-  // Wait NCS-SCLK
-  _delay_us(1);
-
-  // Write 0x18 to register SROMENABLE
+  // Write 0x18 to register SROMENABLE again to start SROM downloading
   adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_SROMENABLE);
   adns9500_spi_send(ADNS9500_SROMENABLE_LOAD2);
-
-  // Set CS inactive
-  adns9500_spi_cs(0);
-
-  // Wait SWW
   _delay_us(ADNS9500_TIMINGS_SWW);
-
-  // Set CS to current ADNS
-  adns9500_spi_cs(adns_i);
-  // Wait NCS-SCLK
-  _delay_us(1);
-
 
   // Initiate PROM download burst mode
   adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_SROMLOAD);
@@ -561,23 +320,20 @@ void adns9500_uploadFirmware(uint8_t adns_i)
   _delay_us(ADNS9500_TIMINGS_LOAD);
 
   // For each firmware byte
-  for(nb=0;nb<sizeof(adns9500_firmwareArray);nb++)
+  uint16_t data_i;
+  for(data_i=0;data_i<sizeof(adns9500_firmwareArray);data_i++)
   {
-    // Read firmware from AVR FLASH
-    byte = pgm_read_byte(adns9500_firmwareArray + nb);
-
-    // Send firmware byte
+    // Read firmware from AVR FLASH, then write it
+    uint8_t byte = pgm_read_byte(adns9500_firmwareArray + data_i);
     adns9500_spi_send( byte );
-
     // Wait LOAD
     _delay_us(ADNS9500_TIMINGS_LOAD);
   }
 
   // Exit burst mode by pulling CS for FIRMWEND
   adns9500_spi_cs(0);
+  // note: tFIRMWEND > tBEXIT
   _delay_us(ADNS9500_TIMINGS_FIRMWEND);
-
-  wait_ms(10);
 
   return;
 }
@@ -624,8 +380,7 @@ uint8_t adns9500_checkSPI(void)
     // Activate ADNS SPI
     adns9500_spi_cs(it);
 
-    // Wait NCS-SCLK
-    _delay_us(1);
+    _delay_us(ADNS9500_TIMINGS_NCS_SCLK);
 
     // Read productID
     adns9500_spi_send(ADNS9500_SPIREGISTER_PRODUCTID);
@@ -641,7 +396,7 @@ uint8_t adns9500_checkSPI(void)
 
     byte_ipid = adns9500_spi_recv();
 
-    DEBUG(ADNS9500_ERROR,"ADNS9500 #%d checking SPI pid=0x%X ipid=0x%X",
+    DEBUG(ADNS9500_ERROR,"ADNS9500 #%u checking SPI pid=0x%X ipid=0x%X",
                             it, byte_pid, byte_ipid);
 
     // Test if productID and inverse productID are consistents
@@ -649,7 +404,7 @@ uint8_t adns9500_checkSPI(void)
     {
       adns9500_spi_cs(0);
       ERROR(ADNS9500_ERROR,
-              "ADNS9500 #%d : SPI communication fail, pid=0x%X ipid=0x%X",
+              "ADNS9500 #%u : SPI communication fail, pid=0x%X ipid=0x%X",
               it, byte_pid, byte_ipid);
     }
 
