@@ -75,20 +75,6 @@ typedef enum
 
 } adns9500_shuttermode_t;
 
-/// ADNS configuration
-typedef struct
-{
-  /// ADNS resolution
-  adns9500_resolution_t res;
-
-  /// Shutter mode
-  adns9500_shuttermode_t shutter;
-
-  /// Laser power (0x00 = 100%, 0x7F = 33.85%)
-  uint8_t power;
-
-} adns9500_configuration_t;
-
 /// Behaviour modes
 typedef enum
 {
@@ -100,7 +86,7 @@ typedef enum
 void adns9500_init(void);
 
 /// Launch ADNS9500s boot sequence
-void adns9500_boot(adns9500_configuration_t*);
+void adns9500_boot(void);
 
 /// Check ADNS9500s for GO
 void adns9500_checks(void);
@@ -108,29 +94,11 @@ void adns9500_checks(void);
 /// Change behaviour mode
 void adns9500_setMode(adns9500_behaviour_t);
 
-/// Do a power up reset on an ADNS9500.
-void adns9500_reset(uint8_t adns_i);
+/// Check atmega FLASH firmware
+void adns9500_checkFirmware(void);
 
-/** @brief Upload firmware to an ADNS9500
- * @param adns_i ADNS to load
- */
-void adns9500_uploadFirmware(uint8_t adns_i);
-
-/** @brief Compute atmega FLASH firmware CRC
- * @return computed firmware CRC
- */
-uint8_t adns9500_computeFirmwareCRC(void);
-
-/** @brief Check atmega FLASH firmware
- * @retval 0 check fail
- * @retval 1 check pass
- */
-uint8_t adns9500_checkFirmware(void);
-
-/** @brief Check SPI communication between ATMEGA and ADNS9500
- * @return error code
- */
-uint8_t adns9500_checkSPI(void);
+/// Check SPI communication between ATMEGA and ADNS9500
+void adns9500_checkSPI(void);
 
 /// Access ADNS9500 system to get encoders values
 void adns9500_encoders_get_value(adns9500_encoders_t*);

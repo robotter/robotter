@@ -30,10 +30,23 @@
 #include "adns9500.h"
 #include "adns9500_spi.h"
 #include "adns9500_spi_registers.h"
+#include "adns9500_firmware.h"
 
-#include "adns9500_firmware2.h"
+/// Do a power up reset on an ADNS9500.
+static void adns9500_reset(uint8_t adns_i);
 
-void adns9500_init()
+/** @brief Upload firmware to an ADNS9500
+ * @param adns_i ADNS to load
+ */
+static void adns9500_uploadFirmware(uint8_t adns_i);
+
+/** @brief Compute atmega FLASH firmware CRC
+ * @return computed firmware CRC
+ */
+static uint8_t adns9500_computeFirmwareCRC(void);
+
+
+void adns9500_init(void)
 {
   // Initialize SPI
   adns9500_spi_init();
@@ -44,9 +57,9 @@ void adns9500_init()
 }
 
 
-void adns9500_boot(adns9500_configuration_t* config)
+void adns9500_boot(void)
 {
-  uint8_t byte,hbyte,lbyte,lpcfg;
+  uint8_t byte,hbyte,lbyte;
   uint8_t adns_i;
 
   // Wait OP + IN-RST for ADNS GO
@@ -61,7 +74,7 @@ void adns9500_boot(adns9500_configuration_t* config)
 
     DEBUG(ADNS9500_ERROR,"Performing reset of ADNS");
 
-    adns9500_setReset(adns_i);
+    adns9500_reset(adns_i);
 
     // read register from 0x02 to 0x06
     adns9500_spi_cs(adns_i);
@@ -166,7 +179,7 @@ void adns9500_boot(adns9500_configuration_t* config)
 }
 
 
-uint8_t adns9500_checks()
+void adns9500_checks(void)
 {
   uint8_t it;
   uint8_t byte;
@@ -354,7 +367,7 @@ uint8_t adns9500_computeFirmwareCRC()
 }
 
 
-uint8_t adns9500_checkFirmware()
+void adns9500_checkFirmware()
 {
   uint8_t crc;
 
@@ -364,12 +377,10 @@ uint8_t adns9500_checkFirmware()
   // Check if CRC value is the correct one
   if( crc != ADNS9500_FIRMWARE_CRC )
     ERROR(ADNS9500_ERROR,"ADNS9500 : flash firmware corrupted, CRC=0x%02X",crc);
-
-  return ADNS9500_RV_OK;
 }
 
 
-uint8_t adns9500_checkSPI(void)
+void adns9500_checkSPI(void)
 {
   uint8_t it;
   uint8_t byte_pid;
@@ -410,8 +421,6 @@ uint8_t adns9500_checkSPI(void)
 
     adns9500_spi_cs(0);
   }
-
-  return ADNS9500_RV_OK;
 }
 
 void adns9500_encoders_get_value(adns9500_encoders_t* encoders)
