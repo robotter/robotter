@@ -15,6 +15,7 @@ MODULES_LIST="CONFIG_MODULE_ERROR_ROBOTTER,debug/error
 							CONFIG_MODULE_I2C_ROBOTTER,comm/i2c_robotter
               CONFIG_MODULE_MATCHUART_ROBOTTER,comm/matchuart
               CONFIG_MODULE_ADNS6010_ROBOTTER,hardware/adns6010
+              CONFIG_MODULE_ADNS9500_ROBOTTER,hardware/adns9500
               CONFIG_MODULE_GP2PACK_ROBOTTER,hardware/gp2pack
               CONFIG_MODULE_AX12_ROBOTTER,devices/servo/ax12"
 
