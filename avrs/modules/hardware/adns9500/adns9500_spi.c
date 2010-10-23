@@ -31,6 +31,7 @@
 
 void adns9500_spi_init()
 {
+  adns9500_spi_cs(0);
   return;
 }
 

@@ -32,11 +32,8 @@
 /// Frame maximum period
 #define ADNS9500_TIMINGS_FRAME_PERIOD 150
 
-/// RESET pulse width
-#define ADNS9500_TIMINGS_PWRESET 10
-
 /// Delay after RESET command
-#define ADNS9500_TIMINGS_SPICMDRESET 50000
+#define ADNS9500_TIMINGS_POWERON 50000
 
 /// SPI read - address delay
 #define ADNS9500_TIMINGS_SRAD 50

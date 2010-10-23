@@ -92,13 +92,10 @@ void adns9500_boot(void);
 void adns9500_checks(void);
 
 /// Change behaviour mode
-void adns9500_setMode(adns9500_behaviour_t);
+void adns9500_set_mode(adns9500_behaviour_t);
 
 /// Check atmega FLASH firmware
-void adns9500_checkFirmware(void);
-
-/// Check SPI communication between ATMEGA and ADNS9500
-void adns9500_checkSPI(void);
+void adns9500_check_firmware(void);
 
 /// Access ADNS9500 system to get encoders values
 void adns9500_encoders_get_value(adns9500_encoders_t*);
