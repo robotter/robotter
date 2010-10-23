@@ -16,11 +16,11 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** @file adns9500_returns.h
-  * @author JD
-  *
-  * ADNS9500 functions return values
-  */
+/** @file
+ * @author JD
+ *
+ * ADNS9500 functions return values
+ */
 
 #ifndef _ADNS9500_RETURNS_H_
 #define _ADNS9500_RETURNS_H_

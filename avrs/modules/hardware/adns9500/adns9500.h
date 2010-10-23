@@ -16,14 +16,12 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** @file adns9500.h
-  * @author JD
-  *
-  * Drive RobOtter ADNS9500 FPGA system.
-  */
+/** @file
+ * @brief Drive RobOtter ADNS9500 FPGA system.
+ */
 
-#ifndef _ADNS9500_H_
-#define _ADNS9500_H_
+#ifndef ADNS9500_H_
+#define ADNS9500_H_
 
 #include <stdint.h>
 
@@ -32,10 +30,10 @@
 #include "adns9500_returns.h"
 
 
-//@ ADNS9500 error code
+/// ADNS9500 error code
 #define ADNS9500_ERROR 0x10
 
-//@ Number of ADNS
+/// Number of ADNS
 #define ADNS9500_NUM 1 // XXX must be 3 when used in normal mode (not debug)
 
 // Vectors
@@ -46,7 +44,7 @@
 #define ADNS9500_VX3 4
 #define ADNS9500_VY3 5
 
-//@ Encoders values
+/// Encoders values
 typedef struct
 {
   // ADNS VECTORS
@@ -58,10 +56,9 @@ typedef struct
   // FAULT register
   uint8_t fault;
 
-}adns9500_encoders_t;
+} adns9500_encoders_t;
 
-/** @brief ADNS resolutions
-  */
+/// ADNS resolutions
 typedef enum
 {
   ADNS9500_RES_400 = 0,
@@ -69,90 +66,81 @@ typedef enum
   ADNS9500_RES_1600,
   ADNS9500_RES_2000
 
-}adns9500_resolution_t;
+} adns9500_resolution_t;
 
-/** @brief ADNS LASER shutter mode
-  */
+/// ADNS LASER shutter mode
 typedef enum
 {
   ADNS9500_SHUTTER_OFF = 0,
   ADNS9500_SHUTTER_ON
 
-}adns9500_shuttermode_t;
+} adns9500_shuttermode_t;
 
-/** @brief ADNS configuration
-  */
+/// ADNS configuration
 typedef struct
 {
-  //@ ADNS resolution
+  /// ADNS resolution
   adns9500_resolution_t res;
 
-  //@ Shutter mode
+  /// Shutter mode
   adns9500_shuttermode_t shutter;
 
-  //@ Laser power (0x00 = 100%, 0x7F = 33.85%)
+  /// Laser power (0x00 = 100%, 0x7F = 33.85%)
   uint8_t power;
 
-}adns9500_configuration_t;
+} adns9500_configuration_t;
 
-/** @brief Behaviour modes
-  */
+/// Behaviour modes
 typedef enum 
 {
   ADNS9500_BHVR_MODE_UC_DRIVEN = 0,
   ADNS9500_BHVR_MODE_AUTOMATIC
-}adns9500_behaviour_t;
+} adns9500_behaviour_t;
 
-/** @brief Initialize ADNS9500
-  */
+/// Initialize ADNS9500
 void adns9500_init(void);
 
 /** @brief Launch ADNS9500s boot sequence
-  * @return error code
-  */
+ * @return error code
+ */
 uint8_t adns9500_boot(adns9500_configuration_t*);
 
 /** @brief Check ADNS9500s for GO
-  * @return error code
-  */
+ * @return error code
+ */
 uint8_t adns9500_checks(void);
 
-/** @brief Change behaviour mode 
-  */
+/// Change behaviour mode 
 void adns9500_setMode(adns9500_behaviour_t);
 
 /** @brief Set reset on all ADNS
-  * @param value 0 - reset low / others - reset high
-  */
+ * @param value 0 - reset low / others - reset high
+ */
 void adns9500_setReset(uint8_t value);
 
 /** @brief Upload firmware to an ADNS9500
-  * @param adns_i ADNS to load
-  */
+ * @param adns_i ADNS to load
+ */
 void adns9500_uploadFirmware(uint8_t adns_i);
 
 /** @brief Compute atmega FLASH firmware CRC
-  * @return computed firmware CRC 
-  */
+ * @return computed firmware CRC 
+ */
 uint8_t adns9500_computeFirmwareCRC(void);
 
 /** @brief Check atmega FLASH firmware
-  * @return 0 - check fail, 1 - check pass
-  */
+ * @retval 0 check fail
+ * @retval 1 check pass
+ */
 uint8_t adns9500_checkFirmware(void);  
 
 /** @brief Check SPI communication between ATMEGA and ADNS9500
-  * @return error code
-  */
+ * @return error code
+ */
 uint8_t adns9500_checkSPI(void);
 
-/** @brief Access ADNS9500 system to get encoders values
-  * 
-  */
+/// Access ADNS9500 system to get encoders values
 void adns9500_encoders_get_value(adns9500_encoders_t*);
 
 
-int16_t adns9500_get_x(uint8_t adns_i);
-int16_t adns9500_get_y(uint8_t adns_i);
-
-#endif/*_ADNS9500_H_*/
+#endif/*ADNS9500_H_*/

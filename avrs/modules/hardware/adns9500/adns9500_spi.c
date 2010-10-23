@@ -31,57 +31,56 @@
 
 void adns9500_spi_init()
 {
-
-	return;
+  return;
 }
 
 
 uint8_t adns9500_spi_sendrecv(uint8_t send)
 {
   uint8_t flags;
-	uint8_t recv;
+  uint8_t recv;
 
   IRQ_LOCK(flags);
 
-	while( bit_is_set(ADNS9500_SPI_CTRL,ADNS9500_SPICTRL_BIT_BUSY) );
+  while( bit_is_set(ADNS9500_SPI_CTRL,ADNS9500_SPICTRL_BIT_BUSY) );
   
-	// Drive senddata low to initiate SPI communication
-	cbi(ADNS9500_SPI_CTRL, ADNS9500_SPICTRL_BIT_SENDDATA);
-	
-	// Load byte on SPI data register
-	ADNS9500_SPI_DATA = send;
+  // Drive senddata low to initiate SPI communication
+  cbi(ADNS9500_SPI_CTRL, ADNS9500_SPICTRL_BIT_SENDDATA);
 
-	// Drive senddata high to send byte
-	sbi(ADNS9500_SPI_CTRL, ADNS9500_SPICTRL_BIT_SENDDATA);
+  // Load byte on SPI data register
+  ADNS9500_SPI_DATA = send;
 
-	while( !bit_is_set(ADNS9500_SPI_CTRL,ADNS9500_SPICTRL_BIT_BUSY) );
+  // Drive senddata high to send byte
+  sbi(ADNS9500_SPI_CTRL, ADNS9500_SPICTRL_BIT_SENDDATA);
 
-	// Drive senddata low to initiate SPI communication
-	cbi(ADNS9500_SPI_CTRL, ADNS9500_SPICTRL_BIT_SENDDATA);
+  while( !bit_is_set(ADNS9500_SPI_CTRL,ADNS9500_SPICTRL_BIT_BUSY) );
 
-	while( bit_is_set(ADNS9500_SPI_CTRL,ADNS9500_SPICTRL_BIT_BUSY) );
+  // Drive senddata low to initiate SPI communication
+  cbi(ADNS9500_SPI_CTRL, ADNS9500_SPICTRL_BIT_SENDDATA);
 
-	// Read received data
-	recv = ADNS9500_SPI_DATA;
-  
+  while( bit_is_set(ADNS9500_SPI_CTRL,ADNS9500_SPICTRL_BIT_BUSY) );
+
+  // Read received data
+  recv = ADNS9500_SPI_DATA;
+
   IRQ_UNLOCK(flags);
 
-	return recv;
+  return recv;
 }
 
 
 void adns9500_spi_send(uint8_t byte)
 {
-	adns9500_spi_sendrecv(byte);
-	return;
+  adns9500_spi_sendrecv(byte);
+  return;
 }
 
 
 uint8_t adns9500_spi_recv()
 {
-	uint8_t byte;
-	byte = adns9500_spi_sendrecv(0x00);
-	return byte;
+  uint8_t byte;
+  byte = adns9500_spi_sendrecv(0x00);
+  return byte;
 }
 
 
@@ -91,37 +90,37 @@ void adns9500_spi_cs(uint8_t cs)
 
   byte = ADNS9500_SPI_CTRL;
 
-	switch(cs)
-	{
-		case 0:
+  switch(cs)
+  {
+    case 0:
       // No ADNS selected
-			cbi(byte,ADNS9500_SPICTRL_BIT_CS0);
-			cbi(byte,ADNS9500_SPICTRL_BIT_CS1);
-			break;
-
-		case 1:
-      // ADNS#1
-			sbi(byte,ADNS9500_SPICTRL_BIT_CS0);
-			cbi(byte,ADNS9500_SPICTRL_BIT_CS1);
-			break;
-
-		case 2:
-      // ADNS#2
-			cbi(byte,ADNS9500_SPICTRL_BIT_CS0);
-			sbi(byte,ADNS9500_SPICTRL_BIT_CS1);
-			break;
-
-		case 3:
-      // ADNS#3
-			sbi(byte,ADNS9500_SPICTRL_BIT_CS0);
-			sbi(byte,ADNS9500_SPICTRL_BIT_CS1);
-			break;
-
-		default:
+      cbi(byte,ADNS9500_SPICTRL_BIT_CS0);
+      cbi(byte,ADNS9500_SPICTRL_BIT_CS1);
       break;
-	}
+
+    case 1:
+      // ADNS#1
+      sbi(byte,ADNS9500_SPICTRL_BIT_CS0);
+      cbi(byte,ADNS9500_SPICTRL_BIT_CS1);
+      break;
+
+    case 2:
+      // ADNS#2
+      cbi(byte,ADNS9500_SPICTRL_BIT_CS0);
+      sbi(byte,ADNS9500_SPICTRL_BIT_CS1);
+      break;
+
+    case 3:
+      // ADNS#3
+      sbi(byte,ADNS9500_SPICTRL_BIT_CS0);
+      sbi(byte,ADNS9500_SPICTRL_BIT_CS1);
+      break;
+
+    default:
+      break;
+  }
 
   ADNS9500_SPI_CTRL = byte;
 
-	return;
+  return;
 }

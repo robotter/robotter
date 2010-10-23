@@ -16,14 +16,14 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** @file adns9500_fpga.h
-  * @author JD
-  *
-  * UNIOC NG FPGA registers on Wishbone internal bus
-  */
+/** @file
+ * @author JD
+ *
+ * UNIOC NG FPGA registers on Wishbone internal bus
+ */
 
-#ifndef _ADNS9500_FPGA_H_
-#define _ADNS9500_FPGA_H_
+#ifndef ADNS9500_FPGA_H_
+#define ADNS9500_FPGA_H_
 
 
 // Addresses on wishbone
@@ -57,7 +57,7 @@
 #define ADNS9500_SPICTRL_BIT_RESET    7
 #define ADNS9500_SPICTRL_BIT_BUSY     3
 #define ADNS9500_SPICTRL_BIT_SENDDATA 2
-#define ADNS9500_SPICTRL_BIT_CS1      1 
+#define ADNS9500_SPICTRL_BIT_CS1      1
 #define ADNS9500_SPICTRL_BIT_CS0      0
 
 #define ADNS9500_LOCK_ADNS1 0
@@ -69,4 +69,4 @@
 #define ADNS9500_LOCK_NONE 0x00
 #define ADNS9500_LOCK_ALL  0xFF
 
-#endif/*_ADNS9500_FPGA_H_*/
+#endif/*ADNS9500_FPGA_H_*/

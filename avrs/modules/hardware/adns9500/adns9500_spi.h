@@ -16,11 +16,11 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/** @file adns9500_spi.h
-  * @author JD
-  *
-  * Functions controlling FPGA driven SPI to ADNS
-  */
+/** @file
+ * @author JD
+ *
+ * Functions controlling FPGA driven SPI to ADNS
+ */
 
 #ifndef _ADNS9500_SPI_H_
 #define _ADNS9500_SPI_H_
@@ -28,29 +28,29 @@
 #define ADNS9500_SPI_WRITE 0x80
 
 /** @brief Initialize FPGA/SPI interface
-  */
+ */
 void adns9500_spi_init(void);
 
 /** @brief Perform a SPI send and recv
-	* @param send byte to send
-	* @return byte received
-	*/
+ * @param send byte to send
+ * @return byte received
+ */
 uint8_t adns9500_spi_sendrecv(uint8_t send);
 
 /** @brief Send a byte on SPI
-  * @param byte to send
-  */
+ * @param byte to send
+ */
 void adns9500_spi_send(uint8_t byte);
 
 
 /** @brief Receive a byte from an ADNS by SPI
-  * @return received byte
-  */
+ * @return received byte
+ */
 uint8_t adns9500_spi_recv(void);
 
 
-/** @brief Set chip select for ADNS SPI 
-  */
+/** @brief Set chip select for ADNS SPI
+ */
 void adns9500_spi_cs(uint8_t cs);
 
 
