@@ -636,7 +636,7 @@ class BasicSerial:
     try:
       ispeed = ospeed = getattr(termios, 'B%s' % baudrate)
     except AttributeError:
-      raise ValueErro("baudrate not supported")
+      raise ValueError("baudrate not supported")
 
     # bytesize
     cflag &= ~(termios.CSIZE)
@@ -664,7 +664,7 @@ class BasicSerial:
     # stopbits
     if stopbits == 1:
         cflag &= ~(termios.CSTOPB)
-    elif stopsbits == 2:
+    elif stopbits == 2:
         cflag |=  (termios.CSTOPB)
     else:
       raise ValueError("invalid stopbits: %r" % stopbits)
