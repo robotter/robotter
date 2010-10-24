@@ -107,6 +107,7 @@ void log_event(struct error * e, ...)
       break;
     }
 #endif
+    uart_recv(1);
 
     // reset MCU 
     reset();

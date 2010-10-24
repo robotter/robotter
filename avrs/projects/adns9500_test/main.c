@@ -1,4 +1,5 @@
 #include <aversive.h>
+#include <aversive/wait.h>
 #include <aversive/error.h>
 #include <stdio.h>
 #include <uart.h>
@@ -42,7 +43,8 @@ int main(void)
   adns9500_boot();
 
   NOTICE(0, "DONE");
-  while(1);
+
+  ERROR(42, "END");
 
   return 0;
 }
