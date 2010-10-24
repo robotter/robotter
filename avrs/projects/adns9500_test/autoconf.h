@@ -57,11 +57,11 @@
 /*
  * Generation options
  */
-#define CONFIG_OPTM_0 1
+#undef  CONFIG_OPTM_0
 #undef  CONFIG_OPTM_1
 #undef  CONFIG_OPTM_2
 #undef  CONFIG_OPTM_3
-#undef  CONFIG_OPTM_S
+#define CONFIG_OPTM_S 1
 #define CONFIG_MATH_LIB 1
 #undef  CONFIG_FDEVOPEN_COMPAT
 #undef  CONFIG_MINIMAL_PRINTF

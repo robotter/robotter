@@ -1,6 +1,6 @@
 # Aversive configuration
 MCU = atmega128
-OPT = 0
+OPT = s
 FORMAT = ihex
 FORMAT_EXTENSION = hex
 MATH_LIB = -lm

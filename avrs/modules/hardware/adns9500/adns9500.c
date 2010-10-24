@@ -94,7 +94,6 @@ void adns9500_boot(void)
       _delay_us(ADNS9500_TIMINGS_SRWSRR);
     }
 
-
     // check SPI by reading the productID and inverse productID
     adns9500_spi_send(ADNS9500_SPIREGISTER_PRODUCTID);
     _delay_us(ADNS9500_TIMINGS_SRAD);
@@ -109,23 +108,12 @@ void adns9500_boot(void)
     DEBUG(ADNS9500_ERROR,"ADNS9500 #%u checking SPI pid=0x%X ipid=0x%X",
           adns_i, byte, byte_inv);
 
-    // Test if productID and inverse productID are consistents
-    if( byte != (uint8_t)(~byte_inv) )
-    {
-      adns9500_spi_cs(0);
-      ERROR(ADNS9500_ERROR,
-            "ADNS9500 #%u : SPI communication fail, pid=0x%X ipid=0x%X",
-            adns_i, byte, byte_inv);
-    }
-
     //------------------------------------------------
     // Load FIRMWARE on current ADNS
     //------------------------------------------------
 
     DEBUG(ADNS9500_ERROR,"Uploading firmware on ADNS9500 #%u",adns_i);
     adns9500_upload_firmware(adns_i);
-    // just to be sure
-    wait_ms(2);
 
     //------------------------------------------------
     // Check firmware on ADNS
@@ -141,7 +129,6 @@ void adns9500_boot(void)
     _delay_us(ADNS9500_TIMINGS_SRWSRR);
 
     DEBUG(ADNS9500_ERROR, "ADNS9500 #%u SROM register=0x%02X", adns_i, byte);
-    wait_ms(1000);
 
     // Check if SROMID is the expected value
     if( byte != ADNS9500_FIRMWARE_ID )
