@@ -23,7 +23,7 @@ volatile uint8_t i2cs_send_size;
 
 void i2cs_init(uint8_t slave_addr)
 {
-  int i;
+  unsigned int i;
   for( i=0; i<sizeof(i2cs_recv_buf); i++ )
     i2cs_recv_buf[0];
   i2cs_recv_size = 0;

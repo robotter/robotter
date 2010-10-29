@@ -7,8 +7,8 @@ static void (*match_cb)(void);
 static const char *match_pat;
 /// Current matching state.
 static const char *match_cur;
-/// Number of UART currently watched, or -1.
-static uint8_t match_num = -1;
+/// Number of UART currently watched, or UINT8_MAX.
+static uint8_t match_num = UINT8_MAX;
 
 
 static void uart_event(char c)
@@ -28,7 +28,7 @@ static void uart_event(char c)
 
 void matchuart_init(uint8_t num, const char *pat, void (*cb)(void))
 {
-  if( match_num != -1 )
+  if( match_num != UINT8_MAX )
   {
     // unregister previous event
     uart_register_rx_event(match_num, NULL);
