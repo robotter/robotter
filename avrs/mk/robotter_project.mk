@@ -2,17 +2,17 @@
 # No ROBOTTER_DIR? Switch with AVERSIVE_DIR.
 ifeq ($(ROBOTTER_DIR),)
 ifeq ($(AVERSIVE_DIR),)
-$(error Neither ROBOTTER_DIR or AVERSIVE_DIR is defined.)
+$(error Neither ROBOTTER_DIR nor AVERSIVE_DIR is defined.)
 endif
 ROBOTTER_DIR := $(AVERSIVE_DIR)
 endif
 
-AVERSIVE_DIR := $(ROBOTTER_DIR)/aversive/
+AVERSIVE_DIR := $(ROBOTTER_DIR)/aversive
 
 
 # Relative path from aversive to robotter
 # XXX Is there a simple way to compute it?
-AVERSIVE_TO_ROBOTTER_DIR = ../
+AVERSIVE_TO_ROBOTTER_DIR = ..
 
 
 # Aversive Makefile
@@ -41,7 +41,7 @@ config:
 	@HELP_FILE=$(AVERSIVE_DIR)/config/Configure.help \
 		AUTOCONF_FILE=autoconf.h \
 		${SHELL} $(AVERSIVE_DIR)/config/scripts/Configure $(ROBOTTER_DIR)/config/config.in
-		${SHELL} $(ROBOTTER_DIR)/config/generate_robotter_config .config .aversive_conf
+	@${SHELL} $(ROBOTTER_DIR)/config/generate_robotter_config .config .aversive_conf
 
 noconfig:
 	@${SHELL} -n $(ROBOTTER_DIR)/config/config.in
@@ -55,6 +55,6 @@ menuconfig:
 	@HELP_FILE=$(AVERSIVE_DIR)/config/Configure.help \
 		AUTOCONF_FILE=autoconf.h \
 		${SHELL} $(AVERSIVE_DIR)/config/scripts/Menuconfig $(ROBOTTER_DIR)/config/config.in
-		${SHELL} $(ROBOTTER_DIR)/config/generate_robotter_config .config .aversive_conf
+	@${SHELL} $(ROBOTTER_DIR)/config/generate_robotter_config .config .aversive_conf
 
 

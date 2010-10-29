@@ -23,7 +23,7 @@ MODULES_LIST="CONFIG_MODULE_ERROR_ROBOTTER,debug/error
 # This script is always sourced, even if configuration is not saved in
 # Menuconfig. RobOtter modules should not be added twice.
 
-if grep -q "^ROBOTTER_MODULES =" $1; then
+if grep -q "^ROBOTTER_MODULES =" $2; then
   echo RobOtter modules already configured.
   exit 0
 fi
