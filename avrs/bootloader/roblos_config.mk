@@ -16,7 +16,7 @@ QUARTZ_FREQ = 8000000
 
 # Bootloader address (in bytes).
 # Warning: in the datasheet, bootloader addresses are given in words.
-BOOTLOADER_ADDR = 0x1F000
+BOOTLOADER_ADDR = 0x1F800
 
 # Device's ROID
 ROID = 0
@@ -54,7 +54,7 @@ DISABLE_STRICT_CHECKS =
 
 ENABLE_UART = y
 
-UART_NUM = 1
+UART_NUM = 0
 UART_BAUDRATE = 38400
 UART_USE_DOUBLE_SPEED = 0  # 1
 UART_NBITS = 8  # 5 6 7
