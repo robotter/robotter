@@ -148,8 +148,8 @@ COBJS = $(SRC:%.c=$(obj_dir)/%.$(HOST).o)
 AOBJS = $(ASRC:%.S=$(obj_dir)/%.$(HOST).o)
 OBJS = $(COBJS) $(AOBJS)
 DEPS = $(COBJS:.o=.d)
-#MODULES_LIBS = $(patsubst %,$(obj_dir)/%.$(HOST).a,$(MODULES_PATHS))
 MODULES_LIBS = $(foreach m,$(MODULES_PATHS),$(obj_dir)/$(m)/$(notdir $m).$(HOST).a)
+PROJECT_LIB = $(obj_dir)/$(TARGET).$(HOST).a
 
 
 ## Checks / goal handling
@@ -190,8 +190,17 @@ all: $(OUTPUTS)
 
 # Project outputs
 
-$(TARGET_OBJ): $(OBJS) $(MODULES_LIBS)
-	$(CC) $(OBJS) $(MODULES_LIBS) -o $@ $(LDFLAGS)
+$(TARGET_OBJ): $(PROJECT_LIB) $(MODULES_LIBS)
+	$(CC) $(PROJECT_LIB) $(MODULES_LIBS) -o $@ $(LDFLAGS)
+
+# project objects, with renamed sections
+$(PROJECT_LIB): $(OBJS)
+	$(AR) rs $@ $(OBJS) 2>/dev/null
+	$(OBJCOPY) \
+		--rename-section .text=.text.project \
+		--rename-section .data=.data.project \
+		--rename-section .bss=.bss.project \
+		$@
 
 # .hex and .eep from ELF
 %.$(FORMAT_EXTENSION): %.elf
