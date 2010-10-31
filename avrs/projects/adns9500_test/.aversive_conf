@@ -13,6 +13,7 @@ AVARICE_PORT = "/dev/ttyS0"
 AVARICE_DEBUG_PORT = 1234
 MODULES = base/time base/scheduler comm/uart base/cirbuf debug/error
 
-ROBOTTER_MODULES = ../..//modules/hardware/adns9500
-MODULES := $(ROBOTTER_MODULES) $(MODULES)
+ROBOTTER_MODULES := hardware/adns9500
+AVERSIVE_MODULES := $(MODULES)
+MODULES := $(addprefix ../../modules/,$(ROBOTTER_MODULES)) $(MODULES)
 

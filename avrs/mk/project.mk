@@ -1,8 +1,9 @@
 ## Configuration
 
 HOST ?= avr
-OBJ_DIR ?= compiler_files
-export HOST OBJ_DIR
+src_dir ?= .
+obj_dir ?= compiler_files
+export HOST obj_dir
 export MCU
 
 # Autodetect dirs if needed.
@@ -24,9 +25,6 @@ ifeq ($(filter .aversive_conf,$(MAKEFILE_LIST)),)
 -include .aversive_conf
 endif
 
-# Relative path from aversive to robotter.
-# Required by generate_robotter_config.
-AVERSIVE_TO_ROBOTTER_DIR = ..
 
 # Use absolute paths, may help editors.
 ABS_AVERSIVE_DIR := $(abspath $(AVERSIVE_DIR))
@@ -34,11 +32,14 @@ ABS_ROBOTTER_DIR := $(abspath $(ROBOTTER_DIR))
 
 export AVERSIVE_DIR
 export ROBOTTER_DIR
-export AVERSIVE_TO_ROBOTTER_DIR
 
-INCLUDE_DIRS += . $(ABS_AVERSIVE_DIR)/include $(ABS_AVERSIVE_DIR)/modules 
-INCLUDE_DIRS += $(ABS_ROBOTTER_DIR)/modules
-INCLUDE_DIRS += $(addprefix $(ABS_AVERSIVE_DIR)/modules/,$(MODULES))
+AVERSIVE_MODULES_PATHS = $(addprefix aversive/modules/,$(AVERSIVE_MODULES))
+ROBOTTER_MODULES_PATHS = $(addprefix modules/,$(ROBOTTER_MODULES))
+MODULES_PATHS = $(AVERSIVE_MODULES_PATHS) $(ROBOTTER_MODULES_PATHS)
+
+INCLUDE_DIRS += . $(ABS_AVERSIVE_DIR)/include
+INCLUDE_DIRS += $(ABS_AVERSIVE_DIR)/modules $(ABS_ROBOTTER_DIR)/modules
+INCLUDE_DIRS += $(addprefix $(ABS_ROBOTTER_DIR)/,$(MODULES_PATHS))
 
 
 ## C flags
@@ -143,11 +144,12 @@ export AVARICE_FLAGS
 
 ## Internal variables
 
-COBJS = $(SRC:%.c=$(OBJ_DIR)/%.$(HOST).o)
-AOBJS = $(ASRC:%.S=$(OBJ_DIR)/%.$(HOST).o)
+COBJS = $(SRC:%.c=$(obj_dir)/%.$(HOST).o)
+AOBJS = $(ASRC:%.S=$(obj_dir)/%.$(HOST).o)
 OBJS = $(COBJS) $(AOBJS)
 DEPS = $(COBJS:.o=.d)
-MODULES_LIBS = $(addprefix $(OBJ_DIR)/,$(notdir $(MODULES:=.$(HOST).a)))
+#MODULES_LIBS = $(patsubst %,$(obj_dir)/%.$(HOST).a,$(MODULES_PATHS))
+MODULES_LIBS = $(foreach m,$(MODULES_PATHS),$(obj_dir)/$(m)/$(notdir $m).$(HOST).a)
 
 
 ## Checks / goal handling
@@ -188,7 +190,7 @@ all: $(OUTPUTS)
 
 # Project outputs
 
-$(TARGET_OBJ): $(OBJS) $(MODULES)
+$(TARGET_OBJ): $(OBJS) $(MODULES_LIBS)
 	$(CC) $(OBJS) $(MODULES_LIBS) -o $@ $(LDFLAGS)
 
 # .hex and .eep from ELF
@@ -201,24 +203,32 @@ size:
 
 # Modules
 
-modules: $(MODULES)
+# Dependency template for module libs (.a -> module-path)
+# The 'true' command is required to rebuild the output on .a change.
+#   module_lib_tpl <module-path>
+define module_lib_tpl
+$(obj_dir)/$(1)/$(notdir $(1).$(HOST).a): $(1)
+	@true
+endef
+$(foreach m,$(MODULES_PATHS),$(eval $(call module_lib_tpl,$m)))
 
 # Hack for compatibility with Makefile of Aversive modules.
 # AVERSIVE_DIR is set to ROBOTTER_DIR in submake and a fake aversive_module.mk
 # is used.
-$(MODULES):
-	$(MAKE) VPATH=$(ABS_AVERSIVE_DIR)/modules/$@ AVERSIVE_DIR=$(ROBOTTER_DIR) \
-		-f $(AVERSIVE_DIR)/modules/$@/Makefile
+$(MODULES_PATHS):
+	$(MAKE) AVERSIVE_DIR=$(ROBOTTER_DIR) \
+		src_dir=$(ROBOTTER_DIR)/$@ obj_dir=$(obj_dir)/$@ \
+		-f $(ROBOTTER_DIR)/$@/Makefile
 
 
 # Usual object files
 
-$(COBJS): $(OBJ_DIR)/%.$(HOST).o: %.c
-	@mkdir -p $(OBJ_DIR)
+$(COBJS): $(obj_dir)/%.$(HOST).o: $(src_dir)/%.c
+	@mkdir -p $(obj_dir)
 	$(CC) $(CFLAGS) -MD -MF $(@:.o=.d) -c $< -o $@
 
-$(AOBJS): $(OBJ_DIR)/%.$(HOST).o: %.S
-	@mkdir -p $(OBJ_DIR)
+$(AOBJS): $(obj_dir)/%.$(HOST).o: $(src_dir)/%.S
+	@mkdir -p $(obj_dir)
 	$(CC) $(ASFLAGS) -c $< -o $@
 
 # Other (final) outputs (.hex, .eep) from ELF
@@ -239,7 +249,7 @@ config:
 	@HELP_FILE=$(AVERSIVE_DIR)/config/Configure.help \
 		AUTOCONF_FILE=autoconf.h \
 		$(SHELL) $(AVERSIVE_DIR)/config/scripts/Configure $(ROBOTTER_DIR)/config/config.in
-	@$(SHELL) $(ROBOTTER_DIR)/config/generate_robotter_config .config .aversive_conf
+	@$(SHELL) $(ROBOTTER_DIR)/config/append_robotter_config .config .aversive_conf
 
 noconfig:
 	@HELP_FILE=$(AVERSIVE_DIR)/config/Configure.help \
@@ -251,7 +261,7 @@ menuconfig:
 	@HELP_FILE=$(AVERSIVE_DIR)/config/Configure.help \
 		AUTOCONF_FILE=autoconf.h \
 		$(SHELL) $(AVERSIVE_DIR)/config/scripts/Menuconfig $(ROBOTTER_DIR)/config/config.in
-	@$(SHELL) $(ROBOTTER_DIR)/config/generate_robotter_config .config .aversive_conf
+	@$(SHELL) $(ROBOTTER_DIR)/config/append_robotter_config .config .aversive_conf
 
 
 # Programming
@@ -290,24 +300,23 @@ endif
 # Cleaning
 
 clean: clean-project clean-modules
-	-rmdir $(OBJ_DIR) 2>/dev/null
+	-rmdir -p $(obj_dir) 2>/dev/null
 
 clean-project:
 	rm -f $(TARGET_OBJ) $(OUTPUTS) $(OBJS) $(DEPS)
 
-clean_modules_rules = $(addprefix clean-,$(MODULES))
+clean_modules_rules = $(addprefix clean-,$(MODULES_PATHS))
 
 clean-modules: $(clean_modules_rules)
 
-# note: see '$(MODULES):' rules for the AVERSIVE_DIR hack
+# AVERSIVE_DIR hack, again
 $(clean_modules_rules): clean-%:
-	@$(MAKE) VPATH=$(ABS_AVERSIVE_DIR)/modules/$* \
-		AVERSIVE_DIR=$(ROBOTTER_DIR) \
-		-f $(AVERSIVE_DIR)/modules/$*/Makefile clean
+	@$(MAKE) AVERSIVE_DIR=$(ROBOTTER_DIR) \
+		src_dir=$(ROBOTTER_DIR)/$* obj_dir=$(obj_dir)/$* \
+		-f $(ROBOTTER_DIR)/$*/Makefile clean
 
 
 
 .PHONY : $(clean_rules) $(clean_modules_rules) $(config_rules) \
-	size \
-	$(MODULES)
+	size
 

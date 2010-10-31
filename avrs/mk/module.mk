@@ -2,12 +2,13 @@
 ## Configuration
 
 HOST ?= avr
-OBJ_DIR ?= compiler_files
+src_dir ?= .
+obj_dir ?= compiler_files
 
 # Internal variables
-TARGET_OBJ = $(OBJ_DIR)/$(TARGET).$(HOST).a
-COBJS = $(SRC:%.c=$(OBJ_DIR)/%.$(HOST).o)
-AOBJS = $(ASRC:%.S=$(OBJ_DIR)/%.$(HOST).o)
+TARGET_OBJ = $(obj_dir)/$(TARGET).$(HOST).a
+COBJS = $(SRC:%.c=$(obj_dir)/%.$(HOST).o)
+AOBJS = $(ASRC:%.S=$(obj_dir)/%.$(HOST).o)
 OBJS = $(COBJS) $(AOBJS)
 DEPS = $(COBJS:.o=.d)
 
@@ -26,16 +27,17 @@ all: $(TARGET_OBJ)
 $(TARGET_OBJ): $(OBJS)
 	$(AR) rs $@ $(COBJS) 2>/dev/null
 
-$(COBJS): $(OBJ_DIR)/%.$(HOST).o: %.c
-	@mkdir -p $(OBJ_DIR)
+$(COBJS): $(obj_dir)/%.$(HOST).o: $(src_dir)/%.c
+	@mkdir -p $(obj_dir)
 	$(CC) $(CFLAGS) -MD -MF $(@:.o=.d) -c $< -o $@
 
-$(AOBJS): $(OBJ_DIR)/%.$(HOST).o: %.S
-	@mkdir -p $(OBJ_DIR)
+$(AOBJS): $(obj_dir)/%.$(HOST).o: $(src_dir)/%.S
+	@mkdir -p $(obj_dir)
 	$(CC) $(ASFLAGS) -c $< -o $@
 
 clean:
 	rm -f $(TARGET_OBJ) $(OBJS) $(DEPS)
+	@-rmdir -p $(obj_dir) 2>/dev/null
 
 
 .PHONY : clean

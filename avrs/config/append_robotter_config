@@ -1,0 +1,72 @@
+#!/bin/sh
+
+#
+# usage: append_robotter_config config_file dst_module_file
+#
+# based on generate_aversive_config
+# AVERSIVE_MODULES is set to the value of MODULES
+# ROBOTTER_MODULES contains an unprefixed list of RobOtter modules.
+# The MODULES variable is then redefined for backward compatibility with the
+# previous Makefile system.
+#
+
+# 
+# order is important !! High level modules first (defines link order)
+# Note: aversive modules cannot depend on RobOtter modules.
+#
+MODULES_LIST="CONFIG_MODULE_ERROR_ROBOTTER,debug/error
+							CONFIG_MODULE_I2C_ROBOTTER,comm/i2c_robotter
+              CONFIG_MODULE_MATCHUART_ROBOTTER,comm/matchuart
+              CONFIG_MODULE_ADNS6010_ROBOTTER,hardware/adns6010
+              CONFIG_MODULE_ADNS9500_ROBOTTER,hardware/adns9500
+              CONFIG_MODULE_GP2PACK_ROBOTTER,hardware/gp2pack
+              CONFIG_MODULE_AX12_ROBOTTER,devices/servo/ax12"
+
+
+# This script is always sourced, even if configuration is not saved in
+# Menuconfig. RobOtter modules should not be added twice.
+
+if grep -q '^ROBOTTER_MODULES :\?=' $2; then
+  echo RobOtter modules already configured.
+  exit 0
+fi
+
+echo Generating RobOtter modules configuration
+
+####
+##### Generation of the module list
+####
+echo -n "ROBOTTER_MODULES :=" >> $2
+
+for i in $MODULES_LIST
+do
+  config=`echo $i | cut -d ',' -f1-1`
+  path=`echo $i | cut -d ',' -f2-2`
+  
+
+  grep -q "$config=y" $1 && echo -n " $path" >> $2
+
+  if grep -q "${config}_CREATE_CONFIG=y" $1; then
+    CONF_FILE=`basename $path`_config.h
+    if [ -f $CONF_FILE ]
+    then
+      echo Cannot create default conf file $CONF_FILE, file exists
+    else
+      if [ ! -f $ROBOTTER_DIR/modules/$path/config/$CONF_FILE ]; then
+        echo Cannot create default conf file $CONF_FILE, no config sample in $ROBOTTER_DIR/modules/$path/config/$CONF_FILE
+      else
+        echo Creating default conf file $CONF_FILE .
+        cp $ROBOTTER_DIR/modules/$path/config/$CONF_FILE .
+      fi
+    fi
+  fi
+done
+echo >> $2
+
+# (Re)define variables
+echo 'AVERSIVE_MODULES := $(MODULES)' >> $2
+# for backward compatibility
+echo 'MODULES := $(addprefix ../../modules/,$(ROBOTTER_MODULES)) $(MODULES)' >> $2
+
+
+echo >> $2
