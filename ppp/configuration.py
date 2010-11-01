@@ -1,0 +1,50 @@
+
+from perlimpinpin import Robot, Device, Telemetry, Command
+
+robot = Robot((
+  Device('unioc-ng/prop', 0x42,
+          (
+            Command('NONE', (), (),
+              "Do nothing, just for tests"),
+            Command('FORTYTWO', (), (('r','uint8_t')),
+              "Always send back 0x42"),
+            Command('GOTO_A_XYA', (('x','int32_t'), ('y','int32_t'), ('a','int32_t')), (),
+              "Order robot move to (x,y,a) in table coordinates"),
+            Command('GOTO_R_XYA', (('x','int32_t'), ('y','int32_t'), ('a','int32_t')), (),
+              "Order robot move to (x,y,a) in table coordinates from robot current position"),
+            Command('TRAJECTORY_SET_CHECKPOINT', (('id','uint8_t'), ('x','int32_t'), ('y','int32_t')), (),
+              "Modify robot trajectory checkpoint #id"),
+            Command('TRAJECTORY_RUN', (('n','uint8_t')), (),
+              "Run trajectory from checkpoint 0 to checkpoint n"),
+            Command('TRAJECTORY_STATUS', (), ('uint8_t'),
+              "Trajectory manager status : byte defined as (bit 0 : XY move done; bit 1 : A move done)"),
+            Command('TRAJECTORY_AUTOSET', (('s','uint8_t')), (),
+              "Perform an autoset calibration on side s"),
+            Command('SET_A_SPEED', (('v','uint32_t'), ('a','uint32_t')), (),
+              "Set robot maximum angular speed v and angular acceleration a"),
+            Command('SET_XY_CRUISE_SPEED', (('v','uint32_t'), ('a','uint32_t')), (),
+              "Set robot maximum inter-checkpoints speed v and acceleration a"),
+            Command('SET_XY_STEERING_SPEED', (('v','uint32_t'), ('a','uint32_t')), (),
+              "Set robot maximum on-checkpoint speed v and acceleration a"),
+            Command('SET_XY_STOP_SPEED', (('v','uint32_t'), ('a','uint32_t')), (),
+              "Set robot stop speed v and acceleration a"),
+            Command('SET_STEERING_WIN', (('r','uint32_t')), (),
+              "Set window radius for intermediate checkpoints"),
+            Command('SET_STOP_WIN', (('r','uint32_t'), ('l','uint32_t')), (),
+              "Set window radius r and angular half-angle l for final checkpoint"),
+            Command('GET_XYA', (), (('x','int32_t'), ('y','int32_t'), ('a','int32_t')),
+              "Return robot current position (x,y,a) in table coordinates"),
+            Command('SET_XYA', (('x','int32_t'), ('y','int32_t'), ('a','int32_t')), (),
+              "Set robot current position (x,y,a) in table coordinates"),
+            Command('BRAKE', (('brake','uint8_t')), (),
+              "Set motors brakes : 0 - motors enabled, 1 - motors disabled"),
+            Command('GET_ADNSFAULT', (), (('fault','uint8_t')),
+              "Get FAULT register from FPGA"),
+            Command('GET_ADNSSQUALS', (), (('sq1','uint8_t'), ('sq2','uint8_t'), ('sq3','uint8_t')),
+              "Return each ADNS SQUAL (Surface QUALity)"),
+            Command('GET_TIME', (), (('sec','uint32_t'), ('usec', 'uint32_t')),
+              "Return time sec seconds and usec microseconds since card is running")
+          )),
+
+  Device('meca', 0x50, ())
+))
