@@ -150,13 +150,10 @@ class Blosh(cmd.Cmd):
   """Shell-like client for the Rob'Otter bootloader.
 
   Attributes:
-    conn -- serial connection (shared with Roblochon)
-    opts -- shell options
+    ctx -- current context
+    contexts -- dictionary of contexts
     cmd_aliases -- dictionary of command aliases
     theme -- color theme
-    bl -- Roblochon instance
-    bl_mode -- True if bootloader active
-    last_hex -- last uploaded HEX data
 
   """
 
@@ -164,7 +161,7 @@ class Blosh(cmd.Cmd):
       'reset_str': (ShellOptStr, None, "string to reset the device"),
       'hexa': (ShellOptBool, False, "hexadecimal output in terminal mode"),
       'hexa_len': (ShellOptInt, 16, "line length (in bytes) for hexa output"),
-      'echo': (ShellOptBool, False, "display send data in terminal mode"),
+      'echo': (ShellOptBool, False, "display sent data in terminal mode"),
       'eol': (ShellOptEnum('CR','LF','CRLF'), 'CRLF', "[CR|LF|CRLF], EOL of outgoing data from stdin"),
       'switch_way_eol': (ShellOptBool, True, "force an EOL when switching between send and received data"),
       'tkey_quit': (ShellOptKey, '^', "key to quit in terminal mode"),
@@ -174,7 +171,6 @@ class Blosh(cmd.Cmd):
       'filter_cmd': (ShellOptStr, None, "filtering program (see 'filter' command)"),
       'feed_cmd': (ShellOptStr, None, "feeding program (see 'feed' command)"),
       'prog_file': (ShellOptStr, None, "programmed binary file (see 'programm' command)"),
-      'prog_check': (ShellOptBool, False, "check programmed pages"),
       'auto_boot': (ShellOptBool, True, "boot (if needed) when entering terminal mode"),
       'check_roid': (ShellOptInt, -1, "excepted ROID, checked before programming/checking (-1 to ignore)"),
       }
@@ -212,6 +208,31 @@ class Blosh(cmd.Cmd):
       }
 
 
+  class Context:
+    """Device environment, for master or slave.
+
+    Attributes:
+      id -- context's ID
+      blosh -- blosh instance the context is attached to
+      conn -- serial connection (shared with Roblochon)
+      opts -- shell options
+      bl -- Roblochon instance
+      bl_mode -- True if bootloader active
+      last_hex -- last uploaded HEX data
+
+    """
+
+    def __init__(self, id, blosh, conn):
+      self.id = id
+      self.blosh = blosh
+      self.conn = conn
+      self.opts = dict( (k, v[0](v[1])) for k,v in blosh._option_list.items() )
+      self.bl = blosh.BlClient(self.conn)
+      self.bl.theme = blosh.theme
+      self.bl_mode = False
+      self.last_hex = None
+
+
   class BlClient(Roblochon):
     """Redefine some Roblochon methods for internal purposes."""
     def output_program_progress(self, ncur, nmax):
@@ -230,17 +251,13 @@ class Blosh(cmd.Cmd):
       self.theme = DefaultTheme()
     else:
       self.theme = NoColorTheme()
-    self.prompt = self.theme.do_prompt('>> ')
     self.intro = ''
     self.use_rawinput = True
 
-    self.conn = conn
-    self.opts = dict( (k, v[0](v[1])) for k,v in self._option_list.items() )
     self.cmd_aliases = dict(self._default_aliases)
-    self.bl = self.BlClient(self.conn)
-    self.bl.theme = self.theme
-    self.bl_mode = False
-    self.last_hex = None
+    ctx = self.Context('', self, conn) # default context
+    self.contexts = { ctx.id: ctx }
+    self.ctx_change(ctx.id)
 
 
   def _trap_keyboardinterrupt(f):
@@ -251,19 +268,33 @@ class Blosh(cmd.Cmd):
         print self.theme.do_error('interrupted')
     return ret
 
+
+  def ctx_change(self, id):
+    """Change current context.
+    Return True on succes, False on error.
+    """
+    try:
+      self.ctx = self.contexts[id]
+    except KeyError:
+      print self.theme.fmt('{error}unknown context: {arg}%s{}') % id
+      return False
+    self.prompt = self.theme.do_prompt('%s> ' % ('>' if id == '' else id))
+    return True
+
   
   def bl_enter(self):
     """Enter bootloader mode.
     Return True on success, None if bootloader was already active.
     """
-    if self.bl_mode: return None
-    if self.opts['reset_str']:
+    ctx = self.ctx
+    if ctx.bl_mode: return None
+    if ctx.opts['reset_str']:
       print self.theme.fmt('{info}sending {bold}reset{info} string{}')
-      self.conn.write(self.opts['reset_str'].val)
+      ctx.conn.write(ctx.opts['reset_str'].val)
     print self.theme.fmt('{info}{bold}waiting{info} for bootloader...{}')
 
-    self.bl.wait_prompt(True)
-    self.bl_mode = True
+    ctx.bl.synchronize()
+    ctx.bl_mode = True
     return True
 
   def bl_exit(self):
@@ -271,13 +302,14 @@ class Blosh(cmd.Cmd):
     Return True on success, None if bootloader was already active.
     If bootloader state is not known, first enter then exit.
     """
-    if not self.bl:
+    ctx = self.ctx
+    if not ctx.bl:
       self.bl_enter()
-    if not self.bl_mode: return None
-    self.bl_mode = False
+    if not ctx.bl_mode: return None
+    ctx.bl_mode = False
     try:
       print self.theme.fmt('{info}{bold}exiting{info} bootloader{}')
-      self.bl.boot()
+      ctx.bl.boot()
     except Exception, e:
       print self.theme.do_error('failed to boot: %s' % e)
       return False
@@ -287,31 +319,32 @@ class Blosh(cmd.Cmd):
   @_trap_keyboardinterrupt
   def terminal_mode(self):
     """Enter terminal mode."""
+    ctx = self.ctx
 
-    if self.bl_mode and self.opts['auto_boot']:
+    if ctx.bl_mode and ctx.opts['auto_boot']:
       self.bl_exit()
 
-    if self.opts['reset_str']:
-      tkey_reset = self.opts['tkey_reset'].val
+    if ctx.opts['reset_str']:
+      tkey_reset = ctx.opts['tkey_reset'].val
     else:
       tkey_reset = None
-    if self.opts['prog_file']:
-      tkey_prog = self.opts['tkey_prog'].val
+    if ctx.opts['prog_file']:
+      tkey_prog = ctx.opts['tkey_prog'].val
     else:
       tkey_prog = None
 
-    tkey_quit = self.opts['tkey_quit'].val
+    tkey_quit = ctx.opts['tkey_quit'].val
     if tkey_quit in '\r\n':
       print self.theme.do_error('using CR or LF for tkey_quit is not safe')
       return
-    print self.theme.fmt('{info}entering terminal mode, {bold}%s{info} to quit{}') % self.opts['tkey_quit']
+    print self.theme.fmt('{info}entering terminal mode, {bold}%s{info} to quit{}') % ctx.opts['tkey_quit']
 
     l = filter(None, (tkey_reset, tkey_prog, tkey_quit))
     if len(l) != len(set(l)):
       print self.theme.do_error('several tkey_* share the same value')
       return
 
-    crlf = {'CR':'\r','LF':'\n','CRLF':'\r\n'}[self.opts['eol'].val]
+    crlf = {'CR':'\r','LF':'\n','CRLF':'\r\n'}[ctx.opts['eol'].val]
 
     printers_in = []
     printers_out = []
@@ -321,7 +354,7 @@ class Blosh(cmd.Cmd):
     def print_out(s):
       for p in printers_out: p(s)
 
-    if self.opts['switch_way_eol']:
+    if ctx.opts['switch_way_eol']:
       last_way = [0] # -1: in, +1: out, in a list to keep a reference
       def pin_default(s):
         if last_way[0] > 0: sys.stdout.write('\r\n')
@@ -334,14 +367,14 @@ class Blosh(cmd.Cmd):
     else:
       pin_default = lambda s: sys.stdout.write(s)
       pout_default = lambda s: sys.stdout.write(self.theme.do_data_out(s))
-    if not self.opts['echo']:
+    if not ctx.opts['echo']:
       pout_default = lambda s: None
 
 
-    if self.opts['hexa']:
+    if ctx.opts['hexa']:
       # number of written data bytes on the current line (>0: out, <0: in)
       hexaline_len = [0] # in a list to keep a reference
-      hexa_len = self.opts['hexa_len'].val
+      hexa_len = ctx.opts['hexa_len'].val
       def pin_hexa(s):
         n, = hexaline_len
         for c in s:
@@ -363,11 +396,11 @@ class Blosh(cmd.Cmd):
           n += 1
         hexaline_len[0] = n
       printers_in.append(pin_hexa)
-      if self.opts['echo']:
+      if ctx.opts['echo']:
         printers_out.append(pout_hexa)
 
-    elif self.opts['filter_cmd']:
-      s = self.opts['filter_cmd'].val
+    elif ctx.opts['filter_cmd']:
+      s = ctx.opts['filter_cmd'].val
       try:
         pfilter = subprocess.Popen(s, shell=True, bufsize=0, close_fds=True,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -382,9 +415,9 @@ class Blosh(cmd.Cmd):
           pin_default(s)
       printers_in.append(pin_filter)
 
-    if self.opts['feed_cmd']:
+    if ctx.opts['feed_cmd']:
       tkey_reset = None
-      s = self.opts['feed_cmd'].val
+      s = ctx.opts['feed_cmd'].val
       try:
         pfeed = subprocess.Popen(s, shell=True, bufsize=0, close_fds=True,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -397,8 +430,8 @@ class Blosh(cmd.Cmd):
     if not printers_out: printers_out.append(pout_default)
 
     flog = None
-    if self.opts['log_file']:
-      s = self.opts['log_file'].val
+    if ctx.opts['log_file']:
+      s = ctx.opts['log_file'].val
       try:
         flog = open(s, 'w')
         print self.theme.fmt('{info}logging to {bold}%s{}') % s
@@ -410,7 +443,7 @@ class Blosh(cmd.Cmd):
     match_data = ''  # last input data, for matching
     match_data_len = max( len(k) for k in self._matches )
 
-    self.conn.flushInput()
+    ctx.conn.flushInput()
 
     # the loop
     tio_attr_bak = termios.tcgetattr(sys.stdin)
@@ -420,7 +453,7 @@ class Blosh(cmd.Cmd):
     termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr)
     try:
       while True:
-        fds = [self.conn.fd, sys.stdin]
+        fds = [ctx.conn.fd, sys.stdin]
         if pfilter:
           fds += (pfilter.stdout, pfilter.stderr)
         if pfeed:
@@ -439,7 +472,7 @@ class Blosh(cmd.Cmd):
 
         if pfeed and pfeed.poll() is not None:
           s = pfeed.stdout.read()
-          self.conn.write(s)
+          ctx.conn.write(s)
           print_out(s)
           sys.stdout.write(self.theme.do_warn(pfeed.stderr.read()))
           sys.stdout.write(self.theme.do_notice('\r\nfeeder returned %d\r\n'%pfeed.returncode))
@@ -448,8 +481,8 @@ class Blosh(cmd.Cmd):
 
         # process 'selected' fds
 
-        if self.conn.fd in rds:
-          c = self.conn.read(1)
+        if ctx.conn.fd in rds:
+          c = ctx.conn.read(1)
           if not c:
             sys.stdout.write(self.theme.do_warn('\r\ndisconnected\r\n'))
             break
@@ -465,7 +498,7 @@ class Blosh(cmd.Cmd):
         if sys.stdin in rds:
           c = sys.stdin.read(1)
           if c == tkey_quit: break
-          if c == tkey_reset: c = self.opts['reset_str'].val
+          if c == tkey_reset: c = ctx.opts['reset_str'].val
           if c == tkey_prog:
             sys.stdout.write('\r\n')
             # reenable keyboard interrupt
@@ -478,7 +511,7 @@ class Blosh(cmd.Cmd):
           if pfeed:
             pfeed.stdin.write(c)
           else:
-            self.conn.write(c)
+            ctx.conn.write(c)
             print_out(c)
 
         if pfilter:
@@ -490,7 +523,7 @@ class Blosh(cmd.Cmd):
         if pfeed:
           if pfeed.stdout in rds:
             c = pfeed.stdout.read(1)
-            self.conn.write(c)
+            ctx.conn.write(c)
             print_out(c)
           if pfeed.stderr in rds:
             sys.stdout.write(self.theme.do_warn(pfeed.stderr.read(1)))
@@ -508,22 +541,23 @@ class Blosh(cmd.Cmd):
 
   def reprogram(self):
     """(Re)program the current prog_file."""
-    f = self.opts['prog_file'].val
+    ctx = self.ctx
+    f = ctx.opts['prog_file'].val
     if not f:
       print self.theme.do_error("no file to upload")
       return
     self.bl_enter()
     if not self._check_roid(): return
     try:
-      data = self.bl.parse_hex_file(f)
+      data = ctx.bl.parse_hex_file(f)
     except Exception, e:
       print self.theme.fmt('{error}cannot parse HEX file {arg}%s{error}: %s{}') % (f,e)
       return
 
     try:
-      if self.bl.program(data, self.last_hex, self.opts['prog_check'].val) is None:
+      if ctx.bl.program(data, ctx.last_hex) is None:
         print self.theme.do_info("nothing to program")
-      self.last_hex = data
+      ctx.last_hex = data
     except Exception, e:
       print self.theme.do_error('failed to program: %s' % e)
 
@@ -561,26 +595,27 @@ class Blosh(cmd.Cmd):
     self.terminal_mode()
 
   def do_reset(self, line):
-    if self.bl_mode:
+    ctx = self.ctx
+    if ctx.bl_mode:
       self.bl_exit()
-    elif self.opts['reset_str']:
+    elif ctx.opts['reset_str']:
       print self.theme.fmt('{info}sending {bold}reset{info} string{}')
-      self.conn.write(self.opts['reset_str'].val)
+      ctx.conn.write(ctx.opts['reset_str'].val)
     else:
       print self.theme.fmt("{arg}reset_str{error} option is not set{}")
 
   def do_set(self, line):
+    ctx = self.ctx
     l = line.split(None, 1)
     if len(l) < 1:
       print "Option values:"
-      l = self._option_list.keys()
-      l.sort()
+      l = sorted(self._option_list.keys())
       for k in l:
-        print "  %-14s  %s" % (k, self.opts[k])
+        print "  %-14s  %s" % (k, ctx.opts[k])
     else:
       k = l[0]
       try:
-        opt = self.opts[k]
+        opt = ctx.opts[k]
       except KeyError:
         print self.theme.fmt('{error}unknown option: {arg}%s{}')%k
         return
@@ -596,8 +631,7 @@ class Blosh(cmd.Cmd):
     l = line.split(None, 1)
     if len(l) < 1:
       print "Aliases:"
-      l = self.cmd_aliases.keys()
-      l.sort()
+      l = sorted(self.cmd_aliases.keys())
       k_len = max( len(k) for k in l )
       for k in l:
         print "  %-*s  %s" % (k_len, k, self.cmd_aliases[k])
@@ -633,6 +667,19 @@ class Blosh(cmd.Cmd):
     finally:
       self.prompt, self.use_rawinput, self.stdin = bak
 
+  def do_context(self, line):
+    l = line.split(None, 1)
+    if len(l) < 1:
+      l = [''] # default context
+    if len(l) == 1:
+      self.ctx_change(l[0])
+    else:
+      # retrieve current ID
+      prev_id = self.ctx.id
+      if not self.ctx_change(l[0]): return
+      try: self.execute(l[1])
+      finally: self.ctx_change(old_id)
+
 
   def do_log(self, line):
     return self.do_set('log_file %s' %line)
@@ -644,32 +691,34 @@ class Blosh(cmd.Cmd):
 
   @_trap_keyboardinterrupt
   def do_program(self, line):
+    ctx = self.ctx
     if len(line) and line[0] == '!':
-      self.last_hex = None
+      ctx.last_hex = None
       line = line.lstrip('! \t')
     else:
       force = False
     if line:
-      self.opts['prog_file'].set(line)
+      ctx.opts['prog_file'].set(line)
     self.reprogram()
 
   @_trap_keyboardinterrupt
   def do_check(self, line):
+    ctx = self.ctx
     if line:
       f = line
     else:
-      f = self.opts['prog_file'].val
+      f = ctx.opts['prog_file'].val
     if not f:
       print self.theme.do_error("no file to check")
       return
     self.bl_enter()
     if not self._check_roid(): return
     try:
-      ret = self.bl.check(f)
+      ret = ctx.bl.check(f)
       if ret:
         # current embedded program is the given HEX file
         # set last_hex to allow page optimizations
-        self.last_hex = self.bl.parse_hex_file(f)
+        ctx.last_hex = ctx.bl.parse_hex_file(f)
       print 'check: %s' % self.theme.do_ok('OK') if ret else self.theme.do_error('FAILED')
     except Exception, e:
       print self.theme.do_error('failed to check: %s' % e)
@@ -678,30 +727,31 @@ class Blosh(cmd.Cmd):
     self.bl_exit()
 
   def do_clear(self, line):
-    self.bl.clear_infos()
-    self.last_hex = None
+    self.ctx.bl.clear_infos()
+    self.ctx.last_hex = None
 
   @_trap_keyboardinterrupt
   def do_infos(self, line):
+    ctx = self.ctx
     self.bl_enter()
-    self.bl.update_infos()
+    ctx.bl.update_infos()
     roid_style = ''
-    if self.opts['check_roid'].val > -1:
-      roid_style = 'ok' if self.bl.roid == self.opts['check_roid'].val else 'error'
+    if ctx.opts['check_roid'].val > -1:
+      roid_style = 'ok' if ctx.bl.roid == ctx.opts['check_roid'].val else 'error'
     print self.theme.fmt('{bold}ROID:{'+roid_style+'} 0x%02x (%d){}   {bold}features:{} %s') % (
-        self.bl.roid, self.bl.roid, self.bl.features )
+        ctx.bl.roid, ctx.bl.roid, ctx.bl.features )
     try:
-      fuses = self.bl.read_fuses()
+      fuses = ctx.bl.read_fuses()
       print self.theme.fmt('{bold}fuses (low high ex):{} %02x %02x %02x') % fuses
     except Exception, e:
       print self.theme.do_error('cannot read fuses: %s' % e)
 
-    f = self.opts['prog_file'].val
+    f = ctx.opts['prog_file'].val
     if f:
       try:
-        data = self.bl.parse_hex_file(f)
-        if self.last_hex is not None:
-          data_diff = self.bl.diff_pages(data, self.last_hex)
+        data = ctx.bl.parse_hex_file(f)
+        if ctx.last_hex is not None:
+          data_diff = ctx.bl.diff_pages(data, ctx.last_hex)
           print self.theme.fmt('{bold}program:{} %d bytes, %d page%c to program') % (
             len(data), len(data_diff), '' if len(data_diff)==1 else 's' )
         else:
@@ -713,12 +763,13 @@ class Blosh(cmd.Cmd):
 
 
   def _check_roid(self):
+    ctx = self.ctx
     """Internal method to check ROID if needed, print a message on mismatch."""
-    if self.opts['check_roid'].val <= -1: return True
-    self.bl.update_infos()
-    if self.opts['check_roid'].val != self.bl.roid:
+    if ctx.opts['check_roid'].val <= -1: return True
+    ctx.bl.update_infos()
+    if ctx.opts['check_roid'].val != ctx.bl.roid:
       print self.theme.fmt('{error}ROID mismatch: expected {arg}0x%02x{error} got {arg}0x%02x{}') % (
-          self.opts['check_roid'].val, self.bl.roid )
+          ctx.opts['check_roid'].val, ctx.bl.roid )
       return False
     return True
 
@@ -726,7 +777,7 @@ class Blosh(cmd.Cmd):
   # completion
 
   def complete_set(self, text, line, begidx, endidx):
-    return [x for x in self.opts if x.startswith(text)]
+    return [x for x in self._option_list if x.startswith(text)]
 
   def _complete_file(self, text, line, begidx, endidx):
     i = line.rfind(' ', 0, endidx)
@@ -762,8 +813,7 @@ class Blosh(cmd.Cmd):
         print self.theme.fmt('{error}no help on {arg}%s')%line
     else:
       print "Help topics:"
-      it = self._help_topics.items()
-      it.sort()
+      it = sorted(self._help_topics.items())
       for k,v in it:
         print "  %-10s  %s" % (k,v[1])
 

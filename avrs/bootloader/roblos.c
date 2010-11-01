@@ -1,4 +1,3 @@
-
 /** @file
  *  @brief Rob'Otter Bootloader, server part.
  *
@@ -8,47 +7,7 @@
  * The device which runs the bootloader will be referred as the \e server. The
  * remote client will be referred as the \e client.
  *
- * The protocol uses one-line messages. Lines end with a CRLF sequence, however
- * the remote client is allowed to end its lines with a single LF. Fields are
- * separated by single spaces.
- *
- * First, the server sends a \c cmd prompt message and wait for input from the
- * client. If nothing has been received within (approximatively) 1 second, the
- * program is executed. Otherwise, the server parses and executes the command,
- * then prompt the client for another command, and so on.
- *
- * To avoid issues with partially sent data or buffer garbages, the server
- * sends an additional CRLF sequence before the first prompt and after the last
- * message (before booting). This would make it easier for a client to parse it.
- *
- * The server has always the initiative: the client sends messages only when
- * asked for by the server. By convention, server messages which wait for a
- * reply begin with a <tt>?</tt>.
- *
- * Here are some common messages:
- *  - \c KO status: generic reponse for command failure, the next server
- *    message will be a command prompt
- *  - \c ok status: sent to indicate the last command was successfull, this is
- *    the standard server reply when sending no additional information
- *  - when asking for client confirmation, the server will except a \c y (yes)
- *    or \c n (no) message
- *
- * @note The server can reply with a \c KO status to any request. It is
- * implicit that any command can fail at any step. \n
- * A client can go back to command prompt at any moment by sending an empty
- * message.
- *
- * All numbers are written in hexadecimal. The server accepts both lowercase and
- * uppercase digits but only sends lowercase ones. Numbers sent by the server
- * always have an even number of digits.
- *
- * @note The server should not send non-number sequences with may be confused
- * with a number. This means sending fields which match
- * <tt>([0-9a-f][0-9a-f])+</tt> is strongly discouraged.
- *
- * All CRC computation use the CRC-16-CCITT.
- *
- * @todo Store the ROID in EEPROM.
+ * All CRC computations use the CRC-16-CCITT.
  */
 
 // Required by "util/delay.h"
@@ -97,15 +56,19 @@ do {				     \
  *
  * The bootloader address is the highest possible address. (Another way could
  * be to test whether the RAMPZ register is defined.)
+ *
+ * \e ADDR_SIZE_LARGE is (un)defined accordingly.
  */
 #if BOOTLOADER_ADDR > 0x10000
 // more than 64k
 typedef uint32_t addr_type;
 #define pgm_read_byte_bootloader pgm_read_byte_far
+#define ADDR_SIZE_LARGE
 #else
 // less than 64k
 typedef uint16_t addr_type;
 #define pgm_read_byte_bootloader pgm_read_byte_near
+#undef ADDR_SIZE_LARGE
 #endif
 
 
@@ -317,347 +280,112 @@ static char (*const proto_recv)(void) = i2cs_recv;
 #error "no communication protocol enabled"
 #endif
 
-
 //@}
 
 
-/** @brief Buffer size for input messages.
- */
-#define ROBLOS_BUF_SIZE  32
-
-
-/** @name Protocol sub-routines.
+/** @name General protocol definitions.
  */
 //@{
 
-/** @brief Read a message line
- *
- * The line stops at the first LF.
- * After reading a CR, read bytes are not stored in the buffer.
- */
-static void recv_line(char *buf)
+#define STATUS_NONE             0x00
+#define STATUS_SUCCESS          0x01
+#define STATUS_BOOTLOADER_MSG   0x0a // LF
+#define STATUS_I2C_WAIT_FRAME   0x20
+#define STATUS_I2C_READ         0x21
+#define STATUS_FAILURE          0xff
+#define STATUS_UNKNOWN_COMMAND  0x81
+#define STATUS_NOT_SUPPORTED    0x82
+#define STATUS_BAD_FORMAT       0x83
+#define STATUS_BAD_VALUE        0x84
+#define STATUS_CRC_MISMATCH     0x90
+#define STATUS_I2C_ERROR        0xa0
+#define STATUS_I2C_BAD_FRAME    0xa1
+
+
+/// Send a reply with given status and field size.
+static void reply(uint8_t st, uint8_t size)
 {
-  uint8_t i;
-  char c;
-  for( i=0; i<ROBLOS_BUF_SIZE; i++ )
-  {
-    c = proto_recv();
-    if( c == '\r' || c == '\n' )
-      break;
-    buf[i] = c;
-  }
-  while( c != '\n' )
-    c = proto_recv();
-  buf[i] = '\0';
+  proto_send(size+1);
+  proto_send(st);
 }
 
-
-/** @brief Parse an hexadecimal number.
- *
- * This method is currently used to parse addresses, sizes or smaller data.
- * Thus it uses the minimal appropriate type for val.
- *
- * @return Address of the first character following the parsed number, \e NULL
- * on error.
- *
- * @todo Try to use a dedicated parse_hex8() which may be more optimized.
- */
-static const char *parse_hex(const char *p, addr_type *val)
+/// Prepare a success reply with a given field size.
+static void reply_success(uint8_t size)
 {
-  addr_type tmp = 0;
-#ifndef DISABLE_STRICT_CHECKS
-  uint8_t i; // digit count
-  for( i=0; i<2*sizeof(tmp); i++ )
-#else
-  for(;;)
-#endif
-  {
-    if( *p == ' ' || *p == '\0' )
-    {
-#ifndef DISABLE_STRICT_CHECKS
-      if( i == 0 )
-        return NULL;
-#endif
-      *val = tmp;
-      return p;
-    }
-
-#ifndef DISABLE_STRICT_CHECKS
-    tmp <<= 4;
-    if( *p >= '0' && *p <= '9' )
-      tmp += *p - '0';
-    else if( *p >= 'a' && *p <= 'f' )
-      tmp += 10 + *p - 'a';
-    else if( *p >= 'A' && *p <= 'F' )
-      tmp += 10 + *p - 'A';
-    else
-      return NULL; // invalid digit
-#else
-    tmp <<= 4;
-    if( *p <= '9' )
-      tmp += *p - '0';
-    else
-      tmp += (*p|' ') - 'a';
-#endif
-    p++;
-  }
-  return NULL; // overflow, only when strict checks enabled
+  reply(STATUS_SUCCESS, size);
 }
 
-/** @brief Parse a confirmation response.
- *
- * @retval  0  no
- * @retval  1  yes (client confirmed)
- * @retval -1  failure
- *
- * @warning Do NOT use the result as a boolean, since \e yes and \e failure
- * will both evaluate to \e true.
- */
-static int8_t recv_yesno(void)
+/// Send a failure reply with no fields.
+static void reply_failure(void)
 {
-  char rbuf[ROBLOS_BUF_SIZE];
-  recv_line(rbuf);
-#ifndef DISABLE_STRICT_CHECKS
-  if( rbuf[1] != '\0' )
-    return -1;
-#endif
-  if( rbuf[0] == 'y' )
-    return 1;
-  else if( rbuf[0] == 'n' )
-    return 0;
-  return -1;
+  reply(STATUS_FAILURE, 0);
 }
 
+/// Send a custom error reply with no fields.
+static void reply_error(uint8_t st)
+{
+  reply(st, 0);
+}
 
-/// Send a NUL terminated string.
+/** @brief Send a human-readable reply.
+ *
+ * This method is intended for messages sent by the bootloader which may not be
+ * handled by a client (eg. enter/exit messages).
+ *
+ * \e msg must be 10 character long.
+ * The resulting message will be \e msg surrounded by CRLF sequences, and still
+ * be a valid protocol reply.
+ *
+ * @note This method is not relevant when using I2C.
+ */
+#define SEND_MESSAGE(msg) send_str("\r\n" msg "\r\n")
+
+static void send_u8(uint8_t v)
+{
+  proto_send(v);
+}
+
+static void send_u16(uint16_t v)
+{
+  proto_send(v&0xff);
+  proto_send((v>>8)&0xff);
+}
+
+/// Send a NUL terminated string (without the NUL character)
 static void send_str(const char *s)
 {
   while( *s )
     proto_send( *s++ );
 }
 
-/// Send the EOL sequence.
-static void send_eol(void)
+static uint16_t recv_u16(void)
 {
-  proto_send('\r');
-  proto_send('\n');
+  return proto_recv() + (proto_recv()<<8);
 }
 
-/// Send a line ended by an EOL sequence.
-#define send_msg(s) do{ send_str(s); send_eol(); }while(0)
-
-/// Send the prompt.
-static void send_prompt(void)
+static uint32_t recv_u32(void)
 {
-  send_msg("?cmd");
+  return proto_recv()
+      + (proto_recv()*0x100)
+      + (proto_recv()*0x10000)
+      + (proto_recv()*0x1000000);
 }
 
-/// Send ok status.
-static void send_status_ok(void)
+/// Receive an address value.
+static addr_type recv_addr(void)
 {
-  send_msg("ok");
+#ifdef ADDR_SIZE_LARGE
+  return recv_u32();
+#else
+  addr_type ret = recv_u16();
+  // drop high bits
+  proto_recv();
+  proto_recv();
+  return ret;
+#endif
 }
-
-/// Send KO status.
-static void send_status_ko(void)
-{
-  send_msg("KO");
-}
-
-/** @brief Send an hexadecimal digit.
- * @note Since the server must send digits by pairs this method is for internal
- * use only. Use send_hex8() instead.
- */
-static void send_digit_(uint8_t x)
-{
-  proto_send( x < 10 ? x+'0' : x-10 + 'a' );
-}
-
-/// Send a 8-bit value.
-static void send_hex8(uint8_t x)
-{
-  send_digit_( x >> 4 );
-  send_digit_( x & 0xf );
-}
-
-/// Send an 16-bit value.
-static void send_hex16(uint16_t x)
-{
-  send_hex8( x >> 8 );
-  send_hex8( x & 0xff );
-}
-
 
 //@}
-
-
-/** @name Protocol Commands
- *
- * Commands return 0 on success, -1 on error and take as paramter a pointer to
- * the first character following the command name.
- */
-//@{
-
-
-/** @brief Dump general infos
- *
- * The server replies with supported features, its Rob'Otter ID and the value
- * of \e SPM_PAGESIZE.
- * Supported features are:
- *  - supported commands (lowercase letters)
- *  - \c U if UART is enabled
- *  - \c S if I2C (as slave) is enabled
- *  - \c C if CRC check while programming is enabled
- *
- * Example:
-@verbatim
-  C -> S   i
-  C <- S   inf ipxcCU 42 80
-@endverbatim
- */
-static int8_t cmd_infos(const char *p)
-{
-#ifndef DISABLE_STRICT_CHECKS
-  if( *p != '\0' ) return -1;
-#else
-  (void)p;
-#endif
-  send_str("info i"  // the 'i' command cannot be disabled
-#ifndef DISABLE_EXECUTE
-      "x"
-#endif
-#ifndef DISABLE_PROG_PAGE
-      "p"
-#endif
-#ifndef DISABLE_MEM_CRC
-      "c"
-#endif
-#ifndef DISABLE_FUSE_READ
-      "f"
-#endif
-#ifdef ENABLE_I2C_MASTER
-      "s"
-#endif
-#ifndef DISABLE_PROG_CRC
-      "C"
-#endif
-#ifdef ENABLE_UART
-      "U"
-#endif
-#ifdef ENABLE_I2C_SLAVE
-      "S"
-#endif
-      " ");
-  send_hex8(ROID);
-  proto_send(' ');
-  send_hex16(SPM_PAGESIZE);
-  send_eol();
-  return 0;
-}
-
-
-/** @brief Program a page.
- *
- * Command dataflow:
- *  1. the client asks to write a page at a given address
- *  2. the server replies <tt>?data</tt>
- *  3. the client sends the page data (without EOL sequence)
- *  4. the server replies with a CRC of the read data and asks for confirmation
- *  5. the client confirms or cancel the writing
- *  6. if the client confirmed, the server writes the page and replies \c ok
- *
- * @note The address page must be a valid aligned address.
- * @note When DISABLE_PROG_CRC is defined, steps 4. and 5. are skipped.
- *
- * Example:
-@verbatim
-  C -> S   p 1500
-  C <- S   ?data
-  C -> S   ... page data ...
-  C <- S   ?crc 02e6
-  C -> S   y
-  C <- S   ok
-@endverbatim
- */
-static int8_t cmd_prog_page(const char *p)
-{
-  addr_type addr;
-#ifndef DISABLE_PROG_CRC
-  uint8_t buf[SPM_PAGESIZE]; // data buffer
-  uint16_t crc = 0xffff;
-#endif
-  uint16_t i;
-
-  // Read and check address
-#ifndef DISABLE_STRICT_CHECKS
-  if( *p != ' ' ) return -1;
-  if( (p = parse_hex(p+1, &addr)) == NULL ) return -1;
-  if( *p != '\0' ) return -1;
-  if( (addr & ((addr_type)SPM_PAGESIZE-1)) != 0 ) return -1;
-  if( addr > BOOTLOADER_ADDR ) return -1;
-#else
-  p = parse_hex(p+1, &addr);
-#endif
-  send_msg("?data");
-
-#ifndef DISABLE_PROG_CRC
-
-  // Read data from UART and compute CRC
-  for( i=0; i<SPM_PAGESIZE; i++ )
-  {
-    char c = proto_recv();
-    crc = _crc_ccitt_update(crc, c);
-    buf[i] = c;
-  }
-
-  // Send CRC and ask for confirmation
-  send_str("?crc ");
-  send_hex16(crc);
-  send_eol();
-  if( recv_yesno() != 1 ) return -1;
-
-  // Erase page
-  eeprom_busy_wait();
-  boot_page_erase(addr);
-  boot_spm_busy_wait();
-
-  // Fill temporary page buffer
-  for( i=0; i<SPM_PAGESIZE; i+=2 )
-  {
-    // Set up little-endian word
-    uint16_t w = buf[i] + ((uint16_t)(buf[i+1])<<8);
-    boot_page_fill(addr+i, w);
-  }
-
-#else
-
-  // Erase page
-  eeprom_busy_wait();
-  boot_page_erase(addr);
-  boot_spm_busy_wait();
-
-  // Read data from UART and fill temporary page buffer
-  for( i=0; i<SPM_PAGESIZE; i+=2 )
-  {
-    char c1 = proto_recv();
-    char c2 = proto_recv();
-    // Set up little-endian word
-    uint16_t w = c1 | (((uint16_t)c2)<<8);
-    boot_page_fill(addr+i, w);
-  }
-
-#endif
-
-  // Write the page
-  boot_page_write(addr);
-  boot_spm_busy_wait();
-
-  // Reenable RWW section
-  boot_rww_enable();
-
-  send_status_ok();
-  return 0;
-}
 
 
 /** @brief Run the application.
@@ -665,8 +393,9 @@ static int8_t cmd_prog_page(const char *p)
 static void boot(void)
 {
 #ifdef ENABLE_UART
-  // extra CRLF to make sure the boot message is properly sent
-  send_msg("boot\r\n");
+  // extra null bytes to make sure the status is properly sent
+  proto_send(0);
+  proto_send(0);
   // wait for the last byte
   while( !(UCSRxA & ((1<<UDREx)|(1<<TXCx))) ) ;
   UCSRxB = 0; // disable
@@ -687,25 +416,167 @@ static void boot(void)
   reset();
 }
 
+
+/** @name Protocol commands
+ *
+ * Commands format is:
+ *  - a command (u8);
+ *  - parameters.
+ *
+ * Reply format is:
+ *  - reply size (u8), not counting the size byte itself;
+ *  - a status code (u8);
+ *  - reply fields.
+ *
+ * @note The reply size is never 0 since it includes at least the status code.
+ * This is used by the I2C slave sessions, for read frames.
+ *
+ * \e SZ designates a null-terminated string. Addresses provided an u32.
+ * However, they may be internally used as u16 for devices with less than 64kB
+ * of memory.
+ *
+ * @todo Review command names.
+ */
+//@{
+
+/** @brief Dump general infos
+ *
+ * Reply fields:
+ *  - ROID (u8)
+ *  - SPM_PAGESIZE value (u16)
+ *  - supported features (SZ)
+ *  - supported commands (SZ)
+ *
+ * Supported features are:
+ *  - \c U if UART is enabled
+ *  - \c S if I2C (as slave) is enabled
+ *  - \c C if CRC check while programming is enabled
+ *
+ * @todo Return bitmasks, not strings.
+ */
+static void cmd_infos(void)
+{
+  static const char features[] = ""
+#ifndef DISABLE_PROG_CRC
+      "C"
+#endif
+#ifdef ENABLE_UART
+      "U"
+#endif
+#ifdef ENABLE_I2C_SLAVE
+      "S"
+#endif
+      ;
+  static const char commands[] =
+      "i\xffm"  // commands which cannot be disabled
+#ifndef DISABLE_EXECUTE
+      "x"
+#endif
+#ifndef DISABLE_PROG_PAGE
+      "p"
+#endif
+#ifndef DISABLE_MEM_CRC
+      "c"
+#endif
+#ifndef DISABLE_FUSE_READ
+      "f"
+#endif
+#ifdef ENABLE_I2C_MASTER
+      "s"
+#endif
+      ;
+  reply_success(1+2+sizeof(features)+sizeof(commands));
+  send_u8(ROID);
+  send_u16(SPM_PAGESIZE);
+  send_str(features);
+  proto_send(0);
+  send_str(commands);
+  proto_send(0);
+}
+
+
+/** @brief Read a byte and send it back.
+ */
+static void cmd_mirror(void)
+{
+  const char c = proto_recv();
+  reply_success(1);
+  send_u8(c);
+}
+
 /** @brief Terminate the connection and run the application.
  *
  * The server replies to acknowledge, then resets.
- *
- * Example:
-@verbatim
-  C -> S   x
-  C <- S   boot
-@endverbatim
  */
-static int8_t cmd_execute(const char *p)
+static void cmd_execute(void)
 {
-#ifndef DISABLE_STRICT_CHECKS
-  if( *p != '\0' ) return -1;
-#else
-  (void)p;
-#endif
+  reply_success(0);
   boot();
-  return -1; // never happens
+}
+
+
+/** @brief Program a page.
+ *
+ * When using CRC check, the page is now written on mismatch.
+ *
+ * Parameters:
+ *  - page address (u32), must be aligned
+ *  - CRC (u16), ignored if CRC check is not available
+ *  - page data
+ */
+static void cmd_prog_page(void)
+{
+  const addr_type addr = recv_addr();
+#ifndef DISABLE_STRICT_CHECKS
+  if( (addr & ((addr_type)SPM_PAGESIZE-1)) != 0 ||
+     addr > BOOTLOADER_ADDR ) {
+    reply_error(STATUS_BAD_VALUE);
+    return;
+  }
+#endif
+
+  eeprom_busy_wait();
+
+#ifdef DISABLE_PROG_CRC
+  recv_u16(); // eat the crc
+  uint16_t i;
+  // Read data and fill temporary page buffer
+  for( i=0; i<SPM_PAGESIZE; i+=2 ) {
+    boot_page_fill(addr+i, recv_u16());
+  }
+#else
+  const uint16_t crc_expected = recv_u16();
+  uint16_t crc = 0xffff;
+  uint16_t i;
+
+  // Read data, fill temporary page buffer, compute CRC
+  for( i=0; i<SPM_PAGESIZE; i+=2 ) {
+    char c1 = proto_recv();
+    char c2 = proto_recv();
+    crc = _crc_ccitt_update(crc, c1);
+    crc = _crc_ccitt_update(crc, c2);
+    uint16_t w = c1 + (c2<<8); // little endian word
+    boot_page_fill(addr+i, w);
+  }
+
+  // check CRC
+  if( crc != crc_expected ) {
+    boot_rww_enable();
+    reply_error(STATUS_CRC_MISMATCH);
+    return;
+  }
+#endif
+
+  // Erase page
+  boot_page_erase(addr);
+  boot_spm_busy_wait();
+  // Write the page buffer to the page
+  boot_page_write(addr);
+  boot_spm_busy_wait();
+  // Reenable RWW section
+  boot_rww_enable();
+
+  reply_success(0);
 }
 
 
@@ -714,120 +585,102 @@ static int8_t cmd_execute(const char *p)
  * The client asks for a CRC, providing an address and a size, and the server
  * replies with the computed CRC.
  *
- * Example:
-@verbatim
-  C -> S   c 1234 42
-  C <- S   crc 1af3
-@endverbatim
+ * Parameters:
+ *  - start address (u32)
+ *  - size (u32)
+ *
+ * Reply: computed CRC (u16)
  */
-static int8_t cmd_mem_crc(const char *p)
+static void cmd_mem_crc(void)
 {
-  addr_type start, size;
+  const addr_type start = recv_addr();
+  const addr_type size = recv_addr();
   uint16_t crc = 0xffff;
 
-  // Read and check address and size
 #ifndef DISABLE_STRICT_CHECKS
-  if( *p != ' ' ) return -1;
-  if( (p = parse_hex(p+1, &start)) == NULL ) return -1;
-  if( *p != ' ' ) return -1;
-  if( (p = parse_hex(p+1, &size)) == NULL ) return -1;
-  if( *p != '\0' ) return -1;
-  if( start+size > BOOTLOADER_ADDR ) return -1;
-#else
-  p = parse_hex(p+1, &start);
-  p = parse_hex(p+1, &size);
+  if( start + size > BOOTLOADER_ADDR ) {
+    reply_error(STATUS_BAD_VALUE);
+    return;
+  }
 #endif
 
   // Compute CRC
   addr_type addr;
   uint8_t c;
-  for( addr=start; addr<start+size; addr++ )
-  {
+  for( addr=start; addr<start+size; addr++ ) {
 		c = pgm_read_byte_bootloader(addr);
     crc = _crc_ccitt_update(crc, c);
   }
 
-  // Reply
-  send_str("crc ");
-  send_hex16(crc);
-  send_eol();
-  return 0;
+  reply_success(2);
+  send_u16(crc);
 }
 
 
 /** @brief Dump fuse values
  *
- * The server replies with the low, high and extended fuse bytes.
- *
- * Example:
-@verbatim
-  C -> S   f
-  C <- S   fuse 24 d9 ff
-@endverbatim
+ * Reply fields: low, high, extended fuse bytes (u8s)
  */
-static int8_t cmd_fuse_read(const char *p)
+static void cmd_fuse_read(void)
 {
-#ifndef DISABLE_STRICT_CHECKS
-  if( *p != '\0' ) return -1;
-#else
-  (void)p;
-#endif
-  send_str("fuse ");
-  send_hex8(boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS));
-  proto_send(' ');
-  send_hex8(boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS));
-  proto_send(' ');
-  send_hex8(boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS));
-  send_eol();
-  return 0;
+  reply_success(3);
+  send_u8(boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS));
+  send_u8(boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS));
+  send_u8(boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS));
 }
 
 
 #ifdef ENABLE_I2C_MASTER
-/** @brief Run a session an I2C slave.
+/** @brief Run a session with an I2C slave.
  *
- * A session consists of several frames.
- * For each frame, the client provides a direction (read, write or end, to
- * stop the session) and data size (only for writes); then, data is
- * transmitted.
- * Read frames ends on CR characters (following LF are consumed) and are
- * prefixed to not be confused for a server's reply (especially for prompts or
- * KOs).
+ * A session consists of several read or write frames.
+ *
+ * Parameters for the 's' command:
+ *  - I2C slave address (u8)
+ *
+ * After the 's' command the client is expected to send one of the following
+ * subcommands:
+ *  - '<': read data from the slave
+ *  - '>': send data to the slave
+ *  - '-': ends the slave session
+ *
+ * Parameters for the '<' command:
+ *  - data size (u8) or 0
+ *
+ * If the data size is 0, the value is read from the first data byte and is the
+ * number of bytes to read after this first one. This is used to read protocol
+ * replies from the slave.
+ *
+ * Parameters for the '>' command:
+ *  - data size (u16)
+ *  - data to send
+ *
+ * After each subcommand, the server reply with an appropriated status.
+ * The SUCCESS status is only used when successfully ending the session.
+ * An error status abort the session.
  *
  * The slave part is intended to be minimalistic. Therefore, it has a (very)
  * lazy handling of I2C states. Especially, the master should not except NACK
  * from it.
- *
- * Example:
-@verbatim
-  C -> S   s 54
-  C <- S   ?rw
-  C -> S   > 30
-  C <- S   ?data
-  C -> S   ... data (0x30 bytes) ...
-  C <- S   ?rw
-  C -> S   <
-  C <- S   <... data received from slave, ends with LF ...
-  C <- S   ?rw
-  C -> S   -
-  C <- S   ok
-@endverbatim
  */
-static int8_t cmd_slave_msg(const char *p)
+static void cmd_slave_session(void)
 {
-  uint8_t addr; // slave addr
-  //XXX parse appropriated type, not addr_type
-  addr_type addr16; // variable for parsing
-
+#ifdef ENABLE_I2C_SLAVE
 #ifndef DISABLE_STRICT_CHECKS
-  if( *p != ' ' ) return -1;
-  if( (p = parse_hex(p+1, &addr16)) == NULL ) return -1;
-  if( *p != '\0' ) return -1;
-  if( addr16 < 0x08 || addr16 >= 0x78 ) return -1; // check address range
-#else
-  p = parse_hex(p+1, &addr16);
+  // command allowed in UART mode only
+  if( proto_send != uart_send ) {
+    reply_failure();
+    return;
+  }
 #endif
-  addr = addr16;
+#endif
+  uint8_t addr = proto_recv(); // slave addr
+#ifndef DISABLE_STRICT_CHECKS
+  if( addr < 0x08 || addr >= 0x78 ) {
+    reply_error(STATUS_BAD_VALUE);
+    return;
+  }
+#endif
 
   // configure I2C
   //XXX move it elswhere(?)
@@ -842,56 +695,48 @@ static int8_t cmd_slave_msg(const char *p)
   I2CM_STOP();
 
   for(;;) {
-    send_msg("?rw");
-    char rbuf[ROBLOS_BUF_SIZE];
-    recv_line(rbuf);
-    p = rbuf;
-
-    if( *p == '-' ) {
+    proto_send(STATUS_I2C_WAIT_FRAME);
+    char c = proto_recv();
+    if( c == 0 ) {
+      continue; // null command: ignore
+    } else if( c == '-' ) {
       // end of session
-      p++;
-#ifndef DISABLE_STRICT_CHECKS
-      if( *p != '\0' ) return -1;
-      send_status_ok();
-      return 0;
-#endif
+      reply_success(0);
+      return;
 
-    } else if( *p == '>' ) {
+    } else if( c == '>' ) {
       // write frame
-      //XXX parse uint16_t, not addr_type
-      p++;
-      addr_type size;
+      uint16_t size = recv_u16();
 #ifndef DISABLE_STRICT_CHECKS
-      if( *p != ' ' ) return -1;
-      if( (p = parse_hex(p+1, &size)) == NULL ) return -1;
-      if( size == 0 ) return -1;
-      if( *p != '\0' ) return -1;
-#else
-      p = parse_hex(p+1, &size);
+      if( size == 0 ) {
+        reply_error(STATUS_BAD_VALUE);
+        return;
+      }
 #endif
       I2CM_START();
 #ifndef DISABLE_STRICT_CHECKS
-      if( TW_STATUS != TW_START )
-        return -1;
+      if( TW_STATUS != TW_START ) {
+        goto slave_i2c_error;
+      }
 #endif
       // slave address + Write bit (0)
       I2C_SEND(addr<<1);
 #ifndef DISABLE_STRICT_CHECKS
       if( TW_STATUS == TW_MT_SLA_NACK ) {
         I2CM_STOP();
-        return -1;
+        goto slave_i2c_error;
       }
-      if( TW_STATUS != TW_MT_SLA_ACK )
-        return -1;
+      if( TW_STATUS != TW_MT_SLA_ACK ) {
+        goto slave_i2c_error;
+      }
 #endif
       // transfer data
-      send_msg("?data");
       while( size-- != 1 ) {
         I2C_SEND( proto_recv() );
 #ifndef DISABLE_STRICT_CHECKS
         if( TW_STATUS != TW_MT_DATA_ACK ) {
           I2CM_STOP();
-          return -1;
+          goto slave_i2c_error;
         }
 #endif
       }
@@ -899,56 +744,59 @@ static int8_t cmd_slave_msg(const char *p)
 #ifndef DISABLE_STRICT_CHECKS
       if( TW_STATUS != TW_MT_DATA_ACK && TW_STATUS != TW_MT_DATA_NACK ) {
         I2CM_STOP();
-        return -1;
+        goto slave_i2c_error;
       }
       I2CM_STOP();
 #endif
 
-    } else if( *p == '<' ) {
+    } else if( c == '<' ) {
+      uint8_t size = proto_recv();
       // read frame
-      p++;
-#ifndef DISABLE_STRICT_CHECKS
-      if( *p != '\0' ) return -1;
-#endif
       I2CM_START();
 #ifndef DISABLE_STRICT_CHECKS
-      if( TW_STATUS != TW_START )
-        return -1;
+      if( TW_STATUS != TW_START ) {
+        goto slave_i2c_error;
+      }
 #endif
       // slave address + Read bit (1)
       I2C_SEND((addr<<1)+1);
 #ifndef DISABLE_STRICT_CHECKS
       if( TW_STATUS != TW_MR_SLA_ACK && TW_STATUS != TW_MR_SLA_NACK ) {
         I2CM_STOP();
-        return -1;
+        goto slave_i2c_error;
       }
 #endif
-      proto_send('<');
-      for(;;) {
+      if( size == 0 ) {
+        // read the size in the first byte
+        I2C_ACK();
+        size = TWDR;
+        reply(STATUS_I2C_READ, size+1);
+        proto_send(size);
+      } else {
+        reply(STATUS_I2C_READ, size);
+      }
+      while( size-- != 1 ) {
         I2C_ACK();
         char c = TWDR;
         proto_send(c);
-        if( c == '\r' )
-          break;
       }
       I2C_NACK();
-#ifndef DISABLE_STRICT_CHECKS
-      if( TWDR != '\n' )
-        return -1;
-#endif
-      proto_send('\n');
+      proto_send( TWDR );
       I2CM_STOP();
     } else {
-      return -1;
+      reply_error(STATUS_I2C_BAD_FRAME);
+      return;
     }
   }
-
-  return -1; // never reached
-}
+  return;
+#ifndef DISABLE_STRICT_CHECKS
+slave_i2c_error:
+  reply_error(STATUS_I2C_ERROR);
+  return;
 #endif
-
-
+}
 //@}
+#endif
 
 
 /** @brief Main loop.
@@ -979,9 +827,7 @@ int main(void)
 #endif
 
 #ifdef ENABLE_UART
-  // first prompt
-  send_eol();
-  send_prompt();
+  SEND_MESSAGE("boot ENTER");
 #endif
   // timeout before booting
   uint8_t i = (BOOT_TIMEOUT)*F_CPU/(65536*4*1000);
@@ -992,7 +838,7 @@ int main(void)
     // from UART
 #ifdef ENABLE_UART
     if( (UCSRxA & (1<<RXCx)) ) {
-      // uart is the default for proto_*
+      // UART is the default for proto_*
       break;
     }
 #endif
@@ -1014,41 +860,35 @@ int main(void)
     _delay_loop_2(0); // 65536*4 cycles
   }
 
-
-  char rbuf[ROBLOS_BUF_SIZE];
   for(;;) {
-    recv_line(rbuf);
-    if( *rbuf != '\0' ) {
-      int8_t ret;
-      if( *rbuf == 'i' )
-        ret = cmd_infos(rbuf+1);
+    char c = proto_recv();
+    if( c == 0x00 ) {
+      continue; // null command: ignore
+    } else if( c == 0xff ) {
+      // failure command
+      reply_failure();
+    } else if( c == 'i' ) {
+      cmd_infos();
+    }
+    else if( c == 'm' ) cmd_mirror();
 #ifndef DISABLE_EXECUTE
-      else if( *rbuf == 'x' )
-        ret = cmd_execute(rbuf+1);
+    else if( c == 'x' ) cmd_execute();
 #endif
 #ifndef DISABLE_PROG_PAGE
-      else if( *rbuf == 'p' )
-        ret = cmd_prog_page(rbuf+1);
+    else if( c == 'p' ) cmd_prog_page();
 #endif
 #ifndef DISABLE_MEM_CRC
-      else if( *rbuf == 'c' )
-        ret = cmd_mem_crc(rbuf+1);
+    else if( c == 'c' ) cmd_mem_crc();
 #endif
 #ifndef DISABLE_FUSE_READ
-      else if( *rbuf == 'f' )
-        ret = cmd_fuse_read(rbuf+1);
+    else if( c == 'f' ) cmd_fuse_read();
 #endif
 #ifdef ENABLE_I2C_MASTER
-      //XXX should be allowed only in UART mode
-      else if( *rbuf == 's' )
-        ret = cmd_slave_msg(rbuf+1);
+    else if( c == 's' ) cmd_slave_session();
 #endif
-      else
-        ret = -1;
-      if( ret != 0 )
-        send_status_ko();
+    else {
+      reply_error(STATUS_UNKNOWN_COMMAND);
     }
-    send_prompt();
   }
 
   return 1;

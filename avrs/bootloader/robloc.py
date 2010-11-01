@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import re, sys, time
+import re, sys
+import struct
 
 
 class RobloClient:
@@ -8,8 +9,19 @@ class RobloClient:
   Low-level Client for the Rob'Otter Bootloader.
   """
 
-  # End-of-line sequence
-  EOL = '\r\n'
+  STATUS_NONE             = 0x00
+  STATUS_SUCCESS          = 0x01
+  STATUS_BOOTLOADER_MSG   = 0x0a
+  STATUS_I2C_WAIT_FRAME   = 0x20
+  STATUS_I2C_READ         = 0x21
+  STATUS_FAILURE          = 0xff
+  STATUS_UNKNOWN_COMMAND  = 0x81
+  STATUS_NOT_SUPPORTED    = 0x82
+  STATUS_BAD_FORMAT       = 0x83
+  STATUS_BAD_VALUE        = 0x84
+  STATUS_CRC_MISMATCH     = 0x90
+  STATUS_I2C_ERROR        = 0xa0
+  STATUS_I2C_BAD_FRAME    = 0xa1
 
 
   def __init__(self, conn):
@@ -17,26 +29,13 @@ class RobloClient:
 
     conn is an UART connection object with the following requirements:
      - it must be blocking
-     - write() and either read(1) or readline() must be implemented
+     - write() and read(1) must be implemented
 
     Note: methods assume that their are no pending data in the input queue
     before sending a command. Otherwise, read responses will not match.
 
     """
     self.conn = conn
-    if hasattr(conn, 'readline'):
-      self._readline = conn.readline
-    elif hasattr(conn, 'read'):
-      def rl():
-        s = ''
-        while True:
-          c = self.conn.read(1)
-          s += c
-          if c == '\n': break
-        return s
-      self._readline = rl
-    else:
-      raise ValueError, "invalid connection: read() method missing"
 
 
   # Data transmission
@@ -44,149 +43,111 @@ class RobloClient:
   def send_raw(self, buf):
     """Send raw data to the server.
     
-    Note: data should not split and sent with several calls to send_raw(): this
-    would be inefficient for I2C sessions since each call produces a distinct
-    frame.
+    Note: data should not be split and sent with several calls to send_raw():
+    this would be inefficient for I2C sessions since each call produces a
+    distinct frame.
     """
     self.conn.write(buf)
     self.output_write(buf)
 
-  def send_msg(self, *args):
-    """Send a line ended by an EOL sequence.
-    Number arguments are properly formatted.
+  def recv_raw(self, n):
+    """Receive raw data from the server."""
+    buf = ''
+    for i in range(n):
+      buf += self.conn.read(1)
+    self.output_read(buf)
+    return buf
+
+  def send_cmd(self, cmd, fmt='', *args):
+    """Send a command, return a RoblosReply object.
+    cmd is either a byte value or a single character string.
+    If args is not empty, fmt and args are parameters for struct.pack (without
+    byte order indication).
+    Otherwise, fmt is the command string to send.
     """
-    l = []
-    for a in args:
-      if isinstance(a, int):
-        a = '%x' % a
-      l.append(a)
-    self.send_raw(' '.join(l) + self.EOL)
+    if not isinstance(cmd, basestring):
+      cmd = chr(cmd)
+    else:
+      ord(cmd) # check the value
+    if len(args):
+      data = struct.pack('<'+fmt, *args)
+    else:
+      data = fmt
+    self.send_raw(cmd + data)
+    return self.recv_reply()
 
-  def send_yesno(self, b):
-    """Send a confirmation response."""
-    self.send_msg( 'y' if b else 'n' )
-
-
-  def recv_msg(self):
-    """Read and parse a one-line message.
-    Return a RoblosResponse object or False on error.
+  def recv_reply(self):
+    """Read a reply.
+    Leading null bytes are skipped;
+    See RoblosReply for the meaning of fmt.
+    Return a RoblosReply object.
     """
-    s = self._readline()
-    self.output_read(s)
-    if not s: return False
-    r = RoblosResponse(s)
-    return r
+    while True:
+      size = ord(self.recv_raw(1))
+      if size != 0:
+        break
+    return RoblosReply(self.recv_raw(size))
 
 
   # Commands
 
+  def cmd_mirror(self, v):
+    """Ping/pong command.
+    Return True if the same byte was read in the reply, False otherwise.
+    """
+    r = self.send_cmd('m', 'B', v)
+    if not r:
+      return False
+    return r.unpack('B')[0] == v
+
   def cmd_infos(self):
     """Retrieve server infos.
-    Return a the tuple (supported features, ROID, pagesize) or False on error.
+    Return a the tuple (ROID, pagesize, features, commands) or False on error.
     """
-    self.send_msg('i')
-    r = self.recv_msg()
-    if not r or r.cmd!='info' or len(r.args)!=3: return False
-    return tuple( r.args )
+    r = self.send_cmd('i')
+    if not r:
+      return False
+    roid, pagesize = r.unpack('BH')
+    features = r.unpack_sz()
+    commands = r.unpack_sz()
+    return roid, pagesize, features, commands
 
   def cmd_fuse_read(self):
     """Read fuses.
     Return a tuple with low, high and extended fuse bytes or False on error.
     """
-    self.send_msg('f')
-    r = self.recv_msg()
-    if not r or r.cmd!='fuse' or len(r.args)!=3: return False
-    return tuple( r.args )
+    r = self.send_cmd('f')
+    if not r:
+      return False
+    return r.unpack('3B')
 
-  def cmd_prog_page(self, addr, buf, crc=None):
+  def cmd_prog_page(self, addr, buf, crc=0):
     """Program a page.
     Return True on success, False on error and None on crc mismatch.
     """
-
-    self.send_msg('p', addr)
-    r = self.recv_msg()
-    if not r or not r.ask or r.cmd!='data': return False
-
-    # send data
-    self.send_raw(buf)
-
-    r = self.recv_msg()
-    if not r: return False
-    if r.ok:
-      # CRC check not available
-      # TODO return an error if crc check has been requested
-      return True
-    if not r.ask or r.cmd!='crc': return False
-    if not crc or r.args[0] == crc:
-      self.send_yesno(True)
-      r = self.recv_msg()
-    else:
-      self.send_yesno(False)
-      r = self.recv_msg() # should be a 'KO'
+    r = self.send_cmd('p', 'IH%ds'%len(buf), addr, crc, buf)
+    if r.status == self.STATUS_CRC_MISMATCH:
       return None
-    if not r or not r.ok: return False
+    if not r:
+      return False
     return True
 
   def cmd_mem_crc(self, start, size):
     """Compute the CRC of a given memory range.
     Return the computed CRC or False on error.
     """
-    self.send_msg('c', start, size)
-    r = self.recv_msg()
-    if not r or r.cmd!='crc' or len(r.args)!=1: return False
-    return r.args[0]
+    r = self.send_cmd('c', 'LL', start, size)
+    if not r:
+      return False
+    return r.unpack('H')[0]
 
   def cmd_execute(self):
     """Run the application.
     Return True on success, False otherwise.
     """
-    self.send_msg('x')
-    r = self.recv_msg()
-    if not r or r.cmd!='boot': return False
-    return True
-
-  def cmd_slave_start(self, addr):
-    """Start an I2C session with a slave.
-    Return True on success, False on error.
-    """
-    self.send_msg('s', addr)
-    r = self.recv_msg()
-    if not r or not r.ask or r.cmd!='rw': return False
-    return True
-
-  def cmd_slave_write(self, buf):
-    """Send data to an I2C slave.
-    An I2C session should have been started.
-    Return True on success, False on error.
-    """
-    self.send_msg('>', len(buf))
-    r = self.recv_msg()
-    if not r or not r.ask or r.cmd!='data': return False
-    self.send_raw(buf) # send data
-    r = self.recv_msg()
-    if not r or not r.ask or r.cmd!='rw': return False
-    return True
-
-  def cmd_slave_read(self):
-    """Receive data to an I2C slave.
-    An I2C session should have been started.
-    Return received data or False on error.
-    """
-    self.send_msg('<')
-    s = self._readline()
-    self.output_read(s)
-    if not s or s[0] != '<': return False
-    r = self.recv_msg()
-    if not r or not r.ask or r.cmd!='rw': return False
-    return s[1:]
-
-  def cmd_slave_stop(self):
-    """Ends an I2C session with a slave.
-    Return True on success, False on error.
-    """
-    self.send_msg('-')
-    r = self.recv_msg()
-    if not r or not r.ok: return False
+    r = self.send_cmd('x')
+    if not r:
+      return False
     return True
 
 
@@ -212,58 +173,55 @@ class RobloClient:
     return crc
 
 
-
-class RoblosResponse:
-  """Parse a server response into an object.
+class RoblosReply:
+  """Parse a server reply into an object.
 
   This is a very simple object which only sets some attributes.
 
   Attributes:
-    valid -- the reply is valid
-    ask -- the server asks for a reply (leading '?')
-    prompt -- True if the message is a prompt
-    ok -- True if the message is a 'ok' status
-    ko -- True if the message is a 'KO' status
-    cmd -- first field (without any leading '?')
-    args -- tuple of fields without the first one, valid number strings are
-            casted to int
-    raw -- raw copy of the message
+    status -- reply status, as an int
+    fields -- list of parsed fields
+    data -- unparsed field data
+    raw -- raw copy of the reply
 
-  The reponse evaluates to True if it is valid and not a 'KO' status.
+  The reponse evaluates to True if it as a non-error status.
 
   """
 
   def __init__(self, s):
-    self.cmd = None
-    self.ask = False
-    self.prompt = False
-    self.ok = False
-    self.ko = False
-    self.args = None
-    self.valid = self.parse(s)
-
-  def parse(self, s):
     self.raw = s
-    if not s: return False
-    if s[-2:] != '\r\n': return False
+    self.status = ord(s[0])
+    self.data = s[1:]
+    self.fields = []
 
-    m = re.match(r'^(\?)?([^ ]+)((?: [^ ]+)*)$', s[:-2])
-    if m is None: return False
+  def unpack(self, fmt):
+    """Unpack data using a format string.
+    fmt is a string as used by struct.unpack but without byte order
+    indication.
+    Unpacked fields are appended to the fields attribute and returned.
+    """
+    fmt = '<'+fmt  # little-endian
+    n = struct.calcsize(fmt)
+    l = struct.unpack(fmt, self.data[:n])
+    self.fields += l
+    self.data = self.data[n:]
+    return l
 
-    # fill attributes
-    self.cmd = m.group(2)
-    self.ask = bool(m.group(1))
-    self.prompt = ( self.ask and self.cmd == 'cmd' )
-    self.ok = ( self.cmd == 'ok' )
-    self.ko = ( self.cmd == 'KO' )
-    self.args = tuple(
-        int(a,16) if re.match('^(?:[0-9a-f][0-9a-f])*$', a) else a
-        for a in m.group(3).split(' ')[1:]
-        )
-    return True
+  def unpack_sz(self):
+    """Unpack a NUL-terminated string.
+    The unpacked string is appended to the fields attribute and returned.
+    """
+    try:
+      i = self.data.index('\0')
+    except ValueError:
+      raise ValueError("NUL byte not found")
+    s = self.data[:i]
+    self.fields.append(s)
+    self.data = self.data[i+1:]
+    return s
 
   def __nonzero__(self):
-    return 1 if self.valid and not self.ko else 0
+    return 1 if self.status < 0x80 else 0
   __bool__ = __nonzero__
 
 
@@ -281,9 +239,9 @@ class Roblochon(RobloClient):
 
   Attributes:
     features -- supported features (as a string)
+    commands -- supported commands (as a string)
     roid -- server's Rob'Otter ID
     pagesize -- server's page size
-    response -- last received response, or None
     verbose -- print transferred data on stderr if True
 
   """
@@ -306,83 +264,78 @@ class Roblochon(RobloClient):
     if kw.get('init_send'):
       self.send_raw( kw.get('init_send') )
 
-    self.response = None
     self.clear_infos()
 
-  def recv_msg(self):
-    """Redefined method to store the last response."""
-    r = RobloClient.recv_msg(self)
-    self.response = r if r is not False else None
-    return r
+  __sync_gen = None
 
-  def wait_prompt(self, force=True):
-    """Wait or force a prompt.
+  @classmethod
+  def _sync_byte(cls):
+    """Return a synchronization byte to use."""
+    if cls.__sync_gen is None:
+      def gen():
+        vals = range(1,255)
+        import random
+        random.shuffle(vals)
+        while True:
+          for i in vals:
+            yield i
+      cls.__sync_gen = gen()
+    return next(cls.__sync_gen)
 
-    If force is True, nothing is assumed about current state.
-    """
-
-    if force: self.response = None
-    if self.response is None:
-      # unknown state, read all we can
-      if self._eof is not None:
-        time.sleep(0.1) # wait for any incoming data
-        while not self._eof():
-          r = self.recv_msg()
-          if r is False:
-            raise RoblochonError("recv_msg failed")
-      self.response = None  # reset current state, again
-    elif self.response and self.response.prompt:
-      return # we already have a prompt
-
-    # wait for 2 successive prompts
-    prev = self.response
+  def synchronize(self):
+    """Synchronize with the server to be ready to send a command."""
+    #XXX current implementation is lazy
+    # We wait for the expected reply to a mirror command.
+    # On unexpected data, a new mirror command is sent.
     while True:
-      if self.response is None or self.response.ask:
-        self.send_msg('')  # force KO or prompt
-      r = self.recv_msg()
-      if r is False:
-        raise RoblochonError("recv_msg failed")
-      if prev and prev.prompt and r.prompt: break
-      prev = r
+      # flush first
+      if self._eof is not None:
+        while not self._eof():
+          self.recv_raw(1)
+      # send a mirror command
+      # don't use cmd_mirror() to control reply reading
+      sync = chr(self._sync_byte())
+      self.send_raw('m'+sync)
+      if (self.recv_raw(1) == '\x02' and  # size
+          self.recv_raw(1) == '\x01' and  # status
+          self.recv_raw(1) == sync):
+        break
 
-
-  def program(self, fhex, fhex2=None, force=False):
+  def program(self, fhex, fhex2=None):
     """Send a program to the device.
 
     Parameters:
       fhex -- HEX file (or filename or buffer) to program
       fhex2 -- previous HEX file, to program changes
-      force -- if True, skip CRC checking
 
     See program_pages() for return values.
 
     """
 
-    if isinstance(fhex, buffer):
+    if type(fhex) is buffer:
       data = fhex
     else:
       data = self.parse_hex_file(fhex)
     if len(data) == 0:
       raise ValueError("empty HEX data")
     if fhex2 is None:
-      return self.program_pages(data, force)
+      return self.program_pages(data)
 
-    if isinstance(fhex, buffer):
+    if isinstance(fhex2, buffer):
       data2 = fhex2
     else:
       data2 = self.parse_hex_file(fhex2)
     if len(data2) == 0:
       raise ValueError("empty previous HEX data")
     
-    return self.program_pages(self.diff_pages(data, data2), force)
+    return self.program_pages(self.diff_pages(data, data2))
 
 
-  def program_pages(self, pages, force=False):
+  def program_pages(self, pages):
     """Send a program to the device.
 
     Parameters:
       pages -- list of pages to program, or a single buffer string
-      force -- if True, skip CRC checking
 
     pages is a list of (address, data) pairs. address has to be aligned to
     pagesize, data is padded if needed but size must not exceed page size.
@@ -393,8 +346,6 @@ class Roblochon(RobloClient):
     """
 
     self._assert_supported_cmd('p')
-    if 'C' not in self.features:
-      force = True  # cannot use CRC check
 
     if isinstance(pages, (basestring, buffer)):
       pages = [
@@ -405,6 +356,7 @@ class Roblochon(RobloClient):
     if page_count == 0:
       return None
 
+    self.synchronize()
     for i, (addr, data) in enumerate(pages):
       self.output_program_progress(i+1, page_count)
 
@@ -413,10 +365,12 @@ class Roblochon(RobloClient):
       assert addr%self.pagesize == 0, "page address not aligned %s" % err_info
       assert len(data) == self.pagesize, "invalid page size %s" % err_info
 
-      crc = self.compute_crc(data) if not force else None
+      if 'C' in self.features:
+        crc = self.compute_crc(data)
+      else:
+        crc = 0  # cannot use CRC check
       n = self.CRC_RETRY
       while True:
-        self.wait_prompt(False)
         r = self.cmd_prog_page(addr, data, crc)
         if r is True:
           break # ok
@@ -450,7 +404,7 @@ class Roblochon(RobloClient):
     if len(data) == 0:
       raise ValueError("empty HEX data")
 
-    self.wait_prompt()
+    self.synchronize()
     r = self.cmd_mem_crc(0, len(data))
     if r is False:
       raise RoblochonError("crc check failed")
@@ -459,16 +413,19 @@ class Roblochon(RobloClient):
 
   def update_infos(self):
     """Get device infos, update associated attributes."""
-    self.wait_prompt()
+    self.synchronize()
     r = self.cmd_infos()
     if not r:
       raise RoblochonError("cannot retrieve device info")
-    self.features, self.roid, self.pagesize = r
+    self.roid, self.pagesize, self.features, self.commands = r
     return r
 
   def clear_infos(self):
     """Clear cached device infos."""
-    self.features, self.roid, self.pagesize = None, None, None
+    self.features = None
+    self.commands = None
+    self.roid = None
+    self.pagesize = None
 
 
   def read_fuses(self):
@@ -476,7 +433,7 @@ class Roblochon(RobloClient):
     Return a tuple with low, high and extended fuse bytes.
     """
     self._assert_supported_cmd('f')
-    self.wait_prompt()
+    self.synchronize()
     r = self.cmd_fuse_read()
     if r is False:
       raise RoblochonError("failed to read fuses")
@@ -486,7 +443,7 @@ class Roblochon(RobloClient):
   def boot(self):
     """Boot the device."""
     self._assert_supported_cmd('x')
-    self.wait_prompt()
+    self.synchronize()
     r = self.cmd_execute()
     if r is False:
       raise RoblochonError("boot failed")
@@ -557,8 +514,9 @@ class Roblochon(RobloClient):
     return buffer(data)
 
   def _assert_supported_cmd(self, c):
-    if self.features is None: self.update_infos()
-    if c not in self.features:
+    if self.commands is None:
+      self.update_infos()
+    if c not in self.commands:
       raise RoblochonError("command '%c' not supported by the device" % c)
 
 
@@ -597,7 +555,6 @@ class SlaveConn:
 
   def connect(self):
     """Start an I2C session."""
-    self.master.wait_prompt()
     if not self.master.cmd_slave_start(self.addr):
       raise RoblochonError("failed to start I2C session")
 
@@ -605,19 +562,13 @@ class SlaveConn:
     """End an I2C session."""
     self.master.cmd_slave_stop() # ignore errors
 
-  def readline(self):
-    ret = self.master.cmd_slave_read()
-    if ret is False:
-      raise RoblochonError("I2C read failed")
-    return ret
-
   def write(self, data):
     if not self.master.cmd_slave_write(data):
       raise RoblochonError("I2C write failed")
 
 
 
-import os, termios, fcntl, struct
+import os, termios, fcntl
 
 class BasicSerial:
   """Basic serial connection implementation."""
@@ -713,8 +664,6 @@ if __name__ == '__main__':
       help="I2C address of a slave to communicate with")
   parser.add_option('--roid', dest='roid',
       help="check device ROID before doing anything")
-  parser.add_option('--force', dest='force', action='store_true',
-      help="do not check CRC of programmed pages")
   parser.add_option('--init-send', dest='init_send',
       help="string to send at connection (eg. to reset the device)")
   parser.add_option('-P', '--port', dest='port',
@@ -731,7 +680,6 @@ if __name__ == '__main__':
       fuses=False,
       slave_addr=None,
       roid=None,
-      force=False,
       init_send=None,
       port='/dev/ttyUSB0',
       baudrate=38400,
@@ -757,6 +705,7 @@ if __name__ == '__main__':
 
   master = Roblochon(conn, verbose=opts.verbose, init_send=opts.init_send)
   print "bootloader waiting..."
+  master.synchronize()
   master.update_infos()
 
   if opts.slave_addr is not None:
@@ -765,6 +714,7 @@ if __name__ == '__main__':
     slave_conn.connect()
     client = Roblochon(slave_conn)
     print "slave bootloader waiting..."
+    client.synchronize()
     client.update_infos()
   else:
     client = master
@@ -773,12 +723,13 @@ if __name__ == '__main__':
     assert opts.roid == client.roid, "ROID mismatch"
 
   if opts.infos:
+    #TODO list of commands
     print "device infos :  ROID: %d, features: %s" % (client.roid, client.features)
   if opts.fuses:
     print "fuses (low high ex): %02x %02x %02x" % client.read_fuses()
   if opts.program:
     print "programming..."
-    ret = client.program(args[0], args[1] if len(args)>1 else None, opts.force)
+    ret = client.program(args[0], args[1] if len(args)>1 else None)
     if ret is None:
       print "nothing to program"
   if opts.check:
