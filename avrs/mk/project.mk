@@ -35,7 +35,7 @@ export ROBOTTER_DIR
 
 AVERSIVE_MODULES_PATHS = $(addprefix aversive/modules/,$(AVERSIVE_MODULES))
 ROBOTTER_MODULES_PATHS = $(addprefix modules/,$(ROBOTTER_MODULES))
-MODULES_PATHS = $(AVERSIVE_MODULES_PATHS) $(ROBOTTER_MODULES_PATHS)
+MODULES_PATHS = $(ROBOTTER_MODULES_PATHS) $(AVERSIVE_MODULES_PATHS)
 
 INCLUDE_DIRS += . $(ABS_AVERSIVE_DIR)/include
 INCLUDE_DIRS += $(ABS_AVERSIVE_DIR)/modules $(ABS_ROBOTTER_DIR)/modules
@@ -312,7 +312,7 @@ clean: clean-project clean-modules
 	-rmdir -p $(obj_dir) 2>/dev/null
 
 clean-project:
-	rm -f $(TARGET_OBJ) $(OUTPUTS) $(OBJS) $(DEPS)
+	rm -f $(TARGET_OBJ) $(PROJECT_LIB) $(OUTPUTS) $(OBJS) $(DEPS)
 
 clean_modules_rules = $(addprefix clean-,$(MODULES_PATHS))
 
