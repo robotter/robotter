@@ -63,7 +63,7 @@ sensorsValidity_t sensors_validity;
 void hposition_init( hrobot_position_t* hpos )
 {
   uint8_t flags;
-  int i;
+  uint8_t i;
 
   IRQ_LOCK(flags);
   hpos->position.x = 0.0; 
@@ -150,7 +150,7 @@ void hposition_get( hrobot_position_t *hpos, hrobot_vector_t *hvec)
 void hposition_update(void *dummy)
 {
   uint8_t flags;
-  int i,k;
+  uint8_t i,k;
   int32_t v;
   double dp[3];
   hrobot_vector_t vec;
@@ -279,7 +279,9 @@ void hposition_update(void *dummy)
   // Latch computed values to accessors
   IRQ_LOCK(flags);
 
-  hpos->position = vec;
+  hpos->position.x = vec.x;
+  hpos->position.y = vec.y;
+  hpos->position.alpha = vec.alpha;
   
   IRQ_UNLOCK(flags);
 

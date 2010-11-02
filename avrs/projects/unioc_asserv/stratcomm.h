@@ -58,8 +58,8 @@ void stratcomm_init(stratcomm_t*);
   */
 void stratcomm_update(stratcomm_t*);
 
-/** @brief Perform order */
-void stratcomm_doOrder(stratcomm_t*, stratcommOrder_t, uint8_t* payload);
+/** @brief Perform command */
+void stratcomm_process(stratcomm_t*, uint16_t, uint8_t* payload);
 
 /** @brief Compute payload checksum */
 uint8_t stratcomm_computeChecksum(uint8_t* payload, uint8_t payloadSize);

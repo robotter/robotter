@@ -25,8 +25,11 @@
 
 #define UNPACK_DOUBLE(sc,payload) ( *((double*) stratcomm_popPayload(sc, payload, sizeof(double))) )
 #define UNPACK_INT16(sc,payload) ( *((int16_t*) stratcomm_popPayload(sc, payload, sizeof(int16_t))) )
+#define UNPACK_UINT16(sc,payload) ( *((uint16_t*) stratcomm_popPayload(sc, payload, sizeof(uint16_t))) )
 #define UNPACK_UINT8(sc,payload) ( *((uint8_t*) stratcomm_popPayload(sc, payload, sizeof(uint8_t))) )
 
 #define PACK_UINT8(v)  ( (uint8_t*)(&(v)) )
+#define PACK_INT16(v)  ( (uint8_t*)(&(v)) )
+#define PACK_UINT16(v)  ( (uint8_t*)(&(v)) )
 
 #endif/*STRATCOMM_PAYLOADS_H*/

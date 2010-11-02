@@ -12,6 +12,7 @@ class Robot:
     for device in self.devices:
       for message in device.messages:
         message.set_mid(unique_id)
+        unique_id += 1
 
   def get_devices(self):
     return self.devices
@@ -25,17 +26,23 @@ class Device:
     self.roid = roid
     self.outdir = outdir
     self.messages = messages
-
+    # assign device name to messages
+    for m in self.messages:
+      m.set_device_name(self.name)
 
 class Message:
   """  """
   def __init__(self, name):
     self.name = name
     self.mid = None
- 
+    self.device_name = None
+
   def get_cname(self):
-    return 'CM_'+self.name
+    return 'CM_'+self.device_name.upper()+'_'+self.name
   
+  def set_device_name(self, name):
+    self.device_name = name
+
   def get_mid(self):
     return self.mid
 
@@ -54,5 +61,6 @@ class Command(Message):
     Message.__init__(self, name)
     
     self.args = args
-    self.retvalue = retvalue
+    # prefix return values with r_
+    self.retvalue = [('r_'+n,t) for n,t in retvalue]
     self.text = text
