@@ -568,83 +568,101 @@ class SlaveConn:
 
 
 
-import os, termios, fcntl
+# Use the pySerial implementation as fallback
+try:
+  import os, termios, fcntl
 
-class BasicSerial:
-  """Basic serial connection implementation."""
+  class BasicSerial:
+    """Basic serial connection implementation.
+    
+    It is merely compatible with the pySerial implementation.
+    """
 
-  def __init__(self, device, baudrate=38400, bytesize=8, parity=None, stopbits=1):
-    self.fd = os.open(device, os.O_RDWR|os.O_NOCTTY)
+    def __init__(self, port, baudrate=38400, bytesize=8, parity=None, stopbits=1):
+      self.fd = os.open(port, os.O_RDWR|os.O_NOCTTY)
 
-    iflag, oflag, cflag, lflag, ispeed, ospeed, cc = termios.tcgetattr(self.fd)
+      iflag, oflag, cflag, lflag, ispeed, ospeed, cc = termios.tcgetattr(self.fd)
 
-    iflag &= ~(termios.INPCK|termios.ISTRIP|termios.INLCR|termios.IGNCR|termios.ICRNL|termios.IXON)
-    oflag &= ~(termios.OPOST)
-    cflag = (termios.CREAD|termios.CLOCAL)
-    lflag = 0
+      iflag &= ~(termios.INPCK|termios.ISTRIP|termios.INLCR|termios.IGNCR|termios.ICRNL|termios.IXON)
+      oflag &= ~(termios.OPOST)
+      cflag = (termios.CREAD|termios.CLOCAL)
+      lflag = 0
 
-    # baudrate
-    try:
-      ispeed = ospeed = getattr(termios, 'B%s' % baudrate)
-    except AttributeError:
-      raise ValueError("baudrate not supported")
+      # baudrate
+      try:
+        ispeed = ospeed = getattr(termios, 'B%s' % baudrate)
+      except AttributeError:
+        raise ValueError("baudrate not supported")
 
-    # bytesize
-    cflag &= ~(termios.CSIZE)
-    try:
-      cflag |= {
-          5: termios.CS5,
-          6: termios.CS6,
-          7: termios.CS7,
-          8: termios.CS8,
-          }[bytesize]
-    except KeyError:
-      raise ValueError("invalid bytesize: %r" % bytesize)
+      # bytesize
+      cflag &= ~(termios.CSIZE)
+      try:
+        cflag |= {
+            5: termios.CS5,
+            6: termios.CS6,
+            7: termios.CS7,
+            8: termios.CS8,
+            }[bytesize]
+      except KeyError:
+        raise ValueError("invalid bytesize: %r" % bytesize)
 
-    # setup parity
-    if parity is None:
-      cflag &= ~(termios.PARENB|termios.PARODD)
-    elif parity == 0 or parity == 'even':
-      cflag &= ~(termios.PARODD)
-      cflag |=  (termios.PARENB)
-    elif parity == 1 or parity == 'odd':
-      cflag |=  (termios.PARENB|termios.PARODD)
-    else:
-      raise ValueError("invalid parity: %r" % parity)
+      # setup parity
+      if parity in (None, 'N'):
+        cflag &= ~(termios.PARENB|termios.PARODD)
+      elif parity in (0, 'even', 'E'):
+        cflag &= ~(termios.PARODD)
+        cflag |=  (termios.PARENB)
+      elif parity in (1, 'odd', 'O'):
+        cflag |=  (termios.PARENB|termios.PARODD)
+      else:
+        raise ValueError("invalid parity: %r" % parity)
 
-    # stopbits
-    if stopbits == 1:
+      # stopbits
+      if stopbits == 1:
         cflag &= ~(termios.CSTOPB)
-    elif stopbits == 2:
+      elif stopbits == 2:
         cflag |=  (termios.CSTOPB)
-    else:
-      raise ValueError("invalid stopbits: %r" % stopbits)
+      else:
+        raise ValueError("invalid stopbits: %r" % stopbits)
 
-    # no blocking, no timeout
-    cc[termios.VMIN] = 1
-    cc[termios.VTIME] = 0
+      # no blocking, no timeout
+      cc[termios.VMIN] = 1
+      cc[termios.VTIME] = 0
 
-    # activate settings
-    termios.tcsetattr(self.fd, termios.TCSANOW, [iflag, oflag, cflag, lflag, ispeed, ospeed, cc])
+      # activate settings
+      termios.tcsetattr(self.fd, termios.TCSANOW, [iflag, oflag, cflag, lflag, ispeed, ospeed, cc])
 
+    # required interface
+    def read(self, size=1):
+      return os.read(self.fd, size)
+    def write(self, data):
+      return os.write(self.fd, data)
+    def inWaiting(self):
+      s = fcntl.ioctl(self.fd, termios.FIONREAD, struct.pack('I', 0))
+      return struct.unpack('I',s)[0]
+    def flushInput(self):
+      termios.tcflush(self.fd, termios.TCIFLUSH)
+    def flushOutput(self):
+      termios.tcflush(self.fd, termios.TCIOFLUSH)
 
-  # required interface
-  def read(self, size=1):
-    return os.read(self.fd, size)
-  def write(self, data):
-    return os.write(self.fd, data)
-  def inWaiting(self):
-    s = fcntl.ioctl(self.fd, termios.FIONREAD, struct.pack('I', 0))
-    return struct.unpack('I',s)[0]
-  def flushInput(self):
-    termios.tcflush(self.fd, termios.TCIFLUSH)
-  def flushOutput(self):
-    termios.tcflush(self.fd, termios.TCIOFLUSH)
+  Serial = BasicSerial
 
+except ImportError:
+  try:
+    from serial import Serial
+  except ImportError:
+    raise ImportError("no Serial implementation available")
 
 
 if __name__ == '__main__':
   from optparse import OptionParser
+
+  # default port, platform-dependant
+  import sys
+  if os.name == 'nt':
+    port_default = 'COM1'
+  else:
+    port_default = '/dev/ttyUSB0'
 
   parser = OptionParser(
       description="Rob'Otter Bootloader Client",
@@ -667,7 +685,7 @@ if __name__ == '__main__':
   parser.add_option('--init-send', dest='init_send',
       help="string to send at connection (eg. to reset the device)")
   parser.add_option('-P', '--port', dest='port',
-      help="device port to used (default: /dev/ttyUSB0)")
+      help="device port to used (default: %s)"%port_default)
   parser.add_option('-s', '--baudrate', dest='baudrate',
       help="baudrate (default: 38400)")
   parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
@@ -681,7 +699,7 @@ if __name__ == '__main__':
       slave_addr=None,
       roid=None,
       init_send=None,
-      port='/dev/ttyUSB0',
+      port=port_default,
       baudrate=38400,
       verbose=False
       )
@@ -701,7 +719,7 @@ if __name__ == '__main__':
     parser.error("extra argument")
 
   # Connect to serial line and setup stdin/out
-  conn = BasicSerial(opts.port, opts.baudrate)
+  conn = Serial(opts.port, opts.baudrate)
 
   master = Roblochon(conn, verbose=opts.verbose, init_send=opts.init_send)
   print "bootloader waiting..."

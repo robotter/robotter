@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 
-import cmd, re, sys, os, select, termios, glob, subprocess, signal, StringIO
+import cmd, re, sys, os, select, glob, subprocess, signal, StringIO
 from robloc import Roblochon
+try:
+  import termios
+except ImportError:
+  termios = None
+
 
 class Color:
   """Terminal color codes."""
@@ -154,6 +159,7 @@ class Blosh(cmd.Cmd):
     contexts -- dictionary of contexts
     cmd_aliases -- dictionary of command aliases
     theme -- color theme
+    out_write -- method to write on output
 
   """
 
@@ -247,6 +253,18 @@ class Blosh(cmd.Cmd):
   def __init__(self, conn, color=True):
     cmd.Cmd.__init__(self)
 
+    import sys
+    if sys.platform == 'win32' and color:
+      try:
+        import readline
+        self.out_write = readline.GetOutputFile().write
+      except ImportError:
+        sys.stderr("Colors not available, disabled.")
+        color = False
+        self.out_write = self.stdout.write
+    else:
+      self.out_write = self.stdout.write
+
     if color:
       self.theme = DefaultTheme()
     else:
@@ -265,7 +283,7 @@ class Blosh(cmd.Cmd):
     def ret(self, *args):
       try: f(self, *args)
       except (KeyboardInterrupt, SystemExit):
-        print self.theme.do_error('interrupted')
+        self.print_error('interrupted')
     return ret
 
 
@@ -276,7 +294,7 @@ class Blosh(cmd.Cmd):
     try:
       self.ctx = self.contexts[id]
     except KeyError:
-      print self.theme.fmt('{error}unknown context: {arg}%s{}') % id
+      self.print_fmt('{error}unknown context: {arg}%s{}', id)
       return False
     self.prompt = self.theme.do_prompt('%s> ' % ('>' if id == '' else id))
     return True
@@ -289,9 +307,9 @@ class Blosh(cmd.Cmd):
     ctx = self.ctx
     if ctx.bl_mode: return None
     if ctx.opts['reset_str']:
-      print self.theme.fmt('{info}sending {bold}reset{info} string{}')
+      self.print_fmt('{info}sending {bold}reset{info} string{}')
       ctx.conn.write(ctx.opts['reset_str'].val)
-    print self.theme.fmt('{info}{bold}waiting{info} for bootloader...{}')
+    self.print_fmt('{info}{bold}waiting{info} for bootloader...{}')
 
     ctx.bl.synchronize()
     ctx.bl_mode = True
@@ -308,10 +326,10 @@ class Blosh(cmd.Cmd):
     if not ctx.bl_mode: return None
     ctx.bl_mode = False
     try:
-      print self.theme.fmt('{info}{bold}exiting{info} bootloader{}')
+      self.print_fmt('{info}{bold}exiting{info} bootloader{}')
       ctx.bl.boot()
     except Exception, e:
-      print self.theme.do_error('failed to boot: %s' % e)
+      self.print_error('failed to boot: %s' % e)
       return False
     return True
 
@@ -335,13 +353,13 @@ class Blosh(cmd.Cmd):
 
     tkey_quit = ctx.opts['tkey_quit'].val
     if tkey_quit in '\r\n':
-      print self.theme.do_error('using CR or LF for tkey_quit is not safe')
+      self.print_error('using CR or LF for tkey_quit is not safe')
       return
-    print self.theme.fmt('{info}entering terminal mode, {bold}%s{info} to quit{}') % ctx.opts['tkey_quit']
+    self.print_fmt('{info}entering terminal mode, {bold}%s{info} to quit{}', ctx.opts['tkey_quit'])
 
     l = filter(None, (tkey_reset, tkey_prog, tkey_quit))
     if len(l) != len(set(l)):
-      print self.theme.do_error('several tkey_* share the same value')
+      self.print_error('several tkey_* share the same value')
       return
 
     crlf = {'CR':'\r','LF':'\n','CRLF':'\r\n'}[ctx.opts['eol'].val]
@@ -404,9 +422,9 @@ class Blosh(cmd.Cmd):
       try:
         pfilter = subprocess.Popen(s, shell=True, bufsize=0, close_fds=True,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print self.theme.fmt('{info}filtering with {bold}%s{}') % s
+        self.print_fmt('{info}filtering with {bold}%s{}', s)
       except Exception, e:
-        print self.theme.fmt('{error}failed to run filter command {arg}%s{error}: %s') % (s,e)
+        self.print_fmt('{error}failed to run filter command {arg}%s{error}: %s', s,e)
         return
       def pin_filter(s):
         if pfilter and pfilter.poll() is None:
@@ -421,9 +439,9 @@ class Blosh(cmd.Cmd):
       try:
         pfeed = subprocess.Popen(s, shell=True, bufsize=0, close_fds=True,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print self.theme.fmt('{info}feeding with {bold}%s{}') % s
+        self.print_fmt('{info}feeding with {bold}%s{}', s)
       except Exception, e:
-        print self.theme.fmt('{error}failed to run feed command {arg}%s{error}: %s') % (s,e)
+        self.print_fmt('{error}failed to run feed command {arg}%s{error}: %s', s,e)
         return
 
     if not printers_in: printers_in.append(pin_default)
@@ -434,9 +452,9 @@ class Blosh(cmd.Cmd):
       s = ctx.opts['log_file'].val
       try:
         flog = open(s, 'w')
-        print self.theme.fmt('{info}logging to {bold}%s{}') % s
+        self.print_fmt('{info}logging to {bold}%s{}', s)
       except Exception, e:
-        print self.theme.fmt('{error}cannot open log file {arg}%s{error}: %s{}') % (s,e)
+        self.print_fmt('{error}cannot open log file {arg}%s{error}: %s{}', s,e)
         return
       printers_in.append(lambda s: flog.write(s))
 
@@ -445,12 +463,14 @@ class Blosh(cmd.Cmd):
 
     ctx.conn.flushInput()
 
+    if termios is not None:
+      tio_attr_bak = termios.tcgetattr(sys.stdin)
+      tio_attr = termios.tcgetattr(sys.stdin)
+      tio_attr[0] = tio_attr[0] | termios.ICRNL
+      tio_attr[3] = 0
+      termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr)
+
     # the loop
-    tio_attr_bak = termios.tcgetattr(sys.stdin)
-    tio_attr = termios.tcgetattr(sys.stdin)
-    tio_attr[0] = tio_attr[0] | termios.ICRNL
-    tio_attr[3] = 0
-    termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr)
     try:
       while True:
         fds = [ctx.conn.fd, sys.stdin]
@@ -502,11 +522,13 @@ class Blosh(cmd.Cmd):
           if c == tkey_prog:
             sys.stdout.write('\r\n')
             # reenable keyboard interrupt
-            tio_attr_bak2 = termios.tcgetattr(sys.stdin)
-            termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr_bak)
+            if termios is not None:
+              tio_attr_bak2 = termios.tcgetattr(sys.stdin)
+              termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr_bak)
             self.reprogram()
             self.bl_exit()
-            termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr_bak2)
+            if termios is not None:
+              termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr_bak2)
           if c == '\n': c = crlf
           if pfeed:
             pfeed.stdin.write(c)
@@ -530,7 +552,8 @@ class Blosh(cmd.Cmd):
 
         sys.stdout.flush()
     finally:
-      termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr_bak)
+      if termios is not None:
+        termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr_bak)
       if pfilter is not None and pfilter.poll() is None:
         os.kill(pfilter.pid, signal.SIGKILL)
       if pfeed is not None and pfeed.poll() is None:
@@ -544,28 +567,28 @@ class Blosh(cmd.Cmd):
     ctx = self.ctx
     f = ctx.opts['prog_file'].val
     if not f:
-      print self.theme.do_error("no file to upload")
+      self.print_error("no file to upload")
       return
     self.bl_enter()
     if not self._check_roid(): return
     try:
       data = ctx.bl.parse_hex_file(f)
     except Exception, e:
-      print self.theme.fmt('{error}cannot parse HEX file {arg}%s{error}: %s{}') % (f,e)
+      self.print_fmt('{error}cannot parse HEX file {arg}%s{error}: %s{}', f,e)
       return
 
     try:
       if ctx.bl.program(data, ctx.last_hex) is None:
-        print self.theme.do_info("nothing to program")
+        self.print_ln(self.theme.do_info("nothing to program"))
       ctx.last_hex = data
     except Exception, e:
-      print self.theme.do_error('failed to program: %s' % e)
+      self.print_error('failed to program: %s' % e)
 
 
   def do_quit(self, line):
     return True
   def do_EOF(self, line):
-    print '' # extra newline
+    self.print_ln() # extra newline
     return True
 
   def emptyline(self):
@@ -586,7 +609,7 @@ class Blosh(cmd.Cmd):
 
   def default(self, line):
     if line[0] == '#': return  # ignore comments
-    print self.theme.fmt('{error}unknown command: {arg}%s{}')%line.split()[0]
+    self.print_fmt('{error}unknown command: {arg}%s{}', line.split()[0])
 
   def do_shell(self, line):
     os.system(line)
@@ -599,25 +622,25 @@ class Blosh(cmd.Cmd):
     if ctx.bl_mode:
       self.bl_exit()
     elif ctx.opts['reset_str']:
-      print self.theme.fmt('{info}sending {bold}reset{info} string{}')
+      self.print_fmt('{info}sending {bold}reset{info} string{}')
       ctx.conn.write(ctx.opts['reset_str'].val)
     else:
-      print self.theme.fmt("{arg}reset_str{error} option is not set{}")
+      self.print_fmt("{arg}reset_str{error} option is not set{}")
 
   def do_set(self, line):
     ctx = self.ctx
     l = line.split(None, 1)
     if len(l) < 1:
-      print "Option values:"
+      self.print_ln("Option values:")
       l = sorted(self._option_list.keys())
       for k in l:
-        print "  %-14s  %s" % (k, ctx.opts[k])
+        self.print_ln("  %-14s  %s" % (k, ctx.opts[k]))
     else:
       k = l[0]
       try:
         opt = ctx.opts[k]
       except KeyError:
-        print self.theme.fmt('{error}unknown option: {arg}%s{}')%k
+        self.print_fmt('{error}unknown option: {arg}%s{}', k)
         return
       if len(l) < 2:
         opt.reset()
@@ -625,16 +648,16 @@ class Blosh(cmd.Cmd):
         try:
           opt.set(l[1])
         except ValueError, e:
-          print self.theme.fmt('{error}invalid option value: {arg}%s{}')%e
+          self.print_fmt('{error}invalid option value: {arg}%s{}', e)
 
   def do_alias(self, line):
     l = line.split(None, 1)
     if len(l) < 1:
-      print "Aliases:"
+      self.print_ln("Aliases:")
       l = sorted(self.cmd_aliases.keys())
       k_len = max( len(k) for k in l )
       for k in l:
-        print "  %-*s  %s" % (k_len, k, self.cmd_aliases[k])
+        self.print_ln("  %-*s  %s" % (k_len, k, self.cmd_aliases[k]))
     else:
       k = l[0]
       if len(l) < 2:
@@ -644,12 +667,12 @@ class Blosh(cmd.Cmd):
 
   def do_source(self, line):
     if not line:
-      print self.theme.do_error('no file given')
+      self.print_error('no file given')
       return
     try:
       f = open(line, 'r')
     except:
-      print self.theme.fmt('{error}failed to open {arg}%s{}')%line
+      self.print_fmt('{error}failed to open {arg}%s{}', line)
       return
     self.execute(f)
 
@@ -709,7 +732,7 @@ class Blosh(cmd.Cmd):
     else:
       f = ctx.opts['prog_file'].val
     if not f:
-      print self.theme.do_error("no file to check")
+      self.print_error("no file to check")
       return
     self.bl_enter()
     if not self._check_roid(): return
@@ -719,9 +742,9 @@ class Blosh(cmd.Cmd):
         # current embedded program is the given HEX file
         # set last_hex to allow page optimizations
         ctx.last_hex = ctx.bl.parse_hex_file(f)
-      print 'check: %s' % self.theme.do_ok('OK') if ret else self.theme.do_error('FAILED')
+      self.print_ln('check: %s' % self.theme.do_ok('OK') if ret else self.theme.do_error('FAILED'))
     except Exception, e:
-      print self.theme.do_error('failed to check: %s' % e)
+      self.print_error('failed to check: %s' % e)
 
   def do_boot(self, line):
     self.bl_exit()
@@ -738,13 +761,13 @@ class Blosh(cmd.Cmd):
     roid_style = ''
     if ctx.opts['check_roid'].val > -1:
       roid_style = 'ok' if ctx.bl.roid == ctx.opts['check_roid'].val else 'error'
-    print self.theme.fmt('{bold}ROID:{'+roid_style+'} 0x%02x (%d){}   {bold}features:{} %s') % (
-        ctx.bl.roid, ctx.bl.roid, ctx.bl.features )
+    self.print_fmt('{bold}ROID:{'+roid_style+'} 0x%02x (%d){}   {bold}features:{} %s',
+        ctx.bl.roid, ctx.bl.roid, ctx.bl.features)
     try:
       fuses = ctx.bl.read_fuses()
-      print self.theme.fmt('{bold}fuses (low high ex):{} %02x %02x %02x') % fuses
+      self.print_fmt('{bold}fuses (low high ex):{} %02x %02x %02x', *fuses)
     except Exception, e:
-      print self.theme.do_error('cannot read fuses: %s' % e)
+      self.print_error('cannot read fuses: %s' % e)
 
     f = ctx.opts['prog_file'].val
     if f:
@@ -752,14 +775,14 @@ class Blosh(cmd.Cmd):
         data = ctx.bl.parse_hex_file(f)
         if ctx.last_hex is not None:
           data_diff = ctx.bl.diff_pages(data, ctx.last_hex)
-          print self.theme.fmt('{bold}program:{} %d bytes, %d page%c to program') % (
-            len(data), len(data_diff), '' if len(data_diff)==1 else 's' )
+          self.print_fmt('{bold}program:{} %d bytes, %d page%c to program',
+              len(data), len(data_diff), '' if len(data_diff)==1 else 's')
         else:
-          print self.theme.fmt('{bold}program:{} %d bytes, no previous state'%len(data))
+          self.print_fmt('{bold}program:{} %d bytes, no previous state', len(data))
       except Exception:
-        print self.theme.fmt('{bold}program:{} {error}invalid data{}')
+        self.print_fmt('{bold}program:{} {error}invalid data{}')
     else:
-      print self.theme.fmt('{bold}program:{} no file')
+      self.print_fmt('{bold}program:{} no file')
 
 
   def _check_roid(self):
@@ -768,8 +791,8 @@ class Blosh(cmd.Cmd):
     if ctx.opts['check_roid'].val <= -1: return True
     ctx.bl.update_infos()
     if ctx.opts['check_roid'].val != ctx.bl.roid:
-      print self.theme.fmt('{error}ROID mismatch: expected {arg}0x%02x{error} got {arg}0x%02x{}') % (
-          ctx.opts['check_roid'].val, ctx.bl.roid )
+      self.print_fmt('{error}ROID mismatch: expected {arg}0x%02x{error} got {arg}0x%02x{}',
+          ctx.opts['check_roid'].val, ctx.bl.roid)
       return False
     return True
 
@@ -805,17 +828,17 @@ class Blosh(cmd.Cmd):
     if line:
       try:
         cmd, brief, desc = self._help_topics[line]
-        print self.theme.fmt('{help_cmd}%s{help_brief} -- %s')%(cmd,brief)
+        self.print_fmt('{help_cmd}%s{help_brief} -- %s', cmd,brief)
         if desc:
           desc = re.subn(r'(.{1,76}\S)(?:\n|\s+|$)', r'\1\n', desc)[0]
-          print '  '+ desc.rstrip().replace('\n', '\n  ')
+          self.out_write('  '+ desc.rstrip().replace('\n', '\n  '))
       except KeyError:
-        print self.theme.fmt('{error}no help on {arg}%s')%line
+        self.print_fmt('{error}no help on {arg}%s', line)
     else:
-      print "Help topics:"
+      self.out_write("Help topics:\n")
       it = sorted(self._help_topics.items())
       for k,v in it:
-        print "  %-10s  %s" % (k,v[1])
+        self.print_ln("  %-10s  %s" % (k,v[1]))
 
   # arrange _help_topics to have (cmd, brief, desc) values
   d = {}
@@ -834,17 +857,38 @@ class Blosh(cmd.Cmd):
   _help_topics.update(d)
   del d
 
+  # output
+
+  def print_ln(self, s):
+    self.out_write(s+'\n')
+
+  def print_fmt(self, s, *args):
+    s = self.theme.fmt(s)
+    if args:
+      s = s % args
+    self.print_ln(s)
+
+  def print_error(self, s):
+    self.print_ln(self.theme.do_error(s))
+
 
 if __name__ == '__main__':
   from optparse import OptionParser
-  from robloc import BasicSerial as Serial
+  from robloc import Serial
+
+  # default port, platform-dependant
+  import os
+  if os.name == 'nt':
+    port_default = 'COM1'
+  else:
+    port_default = '/dev/ttyUSB0'
 
   parser = OptionParser(
       description="blosh -- a shell-like client for the Rob'Otter bootloader",
       usage="%prog [OPTIONS] [FILE]",
       )
   parser.add_option('-P', '--port', dest='port',
-      help="device port to use (default: /dev/ttyUSB0)")
+      help="device port to use (default: %s)"%port_default)
   parser.add_option('-s', '--baudrate', dest='baudrate',
       help="baudrate (default: 38400)")
   parser.add_option('-c', '--command', dest='command',
@@ -852,7 +896,7 @@ if __name__ == '__main__':
   parser.add_option('-t', '--terminal', dest='terminal', action='store_true',
       help="start in terminal mode")
   parser.set_defaults(
-      port='/dev/ttyUSB0',
+      port=port_default,
       baudrate=38400,
       command=None,
       terminal=False,
