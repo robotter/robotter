@@ -160,6 +160,7 @@ class Blosh(cmd.Cmd):
     cmd_aliases -- dictionary of command aliases
     theme -- color theme
     out_write -- method to write on output
+    out -- output object
 
   """
 
@@ -191,7 +192,7 @@ class Blosh(cmd.Cmd):
       'alias': ('set [name [commmand]]', "list, set or unset command aliases", """Alias names are replaced by the associated command, then processed as usual. Alias matching is recursive and alias names may shadow built-in command names. Aliases names are not commpleted."""),
       'terminal': ('t[erminal]', "enter terminal mode"),
       'source': ('source <file>', "load commands from a file"),
-      'log': ('log [file]', "set or unset log file", """This command is an alias for 'set filter_cmd'."""),
+      'log': ('log [file]', "set or unset log file", """This command is an alias for 'set log_file'."""),
       'filter': ('filter [cmd]', "set or unset a filter on incoming data", """Data received from the device is send to the filter command. Its output is displayed, stderr data is displayed in a different color.\nTerminal mode is aborted if the process returned a not null code.\nIf hexa output is enabled, no filtering is applied.\nThis command is an alias for 'set filter_cmd'."""),
       'feed': ('feed [cmd]', "set or unset a command providing outgoing data", """Data received from stdin is send to the feeder command. Its output is then sent to the device. stderr data is displayed in a different color.\nTerminal mode is aborted if the process returned a not null code.\neol and tkey_quit are applied before sending data to the feeder; tkey_reset and switch_way_eol are ignored. If hexa output or echo are enabled, they use data returned by the feeder.\nThis command is an alias for 'set feed_cmd'."""),
       'program': ('p[rogram][!] [file.hex]', "program the device", """The given file, or the previous one if none is provided, is uploaded on the device. Without '!', only differences with the previous binary are sent."""),
@@ -234,7 +235,7 @@ class Blosh(cmd.Cmd):
       self.conn = conn
       self.opts = dict( (k, v[0](v[1])) for k,v in blosh._option_list.items() )
       self.bl = blosh.BlClient(self.conn)
-      self.bl.theme = blosh.theme
+      self.bl.blosh = blosh
       self.bl_mode = False
       self.last_hex = None
 
@@ -242,12 +243,11 @@ class Blosh(cmd.Cmd):
   class BlClient(Roblochon):
     """Redefine some Roblochon methods for internal purposes."""
     def output_program_progress(self, ncur, nmax):
-      sys.stdout.write(
-          self.theme.fmt("\r{info}programming: {bold}page %3d / %3d{info} -- {bold}%2.2f%%{}")
-          % (ncur, nmax, (100.0*ncur)/nmax))
-      sys.stdout.flush()
+      blosh.print_fmt("\r{info}programming: {bold}page %3d / %3d{info} -- {bold}%2.2f%%{}",
+          ncur, nmax, (100.0*ncur)/nmax)
+      blosh.out.flush()
     def output_program_end(self):
-      sys.stdout.write("\n")
+      blosh.print_ln('')
 
 
   def __init__(self, conn, color=True):
@@ -257,13 +257,14 @@ class Blosh(cmd.Cmd):
     if sys.platform == 'win32' and color:
       try:
         import readline
-        self.out_write = readline.GetOutputFile().write
+        self.out = readline.GetOutputFile()
       except ImportError:
         sys.stderr("Colors not available, disabled.")
         color = False
-        self.out_write = self.stdout.write
+        self.out = sys.stdout
     else:
-      self.out_write = self.stdout.write
+      self.out = sys.stdout
+    self.out_write = self.out.write
 
     if color:
       self.theme = DefaultTheme()
@@ -364,60 +365,18 @@ class Blosh(cmd.Cmd):
 
     crlf = {'CR':'\r','LF':'\n','CRLF':'\r\n'}[ctx.opts['eol'].val]
 
-    printers_in = []
-    printers_out = []
-    pfilter, pfeed = None, None
-    def print_in(s):
-      for p in printers_in: p(s)
-    def print_out(s):
-      for p in printers_out: p(s)
+    flog = None
+    if ctx.opts['log_file']:
+      s = ctx.opts['log_file'].val
+      try:
+        flog = open(s, 'wb')
+        self.print_fmt('{info}logging to {bold}%s{}', s)
+      except Exception, e:
+        self.print_fmt('{error}cannot open log file {arg}%s{error}: %s{}', s,e)
+        return
 
-    if ctx.opts['switch_way_eol']:
-      last_way = [0] # -1: in, +1: out, in a list to keep a reference
-      def pin_default(s):
-        if last_way[0] > 0: sys.stdout.write('\r\n')
-        last_way[0] = -1
-        sys.stdout.write(s)
-      def pout_default(s):
-        if last_way[0] < 0: sys.stdout.write('\r\n')
-        last_way[0] = 1
-        sys.stdout.write(self.theme.do_data_out(s))
-    else:
-      pin_default = lambda s: sys.stdout.write(s)
-      pout_default = lambda s: sys.stdout.write(self.theme.do_data_out(s))
-    if not ctx.opts['echo']:
-      pout_default = lambda s: None
-
-
-    if ctx.opts['hexa']:
-      # number of written data bytes on the current line (>0: out, <0: in)
-      hexaline_len = [0] # in a list to keep a reference
-      hexa_len = ctx.opts['hexa_len'].val
-      def pin_hexa(s):
-        n, = hexaline_len
-        for c in s:
-          if n >= 0 or n <= -hexa_len:
-            if n != 0: sys.stdout.write('\r\n')
-            sys.stdout.write(self.theme.fmt('{data_in}{bold} <-- {data_in}'))
-            n = 0
-          sys.stdout.write(' %02x' % ord(c))
-          n -= 1
-        hexaline_len[0] = n
-      def pout_hexa(s):
-        n, = hexaline_len
-        for c in s:
-          if n <= 0 or n >= hexa_len:
-            if n != 0: sys.stdout.write('\r\n')
-            sys.stdout.write(self.theme.fmt('{data_out}{bold} --> {data_out}'))
-            n = 0
-          sys.stdout.write(' %02x' % ord(c))
-          n += 1
-        hexaline_len[0] = n
-      printers_in.append(pin_hexa)
-      if ctx.opts['echo']:
-        printers_out.append(pout_hexa)
-
-    elif ctx.opts['filter_cmd']:
+    pfilter = None
+    if ctx.opts['filter_cmd']:
       s = ctx.opts['filter_cmd'].val
       try:
         pfilter = subprocess.Popen(s, shell=True, bufsize=0, close_fds=True,
@@ -426,13 +385,8 @@ class Blosh(cmd.Cmd):
       except Exception, e:
         self.print_fmt('{error}failed to run filter command {arg}%s{error}: %s', s,e)
         return
-      def pin_filter(s):
-        if pfilter and pfilter.poll() is None:
-          pfilter.stdin.write(s)
-        else:
-          pin_default(s)
-      printers_in.append(pin_filter)
 
+    pfeed = None
     if ctx.opts['feed_cmd']:
       tkey_reset = None
       s = ctx.opts['feed_cmd'].val
@@ -444,19 +398,41 @@ class Blosh(cmd.Cmd):
         self.print_fmt('{error}failed to run feed command {arg}%s{error}: %s', s,e)
         return
 
-    if not printers_in: printers_in.append(pin_default)
-    if not printers_out: printers_out.append(pout_default)
-
-    flog = None
-    if ctx.opts['log_file']:
-      s = ctx.opts['log_file'].val
-      try:
-        flog = open(s, 'w')
-        self.print_fmt('{info}logging to {bold}%s{}', s)
-      except Exception, e:
-        self.print_fmt('{error}cannot open log file {arg}%s{error}: %s{}', s,e)
-        return
-      printers_in.append(lambda s: flog.write(s))
+    # print_rx: data from UART, print_tx: echo
+    print_rx, print_tx = None, None
+    if ctx.opts['hexa']:
+      # number of written data bytes on the current line (>0: out, <0: in)
+      hexaline_len = [0] # in a list to keep a reference
+      hexa_len = ctx.opts['hexa_len'].val
+      def print_rx(s):
+        n, = hexaline_len
+        sout = ''
+        for c in s:
+          if n <= 0 or n >= hexa_len:
+            if n != 0:
+              sout += '\r\n'
+            sout += self.theme.fmt('{data_out}{bold} --> {data_out}')
+            n = 0
+          sout += ' %02x' % ord(c)
+          n += 1
+        hexaline_len[0] = n
+        self.out_write(sout)
+      def print_tx(s):
+        n, = hexaline_len
+        sout = ''
+        for c in s:
+          if n >= 0 or n <= -hexa_len:
+            if n != 0:
+              sout += '\r\n'
+            sout += self.theme.fmt('{data_in}{bold} <-- {data_in}')
+            n = 0
+          sout += ' %02x' % ord(c)
+          n -= 1
+        hexaline_len[0] = n
+        self.out_write(sout)
+    else:
+      print_rx = self.out_write
+      print_tx = lambda s: self.out_write(self.theme.do_data_out(s))
 
     match_data = ''  # last input data, for matching
     match_data_len = max( len(k) for k in self._matches )
@@ -469,6 +445,13 @@ class Blosh(cmd.Cmd):
       tio_attr[0] = tio_attr[0] | termios.ICRNL
       tio_attr[3] = 0
       termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr)
+
+    # convenient aliases
+    # note that in terminal mode, messages should be printed using CRLF, not LF
+    def print_warn(s):
+      self.out_write(self.theme.do_warn(s))
+    def print_notice(s):
+      self.out_write(self.theme.do_notice(s))
 
     # the loop
     try:
@@ -484,18 +467,19 @@ class Blosh(cmd.Cmd):
         # child processes: process return and last data
 
         if pfilter and pfilter.poll() is not None:
-          sys.stdout.write(pfilter.stdout.read())
-          sys.stdout.write(self.theme.do_warn(pfilter.stderr.read()))
-          sys.stdout.write(self.theme.do_notice('\r\nfilter returned %d\r\n'%pfilter.returncode))
+          # no hexa for filter
+          self.out_write(pfilter.stdout.read())
+          print_warn(pfilter.stderr.read())
+          print_notice('\r\nfilter returned %d\r\n'%pfilter.returncode)
           if pfilter.returncode != 0: break
           pfilter = None
 
         if pfeed and pfeed.poll() is not None:
           s = pfeed.stdout.read()
           ctx.conn.write(s)
-          print_out(s)
-          sys.stdout.write(self.theme.do_warn(pfeed.stderr.read()))
-          sys.stdout.write(self.theme.do_notice('\r\nfeeder returned %d\r\n'%pfeed.returncode))
+          print_tx(s)
+          print_warn(pfeed.stderr.read())
+          print_notice('\r\nfeeder returned %d\r\n'%pfeed.returncode)
           if pfeed.returncode != 0: break
           pfeed = None
 
@@ -504,13 +488,20 @@ class Blosh(cmd.Cmd):
         if ctx.conn.fd in rds:
           c = ctx.conn.read(1)
           if not c:
-            sys.stdout.write(self.theme.do_warn('\r\ndisconnected\r\n'))
+            print_warn('\r\ndisconnected\r\n')
             break
-          print_in(c)
+          # optimize/group
+          if flog:
+            flog.write(c)
+          if pfilter:
+            pfilter.stdin.write(c)
+          else:
+            print_rx(c)
+            
           match_data += c
           for k in self._matches:
             if match_data.endswith(k):
-              sys.stdout.write(self.theme.do_match('\r\n%s\r\n'%self._matches[k]))
+              self.out_write(self.theme.do_match('\r\n%s\r\n'%self._matches[k]))
               try: hexaline_len[0] = 0
               except: pass
           match_data = match_data[-match_data_len:]
@@ -520,7 +511,7 @@ class Blosh(cmd.Cmd):
           if c == tkey_quit: break
           if c == tkey_reset: c = ctx.opts['reset_str'].val
           if c == tkey_prog:
-            sys.stdout.write('\r\n')
+            self.out_write('\r\n')
             # reenable keyboard interrupt
             if termios is not None:
               tio_attr_bak2 = termios.tcgetattr(sys.stdin)
@@ -534,23 +525,25 @@ class Blosh(cmd.Cmd):
             pfeed.stdin.write(c)
           else:
             ctx.conn.write(c)
-            print_out(c)
+            print 
+            print_tx(c)
 
         if pfilter:
           if pfilter.stdout in rds:
-            sys.stdout.write(pfilter.stdout.read(1))
+            # no hexa for filter
+            self.out_write(pfilter.stdout.read(1))
           if pfilter.stderr in rds:
-            sys.stdout.write(self.theme.do_warn(pfilter.stderr.read(1)))
+            print_warn(pfilter.stderr.read(1))
 
         if pfeed:
           if pfeed.stdout in rds:
             c = pfeed.stdout.read(1)
             ctx.conn.write(c)
-            print_out(c)
+            print_rx(c)
           if pfeed.stderr in rds:
-            sys.stdout.write(self.theme.do_warn(pfeed.stderr.read(1)))
+            print_warn(pfeed.stderr.read(1))
 
-        sys.stdout.flush()
+        self.out.flush()
     finally:
       if termios is not None:
         termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr_bak)
@@ -560,7 +553,7 @@ class Blosh(cmd.Cmd):
         os.kill(pfeed.pid, signal.SIGKILL)
       if flog:
         flog.close()
-    self.stdout.write('\n'+Color.normal)
+    self.out_write('\n'+Color.normal)
 
   def reprogram(self):
     """(Re)program the current prog_file."""
