@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import cmd, re, sys, os, glob, subprocess, signal, StringIO
+import cmd, re, io, sys, os, glob, subprocess, signal, StringIO
 from robloc import Roblochon
 try:
   import termios
