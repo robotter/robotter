@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import cmd, re, sys, os, select, glob, subprocess, signal, StringIO
+import cmd, re, sys, os, glob, subprocess, signal, StringIO
 from robloc import Roblochon
 try:
   import termios
@@ -151,6 +151,20 @@ class ShellOptKey(ShellOption):
     return self.val
 
 
+# Implementation of select(), for read events only.
+# On Windows, also define kernel32 and do some imports for later use.
+# Windows: fo values are file objects or handlers, NOT fd
+# UNIX: fo values are the same than select.select()
+if sys.platform == 'win32':
+  def select_read(fos):
+    raise NotImplemented()
+else:
+  import select
+  def select_read(fos):
+    return select.select(fos,[],[])[0]
+
+
+
 class Blosh(cmd.Cmd):
   """Shell-like client for the Rob'Otter bootloader.
 
@@ -169,7 +183,8 @@ class Blosh(cmd.Cmd):
       'hexa': (ShellOptBool, False, "hexadecimal output in terminal mode"),
       'hexa_len': (ShellOptInt, 16, "line length (in bytes) for hexa output"),
       'echo': (ShellOptBool, False, "display sent data in terminal mode"),
-      'eol': (ShellOptEnum('CR','LF','CRLF'), 'CRLF', "[CR|LF|CRLF], EOL of outgoing data from stdin"),
+      'eol': (ShellOptEnum('CR2CRLF','LF2CRLF','CR2LF','LF2CR','none'),
+        'CR2CRLF' if termios is None else 'LF2CRLF', "EOL transformation for outgoing data from stdin"),
       'switch_way_eol': (ShellOptBool, True, "force an EOL when switching between send and received data"),
       'tkey_quit': (ShellOptKey, '^', "key to quit in terminal mode"),
       'tkey_reset': (ShellOptKey, '^R', "key to reset in terminal mode"),
@@ -253,13 +268,12 @@ class Blosh(cmd.Cmd):
   def __init__(self, conn, color=True):
     cmd.Cmd.__init__(self)
 
-    import sys
     if sys.platform == 'win32' and color:
       try:
-        import readline
-        self.out = readline.GetOutputFile()
+        import pyreadline
+        self.out = pyreadline.GetOutputFile()
       except ImportError:
-        sys.stderr("Colors not available, disabled.")
+        sys.stderr.write("Colors not available, disabled.")
         color = False
         self.out = sys.stdout
     else:
@@ -287,6 +301,26 @@ class Blosh(cmd.Cmd):
         self.print_error('interrupted')
     return ret
 
+
+  # Set stdin attributes for terminal mode (non buffered, no echo).
+  # Value returned by the set method must be given back to the restore method.
+
+  if termios is None:
+    # Windows: nothing to do
+    def _set_terminal_stdin(self):
+      return None
+    def _restore_stdin(self, mode):
+      pass
+  else:
+    def _set_terminal_stdin(self):
+      attr_bak = termios.tcgetattr(sys.stdin)
+      attr = list(attr_bak) # copy
+      attr[0] = attr[0] | termios.ICRNL
+      attr[3] = 0
+      termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, attr)
+      return attr_bak
+    def _restore_stdin(self, attr):
+      termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, attr)
 
   def ctx_change(self, id):
     """Change current context.
@@ -363,8 +397,6 @@ class Blosh(cmd.Cmd):
       self.print_error('several tkey_* share the same value')
       return
 
-    crlf = {'CR':'\r','LF':'\n','CRLF':'\r\n'}[ctx.opts['eol'].val]
-
     flog = None
     if ctx.opts['log_file']:
       s = ctx.opts['log_file'].val
@@ -404,47 +436,64 @@ class Blosh(cmd.Cmd):
       # number of written data bytes on the current line (>0: out, <0: in)
       hexaline_len = [0] # in a list to keep a reference
       hexa_len = ctx.opts['hexa_len'].val
-      def print_rx(s):
+      def print_tx(s):
         n, = hexaline_len
         sout = ''
         for c in s:
           if n <= 0 or n >= hexa_len:
             if n != 0:
               sout += '\r\n'
-            sout += self.theme.fmt('{data_out}{bold} --> {data_out}')
+            sout += self.theme.fmt('{bold} --> {data_out}')
             n = 0
           sout += ' %02x' % ord(c)
           n += 1
         hexaline_len[0] = n
-        self.out_write(sout)
-      def print_tx(s):
+        self.out_write(self.theme.data_out+sout)
+      def print_rx(s):
         n, = hexaline_len
         sout = ''
         for c in s:
           if n >= 0 or n <= -hexa_len:
             if n != 0:
               sout += '\r\n'
-            sout += self.theme.fmt('{data_in}{bold} <-- {data_in}')
+            sout += self.theme.fmt('{bold} <-- {data_in}')
             n = 0
           sout += ' %02x' % ord(c)
           n -= 1
         hexaline_len[0] = n
-        self.out_write(sout)
+        self.out_write(self.theme.data_in+sout)
+    elif ctx.opts['echo']:
+      if ctx.opts['switch_way_eol']:
+        last_way = [0] # -1: in, +1: out, in a list to keep a reference
+        def print_rx(s):
+          if last_way[0] > 0: self.out_write('\r\n')
+          last_way[0] = -1
+          self.out_write(s)
+        def print_tx(s):
+          if last_way[0] < 0: self.out_write('\r\n')
+          last_way[0] = 1
+          self.out_write(self.theme.do_data_out(s))
+      else:
+        print_rx = self.out_write
+        print_tx = lambda s: self.out_write(self.theme.do_data_out(s))
     else:
       print_rx = self.out_write
-      print_tx = lambda s: self.out_write(self.theme.do_data_out(s))
+      print_tx = lambda s: None
+
+    eol_from, eol_to = {
+        'CR2CRLF': ('\r', '\r\n'),
+        'LF2CRLF': ('\n', '\r\n'),
+        'CR2LF':   ('\r', '\n'),
+        'LF2CR':   ('\n', '\r'),
+        'none': (None, None),
+        }[ ctx.opts['eol'].val ]
 
     match_data = ''  # last input data, for matching
     match_data_len = max( len(k) for k in self._matches )
 
     ctx.conn.flushInput()
 
-    if termios is not None:
-      tio_attr_bak = termios.tcgetattr(sys.stdin)
-      tio_attr = termios.tcgetattr(sys.stdin)
-      tio_attr[0] = tio_attr[0] | termios.ICRNL
-      tio_attr[3] = 0
-      termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr)
+    stdin_bak = self._set_terminal_stdin()
 
     # convenient aliases
     # note that in terminal mode, messages should be printed using CRLF, not LF
@@ -455,14 +504,23 @@ class Blosh(cmd.Cmd):
 
     # the loop
     try:
-      while True:
-        fds = [ctx.conn.fd, sys.stdin]
-        if pfilter:
-          fds += (pfilter.stdout, pfilter.stderr)
-        if pfeed:
-          fds += (pfeed.stdout, pfeed.stderr)
-        rds,_,_ = select.select(fds,[],[])
+      try:
+        conn_fo = ctx.conn.fileno()
+      except io.UnsupportedOperation:
+        # pySerial on Windows
+        conn_fo = ctx.conn.hComPort
+      if termios is None:
+        read_stdin = msvcrt.getch
+      else:
+        read_stdin = lambda: sys.stdin.read(1)
 
+      while True:
+        fos = [conn_fo, sys.stdin]
+        if pfilter:
+          fos += (pfilter.stdout, pfilter.stderr)
+        if pfeed:
+          fos += (pfeed.stdout, pfeed.stderr)
+        rds = select_read(fos)
 
         # child processes: process return and last data
 
@@ -485,7 +543,7 @@ class Blosh(cmd.Cmd):
 
         # process 'selected' fds
 
-        if ctx.conn.fd in rds:
+        if conn_fo in rds:
           c = ctx.conn.read(1)
           if not c:
             print_warn('\r\ndisconnected\r\n')
@@ -507,25 +565,22 @@ class Blosh(cmd.Cmd):
           match_data = match_data[-match_data_len:]
 
         if sys.stdin in rds:
-          c = sys.stdin.read(1)
+          c = read_stdin()
           if c == tkey_quit: break
           if c == tkey_reset: c = ctx.opts['reset_str'].val
           if c == tkey_prog:
             self.out_write('\r\n')
-            # reenable keyboard interrupt
-            if termios is not None:
-              tio_attr_bak2 = termios.tcgetattr(sys.stdin)
-              termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr_bak)
+            # reenable keyboard interrupt while reprogramming
+            self._restore_stdin(stdin_bak)
             self.reprogram()
             self.bl_exit()
-            if termios is not None:
-              termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr_bak2)
-          if c == '\n': c = crlf
+            stdin_bak = self._set_terminal_stdin()
+          if c == eol_from:
+            c = eol_to
           if pfeed:
             pfeed.stdin.write(c)
           else:
             ctx.conn.write(c)
-            print 
             print_tx(c)
 
         if pfilter:
@@ -545,8 +600,7 @@ class Blosh(cmd.Cmd):
 
         self.out.flush()
     finally:
-      if termios is not None:
-        termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, tio_attr_bak)
+      self._restore_stdin(stdin_bak)
       if pfilter is not None and pfilter.poll() is None:
         os.kill(pfilter.pid, signal.SIGKILL)
       if pfeed is not None and pfeed.poll() is None:
@@ -581,7 +635,7 @@ class Blosh(cmd.Cmd):
   def do_quit(self, line):
     return True
   def do_EOF(self, line):
-    self.print_ln() # extra newline
+    self.print_ln('') # extra newline
     return True
 
   def emptyline(self):

@@ -637,6 +637,8 @@ try:
       return os.read(self.fd, size)
     def write(self, data):
       return os.write(self.fd, data)
+    def fileno(self):
+      return self.fd
     def inWaiting(self):
       s = fcntl.ioctl(self.fd, termios.FIONREAD, struct.pack('I', 0))
       return struct.unpack('I',s)[0]
