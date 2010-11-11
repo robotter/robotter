@@ -1,8 +1,12 @@
 
-from perlimpinpin import Robot, Device, Telemetry, Command
+from perlimpinpin import Robot, SlaveDevice, MasterDevice, Telemetry, Command
 
 robot = Robot([
-  Device('prop', 0x42, [
+  MasterDevice('strat', 0x20,
+  outdir = '../avrs/projects/unioc_strat/'
+  ),
+  
+  SlaveDevice('prop', 0x42, [
             Command('NONE', [], [],
               "Do nothing, just for tests"),
             Command('FORTYTWO', [], [('r','uint8_t')],
@@ -46,6 +50,6 @@ robot = Robot([
             Command('TEST', [('in','uint16_t')], [('out','int16_t')],
               "Complex test command")
             ],
-            outdir = '/home/jdam/work/robotter/eurobot/avrs/projects/unioc_asserv'
+            outdir = '../avrs/projects/unioc_asserv/'
           )
 ])

@@ -16,7 +16,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file stratcomm_process.c
-  * @note Generated on Tue Nov  2 11:09:13 2010
+  * @note Generated on Thu Nov 11 10:56:07 2010
   */
 
 #include <aversive/error.h>
@@ -26,7 +26,7 @@
 #include "stratcomm_callbacks.h"
 
 void stratcomm_process(stratcomm_t *sc,
-                     uint16_t mid,
+                     uint8_t mid,
                      uint8_t *payload)
 {
   uint16_t r_u16, l_u16, a_u16, r_sec_u16, r_usec_u16, v_u16, in_u16;

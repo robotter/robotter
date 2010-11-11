@@ -16,7 +16,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file stratcomm_callbacks.h
-  * @note Generated on Tue Nov  2 11:09:13 2010
+  * @note Generated on Thu Nov 11 10:56:07 2010
   */
 #ifndef STRATCOMM_CALLBACKS_H
 #define STRATCOMM_CALLBACKS_H

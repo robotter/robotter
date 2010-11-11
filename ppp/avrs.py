@@ -1,37 +1,77 @@
 
-import time, re, os
+import time, re, os, shutil
 
-from perlimpinpin import Device, Telemetry, Command, Message
+from perlimpinpin import MasterDevice, SlaveDevice, Telemetry, Command, Message
 import robotter
 
 class AVRCodeGenerator:
   
+  sizeof_avr_types = { 'uint8_t':1, 'int8_t':1,
+                   'uint16_t':2, 'int16_t':2,
+                   'uint32_t':4, 'int32_t':4 }
+
   command_process_filename = 'stratcomm_process.c'
   command_messages_filename = 'stratcomm_messages.h'
   command_callback_header_filename = 'stratcomm_callbacks.h'
+  
+  slave_payload_header = 'slave/stratcomm_payloads.h'
+  slave_stratcomm_header = 'slave/stratcomm.h'
+  slave_stratcomm_source = 'slave/stratcomm.c'
 
-  class CallbackFunction:
+  master_stratcomm_header = 'master/stratcomm.h'
+  master_stratcomm_source = 'master/stratcomm.c'
+
+  command_master_send_header = 'stratcomm_send.h'
+  command_master_send_source = 'stratcomm_send.c'
+
+  class Function:
     
-    def __init__(self, name, args, retvalues):
+    def __init__(self, name, args, retvalues, this=None, rettype='void'):
       self.name = name
       self.args = args
       self.retvalues = retvalues
-    
+      if this is not None:
+        self.thistype, self.thisarg = this
+      else:
+        self.thistype, self.thisarg = None, None
+      self.rettype = rettype
+
     def get_call(self):
-      cb_args = ', '.join(    [ v for v,t in self.args]
-                            +[ '&'+v for v,t in self.retvalues])
-      return 'stratcomm_callback_%s(%s);'%(self.name.lower(), cb_args)
+      if self.thistype is not None:
+        args = [ '*'+self.thisarg ]
+      else:
+        args = []
+
+      args += [ v for v,t in self.args]
+      args += [ '&'+v for v,t in self.retvalues]
+
+      cb_args = ', '.join(args)
+      return '%s(%s);'%(self.name.lower(), cb_args)
     
-    def get_prototype(self):
-      dargs = ', '.join( [ '%s %s'%(t,v) for v,t in self.args ]
-                      + [ '%s *%s'%(t,v) for v,t in self.retvalues])
+    def get_prototype(self, semicolon=True):
+
+      if self.thistype is not None:
+        args = [ '%s *%s'%(self.thistype, self.thisarg) ]
+      else:
+        args = []
+  
+      args += [ '%s %s'%(t,v) for v,t in self.args ]
+      args += [ '%s *%s'%(t,v) for v,t in self.retvalues]
+      
+      dargs = ', '.join(args)
       if dargs == '':
         dargs = 'void'
 
-      return 'void stratcomm_callback_%s(%s);'%(self.name.lower(), dargs)
+      if semicolon:
+        sc = ';'
+      else:
+        sc = ''
 
-  def __init__(self, device):
+      return '%s %s(%s)%s'%(self.rettype, self.name.lower(), dargs, sc)
+
+  def __init__(self, robot, device):
     self.device = device
+    self.robot = robot
     
     if device.outdir is None:
       self.outdir = '.'
@@ -75,12 +115,23 @@ class AVRCodeGenerator:
 
   def generate(self):
     """ Generate all files """
-    self.generate_command_messages( os.path.join(self.outdir,
-                                      self.command_messages_filename))
-    self.generate_command_process( os.path.join(self.outdir,
-                                      self.command_process_filename))
-    self.generate_command_callbacks_header( os.path.join(self.outdir,
-                                              self.command_callback_header_filename))
+
+    if isinstance(self.device, SlaveDevice):
+      self.generate_command_messages( os.path.join(self.outdir,
+                                        self.command_messages_filename) )
+      self.generate_command_process( os.path.join(self.outdir,
+                                        self.command_process_filename) )
+      self.generate_command_callbacks_header( os.path.join(self.outdir,
+                                                self.command_callback_header_filename) )
+      self.copy_slave_sources(self.outdir)
+
+    elif isinstance(self.device, MasterDevice):
+
+      self.generate_command_master_send_header(os.path.join(self.outdir,
+                                      self.command_master_send_header) )
+      self.generate_command_master_send_source(os.path.join(self.outdir,
+                                      self.command_master_send_source) )
+      self.copy_master_sources(self.outdir)
 
   def generate_command_messages(self, path):
     """ Generate orders ID defines """
@@ -99,7 +150,7 @@ class AVRCodeGenerator:
       
       for cmd in self.device.messages:
         if isinstance(cmd,Command):
-          f.write('#define %s 0x%4.4X\n'%(cmd.get_cname(), cmd.get_mid()))
+          f.write('#define %s 0x%2.2X\n'%(cmd.get_cname(), cmd.get_mid()))
 
       # print closing header guard
       f.write(guard[1])
@@ -126,14 +177,14 @@ class AVRCodeGenerator:
       f.write('\n')
       # function declaration
       f.write('void stratcomm_process(stratcomm_t *sc,\n')
-      f.write('                     uint16_t mid,\n')
+      f.write('                     uint8_t mid,\n')
       f.write('                     uint8_t *payload)\n')
       f.write('{\n')
 
       # variables declarations
       decl = {}
       for cmd in self.device.messages:
-        for vname, vtype in cmd.args + cmd.retvalue:
+        for vname, vtype in cmd.args + cmd.retvalues:
           vname = self.get_var(vname,vtype)
           if vtype in decl.keys():
             decl[vtype].append(vname)
@@ -167,13 +218,13 @@ class AVRCodeGenerator:
                     '' if fmt_args == '' else ','+fmt_args) )
 
           # call callback
-          cbf = self.CallbackFunction(cmd.name, 
+          cbf = self.Function("stratcomm_callback_"+cmd.name,
             [ (self.get_var(v,t),t) for v,t in cmd.args],
-            [ (self.get_var(v,t),t) for v,t in cmd.retvalue ] )
+            [ (self.get_var(v,t),t) for v,t in cmd.retvalues ] )
           f.write(' '*6+'%s\n'%(cbf.get_call()))
 
           # pack response payload
-          for retname, rettype in cmd.retvalue:
+          for retname, rettype in cmd.retvalues:
             f.write(' '*6+'stratcomm_pushReturnPayload(sc, PACK_%s(%s), sizeof(%s));\n'%(
                       rettype.rstrip('_t').upper(), self.get_var(retname,rettype), rettype))
           
@@ -211,9 +262,115 @@ class AVRCodeGenerator:
       for cmd in self.device.messages:
         if isinstance(cmd,Command):
           f.write('/** @brief Command callback function :  %s */\n'%(cmd.text))
-          cbf = self.CallbackFunction(cmd.name, cmd.args, cmd.retvalue)
+          cbf = self.Function("stratcomm_callback_"+cmd.name, cmd.args, cmd.retvalues)
           f.write(cbf.get_prototype()+'\n\n')
 
       # print closing header guard
       f.write(guard[1])
 
+  def generate_command_master_send_header(self, path):
+    """  """
+    with open(path, 'wb') as f:
+      filename = path.split('/')[-1]
+      guard = self.build_header_guard(filename)
+
+      f.write(robotter.copyright)
+      f.write(robotter.file_header%{'filename':filename,
+                                    'date':time.asctime()})
+      # print opening header guard
+      f.write(guard[0])
+      f.write('\n#include <aversive.h>\n')
+      f.write('#include "stratcomm.h"\n')
+        
+      for cmd in self.robot.get_master_messages():
+        if isinstance(cmd,Command):
+          f.write('/** */\n')
+          mf = self.Function("stratcomm_message_"+cmd.name, cmd.args, cmd.retvalues, ('stratcomm_t','sc'), 'uint8_t')
+          f.write(mf.get_prototype()+'\n')
+
+      # print closing header guard
+      f.write(guard[1])
+
+
+  def generate_command_master_send_source(self, path):
+    """  """
+    with open(path, 'wb') as f:
+      filename = path.split('/')[-1]
+      
+      f.write(robotter.copyright)
+      f.write(robotter.file_header%{'filename':filename,
+                                    'date':time.asctime()})
+      f.write('\n')
+      f.write('#include <i2cm.h>\n')
+      f.write('#include \"stratcomm_send.h\"\n')
+      f.write('\n')
+      f.write('#define PAYLOAD_PUSH(buffer, value, sz) memcpy((buffer)+(pos), &(value), (sz))\n')
+      f.write('\n')
+      f.write('#define RECV_MAX_TRIES 20')
+      f.write('\n')
+      f.write('  uint8_t buffer[255];\n')
+      f.write('\n')
+
+      for cmd in self.robot.get_master_messages():
+        if isinstance(cmd,Command):
+          
+          # prepare messages
+          sbufsz = 0
+          for argv, argtype in cmd.args:
+            if argtype in self.sizeof_avr_types.keys():
+              sbufsz += self.sizeof_avr_types[argtype]
+            else:
+              raise Exception("Can't find sizeof(%s)"%(argtype))
+
+          rbufsz = 0
+          for argv, argtype in cmd.retvalues:
+            if argtype in self.sizeof_avr_types.keys():
+              rbufsz += self.sizeof_avr_types[argtype]
+            else:
+              raise Exception("Can't find sizeof(%s)"%(argtype))
+
+          # write to file
+          f.write('\n')
+          mf = self.Function("stratcomm_message_"+cmd.name, cmd.args, cmd.retvalues, ('stratcomm_t','sc'), 'uint8_t')
+          f.write(mf.get_prototype(semicolon=False)+'\n')
+          f.write('{\n')
+          f.write('  uint8_t rv, try;\n')
+          f.write('  uint16_t size;\n')
+
+          f.write('  // push length\n')
+          f.write('  buffer[0] = 0x%2.2x&0xFF;\n'%(sbufsz+2))
+          f.write('  buffer[1] = (0x%2.2x>>8)&0xFF;\n'%(sbufsz+2))
+          f.write('  // push message ID\n')
+          f.write('  buffer[2] = 0x%2.2x;\n'%(cmd.mid))
+          f.write('  // push arguments\n')
+          pit = 3
+          for argv, argtype in cmd.args:
+            f.write('  memset(buffer+%d, %s, sizeof(%s));\n'%(pit,argv,argtype))
+            pit += self.sizeof_avr_types[argtype]
+          f.write('  // push checksum\n')
+          f.write('  buffer[%d] = stratcomm_computeChecksum(buffer+2, %d);\n'%(
+                      sbufsz + 3, sbufsz+1))
+          f.write('  // send I2C frame\n')
+          f.write('  i2cm_send(0x%2.2x, buffer, %d);\n'%(cmd.get_address(),sbufsz+4))
+          f.write('\n')
+          f.write('  rv = stratcomm_i2cm_recv(0x%2.2x, buffer, %d);\n'%(
+                    cmd.get_address(), rbufsz+3))
+          f.write('  if(rv < %d)\n'%(rbufsz+3))
+          f.write('    return 0;\n')
+          f.write('  // read size\n')
+          f.write('  size = *((uint16_t*)buffer);\n')
+          f.write('  // read checksum\n')
+          f.write('  checksum = (uint8_t)buffer[%d];\n'%(rbufsz+2))
+          for argv, argtype in cmd.retvalues:
+            f.write('  %s = (%s)(buffer+%d)\n'%(argv,argtype,pit))
+          f.write('}\n')
+
+  def copy_slave_sources(self, path):
+    shutil.copy( os.path.join('src', self.slave_payload_header), path)
+    shutil.copy( os.path.join('src', self.slave_stratcomm_header), path)
+    shutil.copy( os.path.join('src', self.slave_stratcomm_source), path)
+
+  def copy_master_sources(self, path):
+    shutil.copy( os.path.join('src', self.master_stratcomm_header), path)
+    shutil.copy( os.path.join('src', self.master_stratcomm_source), path)
+   
