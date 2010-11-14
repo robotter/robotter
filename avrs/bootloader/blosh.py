@@ -2,10 +2,25 @@
 
 import cmd, re, io, sys, os, glob, subprocess, signal, StringIO
 from robloc import Roblochon
-try:
+
+_onwin32 = sys.platform == 'win32'
+_terminal_support = True  # True if supported, reason string otherwise
+if _onwin32:
+  try:
+    import pyreadline
+  except ImportError:
+    _terminal_support = "pyreadline required on Windows"
+    pyreadline = None
+  try:
+    import serial
+  except ImportError:
+    _terminal_support = "pySerial required on Windows"
+  if _terminal_support is True:
+    import robloc
+    if robloc.Serial is not serial.Serial:
+      _terminal_support = "Only pySerial connections are supported on Windows"
+else:
   import termios
-except ImportError:
-  termios = None
 
 
 class Color:
@@ -170,7 +185,7 @@ class Blosh(cmd.Cmd):
       'hexa_len': (ShellOptInt, 16, "line length (in bytes) for hexa output"),
       'echo': (ShellOptBool, False, "display sent data in terminal mode"),
       'eol': (ShellOptEnum('CR2CRLF','LF2CRLF','CR2LF','LF2CR','none'),
-        'CR2CRLF' if termios is None else 'LF2CRLF', "EOL transformation for outgoing data from stdin"),
+        'CR2CRLF' if _onwin32 else 'LF2CRLF', "EOL transformation for outgoing data from stdin"),
       'switch_way_eol': (ShellOptBool, True, "force an EOL when switching between send and received data"),
       'tkey_quit': (ShellOptKey, '^', "key to quit in terminal mode"),
       'tkey_reset': (ShellOptKey, '^R', "key to reset in terminal mode"),
@@ -254,14 +269,14 @@ class Blosh(cmd.Cmd):
   def __init__(self, conn, color=True):
     cmd.Cmd.__init__(self)
 
-    if sys.platform == 'win32' and color:
-      try:
-        import pyreadline
+    if _onwin32:
+      if pyreadline is not None:
         self.out = pyreadline.GetOutputFile()
-      except ImportError:
-        sys.stderr.write("Colors not available, disabled.")
-        color = False
+      else:
+        if color is True:
+          sys.stderr.write("Colors not available, disabled.")
         self.out = sys.stdout
+        color = False
     else:
       self.out = sys.stdout
     self.out_write = self.out.write
@@ -291,12 +306,16 @@ class Blosh(cmd.Cmd):
   # Set stdin attributes for terminal mode (non buffered, no echo).
   # Value returned by the set method must be given back to the restore method.
 
-  if termios is None:
-    # Windows: nothing to do
+  if _onwin32:
+    # Windows: pyreadline use is assumed
     def _set_terminal_stdin(self):
-      return None
+      import ctypes
+      mode = ctypes.c_int(0)
+      self.out.GetConsoleMode(self.out.hin, ctypes.byref(mode))
+      self.out.SetConsoleMode(self.out.hin, 0)
+      return mode
     def _restore_stdin(self, mode):
-      pass
+      self.out.SetConsoleMode(self.out.hin, mode)
   else:
     def _set_terminal_stdin(self):
       attr_bak = termios.tcgetattr(sys.stdin)
@@ -397,7 +416,7 @@ class Blosh(cmd.Cmd):
     if ctx.opts['filter_cmd']:
       s = ctx.opts['filter_cmd'].val
       try:
-        pfilter = subprocess.Popen(s, shell=True, bufsize=0, close_fds=sys.platform!='win32',
+        pfilter = subprocess.Popen(s, shell=True, bufsize=0, close_fds=not _onwin32,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.print_fmt('{info}filtering with {bold}%s{}', s)
       except Exception, e:
@@ -409,7 +428,7 @@ class Blosh(cmd.Cmd):
       tkey_reset = None
       s = ctx.opts['feed_cmd'].val
       try:
-        pfeed = subprocess.Popen(s, shell=True, bufsize=0, close_fds=sys.platform!='win32',
+        pfeed = subprocess.Popen(s, shell=True, bufsize=0, close_fds=not _onwin32,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.print_fmt('{info}feeding with {bold}%s{}', s)
       except Exception, e:
@@ -472,9 +491,6 @@ class Blosh(cmd.Cmd):
         'none': (None, None),
         }[ ctx.opts['eol'].val ]
 
-    match_data = ''  # last input data, for matching
-    match_data_len = max( len(k) for k in self._matches )
-
     ctx.conn.flushInput()
 
     stdin_bak = self._set_terminal_stdin()
@@ -486,160 +502,254 @@ class Blosh(cmd.Cmd):
     def print_notice(s):
       self.out_write(self.theme.do_notice(s))
 
-    if termios is None:
-      import msvcrt
-      read_stdin = msvcrt.getch
-    else:
-      read_stdin = lambda: sys.stdin.read(1)
+    # Handlers for read data on each file object
+    # Return False to abort terminal mode.
 
-    # Implementation of waiting method.
-    # select_read() returns a single byte read on the serial port, or a list of
-    # file descriptors with waiting read data, or None
-    # The serial connection must not be provided in fos.
-    if sys.platform == 'win32':
-      import ctypes, msvcrt, threading, serial
-      win32 = serial.win32
-      kernel32 = ctypes.windll.kernel32
-      # borrow the pySerial overlapped
-      overlapped = ctx.conn._overlappedRead
-      select_buf = ctypes.create_string_buffer(1)
-      rc = win32.DWORD()
-      read_active = [False]  # list, to keep a reference
+    # last input data for matching
+    match_data = ['']  # in a list, to keep a reference
+    match_data_len = max( len(k) for k in self._matches )
 
-      def select_read(fos):
-        # special handling for the serial port
-        # do like pySerial for a read() with timeout=0
-        if not read_active[0]:
-          win32.ResetEvent(overlapped.hEvent)
-          err = win32.ReadFile(ctx.conn.hComPort, select_buf, 1, ctypes.byref(rc), ctypes.byref(overlapped))
-          if err:
-            return select_buf.raw[0]
-          if not err and win32.GetLastError() != win32.ERROR_IO_PENDING:
-            raise serial.SerialException("ReadFile failed (%s)" % ctypes.WinError())
-          read_active[0] = True
-        # wait for all (other) objects
-        hds2fos = dict(
-            (fo if isinstance(fo, int) else msvcrt.get_osfhandle(fo.fileno()), fo)
-            for fo in fos
-            )
+    def handler_conn(c):
+      if not c:
+        print_warn('\r\ndisconnected\r\n')
+        return False
+      if flog:
+        flog.write(c)
+      if pfilter is not None:
+        pfilter.stdin.write(c)
+      else:
+        print_rx(c)
+        
+      match_data[0] += c
+      for k in self._matches:
+        if match_data[0].endswith(k):
+          self.out_write(self.theme.do_match('\r\n%s\r\n'%self._matches[k]))
+          try: hexaline_len[0] = 0
+          except: pass
+      match_data[0] = match_data[0][-match_data_len:]
 
-        arrtype = ctypes.c_long * (len(hds2fos)+1)
-        # serial connection goes first
-        hds = arrtype(overlapped.hEvent, *hds2fos.keys())
-        n = len(hds)
-        ret = kernel32.WaitForMultipleObjects(n, hds, False, -1)
-        if ret == 0:
-          # serial connection
-          read_active[0] = False
-          return select_buf.raw[0]
-        elif ret < n:
-          return [hds2fos[hds[ret]]]
-        else:
-          return None
-          
+    def handler_stdin(c):
+      if c == tkey_quit:
+        return False
+      if c == tkey_reset:
+        c = ctx.opts['reset_str'].val
+      elif c == tkey_prog:
+        self.out_write('\r\n')
+        # reenable keyboard interrupt while reprogramming
+        self._restore_stdin(stdin_bak)
+        self.reprogram()
+        self.bl_exit()
+        stdin_bak = self._set_terminal_stdin()
+      elif c == eol_from:
+        c = eol_to
+      if pfeed is not None:
+        pfeed.stdin.write(c)
+      else:
+        ctx.conn.write(c)
+        print_tx(c)
 
-    else:
-      import select
-      l_conn = [ctx.conn]
-      def select_read(fos):
-        rds = select.select(l_conn+fos,[],[])[0]
-        if ctx.conn in rds:
-          return ctx.conn.read(1)
-        return rds
+    def handler_filter_out(c):
+      # no hexa for filter
+      self.out_write(c)
+    def handler_filter_err(c):
+      print_warn(c)
+    def handler_feed_out(c):
+      ctx.conn.write(c)
+      print_tx(c)
+    def handler_feed_err(c):
+      print_warn(c)
+
+    # Handler for terminated subprocesses (filter, feed)
+    # Return False to abort terminal mode.
+
+    def handler_filter_end():
+      # no hexa for filter
+      self.out_write(pfilter.stdout.read())
+      print_warn(pfilter.stderr.read())
+      print_notice('\r\nfilter returned %d\r\n'%pfilter.returncode)
+      return pfilter.returncode == 0
+
+    def handler_feed_end():
+      s = pfeed.stdout.read()
+      ctx.conn.write(s)
+      print_tx(s)
+      print_warn(pfeed.stderr.read())
+      print_notice('\r\nfeeder returned %d\r\n'%pfeed.returncode)
+      return pfilter.returncode == 0
 
 
-
-    # the loop
     try:
-      while True:
-        self.out.flush()
-        fos = [sys.stdin]
-        if pfilter:
-          fos += (pfilter.stdout, pfilter.stderr)
-        if pfeed:
-          fos += (pfeed.stdout, pfeed.stderr)
-        rds = select_read(fos)
-        if rds is None:
-          continue
 
-        # child processes: process return and last data
+      # Platform specific processing.
+      # Not in methods to avoid the use of references
+      # (In Py3k, it would not be necessary, thanks to the nonlocal keyword.)
+      # pfeed and pfilter must be reset to None after being "ended".
+      if _onwin32:
+        #XXX assume use of pySerial
+        import ctypes, msvcrt
 
-        if pfilter and pfilter.poll() is not None:
-          # no hexa for filter
-          self.out_write(pfilter.stdout.read())
-          print_warn(pfilter.stderr.read())
-          print_notice('\r\nfilter returned %d\r\n'%pfilter.returncode)
-          if pfilter.returncode != 0: break
-          pfilter = None
+        win32 = serial.win32
+        kernel32 = ctypes.windll.kernel32
 
-        if pfeed and pfeed.poll() is not None:
-          s = pfeed.stdout.read()
-          ctx.conn.write(s)
-          print_tx(s)
-          print_warn(pfeed.stderr.read())
-          print_notice('\r\nfeeder returned %d\r\n'%pfeed.returncode)
-          if pfeed.returncode != 0: break
-          pfeed = None
-
-        # process 'selected' fds
-
-        if not isinstance(rds, list):
-          # data from serial connexion
-          c = rds
-          if not c:
-            print_warn('\r\ndisconnected\r\n')
-            break
-          # optimize/group
-          if flog:
-            flog.write(c)
-          if pfilter:
-            pfilter.stdin.write(c)
-          else:
-            print_rx(c)
-            
-          match_data += c
-          for k in self._matches:
-            if match_data.endswith(k):
-              self.out_write(self.theme.do_match('\r\n%s\r\n'%self._matches[k]))
-              try: hexaline_len[0] = 0
-              except: pass
-          match_data = match_data[-match_data_len:]
-
-        else:
-
-          if sys.stdin in rds:
-            c = read_stdin()
-            if c == tkey_quit: break
-            if c == tkey_reset: c = ctx.opts['reset_str'].val
-            if c == tkey_prog:
-              self.out_write('\r\n')
-              # reenable keyboard interrupt while reprogramming
-              self._restore_stdin(stdin_bak)
-              self.reprogram()
-              self.bl_exit()
-              stdin_bak = self._set_terminal_stdin()
-            if c == eol_from:
-              c = eol_to
-            if pfeed:
-              pfeed.stdin.write(c)
+        class ReaderWrapper:
+          """Simple wrapper for read handlers."""
+          def __init__(self, fo_or_h, fhandler):
+            if isinstance(fo_or_h, int):
+              self.hFile = fo_or_h
+              self.fo = None
             else:
-              ctx.conn.write(c)
-              print_tx(c)
+              self.hFile = msvcrt.get_osfhandle(fo_or_h.fileno())
+              self.fo = fo_or_h
+            self.overlapped = win32.OVERLAPPED()
+            self.overlapped.hEvent = win32.CreateEvent(None, 1, 0, None)
+            self.fhandler = fhandler
+            self._read_active = False
+            self._buf = ctypes.create_string_buffer(1)
+            self._rc = win32.DWORD(0)
 
-          if pfilter:
-            if pfilter.stdout in rds:
-              # no hexa for filter
-              self.out_write(pfilter.stdout.read(1))
-            if pfilter.stderr in rds:
-              print_warn(pfilter.stderr.read(1))
+          def readfile(self):
+            """Call ReadFile, if needed.
+            On success (result not delayed), the handler is called and ReadFile
+            is called again.
+            Return False if the handler returned False, True otherwise.
+            """
+            if self._read_active:
+              return True
+            win32.ResetEvent(self.overlapped.hEvent)
+            while True:
+              err = win32.ReadFile(self.hFile, self._buf, 1, ctypes.byref(self._rc), ctypes.byref(self.overlapped))
+              if err == 1:
+                # result not delayed
+                assert self._rc.value == 1
+                if self.fhandler(self._buf.raw[0]) is False:
+                  return False
+              elif err == 0 and win32.GetLastError() == win32.ERROR_IO_PENDING:
+                self._read_active = True
+                return True
+              else:
+                raise serial.SerialException("ReadFile failed (%s)" % ctypes.WinError())
 
-          if pfeed:
-            if pfeed.stdout in rds:
-              c = pfeed.stdout.read(1)
-              ctx.conn.write(c)
-              print_tx(c)
-            if pfeed.stderr in rds:
-              print_warn(pfeed.stderr.read(1))
+          def process_signaled(self):
+            """Process data received after a wait.
+            The read event is assumed to have been signaled.
+            Return False if the handler returned False, True otherwise.
+            """
+            assert self._read_active is True
+            self._read_active = False
+            if self.fhandler(self._buf.raw) is False:
+              return False
+            return True
+
+          def __del__(self):
+            kernel32.CancelIo(self.hFile)
+            kernel32.CloseHandle(self.overlapped.hEvent)
+
+
+        # Special case for console input (overlapped IO not supported)
+        hin = kernel32.GetStdHandle(-10) # STD_INPUT_HANDLE
+
+        # Create a ctype array of handles for a list of readers, and stdin.
+        # stdin is placed first (this is important for following code).
+        def handle_array(readers):
+          atype = ctypes.c_long * (len(readers)+1)
+          return atype(hin, *[ reader.overlapped.hEvent for reader in readers ])
+
+        # Create readers
+        readers = [
+            ReaderWrapper(ctx.conn.hComPort, handler_conn),
+            ]
+        if pfilter is not None:
+          readers.append( ReaderWrapper(pfilter.stdout, handler_filter_out) )
+          readers.append( ReaderWrapper(pfilter.stderr, handler_filter_err) )
+        if pfeed is not None:
+          readers.append( ReaderWrapper(pfeed.stdout, handler_feed_out) )
+          readers.append( ReaderWrapper(pfeed.stderr, handler_feed_err) )
+
+        hds = handle_array(readers)
+
+        while True:
+          # prepare ReadFile for each handler
+          for reader in readers:
+            if reader.readfile() is False:
+              return
+
+          self.out.flush()
+          # wait...
+          n = len(hds)
+          ret = kernel32.WaitForMultipleObjects(n, hds, False, -1)
+          if ret == 0:  # stdin
+            # ignore non-read events
+            record = pyreadline.console.INPUT_RECORD()
+            count = ctypes.c_int(0)
+            ret2 = kernel32.ReadConsoleInputW(hin, ctypes.byref(record), 1, ctypes.byref(count))
+            if ret2 and count.value == 1 and record.EventType == 1 and record.Event.KeyEvent.bKeyDown:
+              c = record.Event.KeyEvent.uChar.AsciiChar
+              #TODO handle special keys (using pyreadline)
+              if c != '\0':  # not a translated character (eg. special key)
+                if handler_stdin( c ) is False:
+                  return
+          elif ret < n:  # reader
+            if readers[ret-1].process_signaled() is False:
+              return
+          else:
+            raise WindowsError("WaitForMultipleObjects failed (%s)" % ctypes.WinError())
+
+          #TODO process signaled pfilter/pfeed data, if any
+
+          if pfilter is not None and pfilter.poll() is not None:
+            if handler_filter_end() is False:
+              return
+            # update readers
+            readers = [ reader for reader in readers
+                if reader.fo not in (pfilter.stdout, pfilter.stderr) ]
+            hds = handle_array(readers)
+            pfilter = None
+
+          if pfeed is not None and pfeed.poll() is not None:
+            if handler_feed_end() is False:
+              return
+            # update readers
+            readers = [ reader for reader in readers
+                if reader.fo not in (pfeed.stdout, pfeed.stderr) ]
+            hds = handle_array(readers)  # update readers
+            pfeed = None
+
+      else:  # POSIX
+        import select
+
+        # Associate file objects to their handler.
+        fd2handler = {
+            ctx.conn : handler_conn,
+            sys.stdin : handler_stdin,
+            }
+        if pfilter is not None:
+          fd2handler[pfilter.stdout] = handler_filter_out
+          fd2handler[pfilter.stderr] = handler_filter_err
+        if pfeed is not None:
+          fd2handler[pfeed.stdout] = handler_feed_out
+          fd2handler[pfeed.stderr] = handler_feed_err
+
+        while True:
+          self.out.flush()
+          rds = select.select(fd2handler.keys(),[],[])[0]
+
+          if pfilter is not None and pfilter.poll() is not None:
+            if handler_filter_end() is False:
+              return
+            del fd2handler[pfilter.stdout]
+            del fd2handler[pfilter.stderr]
+            pfilter = None
+
+          if pfeed is not None and pfeed.poll() is not None:
+            if handler_feed_end() is False:
+              return
+            del fd2handler[pfeed.stdout]
+            del fd2handler[pfeed.stderr]
+            pfeed = None
+
+          for fd in rds:
+            if fd2handler[fd]( fd.read(1) ) is False:
+              return
 
     finally:
       self._restore_stdin(stdin_bak)
@@ -649,7 +759,9 @@ class Blosh(cmd.Cmd):
         os.kill(pfeed.pid, signal.SIGKILL)
       if flog:
         flog.close()
-    self.out_write('\n'+Color.normal)
+      self.out_write('\n'+Color.normal)
+      self.out.flush()
+
 
   def reprogram(self):
     """(Re)program the current prog_file."""
@@ -704,7 +816,10 @@ class Blosh(cmd.Cmd):
     os.system(line)
 
   def do_terminal(self, line):
-    self.terminal_mode()
+    if _terminal_support is True:
+      self.terminal_mode()
+    else:
+      self.print_fmt("{error}terminal mode not supported: {args}%s{}", _terminal_support)
 
   def do_reset(self, line):
     ctx = self.ctx
