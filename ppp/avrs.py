@@ -302,6 +302,8 @@ class AVRCodeGenerator:
                                     'date':time.asctime()})
       f.write('\n')
       f.write('#include <i2cm.h>\n')
+      f.write('#include <aversive/error.h>\n')
+      f.write('#include <string.h>\n')
       f.write('#include \"stratcomm_send.h\"\n')
       f.write('\n')
       f.write('#define PAYLOAD_PUSH(buffer, value, sz) memcpy((buffer)+(pos), &(value), (sz))\n')
@@ -334,35 +336,45 @@ class AVRCodeGenerator:
           mf = self.Function("stratcomm_message_"+cmd.name, cmd.args, cmd.retvalues, ('stratcomm_t','sc'), 'uint8_t')
           f.write(mf.get_prototype(semicolon=False)+'\n')
           f.write('{\n')
-          f.write('  uint8_t rv, try;\n')
-          f.write('  uint16_t size;\n')
-
-          f.write('  // push length\n')
           f.write('  buffer[0] = 0x%2.2x&0xFF;\n'%(sbufsz+2))
           f.write('  buffer[1] = (0x%2.2x>>8)&0xFF;\n'%(sbufsz+2))
-          f.write('  // push message ID\n')
           f.write('  buffer[2] = 0x%2.2x;\n'%(cmd.mid))
-          f.write('  // push arguments\n')
           pit = 3
           for argv, argtype in cmd.args:
             f.write('  memset(buffer+%d, %s, sizeof(%s));\n'%(pit,argv,argtype))
             pit += self.sizeof_avr_types[argtype]
-          f.write('  // push checksum\n')
           f.write('  buffer[%d] = stratcomm_computeChecksum(buffer+2, %d);\n'%(
                       sbufsz + 3, sbufsz+1))
-          f.write('  // send I2C frame\n')
           f.write('  i2cm_send(0x%2.2x, buffer, %d);\n'%(cmd.get_address(),sbufsz+4))
           f.write('\n')
-          f.write('  rv = stratcomm_i2cm_recv(0x%2.2x, buffer, %d);\n'%(
-                    cmd.get_address(), rbufsz+3))
-          f.write('  if(rv < %d)\n'%(rbufsz+3))
-          f.write('    return 0;\n')
-          f.write('  // read size\n')
-          f.write('  size = *((uint16_t*)buffer);\n')
-          f.write('  // read checksum\n')
-          f.write('  checksum = (uint8_t)buffer[%d];\n'%(rbufsz+2))
-          for argv, argtype in cmd.retvalues:
-            f.write('  %s = (%s)(buffer+%d)\n'%(argv,argtype,pit))
+          if rbufsz > 0:
+            f.write('  uint16_t size;\n')
+            f.write('  uint8_t checksum, c_checksum, rv;\n')
+            f.write('  rv = stratcomm_i2cm_recv(0x%2.2x, buffer, %d);\n'%(
+                      cmd.get_address(), rbufsz+3))
+            f.write('  if(rv < %d)\n'%(rbufsz+3))
+            f.write('    return 0;\n')
+            f.write('  size = *((uint16_t*)buffer);\n')
+            f.write('  if(size != %d)\n'%(rbufsz))
+            f.write('  {\n')
+            f.write('    WARNING(STRATCOMM_ERROR,\n')
+            f.write('             "received frame size not valid: got %d expect %d",\n')
+            f.write('             size, %d);\n'%(rbufsz))
+            f.write('    return 0;\n')
+            f.write('  }\n')
+            f.write('  checksum = (uint8_t)buffer[%d];\n'%(rbufsz+2))
+            f.write('  c_checksum = stratcomm_computeChecksum(buffer+2,%d);\n'%(rbufsz))
+            f.write('  if( checksum != c_checksum )\n')
+            f.write('  {\n')
+            f.write('    WARNING(STRATCOMM_ERROR,\n')
+            f.write('             "received frame checksum not valid: got 0x%02X expect 0x%02X",\n')
+            f.write('             c_checksum, checksum);\n')
+            f.write('    return 0;\n')
+            f.write('  }\n')
+            for argv, argtype in cmd.retvalues:
+              f.write('  *%s = *(%s*)(buffer+%d);\n'%(argv,argtype,pit))
+              pit += self.sizeof_avr_types[argtype]
+          f.write('  return 1;\n')
           f.write('}\n')
 
   def copy_slave_sources(self, path):

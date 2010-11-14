@@ -1,5 +1,10 @@
 #include "stratcomm.h"
 
+#include <aversive.h>
+#include <aversive/error.h>
+#include <aversive/wait.h>
+#include <i2cm.h>
+
 #define RECV_MAX_TRIES 20
 
 void stratcomm_init(stratcomm_t *sc)

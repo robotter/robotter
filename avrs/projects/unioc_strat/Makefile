@@ -4,7 +4,7 @@ TARGET = main
 AVERSIVE_DIR =../..
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c stratcomm_send.c
+SRC = $(TARGET).c stratcomm_send.c stratcomm.c
 # List Assembler source files here.
 # Make them always end in a capital .S.  Files ending in a lowercase .s
 # will not be considered source files but generated files (assembler
