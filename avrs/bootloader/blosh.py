@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import cmd, re, io, sys, os, glob, subprocess, signal, StringIO
+import cmd, re, sys, os, glob, subprocess, signal, StringIO
 from robloc import Roblochon
 
 _onwin32 = sys.platform == 'win32'
@@ -21,6 +21,52 @@ if _onwin32:
       _terminal_support = "Only pySerial connections are supported on Windows"
 else:
   import termios
+
+
+# subprocess.Popen wrapper.
+# stdin, stdout and stderr are connected to pipes.
+if _onwin32:
+  # use named pipes instead of anonymous pipes, for overlapepd support
+  # _NamedPipe() return a (fo_read, fo_write) pair.
+
+  def _NamedPipe():
+    #TODO check that created handles are properly destroyed
+    import multiprocessing.connection as mpc
+    import serial, ctypes, msvcrt
+    kernel32 = ctypes.windll.kernel32
+    address = mpc.arbitrary_address('AF_PIPE')
+    h1 = kernel32.CreateNamedPipeA(address,
+        mpc.win32.PIPE_ACCESS_INBOUND | 0x40000000, # FILE_FLAG_OVERLAPPED
+        0, 1, 0,0, mpc.win32.NMPWAIT_WAIT_FOREVER, None)
+    h2 = kernel32.CreateFileA(address, mpc.win32.GENERIC_WRITE, 0,
+        None, mpc.win32.OPEN_EXISTING, 0, None)
+    overlapped = serial.win32.OVERLAPPED()
+    overlapped.hEvent = serial.win32.CreateEvent(None, 1, 0, None)
+    try:
+      err = kernel32.ConnectNamedPipe(h1, ctypes.byref(overlapped))
+      if err == 0 and serial.win32.GetLastError() == serial.win32.ERROR_IO_PENDING:
+        kernel32.WaitForSingleObject(overlapped.hEvent, -1)
+    finally:
+      kernel32.CloseHandle(overlapped.hEvent)
+    fdr = os.fdopen(msvcrt.open_osfhandle(h1, 0), 'rb')
+    fdw = os.fdopen(msvcrt.open_osfhandle(h2, 0), 'wb')
+    return fdr, fdw
+
+  def _popen(cmd):
+    import multiprocessing, msvcrt
+    # stdin is not read (only written), so a named pipe is not needed
+    pipe_out_r, pipe_out_w = _NamedPipe()
+    pipe_err_r, pipe_err_w = _NamedPipe()
+    proc = subprocess.Popen(cmd, shell=True, bufsize=0,
+        stdin=subprocess.PIPE, stdout=pipe_out_w, stderr=pipe_err_w)
+    proc.stdout = pipe_out_r
+    proc.stderr = pipe_err_r
+    return proc
+else:
+  def _popen(cmd):
+    return subprocess.Popen(cmd, shell=True, bufsize=0, close_fds=True,
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
 
 
 class Color:
@@ -416,8 +462,7 @@ class Blosh(cmd.Cmd):
     if ctx.opts['filter_cmd']:
       s = ctx.opts['filter_cmd'].val
       try:
-        pfilter = subprocess.Popen(s, shell=True, bufsize=0, close_fds=not _onwin32,
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        pfilter = _popen(s)
         self.print_fmt('{info}filtering with {bold}%s{}', s)
       except Exception, e:
         self.print_fmt('{error}failed to run filter command {arg}%s{error}: %s', s,e)
@@ -428,11 +473,11 @@ class Blosh(cmd.Cmd):
       tkey_reset = None
       s = ctx.opts['feed_cmd'].val
       try:
-        pfeed = subprocess.Popen(s, shell=True, bufsize=0, close_fds=not _onwin32,
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        pfeed = _popen(s)
         self.print_fmt('{info}feeding with {bold}%s{}', s)
       except Exception, e:
         self.print_fmt('{error}failed to run feed command {arg}%s{error}: %s', s,e)
+        raise
         return
 
     # print_rx: data from UART, print_tx: echo
@@ -575,7 +620,7 @@ class Blosh(cmd.Cmd):
       print_tx(s)
       print_warn(pfeed.stderr.read())
       print_notice('\r\nfeeder returned %d\r\n'%pfeed.returncode)
-      return pfilter.returncode == 0
+      return pfeed.returncode == 0
 
 
     try:
@@ -585,7 +630,6 @@ class Blosh(cmd.Cmd):
       # (In Py3k, it would not be necessary, thanks to the nonlocal keyword.)
       # pfeed and pfilter must be reset to None after being "ended".
       if _onwin32:
-        #XXX assume use of pySerial
         import ctypes, msvcrt
 
         win32 = serial.win32
@@ -623,11 +667,13 @@ class Blosh(cmd.Cmd):
                 assert self._rc.value == 1
                 if self.fhandler(self._buf.raw[0]) is False:
                   return False
-              elif err == 0 and win32.GetLastError() == win32.ERROR_IO_PENDING:
+              elif win32.GetLastError() == win32.ERROR_IO_PENDING:
                 self._read_active = True
                 return True
+              elif win32.GetLastError() in (109, 234):  # ERROR_BROKEN_PIPE, ERROR_MORE_DATA
+                return True #XXX
               else:
-                raise serial.SerialException("ReadFile failed (%s)" % ctypes.WinError())
+                raise RuntimeError("ReadFile failed (%s) / %r" % ctypes.WinError())
 
           def process_signaled(self):
             """Process data received after a wait.
@@ -701,7 +747,7 @@ class Blosh(cmd.Cmd):
               return
             # update readers
             readers = [ reader for reader in readers
-                if reader.fo not in (pfilter.stdout, pfilter.stderr) ]
+                if reader.hFile not in (pfilter.stdout.fileno(), pfilter.stderr.fileno()) ]
             hds = handle_array(readers)
             pfilter = None
 
@@ -710,7 +756,7 @@ class Blosh(cmd.Cmd):
               return
             # update readers
             readers = [ reader for reader in readers
-                if reader.fo not in (pfeed.stdout, pfeed.stderr) ]
+                if reader.hFile not in (pfeed.stdout.fileno(), pfeed.stderr.fileno()) ]
             hds = handle_array(readers)  # update readers
             pfeed = None
 
@@ -754,9 +800,9 @@ class Blosh(cmd.Cmd):
     finally:
       self._restore_stdin(stdin_bak)
       if pfilter is not None and pfilter.poll() is None:
-        os.kill(pfilter.pid, signal.SIGKILL)
+        pfilter.kill()
       if pfeed is not None and pfeed.poll() is None:
-        os.kill(pfeed.pid, signal.SIGKILL)
+        pfeed.kill()
       if flog:
         flog.close()
       self.out_write('\n'+Color.normal)
