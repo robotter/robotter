@@ -17,7 +17,7 @@ class Robot:
     for device in self.devices:
       if isinstance(device, SlaveDevice):
         for message in device.messages:
-          message.set_mid(unique_id)
+          message.mid = unique_id
           unique_id += 1
 
   def get_devices(self):
@@ -39,8 +39,8 @@ class SlaveDevice(Device):
     self.messages = messages
     # assign device name and device address to messages
     for m in self.messages:
-      m.set_device_name(self.name)
-      m.set_address(self.roid)
+      m.device_name = self.name
+      m.addr = self.roid
 
 class MasterDevice(Device):
   pass
@@ -52,24 +52,6 @@ class Message:
     self.mid = None
     self.device_name = None
     self.addr = None
-
-  def get_cname(self):
-    return 'CM_'+self.device_name.upper()+'_'+self.name
-  
-  def set_device_name(self, name):
-    self.device_name = name
-
-  def get_mid(self):
-    return self.mid
-
-  def set_mid(self, mid):
-    self.mid = mid
-
-  def set_address(self, addr):
-    self.addr = addr
-
-  def get_address(self):
-    return self.addr
 
 class Telemetry(Message):
   """ Describe telemetry message (from device to exterior) """  
