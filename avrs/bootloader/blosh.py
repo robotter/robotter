@@ -784,6 +784,8 @@ class Blosh(cmd.Cmd):
               return
             del fd2handler[pfilter.stdout]
             del fd2handler[pfilter.stderr]
+            rds.remove(pfilter.stdout)
+            rds.remove(pfilter.stderr)
             pfilter = None
 
           if pfeed is not None and pfeed.poll() is not None:
@@ -791,6 +793,8 @@ class Blosh(cmd.Cmd):
               return
             del fd2handler[pfeed.stdout]
             del fd2handler[pfeed.stderr]
+            rds.remove(pfeed.stdout)
+            rds.remove(pfeed.stderr)
             pfeed = None
 
           for fd in rds:
