@@ -37,11 +37,13 @@
 #  error Unsupported SPM_PAGESIZE.
 #endif
 
-
-	.text
-.global	boot_pgm_copy
-	.type	boot_pgm_copy, @function
-boot_pgm_copy:
+  .section .roblocop,"ax"
+roblocop_address = ((FLASHEND+1)-SPM_PAGESIZE)
+.global	roblocop_pgm_copy
+  .size roblocop_pgm_copy, SPM_PAGESIZE
+  .align 1
+	.type	roblocop_pgm_copy, @function
+roblocop_pgm_copy:
   /* The main method:
 
   boot_pgm_copy(uint16_t dest, uint16_t src, uint8_t size)
@@ -106,14 +108,14 @@ boot_pgm_copy:
 
 
   ; loop over page count
-loop_pages:
+.L_loop_pages:
 
   ;; Fill the page buffer
   ; only the word part of Z-pointer is used to fill the page buffer
   ; thus, we do not have to update it between lpm and spm operations
 
   ; loop over SPM_PAGESIZE size
-loop_pagesize:
+.L_loop_pagesize:
   ; set Z-pointer with address to read (src)
   movw r30,r24
   ; pgm_read_word_near(), in the temporary register
@@ -130,18 +132,18 @@ loop_pagesize:
 #if (SPM_PAGESIZE != 256)
   andi r20,SPM_PAGESIZE-1
 #endif
-  brne loop_pagesize
+  brne .L_loop_pagesize
 
   ; set Z-pointer to dest
   movw r30,r26
 
   ; erase the page
   out_SPMCSR r17
-  rcall spm_and_busy_wait
+  rcall .L_spm_and_busy_wait
 
   ; write the page
   out_SPMCSR r18
-  rcall spm_busy_wait
+  rcall .L_spm_and_busy_wait
 
   ; dest += SPM_PAGESIZE
 #if (SPM_PAGESIZE == 256)
@@ -156,7 +158,7 @@ loop_pagesize:
 
   ; while( --size )
   dec r22
-  brne loop_pages
+  brne .L_loop_pages
 
 
   ; NOTE boot_rww_enable() not needed, we reset just after this.
@@ -177,16 +179,16 @@ loop_pagesize:
 /* END */
 
   ; SPM operation followed by boot_spm_busy_wait()
-spm_busy_wait:
+.L_spm_and_busy_wait:
   spm
+.L_spm_wait:
   in_SPMCSR r20
   sbrc r20,0
-  rjmp spm_wait_2
+  rjmp .L_spm_wait
   ret
 
-
 /* check size: code must fit in a single page */
-.iflt (SPM_PAGESIZE - (.-boot_pgm_copy))
+.iflt (SPM_PAGESIZE - (.-roblocop_pgm_copy))
 .print "ERROR: Code does not fit in a single SPM page"
 .err
 .endif

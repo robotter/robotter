@@ -20,17 +20,14 @@
 #include <util/delay.h>
 #include <util/twi.h>
 
-/** @brief Simple software reset.
- *
- * Registers are not initialized.
- *
- * @note Macro retrieved from Aversive.
+/** @brief Run the application.
+ * @note Registers are not initialized.
  */
-#define reset()                      \
-do {				     \
+#define run_app()                        \
+do {				                             \
   __asm__ __volatile__ ("ldi r30,0\n");  \
   __asm__ __volatile__ ("ldi r31,0\n");  \
-  __asm__ __volatile__ ("ijmp\n");  \
+  __asm__ __volatile__ ("ijmp\n");       \
 } while(0)
 
 
@@ -413,7 +410,7 @@ static void boot(void)
 #ifdef BOOT_CODE
   do{ BOOT_CODE }while(0);
 #endif
-  reset();
+  run_app();
 }
 
 
@@ -528,8 +525,15 @@ static void cmd_prog_page(void)
 {
   const addr_type addr = recv_addr();
 #ifndef DISABLE_STRICT_CHECKS
+  // addr aligned on SPM_PAGESIZE and not in the bootloader area
+  // writing the last page is allowed (to update roblocop)
   if( (addr & ((addr_type)SPM_PAGESIZE-1)) != 0 ||
-     addr > BOOTLOADER_ADDR ) {
+#ifndef DISABLE_COPY_PAGES
+     (addr > BOOTLOADER_ADDR && addr <= FLASHEND-SPM_PAGESIZE)
+#else
+     addr > BOOTLOADER_ADDR
+#endif
+    ) {
     reply_error(STATUS_BAD_VALUE);
     return;
   }
@@ -628,6 +632,55 @@ static void cmd_fuse_read(void)
   send_u8(boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS));
   send_u8(boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS));
 }
+
+
+#ifndef DISABLE_COPY_PAGES
+
+/** @brief Page copy method.
+ *
+ * Code must be located in the last page of the flash.
+ *
+ * @note Function pointers values are addresses in words.
+ */
+extern void roblocop_pgm_copy(uint16_t dest, uint16_t src, uint8_t n);
+
+/** @brief Copy pages then do a (true) software reset.
+ *
+ * When using CRC check, the page is now written on mismatch.
+ *
+ * Parameters:
+ *  - dest page address (u32), must be aligned and in high 64KB (if relevant)
+ *  - source page address (u32), must be aligned and in low 64KB (if relevant)
+ *  - page count (u8), must be not null
+ */
+static void cmd_copy_pages(void)
+{
+  const addr_type dest = recv_addr();
+  const addr_type src  = recv_addr();
+  const uint8_t n = proto_recv();
+
+#ifndef DISABLE_STRICT_CHECKS
+  if(
+      // note: overflows in computations are not handled
+      n == 0 ||
+      ((dest|src) & ((addr_type)SPM_PAGESIZE-1)) != 0 ||
+#ifdef ADDR_SIZE_LARGE
+      dest < 0x10000 || src >= 0x10000 ||
+#else
+      src + n*SPM_PAGESIZE > FLASHEND ||
+#endif
+      dest + n*SPM_PAGESIZE > FLASHEND-SPM_PAGESIZE
+    ) {
+    reply_error(STATUS_BAD_VALUE);
+    return;
+  }
+#endif
+
+  eeprom_busy_wait();
+  roblocop_pgm_copy(dest, src, n);
+}
+
+#endif
 
 
 #ifdef ENABLE_I2C_MASTER
@@ -882,6 +935,9 @@ int main(void)
 #endif
 #ifndef DISABLE_FUSE_READ
     else if( c == 'f' ) cmd_fuse_read();
+#endif
+#ifndef DISABLE_COPY_PAGES
+    else if( c == 'y' ) cmd_copy_pages();
 #endif
 #ifdef ENABLE_I2C_MASTER
     else if( c == 's' ) cmd_slave_session();
