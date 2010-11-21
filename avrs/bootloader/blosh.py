@@ -305,11 +305,12 @@ class Blosh(cmd.Cmd):
   class BlClient(Roblochon):
     """Redefine some Roblochon methods for internal purposes."""
     def output_program_progress(self, ncur, nmax):
-      blosh.print_fmt("\r{info}programming: {bold}page %3d / %3d{info} -- {bold}%2.2f%%{}",
-          ncur, nmax, (100.0*ncur)/nmax)
-      blosh.out.flush()
+      bl = self.blosh
+      bl.out_write(bl.theme.fmt("\r{info}programming: {bold}page %3d / %3d{info} -- {bold}%2.2f%%{}" %
+        (ncur, nmax, (100.0*ncur)/nmax)))
+      bl.out.flush()
     def output_program_end(self):
-      blosh.print_ln('')
+      self.blosh.print_ln('')
 
 
   def __init__(self, conn, color=True):
@@ -326,6 +327,7 @@ class Blosh(cmd.Cmd):
     else:
       self.out = sys.stdout
     self.out_write = self.out.write
+    self._stdin_bak = None
 
     if color:
       self.theme = DefaultTheme()
@@ -350,28 +352,36 @@ class Blosh(cmd.Cmd):
 
 
   # Set stdin attributes for terminal mode (non buffered, no echo).
-  # Value returned by the set method must be given back to the restore method.
 
   if _onwin32:
     # Windows: pyreadline use is assumed
     def _set_terminal_stdin(self):
+      if self._stdin_bak is not None:
+        raise RuntimeError("previous stdin settings not restored")
       import ctypes
       mode = ctypes.c_int(0)
       self.out.GetConsoleMode(self.out.hin, ctypes.byref(mode))
       self.out.SetConsoleMode(self.out.hin, 0)
-      return mode
-    def _restore_stdin(self, mode):
-      self.out.SetConsoleMode(self.out.hin, mode)
+      self._stdin_bak = mode
+    def _restore_stdin(self):
+      if self._stdin_bak is None:
+        raise RuntimeError("no stdin settings to restore")
+      self.out.SetConsoleMode(self.out.hin, self._stdin_bak)
+      self._stdin_bak = None
   else:
     def _set_terminal_stdin(self):
-      attr_bak = termios.tcgetattr(sys.stdin)
-      attr = list(attr_bak) # copy
+      if self._stdin_bak is not None:
+        raise RuntimeError("previous stdin settings not restored")
+      self._stdin_bak = termios.tcgetattr(sys.stdin)
+      attr = list(self._stdin_bak) # copy
       attr[0] = attr[0] | termios.ICRNL
       attr[3] = 0
       termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, attr)
-      return attr_bak
-    def _restore_stdin(self, attr):
-      termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, attr)
+    def _restore_stdin(self):
+      if self._stdin_bak is None:
+        raise RuntimeError("no stdin settings to restore")
+      termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, self._stdin_bak)
+      self._stdin_bak = None
 
   def ctx_change(self, id):
     """Change current context.
@@ -538,7 +548,7 @@ class Blosh(cmd.Cmd):
 
     ctx.conn.flushInput()
 
-    stdin_bak = self._set_terminal_stdin()
+    self._set_terminal_stdin()
 
     # convenient aliases
     # note that in terminal mode, messages should be printed using CRLF, not LF
@@ -581,10 +591,10 @@ class Blosh(cmd.Cmd):
       elif c == tkey_prog:
         self.out_write('\r\n')
         # reenable keyboard interrupt while reprogramming
-        self._restore_stdin(stdin_bak)
+        self._restore_stdin()
         self.reprogram()
         self.bl_exit()
-        stdin_bak = self._set_terminal_stdin()
+        self._set_terminal_stdin()
       elif c == eol_from:
         c = eol_to
       if pfeed is not None:
@@ -802,7 +812,7 @@ class Blosh(cmd.Cmd):
               return
 
     finally:
-      self._restore_stdin(stdin_bak)
+      self._restore_stdin()
       if pfilter is not None and pfilter.poll() is None:
         pfilter.kill()
       if pfeed is not None and pfeed.poll() is None:
