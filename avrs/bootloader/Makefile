@@ -53,7 +53,7 @@ endef
 $(foreach v,$(CONFIG_VARS),$(eval $(call define_config_var,$(v))))
 $(foreach v,$(CONFIG_FLAGS),$(eval $(call define_config_flag,$(v))))
 
-LDFLAGS += -mmcu=$(MCU)
+LDFLAGS += -mmcu=$(MCU) -Wl,--entry=0
 LDFLAGS += -Wl,--section-start=.text=$(BOOTLOADER_ADDR) 
 
 
