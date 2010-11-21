@@ -56,7 +56,7 @@ do {				                             \
  *
  * \e ADDR_SIZE_LARGE is (un)defined accordingly.
  */
-#if BOOTLOADER_ADDR > 0x10000
+#if FLASHEND >= 0x10000
 // more than 64k
 typedef uint32_t addr_type;
 #define pgm_read_byte_bootloader pgm_read_byte_far
@@ -357,15 +357,18 @@ static void send_str(const char *s)
 
 static uint16_t recv_u16(void)
 {
-  return proto_recv() + (proto_recv()<<8);
+  uint16_t ret = proto_recv();
+  ret += proto_recv()<<8;
+  return ret;
 }
 
 static uint32_t recv_u32(void)
 {
-  return proto_recv()
-      + (proto_recv()*0x100)
-      + (proto_recv()*0x10000)
-      + (proto_recv()*0x1000000);
+  uint32_t ret = proto_recv();
+  ret += proto_recv()*0x100;
+  ret += proto_recv()*0x10000;
+  ret += proto_recv()*0x1000000;
+  return ret;
 }
 
 /// Receive an address value.
@@ -477,6 +480,9 @@ static void cmd_infos(void)
 #endif
 #ifndef DISABLE_FUSE_READ
       "f"
+#endif
+#ifndef DISABLE_COPY_PAGES
+      "y"
 #endif
 #ifdef ENABLE_I2C_MASTER
       "s"
@@ -599,16 +605,16 @@ static void cmd_mem_crc(void)
 {
   const addr_type start = recv_addr();
   const addr_type size = recv_addr();
-  uint16_t crc = 0xffff;
 
 #ifndef DISABLE_STRICT_CHECKS
-  if( start + size > BOOTLOADER_ADDR ) {
+  if( start + size > FLASHEND+1 ) {
     reply_error(STATUS_BAD_VALUE);
     return;
   }
 #endif
 
   // Compute CRC
+  uint16_t crc = 0xffff;
   addr_type addr;
   uint8_t c;
   for( addr=start; addr<start+size; addr++ ) {
