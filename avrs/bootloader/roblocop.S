@@ -64,16 +64,20 @@ roblocop_pgm_copy:
 
   Registers mapping
     r24,r25  dest (param)
-    r22,r23  src (param)
+    r22,r23  src (param), moved to r26
     r20      size (param)
+
+    r26,r27  src (actually used value)
 
     r18      parameter value for .L_safe_spm
     r19      temp variable
 
     r30,r31  Z-register / Z-pointer
-    r28,r29  X-register (store SPMCSR if needed, then WDTCSR)
 
   */
+
+  ; move src to a register suitable for adiw
+  movw r26,r22
 
 #ifdef RAMPZ
   ldi r19,1
@@ -89,28 +93,34 @@ roblocop_pgm_copy:
 .L_loop_pagesize:
 
   ; set Z-pointer with address to read (src)
-  movw r30,r22
+  movw r30,r26
   ; pgm_read_word_near(), in the temporary register
   lpm r0, Z+
   lpm r1, Z
 
   ; set Z-pointer to dest, but with the incremented part from src
+#if (SPM_PAGESIZE == 256)
   movw r30,r24
-  mov r30,r22
+  mov r30,r26
+  ; also possible, but not recommanded (last bit should be 0):
+  ;mov r31,r25
+#else
+  andi r30,SPM_PAGESIZE-2  ; keep src offset, last bit set to 0
+  or r30,r24  ; add page part from dest
+  mov r31,r25
+#endif
   ; fill page buffer operation
   ldi r18,(1<<SPMEN)
   rcall .L_safe_spm
 
   ; src += 2
-  movw r26,r22
   adiw r26,2
-  movw r22,r26
 
   ; while( src % SPM_PAGESIZE != 0 )
 #if (SPM_PAGESIZE == 256)
-  cpi r22,0
+  cpi r26,0
 #else
-  andi r22,SPM_PAGESIZE-1
+  andi r26,SPM_PAGESIZE-1
 #endif
   brne .L_loop_pagesize
 
