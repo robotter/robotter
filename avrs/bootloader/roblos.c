@@ -365,9 +365,9 @@ static uint16_t recv_u16(void)
 static uint32_t recv_u32(void)
 {
   uint32_t ret = proto_recv();
-  ret += proto_recv()*0x100;
-  ret += proto_recv()*0x10000;
-  ret += proto_recv()*0x1000000;
+  ret += proto_recv()*0x100U;
+  ret += proto_recv()*0x10000U;
+  ret += proto_recv()*0x1000000U;
   return ret;
 }
 
@@ -682,6 +682,7 @@ static void cmd_copy_pages(void)
   }
 #endif
 
+  reply_success(0);
   eeprom_busy_wait();
   roblocop_pgm_copy(dest, src, n);
 }

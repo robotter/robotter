@@ -15,7 +15,7 @@
 #ifndef SELFPRGEN
 #  error Cannot find SPMEN value.
 #endif
-#define SPMCSR SPMCR
+#define SPMEN SELFPRGEN
 #endif
 
 #ifndef WDTCSR
@@ -63,129 +63,113 @@ roblocop_pgm_copy:
   if dest is 0x0400, data will be written to 0x10400).
 
   Registers mapping
-    r26,r27  dest (param)
-    r24,r25  src (param)
-    r22      size (param)
+    r24,r25  dest (param)
+    r22,r23  src (param)
+    r20      size (param)
 
-    r16-r18  local constants
-    r20,r21  temp variables
+    r18      parameter value for .L_safe_spm
+    r19      temp variable
 
     r30,r31  Z-register / Z-pointer
     r28,r29  X-register (store SPMCSR if needed, then WDTCSR)
 
   */
 
-  /* use dest in higher 64KB, if available */
 #ifdef RAMPZ
-  ldi r20,(1<<RAMPZ0)
-  out _SFR_IO_ADDR(RAMPZ),r20
+  ldi r19,1
+  sts RAMPZ,r19
 #endif
-
-  ; values written to SPMCSR
-  ldi r16,(1<<SPMEN)
-  ldi r17,(1<<PGERS)
-  ldi r18,(1<<PGWRT)+(1<<SPMEN)
-
-  ; on some devices, SPMCSR cannot be set/read using out/in
-.if (_SFR_IO_ADDR(SPMCSR) < 64)
-/* direct access */
-.macro out_SPMCSR reg
-  out _SFR_IO_ADDR(SPMCSR),\reg
-.endm
-.macro in_SPMCSR reg
-  in \reg,_SFR_IO_ADDR(SPMCSR)
-.endm
-.else
-/* indirection: stopre SPMCSR in X-register */
-  ldi r28,SPMCSR
-.macro out_SPMCSR reg
-  st X,\reg
-.endm
-.macro in_SPMCSR reg
-  ld \reg,X
-.endm
-.endif
-
 
   ; loop over page count
 .L_loop_pages:
 
   ;; Fill the page buffer
-  ; only the word part of Z-pointer is used to fill the page buffer
-  ; thus, we do not have to update it between lpm and spm operations
 
   ; loop over SPM_PAGESIZE size
 .L_loop_pagesize:
+
   ; set Z-pointer with address to read (src)
-  movw r30,r24
+  movw r30,r22
   ; pgm_read_word_near(), in the temporary register
   lpm r0, Z+
   lpm r1, Z
-  ; fill page buffer operation
-  out_SPMCSR r16
-  spm
 
-  ; src += 2 
-  adiw r24,2
+  ; set Z-pointer to dest, but with the incremented part from src
+  movw r30,r24
+  mov r30,r22
+  ; fill page buffer operation
+  ldi r18,(1<<SPMEN)
+  rcall .L_safe_spm
+
+  ; src += 2
+  movw r26,r22
+  adiw r26,2
+  movw r22,r26
+
   ; while( src % SPM_PAGESIZE != 0 )
-  mov r20,r24
-#if (SPM_PAGESIZE != 256)
-  andi r20,SPM_PAGESIZE-1
+#if (SPM_PAGESIZE == 256)
+  cpi r22,0
+#else
+  andi r22,SPM_PAGESIZE-1
 #endif
   brne .L_loop_pagesize
 
   ; set Z-pointer to dest
-  movw r30,r26
-
+  movw r30,r24
   ; erase the page
-  out_SPMCSR r17
-  rcall .L_spm_and_busy_wait
-
+  ldi r18,(1<<PGERS)+(1<<SPMEN)
+  rcall .L_safe_spm
+  ; set Z-pointer to dest
+  movw r30,r24
   ; write the page
-  out_SPMCSR r18
-  rcall .L_spm_and_busy_wait
+  ldi r18,(1<<PGWRT)+(1<<SPMEN)
+  rcall .L_safe_spm
 
   ; dest += SPM_PAGESIZE
 #if (SPM_PAGESIZE == 256)
-  inc r27
+  inc r25
 #elif (SPM_PAGESIZE < 64)
-  adiw r26,SPM_PAGESIZE
+  adiw r24,SPM_PAGESIZE
 #else
   ; OR-ing first is safe because dest is aligned on SPM_PAGESIZE
-  ori r26,SPM_PAGESIZE-1
-  adiw r26,1
+  ori r24,SPM_PAGESIZE-1
+  adiw r24,1
 #endif
 
   ; while( --size )
-  dec r22
+  dec r20
   brne .L_loop_pages
 
-
-  ; NOTE boot_rww_enable() not needed, we reset just after this.
-
-  ;; Enable watchdog, minimum timeout
-  ; WDTCSR in X-register
-  ldi r28,WDTCSR
-  ; start timed sequence (should be OR-ed to current value)
-  ldi r20,(1<<WDCE)+(1<<WDE)
-  st X,r20
-  ; set prescaler (all prescaler bits to 0)
-  ;XXX r20 might be reused (is it ok to set WDCE again?)
-  ldi r20,(1<<WDE)+0
-  st X,r20
-  ; wait for watchdog reset
-  rjmp .
+  ; Enable watchdog to reset
+  ldi r19,(1<<WDE)
+.if (_SFR_IO_ADDR(WDTCSR) < 64)
+  out _SFR_IO_ADDR(WDTCSR),r19
+.else
+  sts WDTCSR,r19
+.endif
+.L_wdt_wait:
+  rjmp .L_wdt_wait
 
 /* END */
 
   ; SPM operation followed by boot_spm_busy_wait()
-.L_spm_and_busy_wait:
+  ; SPMCSR value must be stored in r18
+.L_safe_spm:
+.if (_SFR_IO_ADDR(SPMCSR) < 64)
+  in r19,_SFR_IO_ADDR(SPMCSR)
+.else
+  lds r19,SPMCSR
+.endif
+  sbrc r19,SPMEN
+  rjmp .L_safe_spm
+.if (_SFR_IO_ADDR(SPMCSR) < 64)
+  out _SFR_IO_ADDR(SPMCSR),r18
+.else
+  sts SPMCSR,r18
+.endif
   spm
-.L_spm_wait:
-  in_SPMCSR r20
-  sbrc r20,0
-  rjmp .L_spm_wait
   ret
+
 
 /* check size: code must fit in a single page */
 .iflt (SPM_PAGESIZE - (.-roblocop_pgm_copy))

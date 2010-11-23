@@ -4,6 +4,105 @@ import re, sys
 import struct
 
 
+def load_hex(f):
+  """Parse an HEX file to a list of data chunks.
+  f is a file object or a filename.
+
+  Return a list of (address, data) pairs.
+  """
+  if isinstance(f, basestring):
+    f = open(f, 'rb')
+
+  ret = []
+  addr, data = 0, ''  # current chunk
+  offset = 0  # set by record type 02
+  for s in f:
+    s = s.strip()
+    # only do basic checks needed for the algo
+    if re.match(':[\dA-Fa-f]{10,42}$', s) is None:
+      raise ValueError("invalid HEX line: %s" % s)
+    fields = {
+        'bytecount':  int(s[1:3],16),
+        'address':    int(s[3:7],16),
+        'recordtype': int(s[7:9],16),
+        'data':       s[9:-2],
+        'checksum':   int(s[-2:],16),
+        }
+    if len(fields['data']) != 2*fields['bytecount']:
+      raise ValueError("invalid byte count")
+
+    rt = fields['recordtype']
+    if rt == 0:
+      newaddr = fields['address'] + offset
+      if newaddr < addr+len(data):
+        raise ValueError("backward address jump")
+      if newaddr > addr+len(data):
+        # gap: store previous chunk
+        if data:
+          ret.append( (addr, data) )
+        addr, data = newaddr, ''
+      d = fields['data']
+      data += ''.join(
+          chr(int(d[i:i+2],16))
+          for i in range(0,len(d),2)
+          )
+    elif rt == 1:
+      break # EOF
+    elif rt == 2:
+      if fields['bytecount'] != 2:
+        raise ValueError("invalid extended segment address record")
+      offset = int(fields['data'],16) << 4
+    else:
+      raise ValueError("invalid HEX record type: %s" % rt)
+  # last chunk
+  if data:
+    ret.append( (addr, data) )
+  return ret
+
+def split_hex_chunks(chunks, size, fill):
+  """Split and pad a list of data chunks.
+  chunks and return value are lists of (address, data) pairs.
+  """
+  if not len(chunks):
+    return []
+  ret = []
+  paddr, pdata = 0, ''
+
+  it = iter(chunks)
+  for addr,data in chunks:
+    if addr < paddr+size:
+      # pad previous page
+      pdata = pdata.ljust(addr-paddr, fill)
+      # append new data to previous page
+      n = size - len(pdata)
+      pdata += pdata[:n]
+      if len(pdata) < size:
+        continue  # page still incomplete
+      # start new page
+      ret.append( (paddr, pdata) )
+      paddr, pdata, data = addr+n, '', data[n:]
+    else:
+      # pad and push previous page
+      if pdata:
+        pdata = pdata.ljust(size, fill)
+        ret.append( (paddr, pdata) )
+      # start new page, align new data
+      n = addr % size
+      paddr, pdata = addr-n, fill*n+data
+
+    # push full pages
+    while len(data) > size:
+      ret.append( (addr, data[:size]) )
+      addr, data = addr+size, data[size:]
+    paddr, pdata = addr, data
+  # last page
+  if pdata:
+    pdata = pdata.ljust(size, fill)
+    ret.append( (paddr, pdata) )
+  return ret
+
+
+
 class RobloClient:
   """
   Low-level Client for the Rob'Otter Bootloader.
@@ -136,7 +235,7 @@ class RobloClient:
     """Compute the CRC of a given memory range.
     Return the computed CRC or False on error.
     """
-    r = self.send_cmd('c', 'LL', start, size)
+    r = self.send_cmd('c', 'II', start, size)
     if not r:
       return False
     return r.unpack('H')[0]
@@ -146,6 +245,19 @@ class RobloClient:
     Return True on success, False otherwise.
     """
     r = self.send_cmd('x')
+    if not r:
+      return False
+    return True
+
+  def cmd_copy_pages(self, dest, src, n):
+    """Copy pages of flash from an address to another.
+    dest and src are 32-bit addresses, however restrictions apply on
+    parameters. See roblos.c for details.
+    The command returns before actually doing the copy: one should wait for a
+    reset to make sure pages have been copied.
+    Return True on success, False otherwise.
+    """
+    r = self.send_cmd('y', 'IIB', dest, src, n)
     if not r:
       return False
     return True
@@ -305,37 +417,25 @@ class Roblochon(RobloClient):
     """Send a program to the device.
 
     Parameters:
-      fhex -- HEX file (or filename or buffer) to program
-      fhex2 -- previous HEX file, to program changes
+      fhex -- HEX data to program
+      fhex2 -- previous HEX data, to program changes
 
+    See parse_hex() for accepted fhex/fhex2 values.
     See program_pages() for return values.
 
     """
-
-    if type(fhex) is buffer:
-      data = fhex
-    else:
-      data = self.parse_hex_file(fhex)
-    if len(data) == 0:
-      raise ValueError("empty HEX data")
+    pages = self.parse_hex(fhex)
     if fhex2 is None:
-      return self.program_pages(data)
-
-    if isinstance(fhex2, buffer):
-      data2 = fhex2
-    else:
-      data2 = self.parse_hex_file(fhex2)
-    if len(data2) == 0:
-      raise ValueError("empty previous HEX data")
-    
-    return self.program_pages(self.diff_pages(data, data2))
+      return self.program_pages(pages)
+    pages2 = self.parse_hex(fhex2)
+    return self.program_pages( self.diff_pages(pages, pages2) )
 
 
   def program_pages(self, pages):
     """Send a program to the device.
 
     Parameters:
-      pages -- list of pages to program, or a single buffer string
+      pages -- a list of pages to program
 
     pages is a list of (address, data) pairs. address has to be aligned to
     pagesize, data is padded if needed but size must not exceed page size.
@@ -347,11 +447,6 @@ class Roblochon(RobloClient):
 
     self._assert_supported_cmd('p')
 
-    if isinstance(pages, (basestring, buffer)):
-      pages = [
-          (i, pages[i:i+self.pagesize])
-          for i in range(0, len(pages), self.pagesize)
-          ]
     page_count = len(pages)
     if page_count == 0:
       return None
@@ -386,29 +481,116 @@ class Roblochon(RobloClient):
     return True
 
 
-  def check(self, fhex):
+  def program_bootloader(self, fhex, copy=True, check=True):
+    """Reprogram the device's bootloader.
+
+    Parameters:
+      fhex -- HEX file (or filename or buffer) to program
+      copy -- True to reprogram the roblocop page, False to ignore it, None if
+              it is not in the HEX file
+      check -- CRC-check programmed pages when possible
+
+    If copy is not None, the roblocop page is retrieved from the last page of
+    the HEX file.
+    The bootloader is first programmed in the application part of the flash, as
+    far as possible (before its final position, and in the lower 64KB for large
+    devices) to avoid to overwrite the application.
+    On error, the bootloader may need to be reprogrammed using an external
+    programmer.
+
+    """
+
+    self._assert_supported_cmd('y')
+    if 'c' not in self.commands:
+      check = False  # check not available
+    pages = self.parse_hex(fhex)
+
+    # reprogram roblocop if needed
+    if copy is True:
+      pages, cop_pages = pages[:-1], pages[-1:]
+      self.output_program_roblocop()
+      self.program_pages(cop_pages)
+      if check and not self.check(cop_pages):
+        raise RuntimeError("CRC mismatch for roblocop page")
+    elif copy is False:
+      # drop the roblocop page
+      pages = pages[:-1]
+    elif copy is not None:
+      raise ValueError("copy")
+
+    # get final and copy bootloader location
+    dest_final = pages[0][0]
+    size = pages[-1][0] - dest_final + self.pagesize
+    dest_copy = min(dest_final, 0x10000) - size
+    # shift data to copy
+    pages = [ (i-dest_final+dest_copy, d) for i,d in pages ]
+    # program the new bootloader at the start of the flash
+    self.output_program_bootloader()
+    self.program_pages(pages)
+    if check and not self.check(pages):
+      raise RuntimeError("CRC mismatch for bootloader pages")
+    # copy bootloader to its final location
+    self.output_copy_bootloader()
+    ret = self.cmd_copy_pages(dest_final, dest_copy, size/self.pagesize)
+    self.clear_infos()  # bootloader changed, info may have changed too
+    if not ret:
+      raise RuntimeError("bootloader page copy failed")
+    self.synchronize()
+    return True
+    
+
+  def check(self, fhex, fill=True):
     """Check the program on the device.
 
     Parameters:
-      fhex -- HEX file (or filename or buffer) to check against
+      fhex -- HEX data to check (HEX file/filename or list of (addr, data))
+      gap -- if True, gaps in checked data are filled with UNUSED_BYTE,
+             otherwise several check commands are sent
 
     Return True if the CRC matches, False otherwise
 
     """
 
     self._assert_supported_cmd('c')
-    if isinstance(fhex, buffer):
-      data = fhex
+
+    # don't parse to pages: this may add unwanted padding
+    if isinstance(fhex, (tuple, list)):
+      chunks = fhex
     else:
-      data = self.parse_hex_file(fhex)
-    if len(data) == 0:
+      chunks = load_hex(fhex)
+    if len(chunks) == 0:
       raise ValueError("empty HEX data")
+    # merge chunks, fill gaps if needed
+    chunks2 = []
+    curaddr, curdata = 0, ''
+    for addr,data in chunks:
+      if addr < curaddr+len(curdata):
+        raise ValueError("backward address jump")
+      elif addr == curaddr:
+        # merge
+        curdata += data
+      elif not curdata:
+        # new chunk
+        curaddr, curdata = addr, data
+      elif fill:
+        # fill gaps
+        curdata += (addr-curaddr-len(curdata)) * self.UNUSED_BYTE + data
+      else:
+        # new chunk
+        chunks2.append( (curaddr, curdata) )
+        curaddr, curdata = addr, data
+    # last chunk
+    if curdata:
+      chunks2.append( (curaddr, curdata) )
 
     self.synchronize()
-    r = self.cmd_mem_crc(0, len(data))
-    if r is False:
-      raise RoblochonError("crc check failed")
-    return r == self.compute_crc(data)
+    for addr,data in chunks2:
+      r = self.cmd_mem_crc(addr, len(data))
+      if r is False:
+        raise RoblochonError("crc check failed")
+      if r != self.compute_crc(data):
+        return False
+    return True
 
 
   def update_infos(self):
@@ -455,63 +637,28 @@ class Roblochon(RobloClient):
     return SlaveConn(self, addr)
 
 
-  def diff_pages(self, data1, data2):
-    """Return a list of pages of data1 which differ from data2."""
-    if self.pagesize is None: self.update_infos()
-    p = []
-    for i in range(0, len(data1), self.pagesize):
-      d1 = data1[i:i+self.pagesize]
-      d2 = data2[i:i+len(d1)]
-      if d1 != d2:
-        p.append( (i, d1) )
-    return p
 
+  def parse_hex(self, fhex):
+    """Parse an HEX file to a list of pages.
+    Raise an exception if data is empty.
+    If f is already a list of pages, return it unchanged.
+    """
+    if isinstance(fhex, (tuple, list)):
+      pages = fhex
+    else:
+      data = load_hex(fhex)
+      if self.pagesize is None:
+        self.update_infos()
+      pages = split_hex_chunks(data, self.pagesize, self.UNUSED_BYTE)
+    if not len(pages):
+      raise ValueError("empty HEX data")
+    return pages
 
   @classmethod
-  def parse_hex_file(cls, f):
-    """Return a data buffer from a .hex.
-    f is a file object or a filename.
-    Gaps are filled with bytes set to UNUSED_BYTE.
+  def diff_pages(cls, p1, p2):
+    """Return the pages from p1 not in p2."""
+    return sorted( set(p1) - set(p2) )
 
-    Note: returned value is a buffer object, not a string.
-    """
-    if isinstance(f, basestring):
-      f = open(f, 'rb')
-
-    data = ''
-    offset = 0  # set by record type 02
-    for s in f:
-      s = s.strip()
-      # only do basic checks needed for the algo
-      if re.match(':[\dA-Fa-f]{10,42}$', s) is None:
-        raise ValueError("invalid HEX line: %s" % s)
-      fields = {
-          'bytecount':  int(s[1:3],16),
-          'address':    int(s[3:7],16),
-          'recordtype': int(s[7:9],16),
-          'data':       s[9:-2],
-          'checksum':   int(s[-2:],16),
-          }
-      assert len(fields['data']) == 2*fields['bytecount'], "invalid byte count"
-
-      rt = fields['recordtype']
-      if rt == 0:
-        addr = fields['address'] + offset
-        assert addr >= len(data), "invalid address"
-        data = data.ljust(addr, cls.UNUSED_BYTE) # fill with default data
-        d = fields['data']
-        data += ''.join(
-            chr(int(d[i:i+2],16))
-            for i in range(0,len(d),2)
-            )
-      elif rt == 1:
-        break # EOF
-      elif rt == 2:
-        assert fields['bytecount'] == 2, "invalid extended segment address record"
-        offset = int(fields['data'],16) << 4
-      else:
-        raise ValueError("invalid HEX record type: %s" % rt)
-    return buffer(data)
 
   def _assert_supported_cmd(self, c):
     if self.commands is None:
@@ -535,6 +682,13 @@ class Roblochon(RobloClient):
     sys.stdout.flush()
   def output_program_end(self):
     sys.stdout.write("\n")
+
+  def output_program_roblocop(self):
+    sys.stdout.write("programming roblocop part\n")
+  def output_program_bootloader(self):
+    sys.stdout.write("programming bootloader part\n")
+  def output_copy_bootloader(self):
+    sys.stdout.write("copy bootloader to its final location\n")
 
 
 class SlaveConn:
@@ -680,6 +834,8 @@ if __name__ == '__main__':
       help="print device infos")
   parser.add_option('-f', '--read-fuses', dest='fuses', action='store_true',
       help="print value of fuse bytes")
+  parser.add_option('--program-bootloader', dest='program_bootloader', metavar='HEX',
+      help="program the bootloader")
   parser.add_option('--slave', dest='slave_addr', metavar='ADDR',
       help="I2C address of a slave to communicate with")
   parser.add_option('--roid', dest='roid',
@@ -698,6 +854,7 @@ if __name__ == '__main__':
       boot=False,
       infos=False,
       fuses=False,
+      program_bootloader=None,
       slave_addr=None,
       roid=None,
       init_send=None,
@@ -744,9 +901,12 @@ if __name__ == '__main__':
 
   if opts.infos:
     #TODO list of commands
-    print "device infos :  ROID: %d, features: %s" % (client.roid, client.features)
+    print "device infos :  ROID: 0x%02x, features: %s" % (client.roid, client.features)
   if opts.fuses:
     print "fuses (low high ex): %02x %02x %02x" % client.read_fuses()
+  if opts.program_bootloader:
+    print "programming bootloader..."
+    client.program_bootloader(opts.program_bootloader)
   if opts.program:
     print "programming..."
     ret = client.program(args[0], args[1] if len(args)>1 else None)
@@ -754,7 +914,7 @@ if __name__ == '__main__':
       print "nothing to program"
   if opts.check:
     print "CRC check..."
-    if client.check(args[0]):
+    if client.check(args[0], False):
       print "CRC OK"
     else:
       print "CRC mismatch"

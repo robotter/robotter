@@ -287,7 +287,7 @@ class Blosh(cmd.Cmd):
       opts -- shell options
       bl -- Roblochon instance
       bl_mode -- True if bootloader active
-      last_hex -- last uploaded HEX data
+      last_hex -- last uploaded HEX pages
 
     """
 
@@ -833,15 +833,15 @@ class Blosh(cmd.Cmd):
     self.bl_enter()
     if not self._check_roid(): return
     try:
-      data = ctx.bl.parse_hex_file(f)
+      pages = ctx.bl.parse_hex(f)
     except Exception, e:
-      self.print_fmt('{error}cannot parse HEX file {arg}%s{error}: %s{}', f,e)
+      self.print_fmt('{error}failed to parse HEX file {arg}%s{error}: %s{}', f,e)
       return
 
     try:
-      if ctx.bl.program(data, ctx.last_hex) is None:
+      if ctx.bl.program(pages, ctx.last_hex) is None:
         self.print_ln(self.theme.do_info("nothing to program"))
-      ctx.last_hex = data
+      ctx.last_hex = pages
     except Exception, e:
       self.print_error('failed to program: %s' % e)
 
@@ -1005,7 +1005,7 @@ class Blosh(cmd.Cmd):
       if ret:
         # current embedded program is the given HEX file
         # set last_hex to allow page optimizations
-        ctx.last_hex = ctx.bl.parse_hex_file(f)
+        ctx.last_hex = ctx.bl.parse_hex(f)
       self.print_ln('check: %s' % self.theme.do_ok('OK') if ret else self.theme.do_error('FAILED'))
     except Exception, e:
       self.print_error('failed to check: %s' % e)
