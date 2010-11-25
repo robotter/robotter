@@ -498,6 +498,9 @@ class Roblochon(RobloClient):
     On error, the bootloader may need to be reprogrammed using an external
     programmer.
 
+    Return True on success, None if no bootloader page has been programmed
+    (roblocop may have been updated though).
+
     """
 
     self._assert_supported_cmd('y')
@@ -517,6 +520,9 @@ class Roblochon(RobloClient):
       pages = pages[:-1]
     elif copy is not None:
       raise ValueError("copy")
+
+    if len(pages) == 0:
+      return None
 
     # get final and copy bootloader location
     dest_final = pages[0][0]

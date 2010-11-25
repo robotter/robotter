@@ -242,6 +242,7 @@ class Blosh(cmd.Cmd):
       'prog_file': (ShellOptStr, None, "programmed binary file (see 'programm' command)"),
       'auto_boot': (ShellOptBool, True, "boot (if needed) when entering terminal mode"),
       'check_roid': (ShellOptInt, -1, "excepted ROID, checked before programming/checking (-1 to ignore)"),
+      'bl_file': (ShellOptStr, None, "bootloader binary file (see 'updatebl' command)"),
       }
 
   _help_topics = {
@@ -262,6 +263,7 @@ class Blosh(cmd.Cmd):
       'boot': "boot the device (if bootloader is active)",
       'clear': "clear cached device infos and last programmed data",
       'infos': "display device infos, fuse bytes and programmed binary state",
+      'updatebl': ('updatebl[!] [file.hx]', "update the bootloader", """The given bootloader file, or the previous one if none is provided, is uploaded on the device. Without '!', only update if changes have been made. Change of start address is not supported and the last page must contain the new roblocop code."""),
       }
 
   _default_aliases = {
@@ -288,6 +290,7 @@ class Blosh(cmd.Cmd):
       bl -- Roblochon instance
       bl_mode -- True if bootloader active
       last_hex -- last uploaded HEX pages
+      last_bl_hex -- last uploaded bootloader pages (including roblocop)
 
     """
 
@@ -300,6 +303,7 @@ class Blosh(cmd.Cmd):
       self.bl.blosh = blosh
       self.bl_mode = False
       self.last_hex = None
+      self.last_bl_hex = None
 
 
   class BlClient(Roblochon):
@@ -311,6 +315,12 @@ class Blosh(cmd.Cmd):
       bl.out.flush()
     def output_program_end(self):
       self.blosh.print_ln('')
+    def output_program_roblocop(self):
+      self.blosh.print_ln(self.blosh.theme.do_info("programming roblocop part"))
+    def output_program_bootloader(self):
+      self.blosh.print_ln(self.blosh.theme.do_info("programming bootloader part"))
+    def output_copy_bootloader(self):
+      self.blosh.print_ln(self.blosh.theme.do_info("copy bootloader to its final location"))
 
 
   def __init__(self, conn, color=True):
@@ -982,8 +992,6 @@ class Blosh(cmd.Cmd):
     if len(line) and line[0] == '!':
       ctx.last_hex = None
       line = line.lstrip('! \t')
-    else:
-      force = False
     if line:
       ctx.opts['prog_file'].set(line)
     self.reprogram()
@@ -1048,10 +1056,49 @@ class Blosh(cmd.Cmd):
     else:
       self.print_fmt('{bold}program:{} no file')
 
+  @_trap_keyboardinterrupt
+  def do_updatebl(self, line):
+    ctx = self.ctx
+    if len(line) and line[0] == '!':
+      ctx.last_bl_hex = None
+      line = line.lstrip('! \t')
+    if line:
+      f = line
+      ctx.opts['bl_file'].set(f)
+    else:
+      f = ctx.opts['bl_file'].val
+    if not f:
+      self.print_error("no file to upload")
+      return
+    self.bl_enter()
+    if not self._check_roid(): return
+    try:
+      pages = ctx.bl.parse_hex(f)
+    except Exception, e:
+      self.print_fmt('{error}failed to parse HEX file {arg}%s{error}: %s{}', f,e)
+      return
+
+    if len(pages) < 2:
+      self.print_error('not enough pages for bootloader')
+      return
+    if ctx.last_bl_hex is not None:
+      if len(ctx.bl.diff_pages(pages[:-1], ctx.last_bl_hex[:-1])) == 0:
+        # no need to update (even if roblocop part changed)
+        self.print_ln(self.theme.do_info("nothing to update"))
+        return
+      copy = ctx.last_bl_hex[-1] != pages[-1]
+    else:
+      copy = True
+    try:
+      ctx.bl.program_bootloader(pages, copy=copy)
+      ctx.last_bl_hex = pages
+    except Exception, e:
+      self.print_error('failed to update bootloader: %s' % e)
+
 
   def _check_roid(self):
-    ctx = self.ctx
     """Internal method to check ROID if needed, print a message on mismatch."""
+    ctx = self.ctx
     if ctx.opts['check_roid'].val <= -1: return True
     ctx.bl.update_infos()
     if ctx.opts['check_roid'].val != ctx.bl.roid:
