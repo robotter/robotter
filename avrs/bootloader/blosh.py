@@ -416,6 +416,7 @@ class Blosh(cmd.Cmd):
       self.print_fmt('{info}sending {bold}reset{info} string{}')
       ctx.conn.write(ctx.opts['reset_str'].val)
     self.print_fmt('{info}{bold}waiting{info} for bootloader...{}')
+    self.out.flush()
 
     ctx.bl.synchronize()
     ctx.bl_mode = True
