@@ -147,6 +147,10 @@ class RobloClient:
     distinct frame.
     """
     self.conn.write(buf)
+    #import time
+    #for c in buf:
+    #  time.sleep(0.1)
+    #  self.conn.write(c)
     self.output_write(buf)
 
   def recv_raw(self, n):
@@ -258,6 +262,29 @@ class RobloClient:
     Return True on success, False otherwise.
     """
     r = self.send_cmd('y', 'IIB', dest, src, n)
+    if not r:
+      return False
+    return True
+
+  def cmd_i2c_recv(self, addr, size=None):
+    """Receive data from an I2C slave.
+    If size is None or 0, it is read from the first data byte.
+    This is used to read protocol replies from the slave.
+
+    Return received data on success, False on error.
+    """
+    if size is None:
+      size = 0
+    r = self.send_cmd('<', 'BB', addr, size)
+    if not r:
+      return False
+    return r.data
+
+  def cmd_i2c_send(self, addr, data):
+    """Send data to an I2C slave.
+    Return True on success, False otherwise.
+    """
+    r = self.send_cmd('>', 'BH%ds'%(len(data)), addr, len(data), data)
     if not r:
       return False
     return True
@@ -638,12 +665,6 @@ class Roblochon(RobloClient):
     return
 
 
-  def slave_conn(self, addr):
-    """Return a SlaveConn for a slave of instance's device."""
-    return SlaveConn(self, addr)
-
-
-
   def parse_hex(self, fhex):
     """Parse an HEX file to a list of pages.
     Raise an exception if data is empty.
@@ -695,37 +716,6 @@ class Roblochon(RobloClient):
     sys.stdout.write("programming bootloader part\n")
   def output_copy_bootloader(self):
     sys.stdout.write("copy bootloader to its final location\n")
-
-
-class SlaveConn:
-  """Connection interface for I2C slaves.
-
-  Instances fill requirements of connection objects and can be used to
-  instantiate RobloClient instances.
-
-  Attributes:
-    master -- master RobloClient instance
-    addr -- I2C address
-
-  """
-
-  def __init__(self, master, addr):
-    self.master = master
-    self.addr = addr
-
-  def connect(self):
-    """Start an I2C session."""
-    if not self.master.cmd_slave_start(self.addr):
-      raise RoblochonError("failed to start I2C session")
-
-  def close(self):
-    """End an I2C session."""
-    self.master.cmd_slave_stop() # ignore errors
-
-  def write(self, data):
-    if not self.master.cmd_slave_write(data):
-      raise RoblochonError("I2C write failed")
-
 
 
 # Use the pySerial implementation as fallback
@@ -893,12 +883,7 @@ if __name__ == '__main__':
 
   if opts.slave_addr is not None:
     addr = int(opts.slave_addr, 0)
-    slave_conn = master.slave_conn(addr)
-    slave_conn.connect()
-    client = Roblochon(slave_conn)
-    print "slave bootloader waiting..."
-    client.synchronize()
-    client.update_infos()
+    raise NotImplementedError("not supported yet") #TODO
   else:
     client = master
 

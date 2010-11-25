@@ -287,8 +287,6 @@ static char (*const proto_recv)(void) = i2cs_recv;
 #define STATUS_NONE             0x00
 #define STATUS_SUCCESS          0x01
 #define STATUS_BOOTLOADER_MSG   0x0a // LF
-#define STATUS_I2C_WAIT_FRAME   0x20
-#define STATUS_I2C_READ         0x21
 #define STATUS_FAILURE          0xff
 #define STATUS_UNKNOWN_COMMAND  0x81
 #define STATUS_NOT_SUPPORTED    0x82
@@ -296,7 +294,6 @@ static char (*const proto_recv)(void) = i2cs_recv;
 #define STATUS_BAD_VALUE        0x84
 #define STATUS_CRC_MISMATCH     0x90
 #define STATUS_I2C_ERROR        0xa0
-#define STATUS_I2C_BAD_FRAME    0xa1
 
 
 /// Send a reply with given status and field size.
@@ -485,7 +482,7 @@ static void cmd_infos(void)
       "y"
 #endif
 #ifdef ENABLE_I2C_MASTER
-      "s"
+      "<>"
 #endif
       ;
   reply_success(1+2+sizeof(features)+sizeof(commands));
@@ -691,163 +688,101 @@ static void cmd_copy_pages(void)
 
 
 #ifdef ENABLE_I2C_MASTER
-/** @brief Run a session with an I2C slave.
- *
- * A session consists of several read or write frames.
- *
- * Parameters for the 's' command:
- *  - I2C slave address (u8)
- *
- * After the 's' command the client is expected to send one of the following
- * subcommands:
- *  - '<': read data from the slave
- *  - '>': send data to the slave
- *  - '-': ends the slave session
- *
- * Parameters for the '<' command:
- *  - data size (u8) or 0
- *
- * If the data size is 0, the value is read from the first data byte and is the
- * number of bytes to read after this first one. This is used to read protocol
- * replies from the slave.
- *
- * Parameters for the '>' command:
- *  - data size (u16)
- *  - data to send
- *
- * After each subcommand, the server reply with an appropriated status.
- * The SUCCESS status is only used when successfully ending the session.
- * An error status abort the session.
+
+/** @name I2C master commands.
  *
  * The slave part is intended to be minimalistic. Therefore, it has a (very)
  * lazy handling of I2C states. Especially, the master should not except NACK
  * from it.
  */
-static void cmd_slave_session(void)
+//@{
+
+/** @brief Common init code for I2C master commands.
+ *
+ * Read and check the slave address, configure I2C and poll the slave.
+ *
+ * @return The I2C slave address on success, 0 on failure.
+ */
+static uint8_t init_cmd_i2c(void)
 {
 #ifdef ENABLE_I2C_SLAVE
 #ifndef DISABLE_STRICT_CHECKS
   // command allowed in UART mode only
   if( proto_send != uart_send ) {
     reply_failure();
-    return;
+    return 0;
   }
 #endif
 #endif
-  uint8_t addr = proto_recv(); // slave addr
+  const uint8_t addr = proto_recv(); // slave addr
 #ifndef DISABLE_STRICT_CHECKS
   if( addr < 0x08 || addr >= 0x78 ) {
     reply_error(STATUS_BAD_VALUE);
-    return;
+    return 0;
   }
 #endif
 
   // configure I2C
-  //XXX move it elswhere(?)
   TWBR = I2C_BITRATE;
   TWCR = _BV(TWEN)|_BV(TWINT);
   if(I2C_PRESCALER & 1) TWSR |= _BV(TWPS0);
   if(I2C_PRESCALER & 2) TWSR |= _BV(TWPS1);
 
-  // poll the slave
-  do I2CM_START(); while( TW_STATUS != TW_START );
-  I2C_SEND(addr<<1); // write
+  return addr;
+}
+
+
+/* @brief Receive data from an I2C slave.
+ *
+ * Parameters for the '>' command:
+ *  - I2C slave address (u8)
+ *  - data size (u8) or 0
+ *
+ * If the data size is 0, the value is read from the first data byte and is the
+ * number of bytes to read after this first one. This is used to read protocol
+ * replies from the slave.
+ */
+static void cmd_i2c_recv(void)
+{
+  const uint8_t addr = init_cmd_i2c();
+  if( addr == 0 ) {
+    return; // reply sent by init_cmd_i2c()
+  }
+
+  uint8_t size = proto_recv();
+  // read frame
+  I2CM_START();
+#ifndef DISABLE_STRICT_CHECKS
+  if( TW_STATUS != TW_START ) {
+    goto slave_i2c_error;
+  }
+#endif
+  // slave address + Read bit (1)
+  I2C_SEND((addr<<1)+1);
+#ifndef DISABLE_STRICT_CHECKS
+  if( TW_STATUS != TW_MR_SLA_ACK && TW_STATUS != TW_MR_SLA_NACK ) {
+    I2CM_STOP();
+    goto slave_i2c_error;
+  }
+#endif
+  if( size == 0 ) {
+    // read the size in the first byte
+    I2C_ACK();
+    size = TWDR;
+    reply_success(size+1);
+    proto_send(size);
+  } else {
+    reply_success(size);
+  }
+  while( size-- != 1 ) {
+    I2C_ACK();
+    const char c = TWDR;
+    proto_send(c);
+  }
+  I2C_NACK();
+  proto_send( TWDR );
   I2CM_STOP();
 
-  for(;;) {
-    proto_send(STATUS_I2C_WAIT_FRAME);
-    char c = proto_recv();
-    if( c == 0 ) {
-      continue; // null command: ignore
-    } else if( c == '-' ) {
-      // end of session
-      reply_success(0);
-      return;
-
-    } else if( c == '>' ) {
-      // write frame
-      uint16_t size = recv_u16();
-#ifndef DISABLE_STRICT_CHECKS
-      if( size == 0 ) {
-        reply_error(STATUS_BAD_VALUE);
-        return;
-      }
-#endif
-      I2CM_START();
-#ifndef DISABLE_STRICT_CHECKS
-      if( TW_STATUS != TW_START ) {
-        goto slave_i2c_error;
-      }
-#endif
-      // slave address + Write bit (0)
-      I2C_SEND(addr<<1);
-#ifndef DISABLE_STRICT_CHECKS
-      if( TW_STATUS == TW_MT_SLA_NACK ) {
-        I2CM_STOP();
-        goto slave_i2c_error;
-      }
-      if( TW_STATUS != TW_MT_SLA_ACK ) {
-        goto slave_i2c_error;
-      }
-#endif
-      // transfer data
-      while( size-- != 1 ) {
-        I2C_SEND( proto_recv() );
-#ifndef DISABLE_STRICT_CHECKS
-        if( TW_STATUS != TW_MT_DATA_ACK ) {
-          I2CM_STOP();
-          goto slave_i2c_error;
-        }
-#endif
-      }
-      I2C_SEND_LAST( proto_recv() );
-#ifndef DISABLE_STRICT_CHECKS
-      if( TW_STATUS != TW_MT_DATA_ACK && TW_STATUS != TW_MT_DATA_NACK ) {
-        I2CM_STOP();
-        goto slave_i2c_error;
-      }
-      I2CM_STOP();
-#endif
-
-    } else if( c == '<' ) {
-      uint8_t size = proto_recv();
-      // read frame
-      I2CM_START();
-#ifndef DISABLE_STRICT_CHECKS
-      if( TW_STATUS != TW_START ) {
-        goto slave_i2c_error;
-      }
-#endif
-      // slave address + Read bit (1)
-      I2C_SEND((addr<<1)+1);
-#ifndef DISABLE_STRICT_CHECKS
-      if( TW_STATUS != TW_MR_SLA_ACK && TW_STATUS != TW_MR_SLA_NACK ) {
-        I2CM_STOP();
-        goto slave_i2c_error;
-      }
-#endif
-      if( size == 0 ) {
-        // read the size in the first byte
-        I2C_ACK();
-        size = TWDR;
-        reply(STATUS_I2C_READ, size+1);
-        proto_send(size);
-      } else {
-        reply(STATUS_I2C_READ, size);
-      }
-      while( size-- != 1 ) {
-        I2C_ACK();
-        char c = TWDR;
-        proto_send(c);
-      }
-      I2C_NACK();
-      proto_send( TWDR );
-      I2CM_STOP();
-    } else {
-      reply_error(STATUS_I2C_BAD_FRAME);
-      return;
-    }
-  }
   return;
 #ifndef DISABLE_STRICT_CHECKS
 slave_i2c_error:
@@ -855,8 +790,90 @@ slave_i2c_error:
   return;
 #endif
 }
+
+/** @brief Send data to an I2C slave.
+ *
+ * Parameters:
+ *  - I2C slave address (u8)
+ *  - data size (u16)
+ *  - data to send
+ *
+ * If the data size is 0 an empty frame is sent.
+ * This can be used to synchronize the slave.
+ *
+ * @warning Since UART data is not bufferised, if slave is too long to UART
+ * buffer overflows and the server will wait forever its input data.
+ */
+static void cmd_i2c_send(void)
+{
+  const uint8_t addr = init_cmd_i2c();
+  if( addr == 0 ) {
+    return; // reply sent by init_cmd_i2c()
+  }
+
+  // write frame
+  uint16_t size = recv_u16();
+  // poll the slave
+  do I2CM_START(); while( TW_STATUS != TW_START );
+  // slave address + Write bit (0)
+  I2C_SEND(addr<<1);
+#ifndef DISABLE_STRICT_CHECKS
+  if( TW_STATUS == TW_MT_SLA_NACK ) {
+    I2CM_STOP();
+    goto slave_i2c_error;
+  }
+  if( TW_STATUS != TW_MT_SLA_ACK ) {
+    goto slave_i2c_error;
+  }
+#endif
+
+  if( size != 0 ) {
+#ifndef DISABLE_STRICT_CHECKS
+    if( TW_STATUS == TW_MT_SLA_NACK ) {
+      I2CM_STOP();
+      goto slave_i2c_error;
+    }
+    if( TW_STATUS != TW_MT_SLA_ACK ) {
+      goto slave_i2c_error;
+    }
+#endif
+    // transfer data
+    while( size-- != 1 ) {
+      const char c = proto_recv();
+      I2C_SEND(c);
+#ifndef DISABLE_STRICT_CHECKS
+      if( TW_STATUS != TW_MT_DATA_ACK ) {
+        I2CM_STOP();
+        goto slave_i2c_error;
+      }
+#endif
+    }
+    const char c_last = proto_recv();
+    I2C_SEND_LAST(c_last);
+#ifndef DISABLE_STRICT_CHECKS
+    if( TW_STATUS != TW_MT_DATA_ACK && TW_STATUS != TW_MT_DATA_NACK ) {
+      I2CM_STOP();
+      goto slave_i2c_error;
+    }
+#endif
+  }
+
+  I2CM_STOP();
+
+  reply_success(0);
+  return;
+#ifndef DISABLE_STRICT_CHECKS
+slave_i2c_error:
+  reply_error(STATUS_I2C_ERROR);
+  return;
+#endif
+}
+
 //@}
 #endif
+
+//@}
+
 
 
 /** @brief Main loop.
@@ -947,7 +964,8 @@ int main(void)
     else if( c == 'y' ) cmd_copy_pages();
 #endif
 #ifdef ENABLE_I2C_MASTER
-    else if( c == 's' ) cmd_slave_session();
+    else if( c == '<' ) cmd_i2c_recv();
+    else if( c == '>' ) cmd_i2c_send();
 #endif
     else {
       reply_error(STATUS_UNKNOWN_COMMAND);
