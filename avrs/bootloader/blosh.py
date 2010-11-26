@@ -1045,13 +1045,14 @@ class Blosh(cmd.Cmd):
     f = ctx.opts['prog_file'].val
     if f:
       try:
-        data = ctx.bl.parse_hex_file(f)
+        data = ctx.bl.parse_hex(f)
         if ctx.last_hex is not None:
           data_diff = ctx.bl.diff_pages(data, ctx.last_hex)
-          self.print_fmt('{bold}program:{} %d bytes, %d page%c to program',
-              len(data), len(data_diff), '' if len(data_diff)==1 else 's')
+          self.print_fmt('{bold}program:{} %d page%c, %d to program',
+              len(data), '' if len(data)==1 else 's', len(data_diff))
         else:
-          self.print_fmt('{bold}program:{} %d bytes, no previous state', len(data))
+          self.print_fmt('{bold}program:{} %d page%c, no previous state',
+              len(data), '' if len(data)==1 else 's')
       except Exception:
         self.print_fmt('{bold}program:{} {error}invalid data{}')
     else:

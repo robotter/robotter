@@ -68,14 +68,13 @@ def split_hex_chunks(chunks, size, fill):
   ret = []
   paddr, pdata = 0, ''
 
-  it = iter(chunks)
   for addr,data in chunks:
     if addr < paddr+size:
       # pad previous page
       pdata = pdata.ljust(addr-paddr, fill)
       # append new data to previous page
       n = size - len(pdata)
-      pdata += pdata[:n]
+      pdata += data[:n]
       if len(pdata) < size:
         continue  # page still incomplete
       # start new page
