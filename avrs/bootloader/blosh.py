@@ -1036,11 +1036,14 @@ class Blosh(cmd.Cmd):
       roid_style = 'ok' if ctx.bl.roid == ctx.opts['check_roid'].val else 'error'
     self.print_fmt('{bold}ROID:{'+roid_style+'} 0x%02x (%d){}   {bold}features:{} %s',
         ctx.bl.roid, ctx.bl.roid, ctx.bl.features)
-    try:
-      fuses = ctx.bl.read_fuses()
-      self.print_fmt('{bold}fuses (low high ex):{} %02x %02x %02x', *fuses)
-    except Exception, e:
-      self.print_error('cannot read fuses: %s' % e)
+    if 'f' in ctx.bl.commands:
+      try:
+        fuses = ctx.bl.read_fuses()
+        self.print_fmt('{bold}fuses (low high ex):{} %02x %02x %02x', *fuses)
+      except Exception, e:
+        self.print_fmt('cannot read fuses: %s' % e)
+    else:
+      self.print_fmt('{bold}fuses:{} not available')
 
     f = ctx.opts['prog_file'].val
     if f:

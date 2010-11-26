@@ -221,7 +221,7 @@ static void I2C_SEND_LAST(uint8_t d) { TWDR = (d); I2C_NACK(); }
 #error "undefined i2c slave address"
 #endif
 #if (I2C_ADDR < 0x08 || I2C_ADDR > 0x77)
-#error "invalid i2C slave address"
+#error "invalid i2c slave address"
 #endif
 
 
