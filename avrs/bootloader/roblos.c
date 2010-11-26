@@ -23,12 +23,12 @@
 /** @brief Run the application.
  * @note Registers are not initialized.
  */
-#define run_app()                        \
-do {				                             \
-  __asm__ __volatile__ ("ldi r30,0\n");  \
-  __asm__ __volatile__ ("ldi r31,0\n");  \
-  __asm__ __volatile__ ("ijmp\n");       \
-} while(0)
+static void run_app()
+{
+  __asm__ __volatile__ ("ldi r30,0\n");
+  __asm__ __volatile__ ("ldi r31,0\n");
+  __asm__ __volatile__ ("ijmp\n");
+}
 
 
 /** @brief Interrupt vector control register.
@@ -206,13 +206,13 @@ static char uart_recv(void)
  */
 //@{
 
-#define I2C_WAIT()  while( !( TWCR & _BV(TWINT) ) )
-#define I2C_ACK()    do{ TWCR=_BV(TWEN)|_BV(TWINT)|_BV(TWEA) ; I2C_WAIT(); }while(0)
-#define I2C_NACK()   do{ TWCR=_BV(TWEN)|_BV(TWINT);            I2C_WAIT(); }while(0)
-#define I2CM_START() do{ TWCR=_BV(TWEN)|_BV(TWINT)|_BV(TWSTA); I2C_WAIT(); }while(0)
-#define I2CM_STOP()  do{ TWCR=_BV(TWEN)|_BV(TWINT)|_BV(TWSTO); while( TWCR & _BV(TWSTO) ) ; }while(0)
-#define I2C_SEND(d)      do{ TWDR = (d); I2C_ACK();  }while(0)
-#define I2C_SEND_LAST(d) do{ TWDR = (d); I2C_NACK(); }while(0)
+static void I2C_WAIT(void) { while( !( TWCR & _BV(TWINT) ) ) ; }
+static void I2C_ACK(void)  { TWCR=_BV(TWEN)|_BV(TWINT)|_BV(TWEA); I2C_WAIT(); }
+static void I2C_NACK(void) { TWCR=_BV(TWEN)|_BV(TWINT); I2C_WAIT(); }
+static void I2CM_START(void) { TWCR=_BV(TWEN)|_BV(TWINT)|_BV(TWSTA); I2C_WAIT(); }
+static void I2CM_STOP(void)  { TWCR=_BV(TWEN)|_BV(TWINT)|_BV(TWSTO); while( TWCR & _BV(TWSTO) ) ; }
+static void I2C_SEND(uint8_t d)      { TWDR = (d); I2C_ACK();  }
+static void I2C_SEND_LAST(uint8_t d) { TWDR = (d); I2C_NACK(); }
 
 
 #ifdef ENABLE_I2C_SLAVE
@@ -296,11 +296,85 @@ static char (*const proto_recv)(void) = i2cs_recv;
 #define STATUS_I2C_ERROR        0xa0
 
 
+static void send_u8(uint8_t v)
+{
+  proto_send(v);
+}
+
+static void send_buf(const uint8_t *buf, uint8_t n)
+{
+  while( n-- )
+    send_u8( *buf++ );
+}
+
+static void send_u16(uint16_t v)
+{
+  send_u8(v&0xff);
+  send_u8((v>>8)&0xff);
+}
+
+/// Send a NUL terminated string (without the NUL character)
+static void send_str(const char *s)
+{
+  while( *s )
+    send_u8( *s++ );
+}
+
+static uint8_t recv_u8(void)
+{
+  return proto_recv();
+}
+
+/** @brief Send a human-readable reply.
+ *
+ * This method is intended for messages sent by the bootloader which may not be
+ * handled by a client (eg. enter/exit messages).
+ *
+ * \e msg must be 10 character long.
+ * The resulting message will be \e msg surrounded by CRLF sequences, and still
+ * be a valid protocol reply.
+ *
+ * @note This method is not relevant when using I2C.
+ */
+#define SEND_MESSAGE(msg) send_str("\r\n" msg "\r\n")
+
+static uint16_t recv_u16(void)
+{
+  uint8_t b[2];
+  b[0] = recv_u8();
+  b[1] = recv_u8();
+  return b[0] + (b[1]<<8);
+}
+
+static uint32_t recv_u32(void)
+{
+  uint8_t b[4];
+  b[0] = recv_u8();
+  b[1] = recv_u8();
+  b[2] = recv_u8();
+  b[3] = recv_u8();
+  return (uint32_t)(b[0] + (b[1]<<8)) + (uint32_t)(b[2] + (b[3]<<8))*(uint32_t)0x10000U;
+}
+
+/// Receive an address value.
+static addr_type recv_addr(void)
+{
+#ifdef ADDR_SIZE_LARGE
+  return recv_u32();
+#else
+  addr_type ret = recv_u16();
+  // drop high bits
+  recv_u16();
+  return ret;
+#endif
+}
+
+
 /// Send a reply with given status and field size.
 static void reply(uint8_t st, uint8_t size)
 {
-  proto_send(size+1);
-  proto_send(st);
+  send_u8(size+1);
+  send_u8(st);
 }
 
 /// Prepare a success reply with a given field size.
@@ -321,67 +395,6 @@ static void reply_error(uint8_t st)
   reply(st, 0);
 }
 
-/** @brief Send a human-readable reply.
- *
- * This method is intended for messages sent by the bootloader which may not be
- * handled by a client (eg. enter/exit messages).
- *
- * \e msg must be 10 character long.
- * The resulting message will be \e msg surrounded by CRLF sequences, and still
- * be a valid protocol reply.
- *
- * @note This method is not relevant when using I2C.
- */
-#define SEND_MESSAGE(msg) send_str("\r\n" msg "\r\n")
-
-static void send_u8(uint8_t v)
-{
-  proto_send(v);
-}
-
-static void send_u16(uint16_t v)
-{
-  proto_send(v&0xff);
-  proto_send((v>>8)&0xff);
-}
-
-/// Send a NUL terminated string (without the NUL character)
-static void send_str(const char *s)
-{
-  while( *s )
-    proto_send( *s++ );
-}
-
-static uint16_t recv_u16(void)
-{
-  uint16_t ret = proto_recv();
-  ret += proto_recv()<<8;
-  return ret;
-}
-
-static uint32_t recv_u32(void)
-{
-  uint32_t ret = proto_recv();
-  ret += proto_recv()*0x100U;
-  ret += proto_recv()*0x10000U;
-  ret += proto_recv()*0x1000000U;
-  return ret;
-}
-
-/// Receive an address value.
-static addr_type recv_addr(void)
-{
-#ifdef ADDR_SIZE_LARGE
-  return recv_u32();
-#else
-  addr_type ret = recv_u16();
-  // drop high bits
-  proto_recv();
-  proto_recv();
-  return ret;
-#endif
-}
-
 //@}
 
 
@@ -391,8 +404,8 @@ static void boot(void)
 {
 #ifdef ENABLE_UART
   // extra null bytes to make sure the status is properly sent
-  proto_send(0);
-  proto_send(0);
+  uart_send(0);
+  uart_send(0);
   // wait for the last byte
   while( !(UCSRxA & ((1<<UDREx)|(1<<TXCx))) ) ;
   UCSRxB = 0; // disable
@@ -453,45 +466,44 @@ static void boot(void)
  */
 static void cmd_infos(void)
 {
-  static const char features[] = ""
+  static const uint8_t infos_buf[] = {
+    ROID,
+    SPM_PAGESIZE&0xff, (SPM_PAGESIZE>>8)&0xff,
+    // features
 #ifndef DISABLE_PROG_CRC
-      "C"
+    'C',
 #endif
 #ifdef ENABLE_UART
-      "U"
+    'U',
 #endif
 #ifdef ENABLE_I2C_SLAVE
-      "S"
+    'S',
 #endif
-      ;
-  static const char commands[] =
-      "i\xffm"  // commands which cannot be disabled
+    0,
+    // commands
+    'i', 0xff, 'm',  // commands which cannot be disabled
 #ifndef DISABLE_EXECUTE
-      "x"
+    'x',
 #endif
 #ifndef DISABLE_PROG_PAGE
-      "p"
+    'p',
 #endif
 #ifndef DISABLE_MEM_CRC
-      "c"
+    'c',
 #endif
 #ifndef DISABLE_FUSE_READ
-      "f"
+    'f',
 #endif
 #ifndef DISABLE_COPY_PAGES
-      "y"
+    'y',
 #endif
 #ifdef ENABLE_I2C_MASTER
-      "<>"
+    '<', '>',
 #endif
-      ;
-  reply_success(1+2+sizeof(features)+sizeof(commands));
-  send_u8(ROID);
-  send_u16(SPM_PAGESIZE);
-  send_str(features);
-  proto_send(0);
-  send_str(commands);
-  proto_send(0);
+    0
+  };
+  reply_success(sizeof(infos_buf));
+  send_buf(infos_buf, sizeof(infos_buf));
 }
 
 
@@ -499,7 +511,7 @@ static void cmd_infos(void)
  */
 static void cmd_mirror(void)
 {
-  const char c = proto_recv();
+  const uint8_t c = recv_u8();
   reply_success(1);
   send_u8(c);
 }
@@ -546,24 +558,24 @@ static void cmd_prog_page(void)
 
 #ifdef DISABLE_PROG_CRC
   recv_u16(); // eat the crc
-  uint16_t i;
+  uint8_t i;
   // Read data and fill temporary page buffer
-  for( i=0; i<SPM_PAGESIZE; i+=2 ) {
-    boot_page_fill(addr+i, recv_u16());
+  for( i=0; i<SPM_PAGESIZE/2; i++ ) {
+    boot_page_fill(addr+2*i, recv_u16());
   }
 #else
   const uint16_t crc_expected = recv_u16();
   uint16_t crc = 0xffff;
-  uint16_t i;
+  uint8_t i;
 
   // Read data, fill temporary page buffer, compute CRC
-  for( i=0; i<SPM_PAGESIZE; i+=2 ) {
-    char c1 = proto_recv();
-    char c2 = proto_recv();
+  for( i=0; i<SPM_PAGESIZE/2; i++ ) {
+    uint8_t c1 = recv_u8();
+    uint8_t c2 = recv_u8();
     crc = _crc_ccitt_update(crc, c1);
     crc = _crc_ccitt_update(crc, c2);
     uint16_t w = c1 + (c2<<8); // little endian word
-    boot_page_fill(addr+i, w);
+    boot_page_fill(addr+2*i, w);
   }
 
   // check CRC
@@ -660,7 +672,7 @@ static void cmd_copy_pages(void)
 {
   const addr_type dest = recv_addr();
   const addr_type src  = recv_addr();
-  const uint8_t n = proto_recv();
+  const uint8_t n = recv_u8();
 
 #ifndef DISABLE_STRICT_CHECKS
   if(
@@ -670,9 +682,9 @@ static void cmd_copy_pages(void)
 #ifdef ADDR_SIZE_LARGE
       dest < 0x10000 || src >= 0x10000 ||
 #else
-      src + n*SPM_PAGESIZE > FLASHEND ||
+      src + n*SPM_PAGESIZE > FLASHEND+1 ||
 #endif
-      dest + n*SPM_PAGESIZE > FLASHEND-SPM_PAGESIZE
+      dest + n*SPM_PAGESIZE > FLASHEND+1-SPM_PAGESIZE
     ) {
     reply_error(STATUS_BAD_VALUE);
     return;
@@ -714,7 +726,7 @@ static uint8_t init_cmd_i2c(void)
   }
 #endif
 #endif
-  const uint8_t addr = proto_recv(); // slave addr
+  const uint8_t addr = recv_u8(); // slave addr
 #ifndef DISABLE_STRICT_CHECKS
   if( addr < 0x08 || addr >= 0x78 ) {
     reply_error(STATUS_BAD_VALUE);
@@ -749,7 +761,7 @@ static void cmd_i2c_recv(void)
     return; // reply sent by init_cmd_i2c()
   }
 
-  uint8_t size = proto_recv();
+  uint8_t size = recv_u8();
   // read frame
   I2CM_START();
 #ifndef DISABLE_STRICT_CHECKS
@@ -770,17 +782,17 @@ static void cmd_i2c_recv(void)
     I2C_ACK();
     size = TWDR;
     reply_success(size+1);
-    proto_send(size);
+    send_u8(size);
   } else {
     reply_success(size);
   }
   while( size-- != 1 ) {
     I2C_ACK();
-    const char c = TWDR;
-    proto_send(c);
+    const uint8_t c = TWDR;
+    send_u8(c);
   }
   I2C_NACK();
-  proto_send( TWDR );
+  send_u8( TWDR );
   I2CM_STOP();
 
   return;
@@ -818,42 +830,42 @@ static void cmd_i2c_send(void)
   // slave address + Write bit (0)
   I2C_SEND(addr<<1);
 #ifndef DISABLE_STRICT_CHECKS
-  if( TW_STATUS == TW_MT_SLA_NACK ) {
-    I2CM_STOP();
-    goto slave_i2c_error;
+  uint8_t tw_status_copy = TW_STATUS;
+  if( tw_status_copy == TW_MT_SLA_NACK ) {
+    goto i2c_stop_slave_i2c_error;
   }
-  if( TW_STATUS != TW_MT_SLA_ACK ) {
+  if( tw_status_copy != TW_MT_SLA_ACK ) {
     goto slave_i2c_error;
   }
 #endif
 
   if( size != 0 ) {
 #ifndef DISABLE_STRICT_CHECKS
-    if( TW_STATUS == TW_MT_SLA_NACK ) {
-      I2CM_STOP();
-      goto slave_i2c_error;
+    tw_status_copy = TW_STATUS;
+    if( tw_status_copy == TW_MT_SLA_NACK ) {
+      goto i2c_stop_slave_i2c_error;
     }
-    if( TW_STATUS != TW_MT_SLA_ACK ) {
+    if( tw_status_copy != TW_MT_SLA_ACK ) {
       goto slave_i2c_error;
     }
 #endif
     // transfer data
     while( size-- != 1 ) {
-      const char c = proto_recv();
+      const uint8_t c = recv_u8();
       I2C_SEND(c);
 #ifndef DISABLE_STRICT_CHECKS
-      if( TW_STATUS != TW_MT_DATA_ACK ) {
-        I2CM_STOP();
-        goto slave_i2c_error;
+      tw_status_copy = TW_STATUS;
+      if( tw_status_copy != TW_MT_DATA_ACK ) {
+        goto i2c_stop_slave_i2c_error;
       }
 #endif
     }
-    const char c_last = proto_recv();
+    const uint8_t c_last = recv_u8();
     I2C_SEND_LAST(c_last);
 #ifndef DISABLE_STRICT_CHECKS
-    if( TW_STATUS != TW_MT_DATA_ACK && TW_STATUS != TW_MT_DATA_NACK ) {
-      I2CM_STOP();
-      goto slave_i2c_error;
+    tw_status_copy = TW_STATUS;
+    if( tw_status_copy != TW_MT_DATA_ACK && tw_status_copy != TW_MT_DATA_NACK ) {
+      goto i2c_stop_slave_i2c_error;
     }
 #endif
   }
@@ -863,6 +875,8 @@ static void cmd_i2c_send(void)
   reply_success(0);
   return;
 #ifndef DISABLE_STRICT_CHECKS
+i2c_stop_slave_i2c_error:
+  I2CM_STOP();
 slave_i2c_error:
   reply_error(STATUS_I2C_ERROR);
   return;
@@ -891,8 +905,8 @@ int main(void)
 
 #ifdef ENABLE_UART
   // UART init (all values have been already computed)
-  UBRRxH = (uint8_t)(UART_UBRR_VAL>>8);
-  UBRRxL = (uint8_t)UART_UBRR_VAL;
+  UBRRxH = UART_UBRR_VAL>>8;
+  UBRRxL = UART_UBRR_VAL;
   UCSRxA = UART_U2X_VAL;
   UCSRxB = (1<<RXENx) | (1<<TXENx);
   UCSRxC = UART_NBITS_VAL | UART_PARITY_VAL | UART_STOP_BIT_VAL;
@@ -931,22 +945,22 @@ int main(void)
     }
 #endif
 
-    if( i == 0 )
+    if( i == 0 ) {
       boot(); // timeout
+    }
     i--;
     _delay_loop_2(0); // 65536*4 cycles
   }
 
   for(;;) {
-    char c = proto_recv();
+    const uint8_t c = recv_u8();
     if( c == 0x00 ) {
       continue; // null command: ignore
     } else if( c == 0xff ) {
       // failure command
       reply_failure();
-    } else if( c == 'i' ) {
-      cmd_infos();
     }
+    else if( c == 'i' ) cmd_infos();
     else if( c == 'm' ) cmd_mirror();
 #ifndef DISABLE_EXECUTE
     else if( c == 'x' ) cmd_execute();
