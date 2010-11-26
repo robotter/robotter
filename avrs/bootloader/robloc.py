@@ -105,6 +105,11 @@ def split_hex_chunks(chunks, size, fill):
 class RobloClient:
   """
   Low-level Client for the Rob'Otter Bootloader.
+    
+  Command methods should not split send/recv into several calls to
+  send_raw()/recv_raw(). This would be inefficient for the I2C client wrapper
+  since each call produces a distinct frame.
+
   """
 
   STATUS_NONE             = 0x00
@@ -139,17 +144,8 @@ class RobloClient:
   # Data transmission
 
   def send_raw(self, buf):
-    """Send raw data to the server.
-    
-    Note: data should not be split and sent with several calls to send_raw():
-    this would be inefficient for I2C sessions since each call produces a
-    distinct frame.
-    """
+    """Send raw data to the server."""
     self.conn.write(buf)
-    #import time
-    #for c in buf:
-    #  time.sleep(0.1)
-    #  self.conn.write(c)
     self.output_write(buf)
 
   def recv_raw(self, n):
@@ -439,6 +435,7 @@ class Roblochon(RobloClient):
           self.recv_raw(1) == sync):
         break
 
+
   def program(self, fhex, fhex2=None):
     """Send a program to the device.
 
@@ -664,6 +661,13 @@ class Roblochon(RobloClient):
     return
 
 
+  def slave(self, addr):
+    """Return an I2C slave to connect to, as a RobloSlave."""
+    self._assert_supported_cmd('<')
+    self._assert_supported_cmd('>')
+    return RobloSlave(self, addr, verbose=self.verbose)
+
+
   def parse_hex(self, fhex):
     """Parse an HEX file to a list of pages.
     Raise an exception if data is empty.
@@ -715,6 +719,66 @@ class Roblochon(RobloClient):
     sys.stdout.write("programming bootloader part\n")
   def output_copy_bootloader(self):
     sys.stdout.write("copy bootloader to its final location\n")
+
+
+class RobloSlave(Roblochon):
+  """Wrapper for addressing I2C clients.
+  
+  Attributes:
+    addr -- I2C address
+    master -- master's Roblochon instance
+
+  Note that send/recv and command methods assume that the master and (sometimes)
+  the slave are synchronized.
+  
+  """
+
+  def __init__(self, master, addr, **kw):
+    if not 0x08 < addr <= 0x77:
+      raise ValueError("invalid i2c slave address")
+    self.master = master
+    self.addr = addr
+    self.verbose = kw.get('verbose', False)
+
+  def send_raw(self, buf):
+    # poll slave by sending an empty frame
+    # required to avoid UART buffer overflow
+    if self.master.cmd_i2c_send(self.addr, '') is False:
+      raise RuntimeError("i2c send failed")
+    if self.master.cmd_i2c_send(self.addr, buf) is False:
+      raise RuntimeError("i2c send failed")
+    self.output_write(buf)
+
+  def recv_raw(self, n):
+    buf = self.master.cmd_i2c_recv(self.addr, n)
+    if buf is False:
+      raise RuntimeError("i2c recv failed")
+    self.output_read(buf)
+    return buf
+
+  def recv_reply(self):
+    while True:
+      buf = self.recv_raw(None)
+      if buf[0] == 0:
+        continue  # ignore empty replies
+      if ord(buf[0]) != len(buf)-1:
+        continue  #XXX ignore invalid sizes
+      return RoblosReply(buf[1:])
+
+  def synchronize(self):
+    """Synchronize with master and slave."""
+    self.master.synchronize()
+    while True:
+      # synchronize with a mirror command
+      if self.cmd_mirror(self._sync_byte()) is True:
+        break
+
+  def output_read(self, data):
+    if self.verbose:
+      sys.stderr.write("robloc(0x%02x): << %r\n" % (self.addr, data))
+  def output_write(self, data):
+    if self.verbose:
+      sys.stderr.write("robloc(0x%02x): >> %r\n" % (self.addr, data))
 
 
 # Use the pySerial implementation as fallback
@@ -882,7 +946,8 @@ if __name__ == '__main__':
 
   if opts.slave_addr is not None:
     addr = int(opts.slave_addr, 0)
-    raise NotImplementedError("not supported yet") #TODO
+    client = master.slave(addr)
+    client.update_infos()
   else:
     client = master
 
