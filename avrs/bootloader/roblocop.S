@@ -120,7 +120,8 @@ roblocop_pgm_copy:
 #if (SPM_PAGESIZE == 256)
   cpi r26,0
 #else
-  andi r26,SPM_PAGESIZE-1
+  mov r18,r26
+  andi r18,SPM_PAGESIZE-1
 #endif
   brne .L_loop_pagesize
 
@@ -129,8 +130,6 @@ roblocop_pgm_copy:
   ; erase the page
   ldi r18,(1<<PGERS)+(1<<SPMEN)
   rcall .L_safe_spm
-  ; set Z-pointer to dest
-  movw r30,r24
   ; write the page
   ldi r18,(1<<PGWRT)+(1<<SPMEN)
   rcall .L_safe_spm
