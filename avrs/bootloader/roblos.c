@@ -227,6 +227,7 @@ static void I2C_SEND_LAST(uint8_t d) { TWDR = (d); I2C_NACK(); }
 
 static void i2cs_send(char c)
 {
+  I2C_WAIT();
   while( TW_STATUS != TW_ST_SLA_ACK && TW_STATUS != TW_ST_DATA_ACK ) {
     I2C_ACK();
   }
@@ -235,6 +236,7 @@ static void i2cs_send(char c)
 
 static char i2cs_recv(void)
 {
+  I2C_WAIT();
   while( TW_STATUS != TW_SR_DATA_ACK ) {
     I2C_ACK();
   }
@@ -348,12 +350,12 @@ static uint16_t recv_u16(void)
 
 static uint32_t recv_u32(void)
 {
-  uint8_t b[4];
-  b[0] = recv_u8();
-  b[1] = recv_u8();
-  b[2] = recv_u8();
-  b[3] = recv_u8();
-  return (uint32_t)(b[0] + (b[1]<<8)) + (uint32_t)(b[2] + (b[3]<<8))*(uint32_t)0x10000U;
+  uint16_t w[2];
+  w[0] = recv_u16();
+  w[1] = recv_u16();
+  uint32_t ret = w[0];
+  ret += w[1] * 0x10000U;
+  return ret;
 }
 
 /// Receive an address value.
@@ -625,9 +627,8 @@ static void cmd_mem_crc(void)
   // Compute CRC
   uint16_t crc = 0xffff;
   addr_type addr;
-  uint8_t c;
   for( addr=start; addr<start+size; addr++ ) {
-		c = pgm_read_byte_bootloader(addr);
+    const uint8_t c = pgm_read_byte_bootloader(addr);
     crc = _crc_ccitt_update(crc, c);
   }
 
@@ -762,13 +763,8 @@ static void cmd_i2c_recv(void)
   }
 
   uint8_t size = recv_u8();
-  // read frame
-  I2CM_START();
-#ifndef DISABLE_STRICT_CHECKS
-  if( TW_STATUS != TW_START ) {
-    goto slave_i2c_error;
-  }
-#endif
+  // poll the slave
+  do I2CM_START(); while( TW_STATUS != TW_START );
   // slave address + Read bit (1)
   I2C_SEND((addr<<1)+1);
 #ifndef DISABLE_STRICT_CHECKS
