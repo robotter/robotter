@@ -1,4 +1,5 @@
 #include "stratcomm.h"
+#include "stratcomm_send.h"
 
 #include <aversive.h>
 #include <aversive/error.h>
@@ -9,7 +10,7 @@
 
 void stratcomm_init(stratcomm_t *sc)
 {
-
+  i2cm_init();
 }
 
 uint8_t stratcomm_computeChecksum(uint8_t* data, uint8_t size)
@@ -34,24 +35,25 @@ uint8_t stratcomm_i2cm_recv(uint8_t addr, uint8_t *data, uint8_t n)
 
     if(rv <= 0)
     {
-      WARNING(STRATCOMM_ERROR, "I2C failure @0x%2.2x:0x%2.2x",addr,rv);
-      wait_ms(200);
+      DEBUG(STRATCOMM_ERROR, "I2C failure @0x%2.2x:0x%2.2x",addr,rv);
+      wait_ms(20);
       continue;
     }
 
     // slave is not ready
-    if((rv == 1) && (data[0] == 0x00))
+    if(data[0] == 0x00)
     {
-      wait_ms(200);
+      wait_ms(20);
       continue;
     }
     
     // not enough data
     if( rv < n )
     {
-      WARNING(STRATCOMM_ERROR, "I2C slave @0x%2.2x answer sz=%d",
+      DEBUG(STRATCOMM_ERROR, "I2C slave @0x%2.2x answer sz=%d",
                                                           addr,rv);
-      return 0;
+      wait_ms(20);
+      continue;
     }
 
     return rv;

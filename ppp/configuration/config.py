@@ -1,8 +1,10 @@
-
-from perlimpinpin import Robot, SlaveDevice, MasterDevice, Telemetry, Command
+from configuration.perlimpinpin import Robot, SlaveDevice, MasterDevice, Telemetry, Command
 
 robot = Robot([
-  MasterDevice('strat', 0x20,
+  MasterDevice('strat', 0x20,[
+            Telemetry('TEST', [('value','int16_t')])
+            ],
+  uartnum = 0,
   outdir = '../avrs/projects/unioc_strat/'
   ),
   
@@ -46,10 +48,14 @@ robot = Robot([
             Command('GET_ADNSSQUALS', [], [('sq1','uint8_t'), ('sq2','uint8_t'), ('sq3','uint8_t')],
               "Return each ADNS SQUAL (Surface QUALity)"),
             Command('GET_TIME', [], [('sec','uint16_t'), ('usec', 'uint16_t')],
-              "Return time sec seconds and usec microseconds since card is running"),
+              "Return elapsed time sec seconds and usec microseconds since system is running"),
             Command('TEST', [('in','uint16_t')], [('out','int16_t')],
-              "Complex test command")
+              "Complex test command"),
+            
+            Telemetry('PWMS', [('pwm1','int16_t'),('pwm2','int16_t'),('pwm3','int16_t')])
+  
             ],
+            uartnum = 1,
             outdir = '../avrs/projects/unioc_asserv/'
           )
 ])

@@ -32,6 +32,8 @@
 
 void stratcomm_init(stratcomm_t* sc)
 {
+  i2cs_init(STRATCOMM_I2C_ADDRESS);
+  
   sc->payloadIt = 0;
   sc->returnPayloadIt = 0;
   return;
@@ -51,9 +53,12 @@ void stratcomm_update(stratcomm_t* sc)
     // ------------------------------------------------------------
     // RECEIVE
 
+    uint8_t recv_size;
+
     IRQ_LOCK(flags);
 
     // release RX i2c
+    recv_size = i2cs_recv_size;
     i2cs_recv_size = 0;
     // block TX i2c
     i2cs_send_size = 0;
@@ -78,17 +83,17 @@ void stratcomm_update(stratcomm_t* sc)
     }
 
     // if payloadSize differs from received data
-    if(sc->payloadSize + 2 != i2cs_recv_size)
+    if(sc->payloadSize + 3 != recv_size)
     {
       WARNING(STRATCOMM_ERROR,
-        "i2c message payload size differs from received i2c frame (payload=%d, frame=%d)\n",
-          sc->payloadSize,
-          i2cs_recv_size);
+        "i2c message payload size differs from received i2c frame (payload+2=%d, frame=%d)\n",
+          sc->payloadSize+3,
+          recv_size);
       return;
     }
  
-    // if message contain at least messageID and checksum
-    if(sc->payloadSize < 2)
+    // if message contain at  checksum
+    if(sc->payloadSize < 1)
     {
       WARNING(STRATCOMM_ERROR,
         "i2c message too small (payloadSize=%d)\n",
@@ -101,8 +106,8 @@ void stratcomm_update(stratcomm_t* sc)
     command = (uint8_t)data_recv[2];
           
     // -- CHECKSUM --
-    frame_chksum = (uint8_t)data_recv[sc->payloadSize+1];
-    computed_chksum = stratcomm_computeChecksum(data_recv, sc->payloadSize-1);
+    frame_chksum = (uint8_t)data_recv[sc->payloadSize+2];
+    computed_chksum = stratcomm_computeChecksum(data_recv, sc->payloadSize+2);
 
     if(frame_chksum != computed_chksum)
     {
@@ -111,14 +116,12 @@ void stratcomm_update(stratcomm_t* sc)
       return;
     } 
 
-    DEBUG(0,"CMD RCVD : msg=0x%4.4x psize=0x%2.2x", command, sc->payloadSize);
-
     // --
     stratcomm_resetPayload(sc);
     stratcomm_resetReturnPayload(sc);
 
     // perform command
-    stratcomm_process(sc, command, data_recv+2);
+    stratcomm_process(sc, command, data_recv+3);
 
     // ------------------------------------------------------------
     // SEND
@@ -127,15 +130,15 @@ void stratcomm_update(stratcomm_t* sc)
     memset((uint8_t*)i2cs_send_buf, 0, I2CS_SEND_BUF_SIZE);
 
     // size of returned payload
-    i2cs_send_buf[0] = sc->returnPayloadIt & 0x00FF;
-    i2cs_send_buf[1] = sc->returnPayloadIt >> 8;
+    i2cs_send_buf[0] = (sc->returnPayloadIt+1) & 0x00FF;
+    i2cs_send_buf[1] = (sc->returnPayloadIt+1) >> 8;
 
     // prepare returned payload
     memcpy((uint8_t*)i2cs_send_buf + 2, sc->returnPayload, sc->returnPayloadIt);
 
     // compute checksum
     i2cs_send_buf[sc->returnPayloadIt + 2] = 
-      stratcomm_computeChecksum(sc->returnPayload, sc->returnPayloadIt);
+      stratcomm_computeChecksum(i2cs_send_buf, sc->returnPayloadIt+2);
 
     // set i2c state machine to READY (data OK to be sent)
     i2cs_send_size = sc->returnPayloadIt + 3;

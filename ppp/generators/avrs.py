@@ -1,8 +1,8 @@
 
 import time, re, os, shutil
 
-from perlimpinpin import MasterDevice, SlaveDevice, Telemetry, Command, Message
-import robotter
+from configuration.perlimpinpin import MasterDevice, SlaveDevice, Telemetry, Command, Message
+import generators.robotter
 
 class CodeWriter:
   def __init__(self, path, is_header=False):
@@ -11,8 +11,8 @@ class CodeWriter:
     self.is_header = is_header
     filename = os.path.split(path)[-1]
 
-    self.write(robotter.copyright)
-    self.write(robotter.file_header%{'filename':filename,
+    self.write(generators.robotter.copyright)
+    self.write(generators.robotter.file_header%{'filename':filename,
                                          'date':time.asctime()})
     if self.is_header:                                         
       self.guard = self.build_header_guard(filename)
@@ -35,10 +35,7 @@ class CodeWriter:
       self.indent = 0
 
   def write(self, string):
-    if string == '':
-      self.f.write('\n')
-    else:
-      self.f.write(' '*2*self.indent+string+'\n')
+    self.f.write(' '*2*self.indent+string+'\n')
   
   def write_local_includes(self, files):
     for f in files:
@@ -70,7 +67,7 @@ class AVRCodeGenerator:
 
   format_strings = { 'int32_t':'%ld', 'uint32_t':'%lu',
                     'int16_t':'%d', 'uint16_t':'%u',
-                    'uint8_t':'0x%2.2X' }
+                    'uint8_t':'0x%02X' }
 
   type_prefixs = {'int32_t':'i32', 'uint32_t':'u32',
                   'int16_t':'i16', 'uint16_t':'u16',
@@ -89,6 +86,9 @@ class AVRCodeGenerator:
 
   command_master_send_header = 'stratcomm_send.h'
   command_master_send_source = 'stratcomm_send.c'
+
+  telemetry_header = 'telemetry.h'
+  telemetry_source = 'telemetry.c'
 
   class Function:
     
@@ -112,6 +112,12 @@ class AVRCodeGenerator:
       cb_args = ', '.join(args)
       return '%s(%s);'%(self.name.lower(), cb_args)
     
+    def get_macro(self):
+      args = []
+      args += [ '%s'%(v) for v,t in self.args ]
+      dargs = ', '.join(args)
+      return '%s(%s)'%(self.name.upper(), dargs)
+
     def get_prototype(self, semicolon=True):
       if self.thistype is not None:
         args = [ '%s *%s'%(self.thistype, self.thisarg) ]
@@ -154,6 +160,10 @@ class AVRCodeGenerator:
   def generate(self):
     """ Generate all files """
 
+    # telemetry files
+    self.generate_telemetry(self.outdir)
+
+    # i2c messaging files
     if isinstance(self.device, SlaveDevice):
       self.generate_command_messages( os.path.join(self.outdir,
                                         self.command_messages_filename) )
@@ -175,6 +185,11 @@ class AVRCodeGenerator:
     """ Generate orders ID defines """
 
     cw = CodeWriter(path,True)
+
+    cw.write('#define STRATCOMM_I2C_ADDRESS 0x%2.2X'%(self.device.roid))
+
+    cw.write('')
+
     for cmd in self.device.messages:
       if isinstance(cmd,Command):
         cw.write('#define %s 0x%2.2X'%(self.get_message_cname(cmd), cmd.mid))
@@ -201,12 +216,13 @@ class AVRCodeGenerator:
     # variables declarations
     decl = {}
     for cmd in self.device.messages:
-      for vname, vtype in cmd.args + cmd.retvalues:
-        vname = self.get_varname(vname,vtype)
-        if vtype in decl.keys():
-          decl[vtype].append(vname)
-        else:
-          decl[vtype] = [vname]
+      if isinstance(cmd, Command):
+        for vname, vtype in cmd.args + cmd.retvalues:
+          vname = self.get_varname(vname,vtype)
+          if vtype in decl.keys():
+            decl[vtype].append(vname)
+          else:
+            decl[vtype] = [vname]
     
     # write variables declarations
     for vtype, vnames in decl.iteritems():
@@ -267,7 +283,7 @@ class AVRCodeGenerator:
 
   def generate_command_callbacks_header(self, path):
     """ Generate callbacks prototypes """
-    cw = CodeWriter(path)
+    cw = CodeWriter(path, True)
 
     cw.write_ext_includes(['aversive.h'])
     
@@ -278,12 +294,14 @@ class AVRCodeGenerator:
         cw.write(cbf.get_prototype())
         cw.write('')
 
+    cw.close()
+
   def generate_command_master_send_header(self, path):
     """  """
     cw = CodeWriter(path)
-    cw.write_ext_includes(['#include <aversive.h>'])
-    cw.write_local_includes(['#include "stratcomm.h"'])
-      
+    cw.write_ext_includes(['aversive.h'])
+    cw.write_local_includes(['stratcomm.h'])
+    
     for cmd in self.robot.get_master_messages():
       if isinstance(cmd,Command):
         cw.write('/** @brief %s */'%(cmd.text))
@@ -297,7 +315,7 @@ class AVRCodeGenerator:
     """  """
     cw = CodeWriter(path)
 
-    cw.write_ext_includes(['i2cm.h','aversive/error.h','string.h'])
+    cw.write_ext_includes(['i2cm.h','aversive/error.h','aversive/wait.h','string.h'])
     cw.write_local_includes(['stratcomm_send.h'])
 
     cw.write('#define RECV_MAX_TRIES 20')
@@ -325,19 +343,20 @@ class AVRCodeGenerator:
         cw.write(mf.get_prototype(semicolon=False))
         cw.open_block()
         cw.write('uint8_t buffer[255];')
-        cw.write('buffer[0] = 0x%2.2x&0xFF;'%(sbufsz+2))
-        cw.write('buffer[1] = (0x%2.2x>>8)&0xFF;'%(sbufsz+2))
+        cw.write('buffer[0] = 0x%2.2x&0xFF;'%(sbufsz+1))
+        cw.write('buffer[1] = (0x%2.2x>>8)&0xFF;'%(sbufsz+1))
         cw.write('buffer[2] = 0x%2.2x;'%(cmd.mid))
         pit = 3
         for argv, argtype in cmd.args:
-          cw.write('memset(buffer+%d, %s, sizeof(%s));'%(pit,argv,argtype))
+          cw.write('memcpy(buffer+%d, &%s, sizeof(%s));'%(pit,argv,argtype))
           pit += self.sizeof_avr_types[argtype]
-        cw.write('buffer[%d] = stratcomm_computeChecksum(buffer+2, %d);'%(
-                    sbufsz + 3, sbufsz+1))
+        cw.write('buffer[%d] = stratcomm_computeChecksum(buffer, %d);'%(
+                    sbufsz + 3, sbufsz+3))
         cw.write('i2cm_send(0x%2.2x, buffer, %d);'%(cmd.addr,sbufsz+4))
 
         if rbufsz > 0:
-
+          cw.write('wait_ms(10);')
+          cw.write('')
           cw.write('uint16_t size;')
           cw.write('uint8_t checksum, c_checksum, rv;')
           cw.write('rv = stratcomm_i2cm_recv(0x%2.2x, buffer, %d);'%(
@@ -349,26 +368,29 @@ class AVRCodeGenerator:
           cw.close_block()
 
           cw.write('size = *((uint16_t*)buffer);')
-          cw.write('if(size != %d)'%(rbufsz))
+          cw.write('if(size != %d)'%(rbufsz+1))
           cw.open_block()
-          cw.write('WARNING(STRATCOMM_ERROR,"received frame size not valid: got %%d expect %%d", size, %d);'%(rbufsz))
+          cw.write('WARNING(STRATCOMM_ERROR,"received frame size not valid: got %%u expect %%u", size, %d);'%(rbufsz+1))
           cw.write('return 0;')
           cw.close_block()
 
           cw.write('checksum = (uint8_t)buffer[%d];'%(rbufsz+2))
-          cw.write('c_checksum = stratcomm_computeChecksum(buffer+2,%d);'%(rbufsz))
+          cw.write('c_checksum = stratcomm_computeChecksum(buffer,%d);'%(rbufsz+2))
           cw.write('if( checksum != c_checksum )')
           cw.open_block()
           cw.write('WARNING(STRATCOMM_ERROR,"received frame checksum not valid: got 0x%02X expect 0x%02X", c_checksum, checksum);')
           cw.write('return 0;')
           cw.close_block()
-
+          
+          pit = 2
           for argv, argtype in cmd.retvalues:
             cw.write('*%s = *(%s*)(buffer+%d);'%(argv,argtype,pit))
             pit += self.sizeof_avr_types[argtype]
 
         cw.write('return 1;')
         cw.close_block()
+  
+    cw.close()
 
   def copy_slave_sources(self, path):
     shutil.copy( os.path.join('src', self.slave_payload_header), path)
@@ -379,3 +401,90 @@ class AVRCodeGenerator:
     shutil.copy( os.path.join('src', self.master_stratcomm_header), path)
     shutil.copy( os.path.join('src', self.master_stratcomm_source), path)
    
+
+  def generate_telemetry(self, dirpath):
+    hpath = os.path.join(dirpath, self.telemetry_header)
+
+    # instanciate codewriters for headers
+    cw = CodeWriter(hpath,True)
+    
+    cw.write('#ifdef TELEMETRY_ACTIVE')
+    cw.write('')
+
+    # macros
+    for msg in self.device.messages:
+      if isinstance(msg,Telemetry):
+        mf = self.Function('TELEMETRY_'+msg.name, msg.payload, [], rettype=None)
+        cf = self.Function('telemetry_send_'+msg.name, msg.payload, [])
+        cw.write('#define %s %s'%(mf.get_macro(),cf.get_call()))
+
+    cw.write('')
+
+    # functions prototypes
+    for msg in self.device.messages:
+      if isinstance(msg,Telemetry):
+        f = self.Function('telemetry_send_'+msg.name, msg.payload, [])
+        cw.write(f.get_prototype())
+    
+    cw.write('')
+    cw.write('#else //TELEMETRY_ACTIVE')
+    cw.write('')
+
+    for msg in self.device.messages:
+      if isinstance(msg,Telemetry):
+        mf = self.Function('TELEMETRY_'+msg.name, msg.payload, [], rettype=None)
+        cw.write('#define %s'%(mf.get_macro()))
+
+
+    cw.write('')
+    cw.write('#endif // TELEMETRY_ACTIVE')
+
+    cw.write('')
+    cw.close()
+
+    # instanciate codewriters for source
+    cpath = os.path.join(dirpath, self.telemetry_source)
+
+    cw = CodeWriter(cpath)
+    cw.write_ext_includes(['uart.h','string.h'])
+    cw.write_local_includes(['telemetry.h','stratcomm.h'])
+    cw.write('')
+
+    for msg in self.device.messages:
+      if isinstance(msg,Telemetry):
+        f = self.Function('telemetry_send_'+msg.name, msg.payload, [])
+        cw.write(f.get_prototype(False))
+        cw.open_block()
+
+        bufsz = 0
+        for argv, argtype in msg.payload:
+          if argtype in self.sizeof_avr_types.keys():
+            bufsz += self.sizeof_avr_types[argtype]
+          else:
+            raise Exception("Can't find sizeof(%s)"%(argtype))
+        
+        cw.write('uint8_t buffer[255];')
+        cw.write('buffer[0] = 0xFF;')
+        cw.write('buffer[1] = 0xFF;')
+        cw.write('buffer[2] = 0x%2.2x&0xFF;'%(bufsz+1))
+        cw.write('buffer[3] = (0x%2.2x>>8)&0xFF;'%(bufsz+1))
+        cw.write('buffer[4] = 0x%2.2x;'%(msg.mid))
+        pit = 5
+        for argv, argtype in msg.payload:
+          cw.write('memcpy(buffer+%d, &%s, sizeof(%s));'%(pit,argv,argtype))
+          pit += self.sizeof_avr_types[argtype]
+
+        cw.write('buffer[%d] = stratcomm_computeChecksum(buffer+2, %d);'%(
+                  pit, bufsz+3))
+        
+        cw.write('uint8_t i;')
+        cw.write('for(i=0;i<%d;i++)'%(bufsz+6))
+        cw.open_block()
+        cw.write('uart_send(%d,buffer[i]);'%(self.device.uartnum))
+        cw.close_block()
+
+        cw.close_block()
+        cw.write('')
+
+    cw.close()
+

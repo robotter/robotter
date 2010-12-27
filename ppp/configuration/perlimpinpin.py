@@ -15,10 +15,9 @@ class Robot:
   def setup_messages(self):
     unique_id = 0
     for device in self.devices:
-      if isinstance(device, SlaveDevice):
-        for message in device.messages:
-          message.mid = unique_id
-          unique_id += 1
+      for message in device.messages:
+        message.mid = unique_id
+        unique_id += 1
 
   def get_devices(self):
     return self.devices
@@ -28,22 +27,24 @@ class Robot:
 
 class Device:
   """ Describe robot device (part of robot system) """
-  def __init__(self, name, roid, outdir=None):
+  def __init__(self, name, roid, messages, uartnum=0, outdir=None):
     self.name = name
     self.roid = roid
     self.outdir = outdir
-
-class SlaveDevice(Device):
-  def __init__(self, name, roid, messages=None, outdir=None):
-    Device.__init__(self, name, roid, outdir)
+    self.uartnum = uartnum
     self.messages = messages
     # assign device name and device address to messages
     for m in self.messages:
       m.device_name = self.name
       m.addr = self.roid
 
+class SlaveDevice(Device):
+  def __init__(self, name, roid, messages=None, uartnum=0, outdir=None):
+    Device.__init__(self, name, roid, messages, uartnum, outdir)
+
 class MasterDevice(Device):
-  pass
+  def __init__(self, name, roid, messages=None, uartnum=0, outdir=None):
+    Device.__init__(self, name, roid, messages, uartnum, outdir)
 
 class Message:
   """  """
@@ -57,7 +58,7 @@ class Telemetry(Message):
   """ Describe telemetry message (from device to exterior) """  
   def __init__(self, name, payload):
     Message.__init__(self, name)
-
+    self.payload = payload
 
 class Command(Message):
   """ Describe command message (from exterior to device) """
