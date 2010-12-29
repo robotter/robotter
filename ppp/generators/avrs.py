@@ -73,6 +73,11 @@ class AVRCodeGenerator:
                   'int16_t':'i16', 'uint16_t':'u16',
                   'uint8_t':'u8'}
 
+  pack_endian = '<'
+  pack_fmt = {'int32_t':'i', 'uint32_t':'I',
+              'int16_t':'h', 'uint16_t':'H',
+              'int8_t':'b', 'uint8_t':'B'}
+
   command_process_filename = 'stratcomm_process.c'
   command_messages_filename = 'stratcomm_messages.h'
   command_callback_header_filename = 'stratcomm_callbacks.h'

@@ -2,7 +2,11 @@ from configuration.perlimpinpin import Robot, SlaveDevice, MasterDevice, Telemet
 
 robot = Robot([
   MasterDevice('strat', 0x20,[
-            Telemetry('TEST', [('value','int16_t')])
+            Telemetry('SPEAK', [('value','int16_t')]),
+            Telemetry('BREATHE', [('one','uint8_t'),('two','uint8_t')]),
+            Telemetry('RUN', [('value','int32_t')]),
+            Telemetry('TIME', [('hep','int32_t'),('hop','int8_t')]),
+            Telemetry('GIG', [('value','uint32_t')])
             ],
   uartnum = 0,
   outdir = '../avrs/projects/unioc_strat/'
