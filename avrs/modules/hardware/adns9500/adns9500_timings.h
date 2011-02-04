@@ -36,16 +36,16 @@
 #define ADNS9500_TIMINGS_POWERON 50000
 
 /// SPI read - address delay
-#define ADNS9500_TIMINGS_SRAD 50
+#define ADNS9500_TIMINGS_SRAD 100
 
 /// SPI time between read and subsequent commands
-#define ADNS9500_TIMINGS_SRWSRR 1
+#define ADNS9500_TIMINGS_SRWSRR 20
 
 /// SPI time between write commands
 #define ADNS9500_TIMINGS_SWW 120
 
 /// SPI time between write and read commands
-#define ADNS9500_TIMINGS_SWR 50
+#define ADNS9500_TIMINGS_SWR 120
 
 /// SPI, NCS to SCLK active/inactive
 #define ADNS9500_TIMINGS_NCS_SCLK 1
