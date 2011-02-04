@@ -325,14 +325,20 @@ void adns9500_upload_firmware(uint8_t adns_i)
   adns9500_spi_send(ADNS9500_SROMENABLE_LOAD1);
 
   // Wait for one frame
+  adns9500_spi_cs(0);
   _delay_us(ADNS9500_TIMINGS_FRAME_PERIOD);
   _delay_us(ADNS9500_TIMINGS_FRAME_PERIOD);
+  adns9500_spi_cs(adns_i);
 
   // Write 0x18 to register SROMENABLE again to start SROM downloading
   adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_SROMENABLE);
   adns9500_spi_send(ADNS9500_SROMENABLE_LOAD2);
-  _delay_us(ADNS9500_TIMINGS_SWW);
 
+  adns9500_spi_cs(0);
+  _delay_us(ADNS9500_TIMINGS_SWW);
+  adns9500_spi_cs(adns_i);
+
+  _delay_us(ADNS9500_TIMINGS_NCS_SCLK);
   // Initiate PROM download burst mode
   adns9500_spi_send(ADNS9500_SPI_WRITE|ADNS9500_SPIREGISTER_SROMLOAD);
   _delay_us(ADNS9500_TIMINGS_LOAD);
