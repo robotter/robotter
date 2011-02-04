@@ -64,7 +64,7 @@ entity adns9500_controlunit is
 
     -- timing between SCK falling edge to next SCK rising edge
     -- after a read address and motion data
-    timing_srad_mot_c : natural := 75000;
+    timing_srad_mot_c : natural := 100000;
     
     ---------- PHYSICAL PARAMETERS ------------------------------------------
     -- number of ADNS9500 chips
@@ -386,7 +386,7 @@ begin
               --
               -- NOTE : 
               -- It's useless to wait 4us here, because the next ADNS will be driven
-              -- at least approx. 75us (tSRAD-MOT).
+              -- at least approx. 100us (tSRAD-MOT).
 
               -- Pull all CS low
               adns_cs_o <= "00";
@@ -558,7 +558,7 @@ begin
           --
           -- NOTE : 
           -- It's useless to wait 4us here, because the next ADNS will be driven
-          -- at least approx. 75us (tSRAD-MOT).
+          -- at least approx. 100us (tSRAD-MOT).
 
           -- pull all CS low
           adns_cs_o <= "00";
