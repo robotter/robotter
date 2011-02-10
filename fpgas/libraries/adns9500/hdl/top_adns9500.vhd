@@ -21,7 +21,7 @@
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
-
+use ieee.numeric_std.all;
 
 ENTITY adns9500 IS
   GENERIC (
@@ -68,7 +68,7 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   
   COMPONENT adns9500_spi IS
   GENERIC (
-    spi_freq_c : natural :=  1000; -- SPI clock frequency in kHz
+    spi_freq_c : natural :=  100; -- SPI clock frequency in kHz
     clk_freq_c : natural := 25000  -- FPGA clock frequency in kHz
   );
   PORT (
@@ -174,6 +174,10 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
 
     auto_enable_o : OUT std_logic;      --enable the control Unit (active High)
 
+    
+    -- debug
+    cs_number_i : in std_logic_vector(7 downto 0);
+
     ---------------------------------------------------------------------------
     -- interface to the spi (controled by the µc when auto_enable_o is low)
 
@@ -185,7 +189,6 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
     adns_reset_o : OUT std_logic;       -- reset of the 3 sensors
     spi_cs_o     : OUT std_logic_vector(1 DOWNTO 0)  -- selection of the slave
                                                      -- addressed by the spi
-    
     );
   END COMPONENT adns9500_wishbone_interface;
 
@@ -390,7 +393,12 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   SIGNAL spi_busy_s          : std_logic;
 
   SIGNAL spi_adns_cs_s       : std_logic_vector(1 DOWNTO 0);
+  signal cs1_ns : std_logic;
+-------------------------------------------------------------------------------
+  -- debug
+  signal cs_number_s : std_logic_vector(7 downto 0);
 
+  
   ---------------------------------------------------------------------------
   -- signal command
 
@@ -418,7 +426,7 @@ reset_ns <= not(wbs_rst_i);
     mosi_o => mosi_o,
     miso_i => miso_i,
     sck_o  => sck_o, 
-    cs1_no => cs1_no,
+    cs1_no => cs1_ns,
     cs2_no => cs2_no,
     cs3_no => cs3_no,
     
@@ -427,6 +435,38 @@ reset_ns <= not(wbs_rst_i);
     send_data_i => spi_send_data_s,
     busy_o      => spi_busy_s,
     cs_i        => spi_adns_cs_s);
+  
+cs1_no <= cs1_ns;
+
+process(wbs_clk_i)
+  variable cs1_buf_v : std_logic_vector(3 downto 0);
+  begin
+    if rising_edge(wbs_clk_i) then
+      if cs1_buf_v = "0000" then
+        --cs1_no <= '0';
+      elsif cs1_buf_v = "1111" then
+        --cs1_no <= '1';
+      end if;
+      cs1_buf_v := cs1_buf_v(2 downto 0) & cs1_ns;
+    end if;
+  end process;
+
+process(cs1_ns, reset_ns)
+  variable cs_number_v : natural range 0 to 255;
+  variable v_last_cs1_no : std_logic;
+  begin
+  if reset_ns = '0' then
+    cs_number_v := 0;
+    
+  elsif rising_edge(cs1_ns) then
+    --if v_last_cs1_no = '0' and cs1_ns= '1' then
+
+      cs_number_v := cs_number_v +1;
+    --end if;
+    cs_number_s <= std_logic_vector(to_unsigned(cs_number_v, 8));
+    --v_last_cs1_no := cs1_ns;
+  end if;  
+end process;
   
 
   -----------------------------------------------------------------------------
@@ -532,6 +572,7 @@ reset_ns <= not(wbs_rst_i);
 
     auto_enable_o => auto_enable_s,
 
+    cs_number_i => cs_number_s,
     ---------------------------------------------------------------------------
     -- interface to the spi (controled by the µc when auto_enable_o is low)
 

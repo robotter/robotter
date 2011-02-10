@@ -54,7 +54,7 @@ wbs_ack <= wbs_strobe;
 write_bloc : process(gls_clk,gls_reset)
 begin
     if gls_reset = '1' then 
-        reg <= (others => '0');
+        reg <= (others => '1');
     elsif rising_edge(gls_clk) then
         if ((wbs_strobe and wbs_write and wbs_cycle) = '1' ) then
             reg <= wbs_writedata;

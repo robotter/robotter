@@ -28,7 +28,7 @@ entity adns9500_spi is
   generic (
     spi_freq_c : natural :=  1000; -- SPI clock frequency in kHz
     clk_freq_c : natural := 25000  -- FPGA clock frequency in kHz
-  );
+    );
   port (
     clk_i     : in std_logic;
     reset_ni  : in std_logic;
@@ -53,7 +53,7 @@ entity adns9500_spi is
 
     --! Muxed Chip Select
     cs_i        : in  std_logic_vector(1 downto 0)
-  );
+    );
 end entity adns9500_spi;
 
 
@@ -182,10 +182,42 @@ begin
 
 
   -- Chip select
-  cs1_no <= '0' when cs_i = "01" else '1';
-  cs2_no <= '0' when cs_i = "10" else '1';
-  cs3_no <= '0' when cs_i = "11" else '1';
+--  cs1_no <= '0' when cs_i = "01" else '1';
+  --cs2_no <= '0' when cs_i = "10" else '1';
+  --cs3_no <= '0' when cs_i = "11" else '1';
 
+  process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+      if cs_i = "01" then
+        cs1_no <= '0';
+      else
+        cs1_no <= '1';
+      end if;
+    end if;
+  end process;
+
+  process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+      if cs_i = "10" then
+        cs2_no <= '0';
+      else
+        cs2_no <= '1';
+      end if;
+    end if;
+  end process;
+  
+  process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+      if cs_i = "11" then
+        cs3_no <= '0';
+      else
+        cs3_no <= '1';
+      end if;
+    end if;
+  end process;
 
   -- SPI clock ticks only during data transfer
   sck_o <= spi_clk_s when transfer_s = true else '1';
@@ -218,7 +250,7 @@ begin
         ticks_v := spi_clk_ticks'high;
 
       else
- 
+        
         ticks_v := ticks_v - 1;
         spi_rising_s  <= false;
         spi_falling_s <= false;

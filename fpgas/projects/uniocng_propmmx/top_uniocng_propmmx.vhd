@@ -464,12 +464,14 @@ architecture top_uniocng_propmmx_1 of top_uniocng_propmmx is
        port map (
          -- candr
          gls_clk => rstext_syscon00_gls_clk,
-         gls_reset => rstext_syscon00_gls_reset,
+         --gls_reset => rstext_syscon00_gls_reset,
          -- ext
          ext_clk => rstext_syscon00_ext_clk,
          ext_rst_n => rstext_syscon00_ext_rst_n
          );
-
+			
+			rstext_syscon00_gls_reset <= not(rstext_syscon00_ext_rst_n);
+			
      atmega_nodir_wb8_wrapper00 : atmega_nodir_wb8_wrapper
        port map (
          -- emi
@@ -820,7 +822,5 @@ architecture top_uniocng_propmmx_1 of top_uniocng_propmmx is
      -- rstext_syscon00_atmega_nodir_wb8_wrapper00
      atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_clk <= rstext_syscon00_gls_clk;
      atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_reset <= rstext_syscon00_gls_reset;
-     
-                                                                           
 
    end architecture top_uniocng_propmmx_1;
