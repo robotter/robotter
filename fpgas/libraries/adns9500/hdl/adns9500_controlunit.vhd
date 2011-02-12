@@ -161,7 +161,11 @@ begin
 
     variable spi_pstart_v : std_logic;
 
-    variable spi_state_v : natural range 0 to 4 := 4;
+		type SPI_STATE_TYPE is (SPI_STATE_INIT, SPI_STATE_DATA, SPI_STATE_BEGIN, SPI_STATE_BUSY, SPI_STATE_WAIT);
+		attribute SPI_ENUM_ENCODING: STRING;
+		attribute SPI_ENUM_ENCODING of SPI_STATE_TYPE: type is "001 010 011 100 101";
+
+    variable spi_state_v : SPI_STATE_TYPE;
 
   begin
     
@@ -171,7 +175,7 @@ begin
       spi_datain_o   <= x"00";
       
       spi_done_s <= '0';
-      spi_state_v := 4;
+      spi_state_v := SPI_STATE_WAIT;
       spi_datareceived_s <= x"00";
       spi_pstart_v := '0';
 
@@ -180,7 +184,7 @@ begin
         
         -- start SPI transmission on r_e( spi_start_s )
         if spi_pstart_v = '0' and spi_start_s = '1' then
-          spi_state_v := 0;
+          spi_state_v := SPI_STATE_INIT;
         end if;
 
         -- end SPI transmission on f_e( spi_start_s )
@@ -191,50 +195,39 @@ begin
         -- store last spi_start value
         spi_pstart_v := spi_start_s;
 
-        -- state#0
-        -- init communication
-        if spi_state_v = 0 then
+				case spi_state_v is
+       	  -- init communication
+					when SPI_STATE_INIT =>
+ 	          spi_senddata_o <= '0';
+   	        spi_state_v := SPI_STATE_DATA;
 
-          spi_senddata_o <= '0';
-          spi_state_v := spi_state_v + 1;
-
-        -- state#1
-        -- send data to SPI and wait one tick
-        elsif spi_state_v = 1 then 
-          
-          spi_datain_o <= spi_datatosend_s;
-          spi_state_v := spi_state_v + 1;
+        	-- send data to SPI and wait one tick
+        	when SPI_STATE_DATA =>
+          	spi_datain_o <= spi_datatosend_s;
+          	spi_state_v := SPI_STATE_BEGIN;
         
-        -- state#2
-        -- set senddata high to begin SPI communication 
-        -- and wait for busy to go high
-        elsif spi_state_v = 2 then
-
-          spi_senddata_o <= '1';
-          
-          if spi_busy_i = '1' then
-            spi_state_v := spi_state_v + 1;
-          end if;
+        	-- set senddata high to begin SPI communication 
+        	-- and wait for busy to go high
+        	when SPI_STATE_BEGIN =>
+ 	          spi_senddata_o <= '1';
+          	if spi_busy_i = '1' then
+            	spi_state_v := SPI_STATE_BUSY;
+	          end if;
         
-        -- state#3
-        -- set senddata low and wait for busy to go low
-        -- to read data from SPI
-        elsif spi_state_v = 3 then
-          
-          spi_senddata_o <= '0';
+        	-- set senddata low and wait for busy to go low
+        	-- to read data from SPI
+        	when SPI_STATE_BUSY =>
+          	spi_senddata_o <= '0';
+          	if spi_busy_i = '0' then
+            	spi_datareceived_s <= spi_dataout_i;
+            	spi_done_s <= '1';
+            	spi_state_v := SPI_STATE_WAIT;
+          	end if;
 
-          if spi_busy_i = '0' then
-            spi_datareceived_s <= spi_dataout_i;
-            spi_done_s <= '1';
-            spi_state_v := spi_state_v + 1;
-          end if;
-
-        -- state#4
-        -- final state, machine stay here
-        else
-          -- "It's a trap !"
-        end if;
-
+        	-- final state, machine stay here
+        	when SPI_STATE_WAIT =>
+						-- it's a trap
+				end case;
       end if; -- r_e(clk_i)
     end if; -- reset_ni = '0' 
 
@@ -246,10 +239,16 @@ begin
   -- Main state machine handling data sent over SPI
   controlunit_p : process(reset_ni, clk_i, enable_i)
 
+		type CU_STATE_TYPE is (CU_INIT,CU_1,CU_2,CU_3,CU_4,CU_5,CU_6,CU_7,
+														CU_8,CU_9,CU_10,CU_11,CU_12,CU_13,CU_14,
+														CU_15,CU_16,CU_17,CU_18,CU_19);
+		attribute CU_ENUM_ENCODING: STRING;
+		attribute CU_ENUM_ENCODING of CU_STATE_TYPE:type is "00001 00010 00011 00100 00101 00110 00111 01000 01001 01010 01011 01100 01101 01110 01111 10000 10001 10010 10011";
+
+		variable controlunit_state_v : CU_STATE_TYPE;
+
     variable timer_v : natural := 0;
     variable current_adns_v : natural range 1 to 4 := 1;
-
-    variable controlunit_state_v : natural range 0 to 19 := 0;
 
     variable sumdeltax_v : std_logic_vector(31 downto 0);
     variable sumdeltay_v : std_logic_vector(31 downto 0);
@@ -285,13 +284,13 @@ begin
       
       -- reset machine state
       current_adns_v := 1;
-      controlunit_state_v := 0;
+      controlunit_state_v := CU_INIT;
 
     elsif rising_edge( clk_i ) then
-        
-        -- state #0
+      
+			case controlunit_state_v is
         -- set CS high for current ADNS9500
-        if controlunit_state_v = 0 then
+        when CU_INIT =>
 
           -- pull CS high for current ADNS
           adns_cs_o <= std_logic_vector( to_unsigned(current_adns_v,2) );
@@ -300,62 +299,56 @@ begin
           timer_v := 0;
           
           -- go next state
-          controlunit_state_v := controlunit_state_v + 1;
+          controlunit_state_v := CU_1;
         
-        -- state #1
         -- wait at least t(NCS-SCK) 
-        elsif controlunit_state_v = 1 then
+        when CU_1 =>
 
           -- increment timer
           timer_v := timer_v +  1;
 
           -- check if we wait enough
           if timer_v >= ((timing_ncs_sck_c/fpga_clock_period_c)*timing_ratio_c) then
-            controlunit_state_v := controlunit_state_v + 1;
+            controlunit_state_v := CU_2;
           end if;
 
-        -- state #2
         -- start sending address over SPI
-        elsif controlunit_state_v = 2 then
+        when CU_2 =>
           
           -- start a Motion Burst 
           spi_datatosend_s <= addr_register_motion_burst_c;
           spi_start_s <= '1';
           
-          controlunit_state_v := controlunit_state_v + 1;
+          controlunit_state_v := CU_3;
 
-        -- state #3
         -- wait for data to be sent 
-        elsif controlunit_state_v = 3 then
+        when CU_3 =>
           
           if spi_done_s = '1' then
             spi_start_s <= '0';
             timer_v := 0;
-            controlunit_state_v := controlunit_state_v + 1;
+            controlunit_state_v := CU_4;
           end if;
         
-        -- state #4
         -- wait at least t(SRAD-MOT)
-        elsif controlunit_state_v = 4 then
+        when CU_4 =>
           
           timer_v := timer_v + 1;
               
           if timer_v >= ((timing_srad_mot_c/fpga_clock_period_c)*timing_ratio_c) then
-            controlunit_state_v := controlunit_state_v + 1;
+            controlunit_state_v := CU_5;
           end if;
         
-        -- state #5
         -- start reading first byte of Motion burst
-        elsif controlunit_state_v = 5 then
+        when CU_5 =>
 
           spi_datatosend_s <= x"00";
           spi_start_s <= '1';
 
-          controlunit_state_v := controlunit_state_v + 1;
+          controlunit_state_v := CU_6;
         
-        -- state #6
         -- wait Motion byte to be received 
-        elsif controlunit_state_v = 6 then
+        when CU_6 =>
 
           if spi_done_s = '1' then
             spi_start_s <= '0';
@@ -375,7 +368,7 @@ begin
               ----------------------------------------------------------------------
               -- continue to next state
 
-              controlunit_state_v := controlunit_state_v + 1;
+              controlunit_state_v := CU_7;
 
             else
               ----------------------------------------------------------------------
@@ -399,129 +392,112 @@ begin
               end if;
 
               -- Go back to first state
-              controlunit_state_v := 0;
+              controlunit_state_v := CU_INIT;
 
             end if;
 
           end if;
 
-        -- state #7
         -- prepare to read next byte
-        elsif controlunit_state_v = 7 then
+        when CU_7 =>
 
           spi_datatosend_s <= x"00";
           spi_start_s <= '1';
 
-          controlunit_state_v := controlunit_state_v + 1;
+          controlunit_state_v := CU_8;
     
-        -- state #8
         -- read OBSERVATION byte
-        elsif controlunit_state_v = 8 then
+        when CU_8 =>
 
           if spi_done_s = '1' then
             spi_start_s <= '0';
-            controlunit_state_v := controlunit_state_v + 1;
+            controlunit_state_v := CU_9;
           end if;
 
-          --- state #9
         -- prepare to read next byte
-        elsif controlunit_state_v = 9 then
+        when CU_9 =>
 
           spi_datatosend_s <= x"00";
           spi_start_s <= '1';
 
-          controlunit_state_v := controlunit_state_v + 1;
+          controlunit_state_v := CU_10;
     
-        -- state #10
         -- read Delta_X_L byte
-        elsif controlunit_state_v = 10 then
+        when CU_10 =>
 
           if spi_done_s = '1' then
             spi_start_s <= '0';
             deltax_v(7 downto 0) :=  spi_datareceived_s;
-            controlunit_state_v := controlunit_state_v + 1;
+            controlunit_state_v := CU_11;
           end if;
 
-        -- state #11
         -- prepare to read next byte
-        elsif controlunit_state_v = 11 then
+        when CU_11 =>
 
           spi_datatosend_s <= x"00";
           spi_start_s <= '1';
 
-          controlunit_state_v := controlunit_state_v + 1;
+          controlunit_state_v := CU_12;
     
   
-        -- state #12
         -- read Delta_X_H byte
-        elsif controlunit_state_v = 12 then
+        when CU_12 =>
 
           if spi_done_s = '1' then
             spi_start_s <= '0';
             deltax_v(15 downto 8) :=  spi_datareceived_s;
-            controlunit_state_v := controlunit_state_v + 1;
+            controlunit_state_v := CU_13;
           end if;
 
-          -- state #13
         -- prepare to read next byte
-        elsif controlunit_state_v = 13 then
+        when CU_13 =>
 
           spi_datatosend_s <= x"00";
           spi_start_s <= '1';
 
-          controlunit_state_v := controlunit_state_v + 1;
+          controlunit_state_v := CU_14;
     
-        -- state #14
         -- read Delta_Y_L byte
-        elsif controlunit_state_v = 14 then
+        when CU_14 =>
 
           if spi_done_s = '1' then
             spi_start_s <= '0';
             deltay_v(7 downto 0) :=  spi_datareceived_s;
-            controlunit_state_v := controlunit_state_v + 1;
+            controlunit_state_v := CU_15;
           end if;          
 
-	-- state #15
         -- prepare to read next byte
-        elsif controlunit_state_v = 15 then
-
+        when CU_15 =>
           spi_datatosend_s <= x"00";
           spi_start_s <= '1';
 
-          controlunit_state_v := controlunit_state_v + 1;
+          controlunit_state_v := CU_16;
     
-        -- state #16
         -- read Delta_Y_H byte
-        elsif controlunit_state_v = 16 then
-
+        when CU_16 =>
           if spi_done_s = '1' then
             spi_start_s <= '0';
             deltay_v(15 downto 8) :=  spi_datareceived_s;
-            controlunit_state_v := controlunit_state_v + 1;
+            controlunit_state_v := CU_17;
           end if;
 
-        -- state #17
         -- prepare to read next byte
-        elsif controlunit_state_v = 17 then
-
+        when CU_17 =>
           spi_datatosend_s <= x"00";
           spi_start_s <= '1';
 
-          controlunit_state_v := controlunit_state_v + 1;
+          controlunit_state_v := CU_18;
     
-        -- state #18
         -- read SQUAL byte
-        elsif controlunit_state_v = 18 then
-
+        when CU_18 =>
           if spi_done_s = '1' then
             spi_start_s <= '0';
             squal_v :=  spi_datareceived_s;
-            controlunit_state_v := controlunit_state_v + 1;
+            controlunit_state_v := CU_19;
           end if;
 
-        -- state #19
         -- sum deltas, update squal and go next ADNS
-        elsif controlunit_state_v = 19 then
+        when CU_19 =>
           -- get current motion values
           if current_adns_v = 1 then
             sumdeltax_v := adns1_deltax_s;
@@ -573,9 +549,9 @@ begin
           
           ---------------------------
           -- go back to first state
-          controlunit_state_v := 0;
-		 
-        end if; -- controlunit_state_v
+          controlunit_state_v := CU_INIT;
+		 	
+				end case;
         -----------------------------------------
 
     end if; -- reset_ni = '0' 
