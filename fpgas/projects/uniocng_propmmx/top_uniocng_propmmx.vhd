@@ -48,7 +48,6 @@ entity top_uniocng_propmmx is
       adns950000_cs2_no : out std_logic;
       adns950000_cs1_no : out std_logic;
       encoder_inc02_ch_b_i : in std_logic;
-      compass00_pwm_i : in std_logic;
       led00_led : out std_logic
       );
 end entity top_uniocng_propmmx;
@@ -188,16 +187,6 @@ architecture top_uniocng_propmmx_1 of top_uniocng_propmmx is
        -- encoder_inc02_clock
        encoder_inc02_wbs_clk_i  : out std_logic;
        encoder_inc02_wbs_rst_i  : out std_logic;
-       -- compass00_swb8
-       compass00_wbs_adr_i  : out std_logic_vector(1 downto 0);
-       compass00_wbs_dat_o  : in std_logic_vector(7 downto 0);
-       compass00_wbs_we_i  : out std_logic;
-       compass00_wbs_stb_i  : out std_logic;
-       compass00_wbs_cyc_i  : out std_logic;
-       compass00_wbs_ack_o  : in std_logic;
-       -- compass00_clock
-       compass00_wbs_clk_i  : out std_logic;
-       compass00_wbs_rst_i  : out std_logic;
        -- led00_swb8
        led00_wbs_add  : out std_logic;
        led00_wbs_writedata  : out std_logic_vector(7 downto 0);
@@ -223,27 +212,6 @@ architecture top_uniocng_propmmx_1 of top_uniocng_propmmx is
        -- rstext_syscon00_atmega_nodir_wb8_wrapper00
        rstext_syscon00_gls_clk  : in std_logic;
        rstext_syscon00_gls_reset  : in std_logic
-       );
-   end component;
-
-   component compass
-     generic(
-       id         : natural := 9;    --! module ID
-       clk_freq_c : natural := 50000 --! FPGA clock frequency, in kHz
-       );
-     port (
-       -- clock
-       wbs_clk_i  : in std_logic;
-       wbs_rst_i  : in std_logic;
-       -- swb8
-       wbs_adr_i  : in std_logic_vector(1 downto 0);
-       wbs_dat_o  : out std_logic_vector(7 downto 0);
-       wbs_we_i  : in std_logic;
-       wbs_stb_i  : in std_logic;
-       wbs_cyc_i  : in std_logic;
-       wbs_ack_o  : out std_logic;
-       -- pwm
-       pwm_i  : in std_logic
        );
    end component;
 
@@ -345,19 +313,6 @@ architecture top_uniocng_propmmx_1 of top_uniocng_propmmx is
    signal encoder_inc02_wbs_ack_o :  std_logic;
    -- channels
 
-   -- compass00
-   -- clock
-   signal compass00_wbs_clk_i :  std_logic;
-   signal compass00_wbs_rst_i :  std_logic;
-   -- swb8
-   signal compass00_wbs_adr_i :  std_logic_vector(1 downto 0);
-   signal compass00_wbs_dat_o :  std_logic_vector(7 downto 0);
-   signal compass00_wbs_we_i :  std_logic;
-   signal compass00_wbs_stb_i :  std_logic;
-   signal compass00_wbs_cyc_i :  std_logic;
-   signal compass00_wbs_ack_o :  std_logic;
-   -- pwm
-
    -- led00
    -- int_led
    -- candr
@@ -414,16 +369,6 @@ architecture top_uniocng_propmmx_1 of top_uniocng_propmmx is
    -- encoder_inc02_clock
    signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_clk_i :  std_logic;
    signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_rst_i :  std_logic;
-   -- compass00_swb8
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_adr_i :  std_logic_vector(1 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_dat_o :  std_logic_vector(7 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_we_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_stb_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_cyc_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_ack_o :  std_logic;
-   -- compass00_clock
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_clk_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_rst_i :  std_logic;
    -- led00_swb8
    signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_add :  std_logic;
    signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_writedata :  std_logic_vector(7 downto 0);
@@ -581,26 +526,6 @@ architecture top_uniocng_propmmx_1 of top_uniocng_propmmx is
          ch_b_i => encoder_inc02_ch_b_i
          );
 
-     compass00 : compass
-       generic map (
-         id => 5,
-         clk_freq_c => freq_fpga_c
-         )
-       port map (
-         -- clock
-         wbs_clk_i => compass00_wbs_clk_i,
-         wbs_rst_i => compass00_wbs_rst_i,
-         -- swb8
-         wbs_adr_i => compass00_wbs_adr_i,
-         wbs_dat_o => compass00_wbs_dat_o,
-         wbs_we_i => compass00_wbs_we_i,
-         wbs_stb_i => compass00_wbs_stb_i,
-         wbs_cyc_i => compass00_wbs_cyc_i,
-         wbs_ack_o => compass00_wbs_ack_o,
-         -- pwm
-         pwm_i => compass00_pwm_i
-         );
-
      led00 : led
        generic map (
          id => 6,
@@ -665,16 +590,6 @@ architecture top_uniocng_propmmx_1 of top_uniocng_propmmx is
          -- encoder_inc02_clock
          encoder_inc02_wbs_clk_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_clk_i,
          encoder_inc02_wbs_rst_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_rst_i,
-         -- compass00_swb8
-         compass00_wbs_adr_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_adr_i,
-         compass00_wbs_dat_o => atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_dat_o,
-         compass00_wbs_we_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_we_i,
-         compass00_wbs_stb_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_stb_i,
-         compass00_wbs_cyc_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_cyc_i,
-         compass00_wbs_ack_o => atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_ack_o,
-         -- compass00_clock
-         compass00_wbs_clk_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_clk_i,
-         compass00_wbs_rst_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_rst_i,
          -- led00_swb8
          led00_wbs_add => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_add,
          led00_wbs_writedata => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_writedata,
@@ -764,17 +679,6 @@ architecture top_uniocng_propmmx_1 of top_uniocng_propmmx is
      encoder_inc02_wbs_cyc_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_cyc_i;
      -- channels
 
-     -- connect compass00
-     -- clock
-     compass00_wbs_clk_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_clk_i;
-     compass00_wbs_rst_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_rst_i;
-     -- swb8
-     compass00_wbs_adr_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_adr_i;
-     compass00_wbs_we_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_we_i;
-     compass00_wbs_stb_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_stb_i;
-     compass00_wbs_cyc_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_cyc_i;
-     -- pwm
-
      -- connect led00
      -- int_led
      -- candr
@@ -804,10 +708,6 @@ architecture top_uniocng_propmmx_1 of top_uniocng_propmmx is
      atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_dat_o <= encoder_inc02_wbs_dat_o;
      atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_ack_o <= encoder_inc02_wbs_ack_o;
      -- encoder_inc02_clock
-     -- compass00_swb8
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_dat_o <= compass00_wbs_dat_o;
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_compass00_wbs_ack_o <= compass00_wbs_ack_o;
-     -- compass00_clock
      -- led00_swb8
      atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_readdata <= led00_wbs_readdata;
      atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_ack <= led00_wbs_ack;

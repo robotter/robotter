@@ -67,18 +67,6 @@ Entity atmega_nodir_wb8_wrapper00_mwb8 is
         encoder_inc02_wbs_clk_i                  : out  std_logic;
         encoder_inc02_wbs_rst_i                  : out  std_logic;
 
-        -- compass00_swb8 connection
-        compass00_wbs_adr_i                      : out  std_logic_vector(1 downto 0);
-        compass00_wbs_dat_o                      : in   std_logic_vector(7 downto 0);
-        compass00_wbs_we_i                       : out  std_logic;
-        compass00_wbs_stb_i                      : out  std_logic;
-        compass00_wbs_cyc_i                      : out  std_logic;
-        compass00_wbs_ack_o                      : in   std_logic;
-
-        -- compass00_clock connection
-        compass00_wbs_clk_i                      : out  std_logic;
-        compass00_wbs_rst_i                      : out  std_logic;
-
         -- led00_swb8 connection
         led00_wbs_add                            : out  std_logic;
         led00_wbs_writedata                      : out  std_logic_vector(7 downto 0);
@@ -116,7 +104,6 @@ architecture atmega_nodir_wb8_wrapper00_mwb8_1 of atmega_nodir_wb8_wrapper00_mwb
     signal encoder_inc00_swb8_cs                    : std_logic := '0' ;
     signal encoder_inc01_swb8_cs                    : std_logic := '0' ;
     signal encoder_inc02_swb8_cs                    : std_logic := '0' ;
-    signal compass00_swb8_cs                        : std_logic := '0' ;
     signal led00_swb8_cs                            : std_logic := '0' ;
 begin
 
@@ -133,9 +120,6 @@ begin
     encoder_inc02_wbs_clk_i                  <= rstext_syscon00_gls_clk;
     encoder_inc02_wbs_rst_i                  <= rstext_syscon00_gls_reset;
 
-    compass00_wbs_clk_i                      <= rstext_syscon00_gls_clk;
-    compass00_wbs_rst_i                      <= rstext_syscon00_gls_reset;
-
     led00_gls_reset                          <= rstext_syscon00_gls_reset;
     led00_gls_clk                            <= rstext_syscon00_gls_clk;
 
@@ -149,7 +133,6 @@ begin
     encoder_inc00_wbs_adr_i <= atmega_nodir_wb8_wrapper00_wbm_address(2 downto 0);
     encoder_inc01_wbs_adr_i <= atmega_nodir_wb8_wrapper00_wbm_address(2 downto 0);
     encoder_inc02_wbs_adr_i <= atmega_nodir_wb8_wrapper00_wbm_address(2 downto 0);
-    compass00_wbs_adr_i <= atmega_nodir_wb8_wrapper00_wbm_address(1 downto 0);
     led00_wbs_add <= atmega_nodir_wb8_wrapper00_wbm_address(0);
 
     decodeproc : process(rstext_syscon00_gls_clk,rstext_syscon00_gls_reset,atmega_nodir_wb8_wrapper00_wbm_address)
@@ -159,7 +142,6 @@ begin
             encoder_inc00_swb8_cs <= '0';
             encoder_inc01_swb8_cs <= '0';
             encoder_inc02_swb8_cs <= '0';
-            compass00_swb8_cs <= '0';
             led00_swb8_cs <= '0';
         elsif rising_edge(rstext_syscon00_gls_clk) then
 
@@ -185,12 +167,6 @@ begin
                 encoder_inc02_swb8_cs <= '1';
             else
                 encoder_inc02_swb8_cs <= '0';
-            end if;
-
-            if atmega_nodir_wb8_wrapper00_wbm_address(14 downto 2)="0010111000000" and atmega_nodir_wb8_wrapper00_wbm_strobe='1' then
-                compass00_swb8_cs <= '1';
-            else
-                compass00_swb8_cs <= '0';
             end if;
 
             if atmega_nodir_wb8_wrapper00_wbm_address(14 downto 1)="00110000000000" and atmega_nodir_wb8_wrapper00_wbm_strobe='1' then
@@ -227,11 +203,6 @@ begin
     encoder_inc02_wbs_cyc_i <= (atmega_nodir_wb8_wrapper00_wbm_cycle and encoder_inc02_swb8_cs );
     encoder_inc02_wbs_we_i <= '0';
 
-    -- for compass00
-    compass00_wbs_stb_i <= (atmega_nodir_wb8_wrapper00_wbm_strobe and compass00_swb8_cs );
-    compass00_wbs_cyc_i <= (atmega_nodir_wb8_wrapper00_wbm_cycle and compass00_swb8_cs );
-    compass00_wbs_we_i <= '0';
-
     -- for led00
     led00_wbs_strobe <= (atmega_nodir_wb8_wrapper00_wbm_strobe and led00_swb8_cs );
     led00_wbs_cycle <= (atmega_nodir_wb8_wrapper00_wbm_cycle and led00_swb8_cs );
@@ -246,7 +217,6 @@ begin
                                        encoder_inc00_wbs_dat_o when encoder_inc00_swb8_cs='1' else
                                        encoder_inc01_wbs_dat_o when encoder_inc01_swb8_cs='1' else
                                        encoder_inc02_wbs_dat_o when encoder_inc02_swb8_cs='1' else
-                                       compass00_wbs_dat_o when compass00_swb8_cs='1' else
                                        led00_wbs_readdata when led00_swb8_cs='1' else
                                        (others => '0');
     atmega_nodir_wb8_wrapper00_wbm_ack <=  (adns950000_wbs_ack_o and adns950000_swb8_cs)
@@ -256,8 +226,6 @@ begin
                                 (encoder_inc01_wbs_ack_o and encoder_inc01_swb8_cs)
                                     or 
                                 (encoder_inc02_wbs_ack_o and encoder_inc02_swb8_cs)
-                                    or 
-                                (compass00_wbs_ack_o and compass00_swb8_cs)
                                     or 
                                 (led00_wbs_ack and led00_swb8_cs);
 
