@@ -25,10 +25,10 @@ void i2cs_init(uint8_t slave_addr)
 {
   unsigned int i;
   for( i=0; i<sizeof(i2cs_recv_buf); i++ )
-    i2cs_recv_buf[0];
+    i2cs_recv_buf[i] = 0;
   i2cs_recv_size = 0;
   for( i=0; i<sizeof(i2cs_send_buf); i++ )
-    i2cs_send_buf[0];
+    i2cs_send_buf[i] = 0;
   i2cs_send_size = 0;
 
   TWAR = slave_addr << 1;
