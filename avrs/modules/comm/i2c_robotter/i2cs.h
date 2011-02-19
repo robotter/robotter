@@ -33,7 +33,7 @@
 extern volatile uint8_t i2cs_recv_buf[I2CS_RECV_BUF_SIZE];
 extern volatile uint8_t i2cs_recv_size;
 
-extern volatile uint8_t i2cs_send_buf[I2CS_SEND_BUF_SIZE];
+extern uint8_t i2cs_send_buf[I2CS_SEND_BUF_SIZE];
 extern volatile uint8_t i2cs_send_size;
 
 
