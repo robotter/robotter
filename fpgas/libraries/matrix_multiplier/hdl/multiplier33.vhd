@@ -108,19 +108,19 @@ begin
 				case state_v is
 					when MM_STATE_0 =>
 						sum0_s <= sum0_s + i0_s*matrix_s(int_size_c-1 downto 0);
-						sum1_s <= sum1_s + i1_s*matrix_s(2*int_size_c-1 downto int_size_c);
-						sum2_s <= sum2_s + i2_s*matrix_s(3*int_size_c-1 downto 2*int_size_c);
+						sum1_s <= sum1_s + i0_s*matrix_s(2*int_size_c-1 downto int_size_c);
+						sum2_s <= sum2_s + i0_s*matrix_s(3*int_size_c-1 downto 2*int_size_c);
 						state_v := MM_STATE_1;
 
 					when MM_STATE_1 =>
-						sum0_s <= sum0_s + i0_s*matrix_s(4*int_size_c-1 downto 3*int_size_c); 
+						sum0_s <= sum0_s + i1_s*matrix_s(4*int_size_c-1 downto 3*int_size_c); 
 						sum1_s <= sum1_s + i1_s*matrix_s(5*int_size_c-1 downto 4*int_size_c);
-						sum2_s <= sum2_s + i2_s*matrix_s(6*int_size_c-1 downto 5*int_size_c);
+						sum2_s <= sum2_s + i1_s*matrix_s(6*int_size_c-1 downto 5*int_size_c);
 						state_v := MM_STATE_2;
 
 					when MM_STATE_2 =>
-						sum0_s <= sum0_s + i0_s*matrix_s(7*int_size_c-1 downto 6*int_size_c);
-						sum1_s <= sum1_s + i1_s*matrix_s(8*int_size_c-1 downto 7*int_size_c);
+						sum0_s <= sum0_s + i2_s*matrix_s(7*int_size_c-1 downto 6*int_size_c);
+						sum1_s <= sum1_s + i2_s*matrix_s(8*int_size_c-1 downto 7*int_size_c);
 						sum2_s <= sum2_s + i2_s*matrix_s(9*int_size_c-1 downto 8*int_size_c);
 						state_v := MM_STATE_DONE;
 
