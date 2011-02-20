@@ -12,9 +12,9 @@ void i2cm_init(void);
  * @param  n           size to send (max: 127)
  * @param  data        buffer to send
  *
- * @return -1  error before first byte has been sent
- * @return  0  NACK has been immediately received
- * @return  n  size of sent data (even on error / NACK)
+ * @retval -1  error before first byte has been sent
+ * @retval  0  NACK has been immediately received
+ * @retval  n  size of sent data (even on error / NACK)
  */
 int8_t i2cm_send(uint8_t slave_addr, const uint8_t *data, uint8_t n);
 
@@ -24,9 +24,9 @@ int8_t i2cm_send(uint8_t slave_addr, const uint8_t *data, uint8_t n);
  * @param  n           size to read (max: 127)
  * @param  data        buffer for read data
  *
- * @return -1  error before first byte has been received
- * @return  0  NACK has been immediately received
- * @return  n  size of sent data
+ * @retval -1  error before first byte has been received
+ * @retval  0  NACK has been immediately received
+ * @retval  n  size of sent data
  */
 int8_t i2cm_recv(uint8_t slave_addr, uint8_t *data, uint8_t n);
 
