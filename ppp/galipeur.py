@@ -1,4 +1,6 @@
-from configuration.perlimpinpin import Robot, SlaveDevice, MasterDevice, Telemetry, Command
+#!/usr/bin/env python
+
+from perlimpinpin.core import *
 
 robot = Robot([
   MasterDevice('strat', 0x20,
@@ -66,3 +68,12 @@ robot = Robot([
     outdir = '../avrs/projects/unioc_asserv/'
     )
 ])
+
+
+if __name__ == '__main__':
+  import perlimpinpin.gen.avr as gen_avr
+  for dev in robot.devices:
+    print "Generate %s" % dev.name
+    cg = gen_avr.CodeGenerator(dev)
+    cg.generate()
+

@@ -1,4 +1,5 @@
 import re
+from . import types as ppp_types
 
 
 class Robot:
@@ -111,11 +112,9 @@ class Device:
         raise AttributeError("message %r already assigned to a device" % msg.name)
       msg.device = self
 
-
-  def messages_of_type(self, typ):
-    """Return messages of a given type."""
-    assert issubclass(typ, Message)
-    return [ msg for msg in self.messages if isinstance(msg, typ) ]
+  def commands(self):
+    """Return device commands."""
+    return [ msg for msg in self.messages if isinstance(msg, Command) ]
 
 
 
@@ -123,13 +122,17 @@ class SlaveDevice(Device):
   pass
 
 class MasterDevice(Device):
-  
-  def slave_commands(self):
-    """Return command messages of slaves."""
+
+  def __init__(self, *args, **kw):
+    Device.__init__(self, *args, **kw)
+    if not all( isinstance(msg, Telemetry) for msg in self.messages ):
+      raise TypeError("master device can only define telemetry messages")
+
+  def commands(self):
     ret = []
     for dev in self.robot.devices:
       if isinstance(dev, SlaveDevice):
-        ret += dev.messages_of_type(Command)
+        ret += dev.commands()
     return ret
 
 
@@ -144,6 +147,7 @@ class Message:
     device -- message's device (set by the device itself)
 
   """
+
   def __init__(self, name, mid=None, desc=None):
     if not re.match('^[A-Z][A-Z0-9_]*$', name):
       raise ValueError("invalid message name: %r" % name)
@@ -156,8 +160,8 @@ class Message:
   def _convert_type(cls, t):
     """Helper method to check and convert a parameter type."""
     if isinstance(t, basestring):
-      t = types[t]
-    if not isinstance(t, Type):
+      t = ppp_types.types[t]
+    if not isinstance(t, ppp_types._Type):
       raise TypeError("invalid data type")
     return t
 
@@ -176,6 +180,7 @@ class Telemetry(Message):
     params -- payload parameters, as a list of fields
 
   """
+
   def __init__(self, name, params, **kw):
     Message.__init__(self, name, **kw)
     names = set()  # defined parameter names
@@ -195,7 +200,9 @@ class Command(Message):
   Attributes:
     iparams -- input parameters (arguments)
     oparams -- output parameters (returned values)
+
   """
+
   def __init__(self, name, iparams, oparams, **kw):
     Message.__init__(self, name, **kw)
     names = set()  # defined parameter names (shared by in/out params)
@@ -215,70 +222,5 @@ class Command(Message):
         raise ValueError("parameter %r already defined" % n)
       names.add(n)
       self.oparams.append((n, self._convert_type(t)))
-
-
-
-#
-# Type definitions
-#
-#TODO move this in a dedicated file
-#
-
-types = {}  # defined types
-
-
-class Type(type):
-  """
-  Type metaclass for Perlimpinpin data.
-
-  Each class may define a name field which is the type's "human" name.
-  
-  """
-
-  def __new__(mcls, name, bases, fields):
-    if 'name' in fields:
-      name = fields['name']
-      tcls = type.__new__(mcls, name, bases, fields)
-      if name in types:
-        raise ValueError("type '%s' already defined" % name)
-      types[name] = tcls
-      return tcls
-    else:
-      fields['name'] = None
-      return type.__new__(mcls, name, bases, fields)
-
-  def __str__(tcls):
-    try:
-      return tcls.name
-    except AttributeError:
-      return type.__str__(tcls)
-
-
-class BaseType:
-  """Base class for types."""
-  __metaclass__ = Type
-
-class Boolean(BaseType):
-  """Boolean type."""
-  name = 'bool'
-
-class Integer(BaseType):
-  """
-  Integer type
-    bitsize -- bit size
-    signed -- True if signed, False if unsigned
-  """
-  pass
-
-# define common integer types
-for n in (8, 16, 32):
-  class IntN(Integer):
-    name = 'int%d' % n
-    bitsize = n
-    signed = True
-  class UIntN(Integer):
-    name = 'uint%d' % n
-    bitsize = n
-    signed = False
 
 
