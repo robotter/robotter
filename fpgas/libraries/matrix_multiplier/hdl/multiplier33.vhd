@@ -91,7 +91,9 @@ begin
 	-- compute matrix multiplication
 	--
 	compute_p : process(reset_ni, clk_i)
-		type MM_STATE_TYPE is (MM_STATE_0, MM_STATE_1, MM_STATE_2, MM_STATE_DONE);
+		type MM_STATE_TYPE is (MM_STATE_0, MM_STATE_1, MM_STATE_2,
+													 MM_STATE_3, MM_STATE_4, MM_STATE_5,
+													 MM_STATE_6, MM_STATE_7, MM_STATE_8, MM_STATE_DONE);
 		variable state_v : MM_STATE_TYPE;
 		variable l_compute_v : std_logic;
 		variable temp_v : signed(2*int_size_c-1 downto 0);
@@ -108,19 +110,37 @@ begin
 				case state_v is
 					when MM_STATE_0 =>
 						sum0_s <= i0_s*matrix_s(int_size_c-1 downto 0);
-						sum1_s <= i0_s*matrix_s(2*int_size_c-1 downto int_size_c);
-						sum2_s <= i0_s*matrix_s(3*int_size_c-1 downto 2*int_size_c);
 						state_v := MM_STATE_1;
 
 					when MM_STATE_1 =>
-						sum0_s <= sum0_s + i1_s*matrix_s(4*int_size_c-1 downto 3*int_size_c); 
-						sum1_s <= sum1_s + i1_s*matrix_s(5*int_size_c-1 downto 4*int_size_c);
-						sum2_s <= sum2_s + i1_s*matrix_s(6*int_size_c-1 downto 5*int_size_c);
+						sum1_s <= i0_s*matrix_s(2*int_size_c-1 downto int_size_c);
 						state_v := MM_STATE_2;
 
 					when MM_STATE_2 =>
+						sum2_s <= i0_s*matrix_s(3*int_size_c-1 downto 2*int_size_c);
+						state_v := MM_STATE_3;
+
+					when MM_STATE_3 =>
+						sum0_s <= sum0_s + i1_s*matrix_s(4*int_size_c-1 downto 3*int_size_c); 
+						state_v := MM_STATE_4;
+
+					when MM_STATE_4 =>
+						sum1_s <= sum1_s + i1_s*matrix_s(5*int_size_c-1 downto 4*int_size_c);
+						state_v := MM_STATE_5;
+
+					when MM_STATE_5 =>
+						sum2_s <= sum2_s + i1_s*matrix_s(6*int_size_c-1 downto 5*int_size_c);
+						state_v := MM_STATE_6;
+
+					when MM_STATE_6 =>
 						sum0_s <= sum0_s + i2_s*matrix_s(7*int_size_c-1 downto 6*int_size_c);
+						state_v := MM_STATE_7;
+
+					when MM_STATE_7 =>
 						sum1_s <= sum1_s + i2_s*matrix_s(8*int_size_c-1 downto 7*int_size_c);
+						state_v := MM_STATE_8;
+
+					when MM_STATE_8 =>
 						sum2_s <= sum2_s + i2_s*matrix_s(9*int_size_c-1 downto 8*int_size_c);
 						state_v := MM_STATE_DONE;
 
