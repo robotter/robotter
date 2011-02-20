@@ -85,9 +85,6 @@ ENTITY adns9500_wishbone_interface IS
 
     auto_enable_o : OUT std_logic;      --enable the control Unit (active High)
 
-    -- debug
-    cs_number_i : in std_logic_vector(7 downto 0);
-
     ---------------------------------------------------------------------------
     -- interface to the spi (controled by the µc when auto_enable_o is low)
 
@@ -112,9 +109,6 @@ ARCHITECTURE adns9500_wishbone_interface_1 OF adns9500_wishbone_interface IS
 
   SIGNAL ack_read_s : std_logic ;
   SIGNAL ack_write_s: std_logic ;
-
-  signal reset_counter_s : std_logic;
-  signal reset_counter_nb_s : natural range 0 to 255;
 
 BEGIN  -- adns9500_wishbone_interface_1
 
@@ -147,12 +141,10 @@ BEGIN  -- adns9500_wishbone_interface_1
                      spi_send_data_s <= wbs_dat_i(2);
                      spi_cs_s <= wbs_dat_i(1 DOWNTO 0);
                                         -- debug, count reset values
-          when 33 => reset_counter_s <= '1';
           WHEN OTHERS=> NULL;
         END CASE;                        
       ELSE
         ack_write_s <= '0';
-        reset_counter_s <= '0';
       END IF;
     END IF;
 
@@ -215,8 +207,6 @@ BEGIN  -- adns9500_wishbone_interface_1
                                    0=> spi_cs_s(0),
                                    OTHERS => '0');
                      
-          WHEN 33 => wbs_dat_o <= std_logic_vector(to_unsigned(reset_counter_nb_s, 8));
-          when 34 => wbs_dat_o <= cs_number_i;
           WHEN OTHERS => NULL;
         END CASE;
 
@@ -230,35 +220,12 @@ BEGIN  -- adns9500_wishbone_interface_1
     END IF;
   END PROCESS read_bloc_p;
 
-count_reset_p : process(wbs_clk_i)
-  variable v_last_reset : std_logic;
-begin
-  if rising_edge(wbs_clk_i) then
-    if v_last_reset ='0' and wbs_rst_i = '1' then
-      reset_counter_nb_s <= reset_counter_nb_s +1;
-    end if;
-    if reset_counter_s = '1' then
-      reset_counter_nb_s <= 0;
-    end if;
-    v_last_reset := wbs_rst_i;
-  end if;
-end process;
-
   adns_reset_o <= adns_reset_s;
   spi_send_data_o <= spi_send_data_s;
   adns1_lock_o <= lock_adns_s(0);
   adns2_lock_o <= lock_adns_s(1);
   adns3_lock_o <= lock_adns_s(2);
   auto_enable_o <= auto_enable_s;
-
---process(wbs_clk_i)
---  begin
---    if rising_edge(wbs_clk_i) then
---      if not(wbs_stb_i = '1' and wbs_we_i = '0'  and wbs_cyc_i = '1')  then
---        spi_cs_o <= spi_cs_s;
---      end if;
---    end if;
---  end process;
   spi_cs_o <= spi_cs_s;
 
 END ARCHITECTURE adns9500_wishbone_interface_1;
