@@ -41,31 +41,7 @@ entity adns9500_controlunit is
     -- FPGA clock period in ns
     fpga_clock_period_c : natural := 40;
 
-    ---------- REGISTERS ----------------------------------------------------
-    -- register Motion_Burst address
-    addr_register_motion_burst_c : std_logic_vector(7 downto 0) := x"50";
-
-    -- motion bit in motion register
-    bit_motion_register_motion_c : natural := 7;
-    
-    -- fault bit in motion register
-    bit_fault_register_motion_c : natural := 1;
-
-    --
-    -- Motion register / fault offset in fault output
-    fault_offset_c : natural := 0;
-
-    ---------- TIMINGS in ns ------------------------------------------------
-    -- timing ratio
-    timing_ratio_c : natural := 1;
-
-    -- timing between NCS falling edge to first SCK rising edge
-    timing_ncs_sck_c : natural := 120;
-
-    -- timing between SCK falling edge to next SCK rising edge
-    -- after a read address and motion data
-    timing_srad_mot_c : natural := 100000;
-    
+   
     ---------- PHYSICAL PARAMETERS ------------------------------------------
     -- number of ADNS9500 chips
     adns_number_c : natural := 3
@@ -122,6 +98,24 @@ end entity adns9500_controlunit;
 ---------------------------------------------------------------------------
 architecture adns9500_controlunit_1 of adns9500_controlunit is
 ---------------------------------------------------------------------------
+  ---------- REGISTERS --------------------------------------
+  -- register Motion_Burst address
+  constant addr_register_motion_burst_c : std_logic_vector(7 downto 0) := x"50";
+  -- motion bit in motion register
+  constant bit_motion_register_motion_c : natural := 7;
+  -- fault bit in motion register
+  constant bit_fault_register_motion_c : natural := 1;
+  -- Motion register / fault offset in fault output
+  constant fault_offset_c : natural := 0;
+  ---------- TIMINGS in ns ----------------------------------
+  -- timing ratio
+  constant timing_ratio_c : natural := 1;
+  -- timing between NCS falling edge to first SCK rising edge
+  constant timing_ncs_sck_c : natural := 120;
+  -- timing between SCK falling edge to next SCK rising edge
+  -- after a read address and motion data
+  constant timing_srad_mot_c : natural := 100000;
+ 
 
   signal spi_start_s : std_logic;
   signal spi_done_s : std_logic;

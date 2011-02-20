@@ -171,12 +171,7 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
     -- common register to the ControlUnit
 
     fault_i : IN std_logic_vector(7 DOWNTO 0);
-
     auto_enable_o : OUT std_logic;      --enable the control Unit (active High)
-
-    
-    -- debug
-    cs_number_i : in std_logic_vector(7 downto 0);
 
     ---------------------------------------------------------------------------
     -- interface to the spi (controled by the µc when auto_enable_o is low)
@@ -393,11 +388,7 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   SIGNAL spi_busy_s          : std_logic;
 
   SIGNAL spi_adns_cs_s       : std_logic_vector(1 DOWNTO 0);
-  signal cs1_ns : std_logic;
--------------------------------------------------------------------------------
-  -- debug
-  signal cs_number_s : std_logic_vector(7 downto 0);
-
+  SIGNAL cs1_ns : std_logic;
   
   ---------------------------------------------------------------------------
   -- signal command
@@ -436,39 +427,6 @@ reset_ns <= not(wbs_rst_i);
     busy_o      => spi_busy_s,
     cs_i        => spi_adns_cs_s);
   
-cs1_no <= cs1_ns;
-
-process(wbs_clk_i)
-  variable cs1_buf_v : std_logic_vector(3 downto 0);
-  begin
-    if rising_edge(wbs_clk_i) then
-      if cs1_buf_v = "0000" then
-        --cs1_no <= '0';
-      elsif cs1_buf_v = "1111" then
-        --cs1_no <= '1';
-      end if;
-      cs1_buf_v := cs1_buf_v(2 downto 0) & cs1_ns;
-    end if;
-  end process;
-
-process(cs1_ns, reset_ns)
-  variable cs_number_v : natural range 0 to 255;
-  variable v_last_cs1_no : std_logic;
-  begin
-  if reset_ns = '0' then
-    cs_number_v := 0;
-    
-  elsif rising_edge(cs1_ns) then
-    --if v_last_cs1_no = '0' and cs1_ns= '1' then
-
-      cs_number_v := cs_number_v +1;
-    --end if;
-    cs_number_s <= std_logic_vector(to_unsigned(cs_number_v, 8));
-    --v_last_cs1_no := cs1_ns;
-  end if;  
-end process;
-  
-
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
   
@@ -569,10 +527,8 @@ end process;
     -- common register to the ControlUnit
 
     fault_i => fault_s,
-
     auto_enable_o => auto_enable_s,
 
-    cs_number_i => cs_number_s,
     ---------------------------------------------------------------------------
     -- interface to the spi (controled by the µc when auto_enable_o is low)
 
@@ -626,13 +582,6 @@ end process;
   cu :  adns9500_controlunit 
   GENERIC MAP(
     fpga_clock_period_c  => 1000000/freq_fpga_c,
-    addr_register_motion_burst_c => x"50",
-    bit_motion_register_motion_c => 7,
-    bit_fault_register_motion_c => 6,
-    fault_offset_c => 0,
-    timing_ratio_c => 1,
-    timing_ncs_sck_c => 120,
-    timing_srad_mot_c => 100000,
     adns_number_c => 3)
   PORT MAP(
     clk_i => wbs_clk_i,
