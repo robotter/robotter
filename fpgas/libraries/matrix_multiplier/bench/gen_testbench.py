@@ -4,8 +4,8 @@ import numpy
 from numpy import array
 import re, random
 
-Qm = 8
-Qn = 8
+Qm = 16
+Qn = 16
 output = []
 
 def float_to_Q(v):
@@ -18,7 +18,8 @@ def add_matrix33(matrix):
 
 def add_matrix33_element(value):
   # compute Q format value
-  output.append("element_value_s <= to_signed(%d,16);"%float_to_Q(value))
+  output.append("element_value_s <= to_signed(%d,%d);"%(float_to_Q(value),
+                                                        Qn+Qm))
   output.append("valid_s <= '0';")
   output.append("wait until rising_edge(clk_s);")
   output.append("valid_s <= '1';")
@@ -29,7 +30,9 @@ def compute_matrix33_mult(vector):
   output.append("compute_s <= '0';")
   output.append("wait until rising_edge(clk_s);")
   for i,s in enumerate(vector.flatten()):
-    output.append("input%d_s <= to_signed(%d,16);"%(i,float_to_Q(s)))
+    output.append("input%d_s <= to_signed(%d,%d);"%(i,
+                                                    float_to_Q(s),
+                                                    Qn+Qm))
   output.append("compute_s <= '1';")
   output.append("wait until rising_edge(done_s);")
 
@@ -69,12 +72,16 @@ def main():
   # open template file
   f = file('t_multipliers.vhd','wb');
   for line in file('t_multipliers.vhd.template','rb'):
-    m = re.match(r'^(\s+)<<<HERE>>>',line)
-    if m:
+    m = re.match(r'^(\s+)<<<([A-Z]+)>>>',line)
+    if m and m.group(2) == 'HERE':
       indent = m.group(1)
       # marker found drop lines there
       for l in output:
         f.write( indent + l + '\n' )
+    elif m and m.group(2) == 'CONSTANTS':
+      indent = m.group(1)
+      f.write(indent + 'constant int_size_c:natural:=%d;\n'%(Qn+Qm))
+      f.write(indent + 'constant frac_size_c:natural:=%d;\n'%(Qn))
     else:
       f.write(line)
     

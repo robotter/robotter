@@ -50,7 +50,7 @@ end entity multiplier33;
 
 architecture multiplier33_1 of multiplier33 is
 
-	constant q_format_round_c : signed(2*int_size_c-1 downto 0) := to_signed(2**(frac_size_c-1),32);
+	constant q_format_round_c : signed(2*int_size_c-1 downto 0) := to_signed(2**(frac_size_c-1),2*int_size_c);
 
 	signal matrix_s : signed(int_size_c*9 - 1 downto 0);
 
@@ -107,9 +107,9 @@ begin
 				
 				case state_v is
 					when MM_STATE_0 =>
-						sum0_s <= sum0_s + i0_s*matrix_s(int_size_c-1 downto 0);
-						sum1_s <= sum1_s + i0_s*matrix_s(2*int_size_c-1 downto int_size_c);
-						sum2_s <= sum2_s + i0_s*matrix_s(3*int_size_c-1 downto 2*int_size_c);
+						sum0_s <= i0_s*matrix_s(int_size_c-1 downto 0);
+						sum1_s <= i0_s*matrix_s(2*int_size_c-1 downto int_size_c);
+						sum2_s <= i0_s*matrix_s(3*int_size_c-1 downto 2*int_size_c);
 						state_v := MM_STATE_1;
 
 					when MM_STATE_1 =>
@@ -149,9 +149,6 @@ begin
 				-- multiplication will start on next clock
 				running_s <= '1';
 				done_o <= '0';
-				sum0_s <= (others=>'0');
-				sum1_s <= (others=>'0');
-				sum2_s <= (others=>'0');
 				state_v := MM_STATE_0;
 			end if;
 			l_compute_v := compute_i;

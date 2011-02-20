@@ -27,8 +27,7 @@ architecture t_multipliers_1 of t_multipliers is
 
   constant fpga_period_c : time := 20 ns; -- FPGA period
 
-	constant int_size_c : natural := 16;
-	constant frac_size_c : natural := 8;
+	<<<CONSTANTS>>>
 
   signal clk_s   : std_logic;
   signal reset_ns : std_logic;
@@ -93,9 +92,6 @@ begin
   begin
     debug_s <= 0;
     reset_ns <= '0';
-		input0_s <= to_signed(0,16);
-		input1_s <= to_signed(0,16);
-		input2_s <= to_signed(0,16);
     wait for 100 ns;
     reset_ns <= '1';
 		wait for 100 ns;
