@@ -11,7 +11,7 @@
  * to the size of received data when it ends.
  *
  * On R frames (master receive, slave send), if \c i2cs_send_size is 0, a
- * single byte with the value of \c I2CS_SEND_NONE_BYTE is sent, followed by a
+ * single byte with the value of \c I2C_SEND_NONE_BYTE is sent, followed by a
  * NACK; otherwise the \c i2cs_send_size first bytes of \c i2cs_send_buf are
  * sent (or less if the master sends a NACK/STOP earlier) and \e i2cs_send_size
  * is reset to 0.

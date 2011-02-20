@@ -3,6 +3,11 @@
 
 #include "i2cs.h"
 
+// backward compatibility
+#ifndef I2C_SEND_NONE_BYTE
+#define I2C_SEND_NONE_BYTE I2CS_SEND_NONE_BYTE
+#endif
+
 #if (I2CS_RECV_BUF_SIZE > 127) || (I2CS_RECV_BUF_SIZE < 1)
 #error "invalid I2CS_RECV_BUF_SIZE value"
 #endif
@@ -67,7 +72,7 @@ SIGNAL(SIG_2WIRE_SERIAL)
 
     case TW_ST_SLA_ACK:
       if( i2cs_send_size == 0 ) {
-        TWDR = I2CS_SEND_NONE_BYTE;
+        TWDR = I2C_SEND_NONE_BYTE;
         I2C_NACK();
         break;
       }
