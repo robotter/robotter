@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 import configuration.config
 import generators.avrs

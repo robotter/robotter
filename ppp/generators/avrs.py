@@ -31,9 +31,8 @@ class CodeWriter:
     self.indent += 1
 
   def dec_indent(self):
+    assert self.indent > 0
     self.indent -= 1
-    if self.indent < 0:
-      self.indent = 0
 
   def write(self, string):
     self.f.write(' '*2*self.indent+string+'\n')
@@ -56,6 +55,7 @@ class CodeWriter:
     return (pre,post)
 
   def close(self):
+    assert self.indent == 0
     if self.is_header:
       self.write(self.guard[1])
     self.write('\n')
@@ -136,7 +136,7 @@ class AVRCodeGenerator:
       dargs = ', '.join( v for v,t in self.args )
       return '%s(%s)' % (self.name.upper(), dargs)
 
-    def get_prototype(self, semicolon=True):
+    def get_prototype(self):
       if self.thistype is not None:
         args = [ '%s *%s' % (self.thistype, self.thisarg) ]
       else:
@@ -147,11 +147,7 @@ class AVRCodeGenerator:
         dargs = 'void'
       else:
         dargs = ', '.join(args)
-      if semicolon:
-        sc = ';'
-      else:
-        sc = ''
-      return '%s %s(%s)%s'%(self.rettype, self.name.lower(), dargs, sc)
+      return '%s %s(%s)' % (self.rettype, self.name.lower(), dargs)
 
 
   def __init__(self, device):
@@ -254,14 +250,13 @@ class AVRCodeGenerator:
       ])
 
     # function declaration
-    cw.write('void stratcomm_process(stratcomm_t *sc,')
-    cw.write('                       uint8_t mid,')
-    cw.write('                       uint8_t *payload)')
+    cw.write('void stratcomm_process(stratcomm_t *sc, uint8_t mid, uint8_t *payload)')
 
     cw.open_block()
 
     commands = self.device.messages_of_type(Command)
 
+    #TODO:ryder remove
     # variables declarations
     decl = {}
     for cmd in commands:
@@ -288,9 +283,13 @@ class AVRCodeGenerator:
         cw.write('// %s : %s' % (cmd.name, cmd.desc))
       cw.write('case %s:'%(self.get_message_cname(cmd)))
       cw.inc_indent()
+      cw.open_block()
+
       # unpack payload
-      for v, t in cmd.iparams:
-        cw.write('%s = UNPACK_%s(sc, payload);' % (self.get_varname(v, t), t.name.upper()))
+      for v,t in cmd.iparams:
+        cw.write('%s %s;' % (self.avr_typename(t), v))
+      for v,t in cmd.iparams:
+        cw.write('%s = UNPACK_%s(sc, payload);' % (v, t.name.upper()))
 
       # add debug message
       fmt_str = ','.join( self.avr_printf_fmt(t) for v,t in cmd.iparams )
@@ -308,9 +307,10 @@ class AVRCodeGenerator:
 
       # pack response payload
       for v, t in cmd.oparams:
-        cw.write('stratcomm_pushReturnPayload(sc, PACK_%s(%s), sizeof(%s));'
-          % (t.name.upper(), self.get_varname(v, t), self.avr_typename(t)))
+        cw.write('stratcomm_pushReturnPayload(sc, &%s, sizeof(%s));'
+          % (self.get_varname(v, t), self.avr_typename(t)))
 
+      cw.close_block()
       cw.write('break;')
       cw.write('')
       cw.dec_indent()
@@ -342,7 +342,7 @@ class AVRCodeGenerator:
       else:
         cw.write('/** @brief Command callback function :  %s */' % cmd.desc)
       cbf = self.Function("stratcomm_callback_%s"%cmd.name, cmd.iparams, cmd.oparams)
-      cw.write(cbf.get_prototype())
+      cw.write(cbf.get_prototype()+';')
       cw.write('')
 
     cw.close()
@@ -358,8 +358,8 @@ class AVRCodeGenerator:
       if cmd.desc:
         cw.write('/** @brief %s */' % cmd.desc)
       mf = self.Function("stratcomm_message_%s"%cmd.name,
-          cmd.iparams, cmd.oparams, ('stratcomm_t','sc'), 'uint8_t')
-      cw.write(mf.get_prototype())
+          cmd.iparams, cmd.oparams, None, 'uint8_t')
+      cw.write(mf.get_prototype()+';')
       cw.write('')
 
     cw.close()
@@ -380,16 +380,16 @@ class AVRCodeGenerator:
       rbufsz = sum( self.avr_sizeof(t) for v,t in cmd.oparams )
 
       # write to file
-      mf = self.Function("stratcomm_message_%s" % cmd.name, cmd.iparams, cmd.oparams, ('stratcomm_t','sc'), 'uint8_t')
-      cw.write(mf.get_prototype(semicolon=False))
+      mf = self.Function("stratcomm_message_%s" % cmd.name, cmd.iparams, cmd.oparams, None, 'uint8_t')
+      cw.write(mf.get_prototype())
       cw.open_block()
-      cw.write('uint8_t buffer[255];')
+      cw.write('uint8_t buffer[%u];' % max(sbufsz+4, rbufsz+3))
       cw.write('buffer[0] = 0x%2.2x&0xFF;'%(sbufsz+1))
       cw.write('buffer[1] = (0x%2.2x>>8)&0xFF;'%(sbufsz+1))
       cw.write('buffer[2] = 0x%2.2x;'%(cmd.mid))
       pit = 3
       for v,t in cmd.iparams:
-        cw.write('memcpy(buffer+%d, &%s, sizeof(%s));'%(pit, v, self.avr_typename(t)))
+        cw.write('memcpy(buffer+%d, &%s, sizeof(%s));'%(pit, v, v))
         pit += self.avr_sizeof(t)
       cw.write('buffer[%d] = stratcomm_computeChecksum(buffer, %d);'%(pit, sbufsz+3))
       cw.write('i2cm_send(0x%2.2x, buffer, %d);'%(cmd.device.roid, sbufsz+4))
@@ -409,15 +409,15 @@ class AVRCodeGenerator:
         cw.write('size = *((uint16_t*)buffer);')
         cw.write('if(size != %d)'%(rbufsz+1))
         cw.open_block()
-        cw.write('WARNING(STRATCOMM_ERROR,"received frame size not valid: got %%u expect %%u", size, %d);'%(rbufsz+1))
+        cw.write('WARNING(STRATCOMM_ERROR,"received frame size not valid: got %%u expected %%u", size, %d);'%(rbufsz+1))
         cw.write('return 0;')
         cw.close_block()
 
-        cw.write('checksum = (uint8_t)buffer[%d];'%(rbufsz+2))
+        cw.write('checksum = buffer[%d];'%(rbufsz+2))
         cw.write('c_checksum = stratcomm_computeChecksum(buffer,%d);'%(rbufsz+2))
         cw.write('if( checksum != c_checksum )')
         cw.open_block()
-        cw.write('WARNING(STRATCOMM_ERROR,"received frame checksum not valid: got 0x%02X expect 0x%02X", c_checksum, checksum);')
+        cw.write('WARNING(STRATCOMM_ERROR,"received frame checksum not valid: got 0x%02X expected 0x%02X", c_checksum, checksum);')
         cw.write('return 0;')
         cw.close_block()
 
@@ -466,7 +466,7 @@ class AVRCodeGenerator:
     # functions prototypes
     for msg in telemetries:
       f = self.Function('telemetry_send_'+msg.name, msg.params, [])
-      cw.write(f.get_prototype())
+      cw.write(f.get_prototype()+';')
 
     cw.write('')
     cw.write('#else //TELEMETRY_ACTIVE')
@@ -492,12 +492,12 @@ class AVRCodeGenerator:
 
     for msg in telemetries:
       f = self.Function('telemetry_send_'+msg.name, msg.params, [])
-      cw.write(f.get_prototype(False))
+      cw.write(f.get_prototype())
       cw.open_block()
 
       bufsz = sum( self.avr_sizeof(t) for v,t in msg.params )
 
-      cw.write('uint8_t buffer[255];')
+      cw.write('uint8_t buffer[%u];'%(bufsz+6))
       cw.write('buffer[0] = 0xFF;')
       cw.write('buffer[1] = 0xFF;')
       cw.write('buffer[2] = 0x%2.2x&0xFF;'%(bufsz+1))
@@ -505,7 +505,7 @@ class AVRCodeGenerator:
       cw.write('buffer[4] = 0x%2.2x;'%(msg.mid))
       pit = 5
       for v,t in msg.params:
-        cw.write('memcpy(buffer+%d, &%s, sizeof(%s));' % (pit, v, self.avr_typename(t)))
+        cw.write('memcpy(buffer+%d, &%s, sizeof(%s));' % (pit, v, v))
         pit += self.avr_sizeof(t)
 
       cw.write('buffer[%d] = stratcomm_computeChecksum(buffer+2, %d);' % (pit, bufsz+3))

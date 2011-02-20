@@ -26,52 +26,27 @@
 #include <aversive.h>
 #include <i2cs.h>
 
-#include "htrajectory.h"
-
 #define STRATCOMM_ERROR 0x80
 
 #define STRATCOMM_MAX_RPAYLOAD_SIZE ((I2CS_SEND_BUF_SIZE) - 2)
 #define STRATCOMM_MAX_PAYLOAD_SIZE  ((I2CS_RECV_BUF_SIZE) - 3)
 
-typedef struct
-{
-  // payload management
-  uint8_t payloadIt;
-  uint16_t payloadSize;
+/// Internal packet processing state.
+typedef struct stratcomm_ stratcomm_t;
 
-  // return payload management
-  uint8_t returnPayloadIt;
-  uint8_t returnPayload[STRATCOMM_MAX_RPAYLOAD_SIZE];
+/** @brief Initialize strategic communications */
+void stratcomm_init(void);
 
-  // checkpoints
-  vect_xy_t htrajectoryCheckpoints[HTRAJECTORY_MAX_POINTS];
-
-} stratcomm_t;
-
-/** @brief Initialize strategic communications
-  */
-void stratcomm_init(stratcomm_t*);
-
-/** @brief Update strategic communications 
-  */
-void stratcomm_update(stratcomm_t*);
+/** @brief Update strategic communications */
+void stratcomm_update(void);
 
 /** @brief Perform command */
 void stratcomm_process(stratcomm_t*, uint8_t, uint8_t* payload);
 
-/** @brief Compute payload checksum */
-uint8_t stratcomm_computeChecksum(uint8_t* payload, uint8_t payloadSize);
-
-/** @brief Reset payload buffer */
-void stratcomm_resetPayload( stratcomm_t* );
-
 /** @brief Pop data from payload buffer */
-uint8_t* stratcomm_popPayload( stratcomm_t*, uint8_t* p, uint8_t psize);
-
-/** @brief Reset return payload buffer */
-void stratcomm_resetReturnPayload( stratcomm_t* );
+const uint8_t* stratcomm_popPayload(stratcomm_t*, const uint8_t* p, uint8_t psize);
 
 /** @brief Push data on return payload buffer */
-void stratcomm_pushReturnPayload( stratcomm_t*, uint8_t* p, uint8_t psize);
+void stratcomm_pushReturnPayload(stratcomm_t*, const void* p, uint8_t psize);
 
 #endif/*STRATCOMM_H*/

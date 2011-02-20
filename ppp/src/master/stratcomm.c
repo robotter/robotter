@@ -8,12 +8,12 @@
 
 #define RECV_MAX_TRIES 20
 
-void stratcomm_init(stratcomm_t *sc)
+void stratcomm_init(void)
 {
   i2cm_init();
 }
 
-uint8_t stratcomm_computeChecksum(uint8_t* data, uint8_t size)
+uint8_t stratcomm_computeChecksum(const uint8_t* data, uint8_t size)
 {
   uint8_t it;
   uint8_t crc = 0x00;

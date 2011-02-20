@@ -27,17 +27,11 @@
 
 #define STRATCOMM_ERROR 0x80
 
-typedef struct
-{
-
-} stratcomm_t;
-
-/** @brief Initialize strategic communications
-  */
-void stratcomm_init(stratcomm_t*);
+/** @brief Initialize strategic communications */
+void stratcomm_init(void);
 
 /** @brief Compute payload checksum */
-uint8_t stratcomm_computeChecksum(uint8_t* payload, uint8_t payloadSize);
+uint8_t stratcomm_computeChecksum(const uint8_t* payload, uint8_t payloadSize);
 
 uint8_t stratcomm_i2cm_recv(uint8_t addr, uint8_t *data, uint8_t n);
 
