@@ -5,7 +5,7 @@
 -- any later version.
 -- 
 -- This program is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- but WITHout ANY WARRANTY; without even the implied warranty of
 -- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 -- GNU General Public License for more details.
 -- 
@@ -29,32 +29,46 @@ ENTITY adns9500 IS
     wb_size_c    : natural := 8;           -- data port size
     adns_size_c  : natural := 16;        -- data sensor port size
     squal_size_c : natural := 8;  -- squal port size
-    freq_fpga_c  : natural := 25000
+    freq_fpga_c  : natural := 50000
     );
 
   PORT (
     ---------------------------------------------------------------------------
     -- wishbone interface
-    wbs_rst_i : IN  std_logic;          -- asynchronous reset, active high
-    wbs_clk_i : IN std_logic;           -- clock
-    wbs_adr_i : IN std_logic_vector(5 DOWNTO 0);    -- address BUS
-    wbs_dat_o : OUT std_logic_vector(wb_size_c-1 DOWNTO 0);  -- data read from bus
-    wbs_dat_i : IN std_logic_vector(wb_size_c-1 DOWNTO 0); -- data written from bus
-    wbs_we_i  : IN std_logic;           -- read/write
-    wbs_stb_i : IN std_logic;           -- validate read/write operation
-    wbs_ack_o : OUT std_logic;           -- operation succesful
-    wbs_cyc_i : IN std_logic;
-
+    wbs_rst_i : in  std_logic;          -- asynchronous reset, active high
+    wbs_clk_i : in std_logic;           -- clock
+    wbs_adr_i : in std_logic_vector(5 downto 0);    -- address BUS
+    wbs_dat_o : out std_logic_vector(wb_size_c-1 downto 0);  -- data read from bus
+    wbs_dat_i : in std_logic_vector(wb_size_c-1 downto 0); -- data written from bus
+    wbs_we_i  : in std_logic;           -- read/write
+    wbs_stb_i : in std_logic;           -- validate read/write operation
+    wbs_ack_o : out std_logic;           -- operation succesful
+    wbs_cyc_i : in std_logic;
 
     ---------------------------------------------------------------------------
     -- spi
-    mosi_o : OUT std_logic;
-    miso_i : IN    std_logic;
-    sck_o  : OUT  std_logic;
-    cs1_no : OUT  std_logic;
-    cs2_no : OUT  std_logic;
-    cs3_no : OUT  std_logic
-    );
+    mosi_o : out std_logic;
+    miso_i : in    std_logic;
+    sck_o  : out  std_logic;
+    cs1_no : out  std_logic;
+    cs2_no : out  std_logic;
+    cs3_no : out  std_logic;
+
+		---------------------------------------------------------------------------
+		-- raw ADNS9500 ouputs
+		adns1_deltax_o : out signed (15 downto 0);
+    adns1_deltay_o : out signed (15 downto 0);
+    adns2_deltax_o : out signed (15 downto 0);
+    adns2_deltay_o : out signed (15 downto 0);
+    adns3_deltax_o : out signed (15 downto 0);
+    adns3_deltay_o : out signed (15 downto 0);
+
+    adns1_squal_o  : out std_logic_vector (7 downto 0);
+    adns2_squal_o  : out std_logic_vector (7 downto 0);
+    adns3_squal_o  : out std_logic_vector (7 downto 0);
+		
+		update_o : out std_logic
+  );
 
 END adns9500;
 
@@ -70,51 +84,31 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
     clk_freq_c : natural := 25000  -- FPGA clock frequency in kHz
   );
   PORT (
-    clk_i     : IN std_logic;
-    reset_ni  : IN  std_logic;
+    clk_i     : in std_logic;
+    reset_ni  : in  std_logic;
 
     --! @name SPI signals
     --!@{
-    mosi_o : OUT std_logic;
-    miso_i : IN  std_logic;
-    sck_o  : OUT std_logic;
-    cs1_no : OUT std_logic;
-    cs2_no : OUT std_logic;
-    cs3_no : OUT std_logic;
+    mosi_o : out std_logic;
+    miso_i : in  std_logic;
+    sck_o  : out std_logic;
+    cs1_no : out std_logic;
+    cs2_no : out std_logic;
+    cs3_no : out std_logic;
     --!@}
 
     --! @name Control unit port
     --!@{
-    data_in_i   : IN  std_logic_vector(7 DOWNTO 0); --! sent byte
-    data_out_o  : OUT std_logic_vector(7 DOWNTO 0); --! received byte
-    send_data_i : IN  std_logic; --! transfer data on rising edges
-    busy_o      : OUT  std_logic; --! '1' if SPI is transfering data
+    data_in_i   : in  std_logic_vector(7 downto 0); --! sent byte
+    data_out_o  : out std_logic_vector(7 downto 0); --! received byte
+    send_data_i : in  std_logic; --! transfer data on rising edges
+    busy_o      : out  std_logic; --! '1' if SPI is transfering data
     --!@}
 
     --! Muxed Chip Select
-    cs_i        : IN std_logic_vector(1 DOWNTO 0)
+    cs_i        : in std_logic_vector(1 downto 0)
   );
   END COMPONENT adns9500_spi;
-
-  -----------------------------------------------------------------------------
-  -----------------------------------------------------------------------------
-  
-  COMPONENT adns9500_latch_nbits IS  
-  GENERIC (
-    CONSTANT data_width_c : natural := 16;  -- width of the data bus latched
-    CONSTANT squal_width_c : natural := 8 -- width of the squal bus latched
-    ); 
-  PORT (
-    clk_i            : IN  std_logic;
-    reset_ni         : IN  std_logic;
-    deltax_i         : IN  std_logic_vector(data_width_c-1 DOWNTO 0);  -- data to be latched
-    deltay_i         : IN  std_logic_vector(data_width_c-1 DOWNTO 0);  -- data to be latched
-    squal_i          : IN  std_logic_vector(squal_width_c-1 DOWNTO 0);  -- data to be latched
-    deltax_latched_o : OUT std_logic_vector(data_width_c-1 DOWNTO 0);  -- data latched
-    deltay_latched_o : OUT std_logic_vector(data_width_c-1 DOWNTO 0);  -- data latched
-    squal_latched_o  : OUT std_logic_vector(squal_width_c-1 DOWNTO 0);  -- data latched
-    latch_data_i     : IN  std_logic);  -- latches data_i while it is active (i.e. '1')
-  END COMPONENT adns9500_latch_nbits;
 
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
@@ -130,37 +124,37 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   PORT (
     ---------------------------------------------------------------------------
     -- wishbone interface
-    wbs_rst_i : IN  std_logic;          -- asynchronous reset, active high
-    wbs_clk_i : IN std_logic;           -- clock
-    wbs_adr_i : IN std_logic_vector(5 DOWNTO 0);    -- address bus
-    wbs_dat_o : OUT std_logic_vector(wb_size_c-1 DOWNTO 0);  -- data read
+    wbs_rst_i : in  std_logic;          -- asynchronous reset, active high
+    wbs_clk_i : in std_logic;           -- clock
+    wbs_adr_i : in std_logic_vector(5 downto 0);    -- address bus
+    wbs_dat_o : out std_logic_vector(wb_size_c-1 downto 0);  -- data read
                                                              -- from bus
-    wbs_dat_i : IN std_logic_vector(wb_size_c-1 DOWNTO 0); -- data written from bus
-    wbs_we_i  : IN std_logic;           -- read/write
-    wbs_stb_i : IN std_logic;           -- validate read/write operation
-    wbs_ack_o : OUT std_logic;           -- operation succesful
-    wbs_cyc_i : IN std_logic;
+    wbs_dat_i : in std_logic_vector(wb_size_c-1 downto 0); -- data written from bus
+    wbs_we_i  : in std_logic;           -- read/write
+    wbs_stb_i : in std_logic;           -- validate read/write operation
+    wbs_ack_o : out std_logic;           -- operation succesful
+    wbs_cyc_i : in std_logic;
 
 
-    adns1_squal_i   : IN std_logic_vector(squal_size_c-1 DOWNTO 0);
-    adns2_squal_i   : IN std_logic_vector(squal_size_c-1 DOWNTO 0);
-    adns3_squal_i   : IN std_logic_vector(squal_size_c-1 DOWNTO 0);
+    adns1_squal_i   : in std_logic_vector(squal_size_c-1 downto 0);
+    adns2_squal_i   : in std_logic_vector(squal_size_c-1 downto 0);
+    adns3_squal_i   : in std_logic_vector(squal_size_c-1 downto 0);
 
     ---------------------------------------------------------------------------
     -- common register to the ControlUnit
 
-    fault_i : IN std_logic_vector(7 DOWNTO 0);
-    auto_enable_o : OUT std_logic;      --enable the control Unit (active High)
+    fault_i : in std_logic_vector(7 downto 0);
+    auto_enable_o : out std_logic;      --enable the control Unit (active High)
 
     ---------------------------------------------------------------------------
     -- interface to the spi (controled by the µc when auto_enable_o is low)
 
-    spi_data_i : IN std_logic_vector(7 DOWNTO 0);  -- data received by the spi
-    spi_data_o : OUT std_logic_vector(7 DOWNTO 0);  -- data to be sent by the spi
-    spi_send_data_o : OUT std_logic;    -- send spi_data_o (active high)
-    spi_busy_i : IN std_logic;          -- spi transmitting (active high)
+    spi_data_i : in std_logic_vector(7 downto 0);  -- data received by the spi
+    spi_data_o : out std_logic_vector(7 downto 0);  -- data to be sent by the spi
+    spi_send_data_o : out std_logic;    -- send spi_data_o (active high)
+    spi_busy_i : in std_logic;          -- spi transmitting (active high)
     
-    spi_cs_o     : OUT std_logic_vector(1 DOWNTO 0)  -- selection of the slave
+    spi_cs_o     : out std_logic_vector(1 downto 0)  -- selection of the slave
                                                      -- addressed by the spi
     );
   END COMPONENT adns9500_wishbone_interface;
@@ -174,36 +168,36 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   PORT (
     ---------------------------------------------------------------------------
     -- control unit interface
-    cu_data_in_i        : IN std_logic_vector(7 DOWNTO 0);
-    cu_data_out_o       : OUT std_logic_vector(7 DOWNTO 0);
-    cu_send_data_i      : IN std_logic;
-    cu_busy_o           : OUT std_logic;
+    cu_data_in_i        : in std_logic_vector(7 downto 0);
+    cu_data_out_o       : out std_logic_vector(7 downto 0);
+    cu_send_data_i      : in std_logic;
+    cu_busy_o           : out std_logic;
 
-    cu_adns_cs_i        : IN std_logic_vector(1 DOWNTO 0);
+    cu_adns_cs_i        : in std_logic_vector(1 downto 0);
 
     ---------------------------------------------------------------------------
     -- wishbone interface
-    wb_data_in_i        : IN std_logic_vector(7 DOWNTO 0);
-    wb_data_out_o       : OUT std_logic_vector(7 DOWNTO 0);
-    wb_send_data_i      : IN std_logic;
-    wb_busy_o           : OUT std_logic;
+    wb_data_in_i        : in std_logic_vector(7 downto 0);
+    wb_data_out_o       : out std_logic_vector(7 downto 0);
+    wb_send_data_i      : in std_logic;
+    wb_busy_o           : out std_logic;
 
-    wb_adns_cs_i        : IN std_logic_vector(1 DOWNTO 0);
+    wb_adns_cs_i        : in std_logic_vector(1 downto 0);
 
 
     ---------------------------------------------------------------------------
     -- spi interface
-    spi_data_in_o       : OUT std_logic_vector(7 DOWNTO 0);
-    spi_data_out_i      : IN std_logic_vector(7 DOWNTO 0);
-    spi_send_data_o     : OUT std_logic;
-    spi_busy_i          : IN std_logic;
+    spi_data_in_o       : out std_logic_vector(7 downto 0);
+    spi_data_out_i      : in std_logic_vector(7 downto 0);
+    spi_send_data_o     : out std_logic;
+    spi_busy_i          : in std_logic;
 
-    spi_adns_cs_o       : OUT std_logic_vector(1 DOWNTO 0);
+    spi_adns_cs_o       : out std_logic_vector(1 downto 0);
 
     ---------------------------------------------------------------------------
     -- signal command
 
-    mode_select_i : IN std_logic
+    mode_select_i : in std_logic
     
   );
 
@@ -225,39 +219,42 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   PORT 
   (
     -- FPGA signals
-    clk_i : IN  std_logic;
-    reset_ni : IN  std_logic;
+    clk_i : in  std_logic;
+    reset_ni : in  std_logic;
 
     ----------------------------------------------------------
     -- Enable signal activate component on high state
-    enable_i : IN  std_logic;
+    enable_i : in  std_logic;
 
     ----------------------------------------------------------
     -- SPI port
-    spi_datain_o   : OUT  std_logic_vector (7 DOWNTO 0);
-    spi_dataout_i  : IN  std_logic_vector (7 DOWNTO 0);
-    spi_senddata_o : OUT  std_logic;
-    spi_busy_i     : IN  std_logic;
+    spi_datain_o   : out  std_logic_vector (7 downto 0);
+    spi_dataout_i  : in  std_logic_vector (7 downto 0);
+    spi_senddata_o : out  std_logic;
+    spi_busy_i     : in  std_logic;
 
     ----------------------------------------------------------
     -- CS ADNS selection
-    adns_cs_o : OUT std_logic_vector (1 DOWNTO 0);
+    adns_cs_o : out std_logic_vector (1 downto 0);
 
     ----------------------------------------------------------
     -- first encoder values
-    adns1_deltax_o : OUT signed (15 DOWNTO 0);
-    adns1_deltay_o : OUT signed (15 DOWNTO 0);
-    adns1_squal_o  : OUT std_logic_vector (7 DOWNTO 0);
+    adns1_deltax_o : out signed (15 downto 0);
+    adns1_deltay_o : out signed (15 downto 0);
+    adns1_squal_o  : out std_logic_vector (7 downto 0);
 
     -- second encoder values
-    adns2_deltax_o : OUT signed (15 DOWNTO 0);
-    adns2_deltay_o : OUT signed (15 downto 0);
-    adns2_squal_o  : OUT std_logic_vector (7 downto 0);
+    adns2_deltax_o : out signed (15 downto 0);
+    adns2_deltay_o : out signed (15 downto 0);
+    adns2_squal_o  : out std_logic_vector (7 downto 0);
 
     -- third encoder values
-    adns3_deltax_o : OUT signed (15 DOWNTO 0);
-    adns3_deltay_o : OUT signed (15 DOWNTO 0);
-    adns3_squal_o  : OUT std_logic_vector (7 DOWNTO 0);
+    adns3_deltax_o : out signed (15 downto 0);
+    adns3_deltay_o : out signed (15 downto 0);
+    adns3_squal_o  : out std_logic_vector (7 downto 0);
+		
+		-- data update, r_e on data updated
+		update_o : out std_logic;
 
     -----------------------------------------------------------
     -- fault
@@ -265,7 +262,7 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
     -- 6 :              2 : ADNS #3 Fault
     -- 5 :              1 : ADNS #2 Fault
     -- 4 :              0 : ADNS #1 Fault
-    fault_o : OUT std_logic_vector (7 DOWNTO 0)
+    fault_o : out std_logic_vector (7 downto 0)
 
   );
   END COMPONENT adns9500_controlunit;
@@ -274,66 +271,68 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   ----------------------------------------------------------------------
   -- interface to the first sensor
 
-  SIGNAL adns1_delta_X_s : signed(adns_size_c-1 DOWNTO 0);
-  SIGNAL adns1_delta_Y_s : signed(adns_size_c-1 DOWNTO 0);
-  SIGNAL adns1_squal_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
+  signal adns1_deltax_s : signed(adns_size_c-1 downto 0);
+  signal adns1_deltay_s : signed(adns_size_c-1 downto 0);
+  signal adns1_squal_s   : std_logic_vector(squal_size_c-1 downto 0);
   ----------------------------------------------------------------------
   -- interface to the second sensor
 
-  SIGNAL adns2_delta_X_s : signed(adns_size_c-1 DOWNTO 0);
-  SIGNAL adns2_delta_Y_s : signed(adns_size_c-1 DOWNTO 0);
-  SIGNAL adns2_squal_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
+  signal adns2_deltax_s : signed(adns_size_c-1 downto 0);
+  signal adns2_deltay_s : signed(adns_size_c-1 downto 0);
+  signal adns2_squal_s   : std_logic_vector(squal_size_c-1 downto 0);
   ----------------------------------------------------------------------
   -- interface to the third sensor
 
-  SIGNAL adns3_delta_X_s : signed(adns_size_c-1 DOWNTO 0);
-  SIGNAL adns3_delta_Y_s : signed(adns_size_c-1 DOWNTO 0);
-  SIGNAL adns3_squal_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
+  signal adns3_deltax_s : signed(adns_size_c-1 downto 0);
+  signal adns3_deltay_s : signed(adns_size_c-1 downto 0);
+  signal adns3_squal_s   : std_logic_vector(squal_size_c-1 downto 0);
+
+	signal update_s : std_logic;
   ----------------------------------------------------------------------
   -- common register to the ControlUnit
 
-  SIGNAL fault_s : std_logic_vector(7 DOWNTO 0);
+  signal fault_s : std_logic_vector(7 downto 0);
 
-  SIGNAL auto_enable_s : std_logic;      --enable the control Unit (active High)
+  signal auto_enable_s : std_logic;      --enable the control Unit (active High)
 
   ---------------------------------------------------------------------------
   -- control unit interface
-  SIGNAL cu_data_in_s        : std_logic_vector(7 DOWNTO 0);
-  SIGNAL cu_data_out_s       : std_logic_vector(7 DOWNTO 0);
-  SIGNAL cu_send_data_s      : std_logic;
-  SIGNAL cu_busy_s           : std_logic;
+  signal cu_data_in_s        : std_logic_vector(7 downto 0);
+  signal cu_data_out_s       : std_logic_vector(7 downto 0);
+  signal cu_send_data_s      : std_logic;
+  signal cu_busy_s           : std_logic;
 
-  SIGNAL cu_adns_cs_s        : std_logic_vector(1 DOWNTO 0);
+  signal cu_adns_cs_s        : std_logic_vector(1 downto 0);
 
   -- wishbone interface
-  SIGNAL wb_data_in_s        : std_logic_vector(7 DOWNTO 0);
-  SIGNAL wb_data_out_s       : std_logic_vector(7 DOWNTO 0);
-  SIGNAL wb_send_data_s      : std_logic;
-  SIGNAL wb_busy_s           : std_logic;
+  signal wb_data_in_s        : std_logic_vector(7 downto 0);
+  signal wb_data_out_s       : std_logic_vector(7 downto 0);
+  signal wb_send_data_s      : std_logic;
+  signal wb_busy_s           : std_logic;
 
-  SIGNAL wb_adns_cs_s        : std_logic_vector(1 DOWNTO 0);
+  signal wb_adns_cs_s        : std_logic_vector(1 downto 0);
 
 
   ---------------------------------------------------------------------------
   -- spi interface
-  SIGNAL spi_data_in_s       : std_logic_vector(7 DOWNTO 0);
-  SIGNAL spi_data_out_s      : std_logic_vector(7 DOWNTO 0);
-  SIGNAL spi_send_data_s     : std_logic;
-  SIGNAL spi_busy_s          : std_logic;
+  signal spi_data_in_s       : std_logic_vector(7 downto 0);
+  signal spi_data_out_s      : std_logic_vector(7 downto 0);
+  signal spi_send_data_s     : std_logic;
+  signal spi_busy_s          : std_logic;
 
-  SIGNAL spi_adns_cs_s       : std_logic_vector(1 DOWNTO 0);
+  signal spi_adns_cs_s       : std_logic_vector(1 downto 0);
   
   ---------------------------------------------------------------------------
   -- signal command
 
-  SIGNAL mode_select_s : std_logic;
+  signal mode_select_s : std_logic;
 
 
-  SIGNAL reset_ns : std_logic;
+  signal reset_ns : std_logic;
   -------------------------------------------------------------------------
   -------------------------------------------------------------------------
 
-BEGIN  -- adns9500_1
+BEGin  -- adns9500_1
 
 reset_ns <= not(wbs_rst_i);
   
@@ -461,20 +460,35 @@ reset_ns <= not(wbs_rst_i);
     adns_cs_o => cu_adns_cs_s,
     
     -- first encoder values
-    adns1_deltax_o => adns1_delta_X_s, 
-    adns1_deltay_o => adns1_delta_Y_s,
+    adns1_deltax_o => adns1_deltax_s, 
+    adns1_deltay_o => adns1_deltay_s,
     adns1_squal_o  => adns1_squal_s,
     
     -- second encoder values
-    adns2_deltax_o => adns2_delta_X_s,
-    adns2_deltay_o => adns2_delta_Y_s,
+    adns2_deltax_o => adns2_deltax_s,
+    adns2_deltay_o => adns2_deltay_s,
     adns2_squal_o  => adns2_squal_s,
     
     -- third encoder values
-    adns3_deltax_o => adns3_delta_X_s,
-    adns3_deltay_o => adns3_delta_Y_s,
+    adns3_deltax_o => adns3_deltax_s,
+    adns3_deltay_o => adns3_deltay_s,
     adns3_squal_o  => adns3_squal_s,
-    fault_o => fault_s);
+	
+		update_o => update_s,
 
-  
+    fault_o => fault_s
+	);
+
+  adns1_deltax_o <= adns1_deltax_s;
+  adns1_deltay_o <= adns1_deltay_s;
+  adns1_squal_o <= adns1_squal_s;
+  adns2_deltax_o <= adns2_deltax_s;
+  adns2_deltay_o <= adns2_deltay_s;
+  adns2_squal_o <= adns2_squal_s;
+  adns3_deltax_o <= adns3_deltax_s;
+  adns3_deltay_o <= adns3_deltay_s;
+  adns3_squal_o <= adns3_squal_s;
+
+	update_o <= update_s;
+
 END adns9500_1;

@@ -39,8 +39,7 @@ architecture t_encoder_inc_debouncer_1 of t_encoder_inc_debouncer is
 
   component encoder_inc_debouncer
     generic (
-      reg_size_c   : natural range 2 to natural'high;
-      reset_data_c : std_logic
+      reg_size_c   : natural range 2 to natural'high
     );
     port (
       clk_i   : in  std_logic;
@@ -55,8 +54,7 @@ begin
 
   encoder_inc_debouncer_0 : encoder_inc_debouncer
   generic map (
-    reg_size_c   => 3,
-    reset_data_c => 'Z'
+    reg_size_c   => 3
   )
   port map (
     clk_i   => clk_s,

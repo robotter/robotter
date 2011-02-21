@@ -25,10 +25,10 @@ use ieee.numeric_std.all;
 
 use work.p_wishbone_testbench.all;
 
-entity t_top_adns9500 is
-end entity t_top_adns9500;
+entity t_adns9500 is
+end entity t_adns9500;
 
-architecture t_top_adns9500_1 of t_top_adns9500 is
+architecture t_adns9500_1 of t_adns9500 is
 
   constant fpga_period_c : time := 20 ns; -- FPGA period
 
@@ -83,7 +83,22 @@ architecture t_top_adns9500_1 of t_top_adns9500 is
     sck_o  : out  std_logic;
     cs1_no : out  std_logic;
     cs2_no : out  std_logic;
-    cs3_no : out  std_logic
+    cs3_no : out  std_logic;
+
+		-- raw ADNS9500 ouputs
+		adns1_deltax_o : out signed (15 downto 0);
+    adns1_deltay_o : out signed (15 downto 0);
+    adns2_deltax_o : out signed (15 downto 0);
+    adns2_deltay_o : out signed (15 downto 0);
+    adns3_deltax_o : out signed (15 downto 0);
+    adns3_deltay_o : out signed (15 downto 0);
+
+    adns1_squal_o  : out std_logic_vector (7 downto 0);
+    adns2_squal_o  : out std_logic_vector (7 downto 0);
+    adns3_squal_o  : out std_logic_vector (7 downto 0);
+		
+		update_o : out std_logic
+
     );
 
   end component adns9500;
@@ -400,47 +415,13 @@ begin
 
     end loop; -- for i
 
-    ------------------------------------------------------------------------
-    -- perform a latch cycle 
-
-    wb_write("000001", x"07", clk_s,
-             wbs_adr_s, wbs_dat_is, wbs_we_s, 
-             wbs_stb_s, wbs_ack_s, wbs_cyc_s);
-
-    wait for 20 ns;
-
-    wb_write("000001", x"00", clk_s,
-             wbs_adr_s, wbs_dat_is, wbs_we_s, 
-             wbs_stb_s, wbs_ack_s, wbs_cyc_s);
-
-    wait for 20 ns;
-    
-    -------------------------------------------------------------------------
-    -- check values 
-    for i in 0 to 2 loop
-      for addr in 2 to 10 loop
-
-        wb_read(std_logic_vector(to_unsigned(addr + i*9,6)), clk_s,
-                 wbs_adr_s, wbs_dat_os, wbs_we_s, 
-                 wbs_stb_s, wbs_ack_s, wbs_cyc_s,
-                 byte_s);   
-
-        wait for 10 ns;
-        
-        assert byte_s = results_c(addr - 2) report "MOVEMENT REGISTER fail" severity warning;
-
-      end loop;
-    end loop;
-
-
-    wait for 10 us;
     endofsimulation_s <= true;
     wait;
   end process main_p;
   -------------------------------------------------
 
 
-end architecture t_top_adns9500_1;
+end architecture t_adns9500_1;
 
 
 

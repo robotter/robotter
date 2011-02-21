@@ -1,41 +1,40 @@
------------------------------------------------------------------------------
+----------------------------------------------------------
 -- Title    : ADNS 9500 Control Unit
 -- Project  : UNIOC_NG Optic Encoders
------------------------------------------------------------------------------
+----------------------------------------------------------
 -- File     : adns9500_controlunit.vhd
 -- Author   : JD (jd@robotter.fr)
 -- Company  : Rob'Otter
--- 
+---------------------------------------------------------- 
 -- Creation date : 24/01/2009
 -- Platform : Altera Cyclone
------------------------------------------------------------------------------
+----------------------------------------------------------
 -- Description : Control unit for the automated mode of optical sensors.
 -- This entity shall :
 -- * access sequentialy each ADNS / using SPI MOTION BURST.
--- * store and output sum of delta_x, delta_y for each ADNS
--- * output immediate value of squal for each ADNS
------------------------------------------------------------------------------
+-- * output deltax, deltay, squal of each ADNS
+----------------------------------------------------------
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
 -- the Free Software Foundation; either version 2, or (at your option)
 -- any later version.
--- 
+---------------------------------------------------------- 
 -- This program is distributed in the hope that it will be useful,
 -- but WITHOUT ANY WARRANTY; without even the implied warranty of
 -- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 -- GNU General Public License for more details.
--- 
+---------------------------------------------------------- 
 -- You should have received a copy of the GNU General Public License
 -- along with this program; if not, write to the Free Software
------------------------------------------------------------------------------
+----------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
----------------------------------------------------------------------------
+----------------------------------------------------------
 entity adns9500_controlunit is 
----------------------------------------------------------------------------
+----------------------------------------------------------
   generic (
     ---------- FPGA ---------------------------------------------------------
     -- FPGA clock period in ns
@@ -83,7 +82,10 @@ entity adns9500_controlunit is
     adns3_deltay_o : out signed(15 downto 0);
     adns3_squal_o  : out std_logic_vector(7 downto 0);
 
-    -----------------------------------------------------------
+		-- data update, r_e on data updated
+		update_o : out std_logic;
+
+    ----------------------------------------------------------
     -- fault
     -- 7 :              3 : 
     -- 6 :              2 : ADNS #3 Fault
@@ -94,9 +96,9 @@ entity adns9500_controlunit is
   );
 end entity adns9500_controlunit;
 
----------------------------------------------------------------------------
+----------------------------------------------------------
 architecture adns9500_controlunit_1 of adns9500_controlunit is
----------------------------------------------------------------------------
+----------------------------------------------------------
   ---------- REGISTERS --------------------------------------
   -- register Motion_Burst address
   constant addr_register_motion_burst_c : std_logic_vector(7 downto 0) := x"50";
@@ -133,19 +135,7 @@ architecture adns9500_controlunit_1 of adns9500_controlunit is
   signal adns3_squal_s  : std_logic_vector (7 downto 0);
 
 begin
----------------------------------------------------------------------------
-
-  adns1_deltax_o <= adns1_deltax_s;
-  adns1_deltay_o <= adns1_deltay_s;
-  adns1_squal_o <= adns1_squal_s;
-
-  adns2_deltax_o <= adns2_deltax_s;
-  adns2_deltay_o <= adns2_deltay_s;
-  adns2_squal_o <= adns2_squal_s;
-
-  adns3_deltax_o <= adns3_deltax_s;
-  adns3_deltay_o <= adns3_deltay_s;
-  adns3_squal_o <= adns3_squal_s;
+----------------------------------------------------------
 
 
   ----------------------------------------------------------
@@ -224,7 +214,7 @@ begin
 
   end process spi_p;
 
-  ---------------------------------------------------------
+  ----------------------------------------------------------
   -- Control Unit 
   -- Main state machine handling data sent over SPI
   controlunit_p : process(reset_ni, clk_i, enable_i)
@@ -256,14 +246,24 @@ begin
 
       fault_o <= x"00";
 
+      adns1_deltax_o <= (others => '0');
+      adns1_deltay_o <= (others => '0');
+      adns1_squal_o  <= (others => '0');
+      adns2_deltax_o <= (others => '0');
+      adns2_deltay_o <= (others => '0');
+      adns2_squal_o  <= (others => '0');
+      adns3_deltax_o <= (others => '0');
+      adns3_deltay_o <= (others => '0');
+      adns3_squal_o  <= (others => '0');
+
+			update_o <= '0';
+
       adns1_deltax_s <= (others => '0');
       adns1_deltay_s <= (others => '0');
       adns1_squal_s  <= (others => '0');
-                    
       adns2_deltax_s <= (others => '0');
       adns2_deltay_s <= (others => '0');
       adns2_squal_s  <= (others => '0');
-
       adns3_deltax_s <= (others => '0');
       adns3_deltay_s <= (others => '0');
       adns3_squal_s  <= (others => '0');
@@ -279,6 +279,24 @@ begin
 			case controlunit_state_v is
         -- set CS high for current ADNS9500
         when CU_INIT =>
+
+					-- latch ouput values if current adns == 1
+					if current_adns_v = 1 then
+			  		adns1_deltax_o <= adns1_deltax_s;
+				  	adns1_deltay_o <= adns1_deltay_s;
+				  	adns1_squal_o <= adns1_squal_s;
+				  	adns2_deltax_o <= adns2_deltax_s;
+				  	adns2_deltay_o <= adns2_deltay_s;
+				  	adns2_squal_o <= adns2_squal_s;
+				  	adns3_deltax_o <= adns3_deltax_s;
+				  	adns3_deltay_o <= adns3_deltay_s;
+				  	adns3_squal_o <= adns3_squal_s;
+						
+						-- update_o r_e on new data latched
+						update_o <= '1';
+					else
+						update_o <= '0';
+					end if;
 
           -- pull CS high for current ADNS
           adns_cs_o <= std_logic_vector( to_unsigned(current_adns_v,2) );
@@ -351,20 +369,20 @@ begin
 
             -- check if motion occured since last report
             if spi_datareceived_s(bit_motion_register_motion_c) = '1' then
-              ----------------------------------------------------------------------
+              ----------------------------------------------------------
               -- motion occured
-              ----------------------------------------------------------------------
+              ----------------------------------------------------------
               -- continue to next state
 
               controlunit_state_v := CU_7;
 
             else
-              ----------------------------------------------------------------------
+              ----------------------------------------------------------
               -- no motion occured
-              ----------------------------------------------------------------------
+              ----------------------------------------------------------
               -- * exit burst mode by pulling CS low for 4us
               -- * switch to next ADNS
-              --
+              ----------------------------------------------------------
               -- NOTE : 
               -- It's useless to wait 4us here, because the next ADNS will be driven
               -- at least approx. 100us (tSRAD-MOT).
@@ -502,9 +520,9 @@ begin
             adns3_squal_s  <= squal_v;
           end if;     
 
-          ----------------------------------------------
+          ----------------------------------------------------------
           -- exit burst mode by pulling CS low for 4us
-          --
+          ----------------------------------------------------------
           -- NOTE : 
           -- It's useless to wait 4us here, because the next ADNS will be driven
           -- at least approx. 100us (tSRAD-MOT).
@@ -512,7 +530,7 @@ begin
           -- pull all CS low
           adns_cs_o <= "00";
 
-          ------------------------
+          ----------------------------------------------------------
           -- switch to next ADNS
           current_adns_v := current_adns_v + 1;
 
@@ -520,12 +538,12 @@ begin
             current_adns_v :=  1;
           end if;
           
-          ---------------------------
+          ----------------------------------------------------------
           -- go back to first state
           controlunit_state_v := CU_INIT;
 		 	
 				end case;
-        -----------------------------------------
+        ----------------------------------------------------------
 
     end if; -- reset_ni = '0' 
     

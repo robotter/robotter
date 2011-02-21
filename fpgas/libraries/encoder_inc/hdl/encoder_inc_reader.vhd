@@ -27,13 +27,18 @@ use ieee.numeric_std.all;
 --! Angle is counted counter-clockwise (channel A leads channel B) and stored
 --! in a 32b integer.
 entity encoder_inc_reader is
-
+	generic (
+		--! clock frequency in kHz
+		clk_freq_c : natural;
+		--! frequency at which encoder speed is computed in Hz
+		speed_frequency_c : natural
+	);
   port (
     clk_i   : in  std_logic;
-    reset_i : in  std_logic;
+    reset_ni : in  std_logic;
     ch_a_i  : in  std_logic; --! channel A
     ch_b_i  : in  std_logic; --! channel B
-    angle_o : out integer
+    speed_o : out signed(15 downto 0)
   );
 
 end entity encoder_inc_reader;
@@ -41,29 +46,53 @@ end entity encoder_inc_reader;
 
 architecture encoder_inc_reader_1 of encoder_inc_reader is
 
-  signal angle_s : integer;
-
+  signal speed_s : signed(15 downto 0);
+	signal slowclock_s : std_logic;
 begin
 
-  angle_o <= angle_s;
+	----------------------------------------------------------
+	-- generate speed frequency clock
+	clock_p : process(clk_i, reset_ni)
+		variable clock_tick_v : natural;
+	begin
+		if reset_ni = '0' then
+			slowclock_s <= '0';
+			clock_tick_v := 0;
+		elsif rising_edge(clk_i) then
+			if clock_tick_v = (500*clk_freq_c/speed_frequency_c) - 1 then
+				clock_tick_v := 0;
+				slowclock_s <= not slowclock_s;
+			else
+				clock_tick_v := clock_tick_v + 1;
+			end if;
+		end if;
+	end process clock_p;
 
-  --! Update angle value
-  angle_p : process (clk_i, reset_i)
+
+  main_p : process (clk_i, reset_ni)
     variable last_ch_a_v : std_logic;
+		variable l_slowclock_v : std_logic;
   begin
 
-    if reset_i = '1' then
-      angle_s <= 0;
+    if reset_ni = '0' then
+      speed_s <= (others=>'0');
       last_ch_a_v := '0';
 
     elsif rising_edge(clk_i) then
 
+			--! on slow clock rising edege update speed value and clear
+			if l_slowclock_v = '0' and slowclock_s = '1' then
+				speed_o <= speed_s;
+				speed_s <= (others=>'0');
+			end if;
+			l_slowclock_v := slowclock_s;
+
       --! Update on channel A falling edge
       if ch_a_i = '0' and last_ch_a_v = '1' then
         if ch_b_i = '0' then
-          angle_s <= angle_s + 1;
+          speed_s <= speed_s + 1;
         elsif ch_b_i = '1' then
-          angle_s <= angle_s - 1;
+          speed_s <= speed_s - 1;
         end if;
       end if;
 
@@ -71,7 +100,7 @@ begin
 
     end if;
 
-  end process angle_p;
+  end process main_p;
 
 end architecture encoder_inc_reader_1;
 

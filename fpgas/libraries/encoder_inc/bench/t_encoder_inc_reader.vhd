@@ -30,21 +30,25 @@ architecture t_encoder_inc_reader_1 of t_encoder_inc_reader is
 
   signal endofsimulation_s : boolean := false;
 
-  constant fpga_period_c : time := 200 ns; -- FPGA period
+  constant fpga_period_c : time := 20 ns; -- FPGA period
 
   signal clk_s   : std_logic;
-  signal reset_s : std_logic;
+  signal reset_ns : std_logic;
   signal ch_a_s  : std_logic;
   signal ch_b_s  : std_logic;
-  signal angle_s : integer;
+  signal speed_s : signed(15 downto 0);
 
   component encoder_inc_reader
+		generic (
+			clk_freq_c :natural := 50000; --50 MHz
+			speed_frequency_c :natural := 1000 -- 1kHz
+		);
     port (
       clk_i   : in  std_logic;
-      reset_i : in  std_logic;
+      reset_ni : in  std_logic;
       ch_a_i  : in  std_logic; --! channel A
       ch_b_i  : in  std_logic; --! channel B
-      angle_o : out integer
+      speed_o : out signed(15 downto 0)
     );
   end component encoder_inc_reader;
   for encoder_inc_reader_0 : encoder_inc_reader use entity work.encoder_inc_reader;
@@ -54,46 +58,33 @@ begin
   encoder_inc_reader_0 : encoder_inc_reader
   port map (
     clk_i   => clk_s,
-    reset_i => reset_s,
+    reset_ni => reset_ns,
     ch_a_i  => ch_a_s,
     ch_b_i  => ch_b_s,
-    angle_o => angle_s
+    speed_o => speed_s
   );
 
 
   stimuli_p : process
 
     constant ch_a_c   : std_logic_vector := "001100110011001100010101010";
-    constant ch_b_c   : std_logic_vector := "111001100001100110001110011";
-    type i_vector is array (natural range <>) of integer;
-    constant iangle_c : i_vector := (0, 1, 2, 1, 0, -1, -2, -1, -2);
-    variable iangle_i_v : natural; -- iangle_c index
+    constant ch_b_c   : std_logic_vector := "111001100110011000111001110";
 
   begin
 
     ch_a_s <= ch_a_c(0);
     ch_b_s <= ch_b_c(0);
-    iangle_i_v := 0;
-    reset_s <= '1';
+    reset_ns <= '0';
     wait for 5 * fpga_period_c;
-    reset_s <= '0';
+    reset_ns <= '1';
 
-    for i in ch_a_c'range loop
-      ch_a_s <= ch_a_c(i);
-      ch_b_s <= ch_b_c(i);
-      wait for fpga_period_c;
-
-      if angle_s /= iangle_c(iangle_i_v) then
-        -- angle changed, check value
-        iangle_i_v := iangle_i_v + 1;
-        assert angle_s = iangle_c(iangle_i_v)
-          report "angle value " & natural'image(iangle_i_v)
-            &": got "&integer'image(angle_s)
-            &", expected "&integer'image(iangle_c(iangle_i_v))
-            severity error;
-      end if;
-
-    end loop;
+		for t in 0 to 10000 loop
+	    for i in ch_a_c'range loop
+  	    ch_a_s <= ch_a_c(i);
+    	  ch_b_s <= ch_b_c(i);
+      	wait for fpga_period_c;
+	    end loop;
+		end loop;
 
     wait for 5 * fpga_period_c;
     report "end of tests" severity note;
