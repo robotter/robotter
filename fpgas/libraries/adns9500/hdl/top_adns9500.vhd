@@ -27,8 +27,8 @@ ENTITY adns9500 IS
   GENERIC (
     id           : natural := 2;
     wb_size_c    : natural := 8;           -- data port size
-    adns_size_c  : natural RANGE 8 TO 32:= 32;        -- data sensor port size
-    squal_size_c : natural RANGE 8 TO 32:= 8;  -- squal port size
+    adns_size_c  : natural := 16;        -- data sensor port size
+    squal_size_c : natural := 8;  -- squal port size
     freq_fpga_c  : natural := 25000
     );
 
@@ -53,9 +53,7 @@ ENTITY adns9500 IS
     sck_o  : OUT  std_logic;
     cs1_no : OUT  std_logic;
     cs2_no : OUT  std_logic;
-    cs3_no : OUT  std_logic;
-
-    adns_reset_o : OUT std_logic
+    cs3_no : OUT  std_logic
     );
 
 END adns9500;
@@ -68,7 +66,7 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   
   COMPONENT adns9500_spi IS
   GENERIC (
-    spi_freq_c : natural :=  100; -- SPI clock frequency in kHz
+    spi_freq_c : natural :=  1000; -- SPI clock frequency in kHz
     clk_freq_c : natural := 25000  -- FPGA clock frequency in kHz
   );
   PORT (
@@ -103,7 +101,7 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   
   COMPONENT adns9500_latch_nbits IS  
   GENERIC (
-    CONSTANT data_width_c : natural RANGE 0 TO 127 := 32;  -- width of the data bus latched
+    CONSTANT data_width_c : natural := 16;  -- width of the data bus latched
     CONSTANT squal_width_c : natural := 8 -- width of the squal bus latched
     ); 
   PORT (
@@ -125,8 +123,8 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   GENERIC (
     id_c      : natural := 2;
     wb_size_c : natural := 8;           -- data port size
-    adns_size_c : natural RANGE 8 TO 32:= 32;        -- data sensor port size
-    squal_size_c : natural RANGE 8 TO 32:= 8  -- squal port size
+    adns_size_c : natural := 16;        -- data sensor port size
+    squal_size_c : natural := 8  -- squal port size
     );
 
   PORT (
@@ -143,28 +141,9 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
     wbs_ack_o : OUT std_logic;           -- operation succesful
     wbs_cyc_i : IN std_logic;
 
-    ---------------------------------------------------------------------------
-    -- interface to the first sensor
 
-    adns1_lock_o : OUT std_logic;
-    adns1_delta_X_i : IN std_logic_vector(adns_size_c-1 DOWNTO 0);
-    adns1_delta_Y_i : IN std_logic_vector(adns_size_c-1 DOWNTO 0);
     adns1_squal_i   : IN std_logic_vector(squal_size_c-1 DOWNTO 0);
-
-    ---------------------------------------------------------------------------
-    -- interface to the second sensor
-
-    adns2_lock_o : OUT std_logic;
-    adns2_delta_X_i : IN std_logic_vector(adns_size_c-1 DOWNTO 0);
-    adns2_delta_Y_i : IN std_logic_vector(adns_size_c-1 DOWNTO 0);
     adns2_squal_i   : IN std_logic_vector(squal_size_c-1 DOWNTO 0);
-
-    ---------------------------------------------------------------------------
-    -- interface to the third sensor
-
-    adns3_lock_o : OUT std_logic;
-    adns3_delta_X_i : IN std_logic_vector(adns_size_c-1 DOWNTO 0);
-    adns3_delta_Y_i : IN std_logic_vector(adns_size_c-1 DOWNTO 0);
     adns3_squal_i   : IN std_logic_vector(squal_size_c-1 DOWNTO 0);
 
     ---------------------------------------------------------------------------
@@ -181,7 +160,6 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
     spi_send_data_o : OUT std_logic;    -- send spi_data_o (active high)
     spi_busy_i : IN std_logic;          -- spi transmitting (active high)
     
-    adns_reset_o : OUT std_logic;       -- reset of the 3 sensors
     spi_cs_o     : OUT std_logic_vector(1 DOWNTO 0)  -- selection of the slave
                                                      -- addressed by the spi
     );
@@ -237,36 +215,8 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   COMPONENT adns9500_controlunit IS 
   ---------------------------------------------------------------------------
   GENERIC (
-    ---------- FPGA ---------------------------------------------------------
     -- FPGA clock period in ns
     fpga_clock_period_c : natural := 20;
-
-    ---------- REGISTERS ----------------------------------------------------
-    -- register Motion_Burst address
-    addr_register_motion_burst_c : std_logic_vector(7 DOWNTO 0) := x"50";
-
-    -- motion bit in motion register
-    bit_motion_register_motion_c : natural := 7;
-    
-    -- fault bit in motion register
-    bit_fault_register_motion_c : natural := 1;
-
-    --
-    -- Motion register / fault offset in fault output
-    fault_offset_c : natural := 0;
-
-    ---------- TIMINGS in ns ------------------------------------------------
-    -- timing ratio
-    timing_ratio_c : natural := 1;
-
-    -- timing between NCS falling edge to first SCK rising edge
-    timing_ncs_sck_c : natural := 120;
-
-    -- timing between SCK falling edge to next SCK rising edge
-    -- after a read address and motion data
-    timing_srad_mot_c : natural := 75000;
-
-    ---------- PHYSICAL PARAMETERS ------------------------------------------
     -- number of ADNS9500 chips
     adns_number_c : natural := 3
   );
@@ -295,18 +245,18 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
 
     ----------------------------------------------------------
     -- first encoder values
-    adns1_deltax_o : OUT std_logic_vector (31 DOWNTO 0);
-    adns1_deltay_o : OUT std_logic_vector (31 DOWNTO 0);
+    adns1_deltax_o : OUT signed (15 DOWNTO 0);
+    adns1_deltay_o : OUT signed (15 DOWNTO 0);
     adns1_squal_o  : OUT std_logic_vector (7 DOWNTO 0);
 
     -- second encoder values
-    adns2_deltax_o : OUT std_logic_vector (31 DOWNTO 0);
-    adns2_deltay_o : OUT std_logic_vector (31 downto 0);
+    adns2_deltax_o : OUT signed (15 DOWNTO 0);
+    adns2_deltay_o : OUT signed (15 downto 0);
     adns2_squal_o  : OUT std_logic_vector (7 downto 0);
 
     -- third encoder values
-    adns3_deltax_o : OUT std_logic_vector (31 DOWNTO 0);
-    adns3_deltay_o : OUT std_logic_vector (31 DOWNTO 0);
+    adns3_deltax_o : OUT signed (15 DOWNTO 0);
+    adns3_deltay_o : OUT signed (15 DOWNTO 0);
     adns3_squal_o  : OUT std_logic_vector (7 DOWNTO 0);
 
     -----------------------------------------------------------
@@ -321,41 +271,25 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   END COMPONENT adns9500_controlunit;
 
 
-  -------------------------------------------------------------------------
+  ----------------------------------------------------------------------
   -- interface to the first sensor
 
-  SIGNAL adns1_lock_s : std_logic;
-
-  SIGNAL adns1_delta_X_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-  SIGNAL adns1_delta_Y_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns1_delta_X_s : signed(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns1_delta_Y_s : signed(adns_size_c-1 DOWNTO 0);
   SIGNAL adns1_squal_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
-
-  SIGNAL adns1_delta_X_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-  SIGNAL adns1_delta_Y_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-  SIGNAL adns1_squal_latched_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
-  ---------------------------------------------------------------------------
+  ----------------------------------------------------------------------
   -- interface to the second sensor
 
-  SIGNAL adns2_lock_s : std_logic;
-  SIGNAL adns2_delta_X_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-  SIGNAL adns2_delta_Y_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns2_delta_X_s : signed(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns2_delta_Y_s : signed(adns_size_c-1 DOWNTO 0);
   SIGNAL adns2_squal_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
-
-  SIGNAL adns2_delta_X_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-  SIGNAL adns2_delta_Y_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-  SIGNAL adns2_squal_latched_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
-  ---------------------------------------------------------------------------
+  ----------------------------------------------------------------------
   -- interface to the third sensor
 
-  SIGNAL adns3_lock_s : std_logic;
-  SIGNAL adns3_delta_X_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-  SIGNAL adns3_delta_Y_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns3_delta_X_s : signed(adns_size_c-1 DOWNTO 0);
+  SIGNAL adns3_delta_Y_s : signed(adns_size_c-1 DOWNTO 0);
   SIGNAL adns3_squal_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
-
-  SIGNAL adns3_delta_X_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-  SIGNAL adns3_delta_Y_latched_s : std_logic_vector(adns_size_c-1 DOWNTO 0);
-  SIGNAL adns3_squal_latched_s   : std_logic_vector(squal_size_c-1 DOWNTO 0);
-  ---------------------------------------------------------------------------
+  ----------------------------------------------------------------------
   -- common register to the ControlUnit
 
   SIGNAL fault_s : std_logic_vector(7 DOWNTO 0);
@@ -388,7 +322,6 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   SIGNAL spi_busy_s          : std_logic;
 
   SIGNAL spi_adns_cs_s       : std_logic_vector(1 DOWNTO 0);
-  SIGNAL cs1_ns : std_logic;
   
   ---------------------------------------------------------------------------
   -- signal command
@@ -417,7 +350,7 @@ reset_ns <= not(wbs_rst_i);
     mosi_o => mosi_o,
     miso_i => miso_i,
     sck_o  => sck_o, 
-    cs1_no => cs1_ns,
+    cs1_no => cs1_no,
     cs2_no => cs2_no,
     cs3_no => cs3_no,
     
@@ -427,55 +360,6 @@ reset_ns <= not(wbs_rst_i);
     busy_o      => spi_busy_s,
     cs_i        => spi_adns_cs_s);
   
-  -----------------------------------------------------------------------------
-  -----------------------------------------------------------------------------
-  
-  adns1_latch :  adns9500_latch_nbits
-  GENERIC MAP(
-    data_width_c => 32,  -- width of the data bus latched
-    squal_width_c => 8)  -- width of the squal bus latched
-  PORT MAP(
-    clk_i            => wbs_clk_i,
-    reset_ni         => reset_ns,
-    deltax_i         => adns1_delta_X_s,
-    deltay_i         => adns1_delta_Y_s,
-    squal_i          => adns1_squal_s,
-    deltax_latched_o => adns1_delta_X_latched_s,
-    deltay_latched_o => adns1_delta_Y_latched_s,
-    squal_latched_o  => adns1_squal_latched_s,
-    latch_data_i     => adns1_lock_s);
-
-
-  adns2_latch :  adns9500_latch_nbits
-  GENERIC MAP(
-    data_width_c => 32,  -- width of the data bus latched
-    squal_width_c => 8)  -- width of the squal bus latched
-  PORT MAP(
-    clk_i            => wbs_clk_i,
-    reset_ni         => reset_ns,
-    deltax_i         => adns2_delta_X_s,
-    deltay_i         => adns2_delta_Y_s,
-    squal_i          => adns2_squal_s,
-    deltax_latched_o => adns2_delta_X_latched_s,
-    deltay_latched_o => adns2_delta_Y_latched_s,
-    squal_latched_o  => adns2_squal_latched_s,
-    latch_data_i     => adns2_lock_s);
-
-  
-  adns3_latch :  adns9500_latch_nbits
-  GENERIC MAP(
-    data_width_c => 32,  -- width of the data bus latched
-    squal_width_c => 8)  -- width of the squal bus latched
-  PORT MAP(
-    clk_i            => wbs_clk_i,
-    reset_ni         => reset_ns,
-    deltax_i         => adns3_delta_X_s,
-    deltay_i         => adns3_delta_Y_s,
-    squal_i          => adns3_squal_s,
-    deltax_latched_o => adns3_delta_X_latched_s,
-    deltay_latched_o => adns3_delta_Y_latched_s,
-    squal_latched_o  => adns3_squal_latched_s,
-    latch_data_i     => adns3_lock_s);
   
   -----------------------------------------------------------------------------
   -----------------------------------------------------------------------------
@@ -500,28 +384,10 @@ reset_ns <= not(wbs_rst_i);
     wbs_cyc_i => wbs_cyc_i,
 
     ---------------------------------------------------------------------------
-    -- interface to the first sensor
-
-    adns1_lock_o => adns1_lock_s,
-    adns1_delta_X_i => adns1_delta_X_latched_s,
-    adns1_delta_Y_i => adns1_delta_Y_latched_s,
-    adns1_squal_i   => adns1_squal_latched_s,
-
-    ---------------------------------------------------------------------------
-    -- interface to the second sensor
-
-    adns2_lock_o => adns2_lock_s,
-    adns2_delta_X_i => adns2_delta_X_latched_s,
-    adns2_delta_Y_i => adns2_delta_Y_latched_s,
-    adns2_squal_i   => adns2_squal_latched_s,
-
-    ---------------------------------------------------------------------------
-    -- interface to the third sensor
-
-    adns3_lock_o => adns3_lock_s,
-    adns3_delta_X_i => adns3_delta_X_latched_s,
-    adns3_delta_Y_i => adns3_delta_Y_latched_s,
-    adns3_squal_i   => adns3_squal_latched_s,
+		-- ADNS squals
+    adns1_squal_i   => adns1_squal_s,
+    adns2_squal_i   => adns2_squal_s,
+    adns3_squal_i   => adns3_squal_s,
 
     ---------------------------------------------------------------------------
     -- common register to the ControlUnit
@@ -537,7 +403,6 @@ reset_ns <= not(wbs_rst_i);
     spi_send_data_o => wb_send_data_s,
     spi_busy_i => wb_busy_s,
     
-    adns_reset_o => adns_reset_o,
     spi_cs_o     => wb_adns_cs_s);
 
   -----------------------------------------------------------------------------

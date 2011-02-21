@@ -40,7 +40,6 @@ entity adns9500_controlunit is
     ---------- FPGA ---------------------------------------------------------
     -- FPGA clock period in ns
     fpga_clock_period_c : natural := 40;
-
    
     ---------- PHYSICAL PARAMETERS ------------------------------------------
     -- number of ADNS9500 chips
@@ -70,19 +69,19 @@ entity adns9500_controlunit is
 
     ----------------------------------------------------------
     -- first encoder values
-    adns1_deltax_o : out std_logic_vector (31 downto 0);
-    adns1_deltay_o : out std_logic_vector (31 downto 0);
-    adns1_squal_o  : out std_logic_vector (7 downto 0);
+    adns1_deltax_o : out signed(15 downto 0);
+    adns1_deltay_o : out signed(15 downto 0);
+    adns1_squal_o  : out std_logic_vector(7 downto 0);
 
     -- second encoder values
-    adns2_deltax_o : out std_logic_vector (31 downto 0);
-    adns2_deltay_o : out std_logic_vector (31 downto 0);
-    adns2_squal_o  : out std_logic_vector (7 downto 0);
+    adns2_deltax_o : out signed(15 downto 0);
+    adns2_deltay_o : out signed(15 downto 0);
+    adns2_squal_o  : out std_logic_vector(7 downto 0);
 
     -- third encoder values
-    adns3_deltax_o : out std_logic_vector (31 downto 0);
-    adns3_deltay_o : out std_logic_vector (31 downto 0);
-    adns3_squal_o  : out std_logic_vector (7 downto 0);
+    adns3_deltax_o : out signed(15 downto 0);
+    adns3_deltay_o : out signed(15 downto 0);
+    adns3_squal_o  : out std_logic_vector(7 downto 0);
 
     -----------------------------------------------------------
     -- fault
@@ -122,14 +121,15 @@ architecture adns9500_controlunit_1 of adns9500_controlunit is
   signal spi_datatosend_s : std_logic_vector(7 downto 0);
   signal spi_datareceived_s : std_logic_vector(7 downto 0);
 
-  signal adns1_deltax_s : std_logic_vector (31 downto 0);
-  signal adns1_deltay_s : std_logic_vector (31 downto 0);
+  signal adns1_deltax_s : signed(15 downto 0);
+  signal adns1_deltay_s : signed(15 downto 0);
+  signal adns2_deltax_s : signed(15 downto 0);
+  signal adns2_deltay_s : signed(15 downto 0);
+  signal adns3_deltax_s : signed(15 downto 0);
+  signal adns3_deltay_s : signed(15 downto 0);
+
   signal adns1_squal_s  : std_logic_vector (7 downto 0);
-  signal adns2_deltax_s : std_logic_vector (31 downto 0);
-  signal adns2_deltay_s : std_logic_vector (31 downto 0);
   signal adns2_squal_s  : std_logic_vector (7 downto 0);
-  signal adns3_deltax_s : std_logic_vector (31 downto 0);
-  signal adns3_deltay_s : std_logic_vector (31 downto 0);
   signal adns3_squal_s  : std_logic_vector (7 downto 0);
 
 begin
@@ -154,11 +154,7 @@ begin
   spi_p : process(reset_ni, clk_i, enable_i)
 
     variable spi_pstart_v : std_logic;
-
 		type SPI_STATE_TYPE is (SPI_STATE_INIT, SPI_STATE_DATA, SPI_STATE_BEGIN, SPI_STATE_BUSY, SPI_STATE_WAIT);
-		attribute SPI_ENUM_ENCODING: STRING;
-		attribute SPI_ENUM_ENCODING of SPI_STATE_TYPE: type is "001 010 011 100 101";
-
     variable spi_state_v : SPI_STATE_TYPE;
 
   begin
@@ -236,16 +232,14 @@ begin
 		type CU_STATE_TYPE is (CU_INIT,CU_1,CU_2,CU_3,CU_4,CU_5,CU_6,CU_7,
 														CU_8,CU_9,CU_10,CU_11,CU_12,CU_13,CU_14,
 														CU_15,CU_16,CU_17,CU_18,CU_19);
-		attribute CU_ENUM_ENCODING: STRING;
-		attribute CU_ENUM_ENCODING of CU_STATE_TYPE:type is "00001 00010 00011 00100 00101 00110 00111 01000 01001 01010 01011 01100 01101 01110 01111 10000 10001 10010 10011";
 
 		variable controlunit_state_v : CU_STATE_TYPE;
 
     variable timer_v : natural := 0;
     variable current_adns_v : natural range 1 to 4 := 1;
 
-    variable sumdeltax_v : std_logic_vector(31 downto 0);
-    variable sumdeltay_v : std_logic_vector(31 downto 0);
+    variable sumdeltax_v : signed(31 downto 0);
+    variable sumdeltay_v : signed(31 downto 0);
 
     variable deltax_v : std_logic_vector(15 downto 0);
     variable deltay_v : std_logic_vector(15 downto 0);
@@ -295,7 +289,7 @@ begin
           -- go next state
           controlunit_state_v := CU_1;
         
-        -- wait at least t(NCS-SCK) 
+        -- wait at least t(NCS-SCK)
         when CU_1 =>
 
           -- increment timer
@@ -490,36 +484,21 @@ begin
             controlunit_state_v := CU_19;
           end if;
 
-        -- sum deltas, update squal and go next ADNS
+        -- latch deltas and squal and go next ADNS
         when CU_19 =>
-          -- get current motion values
-          if current_adns_v = 1 then
-            sumdeltax_v := adns1_deltax_s;
-            sumdeltay_v := adns1_deltay_s;
-          elsif current_adns_v = 2 then
-            sumdeltax_v := adns2_deltax_s;
-            sumdeltay_v := adns2_deltay_s;
-          else
-            sumdeltax_v := adns3_deltax_s;
-            sumdeltay_v := adns3_deltay_s;
-          end if;
-
-          -- sum deltax and deltay
-          sumdeltax_v := std_logic_vector(signed(sumdeltax_v) + signed(deltax_v));
-          sumdeltay_v := std_logic_vector(signed(sumdeltay_v) + signed(deltay_v));       
 
           -- update motion values
           if current_adns_v = 1 then
-            adns1_deltax_s <= sumdeltax_v;
-            adns1_deltay_s <= sumdeltay_v;
+            adns1_deltax_s <= signed(deltax_v);
+            adns1_deltay_s <= signed(deltay_v);
             adns1_squal_s  <= squal_v;
           elsif current_adns_v = 2 then
-            adns2_deltax_s <= sumdeltax_v;
-            adns2_deltay_s <= sumdeltay_v;
+            adns2_deltax_s <= signed(deltax_v);
+            adns2_deltay_s <= signed(deltay_v);
             adns2_squal_s  <= squal_v;
           else
-            adns3_deltax_s <= sumdeltax_v;
-            adns3_deltay_s <= sumdeltay_v;
+            adns3_deltax_s <= signed(deltax_v);
+            adns3_deltay_s <= signed(deltay_v);
             adns3_squal_s  <= squal_v;
           end if;     
 

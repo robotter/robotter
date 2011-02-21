@@ -55,27 +55,9 @@ ENTITY adns9500_wishbone_interface IS
     wbs_cyc_i : IN std_logic;
 
     ---------------------------------------------------------------------------
-    -- interface to the first sensor
-
-    adns1_lock_o : OUT std_logic;
-    adns1_delta_X_i : IN std_logic_vector(adns_size_c-1 DOWNTO 0);
-    adns1_delta_Y_i : IN std_logic_vector(adns_size_c-1 DOWNTO 0);
+    -- interface to sensors
     adns1_squal_i   : IN std_logic_vector(squal_size_c-1 DOWNTO 0);
-
-    ---------------------------------------------------------------------------
-    -- interface to the second sensor
-
-    adns2_lock_o : OUT std_logic;
-    adns2_delta_X_i : IN std_logic_vector(adns_size_c-1 DOWNTO 0);
-    adns2_delta_Y_i : IN std_logic_vector(adns_size_c-1 DOWNTO 0);
     adns2_squal_i   : IN std_logic_vector(squal_size_c-1 DOWNTO 0);
-
-    ---------------------------------------------------------------------------
-    -- interface to the third sensor
-
-    adns3_lock_o : OUT std_logic;
-    adns3_delta_X_i : IN std_logic_vector(adns_size_c-1 DOWNTO 0);
-    adns3_delta_Y_i : IN std_logic_vector(adns_size_c-1 DOWNTO 0);
     adns3_squal_i   : IN std_logic_vector(squal_size_c-1 DOWNTO 0);
 
     ---------------------------------------------------------------------------
@@ -93,7 +75,6 @@ ENTITY adns9500_wishbone_interface IS
     spi_send_data_o : OUT std_logic;    -- send spi_data_o (active high)
     spi_busy_i : IN std_logic;          -- spi transmitting (active high)
     
-    adns_reset_o : OUT std_logic;       -- reset of the 3 sensors
     spi_cs_o     : OUT std_logic_vector(1 DOWNTO 0)  -- selection of the slave
                                                      -- addressed by the spi
     );
@@ -102,8 +83,6 @@ END adns9500_wishbone_interface;
 ARCHITECTURE adns9500_wishbone_interface_1 OF adns9500_wishbone_interface IS
 
   SIGNAL auto_enable_s : std_logic;
-  SIGNAL lock_adns_s : std_logic_vector(2 DOWNTO 0);
-  SIGNAL adns_reset_s : std_logic;
   SIGNAL spi_send_data_s : std_logic;
   SIGNAL spi_cs_s : std_logic_vector(1 DOWNTO 0);
 
@@ -118,10 +97,8 @@ BEGIN  -- adns9500_wishbone_interface_1
   write_bloc_p : PROCESS(wbs_clk_i, wbs_rst_i)
   BEGIN
     IF wbs_rst_i = '1' THEN 
-      lock_adns_s <= (OTHERS => '0');
       auto_enable_s <= '0';
       spi_data_o <= (OTHERS => '0');
-      adns_reset_s <= '0';
       spi_send_data_s <= '0';
       spi_cs_s <= (OTHERS => '0');
       ack_write_s <= '0';
@@ -130,15 +107,12 @@ BEGIN  -- adns9500_wishbone_interface_1
       IF ((wbs_stb_i AND wbs_we_i AND wbs_cyc_i) = '1' ) THEN
         ack_write_s <= '1';
         CASE to_integer(unsigned(wbs_adr_i)) IS
-          -- lock adns latchs
-          WHEN 1 => lock_adns_s <= wbs_dat_i(2 DOWNTO 0);
                     -- auto enable
           WHEN 30 => auto_enable_s <= wbs_dat_i(0);
                      -- data to send
           WHEN 31 => spi_data_o <= wbs_dat_i(7 DOWNTO 0);
                      -- spi control register
-          WHEN 32 => adns_reset_s <= wbs_dat_i(7);
-                     spi_send_data_s <= wbs_dat_i(2);
+          WHEN 32 => spi_send_data_s <= wbs_dat_i(2);
                      spi_cs_s <= wbs_dat_i(1 DOWNTO 0);
                                         -- debug, count reset values
           WHEN OTHERS=> NULL;
@@ -162,37 +136,12 @@ BEGIN  -- adns9500_wishbone_interface_1
         ack_read_s <= '1';
         CASE to_integer(unsigned(wbs_adr_i)) IS
           WHEN 0 => wbs_dat_o <= std_logic_vector(to_unsigned(id_c,wb_size_c));
-                    -- lock adns latchs
-          WHEN 1 => wbs_dat_o(2 DOWNTO 0) <= lock_adns_s;
                     --adns 1
-          WHEN 2 => wbs_dat_o <= adns1_delta_X_i(7 DOWNTO 0);
-          WHEN 3 => wbs_dat_o <= adns1_delta_X_i(15 DOWNTO 8);
-          WHEN 4 => wbs_dat_o <= adns1_delta_X_i(23 DOWNTO 16);
-          WHEN 5 => wbs_dat_o <= adns1_delta_X_i(31 DOWNTO 24);
-          WHEN 6 => wbs_dat_o <= adns1_delta_Y_i(7 DOWNTO 0);
-          WHEN 7 => wbs_dat_o <= adns1_delta_Y_i(15 DOWNTO 8);
-          WHEN 8 => wbs_dat_o <= adns1_delta_Y_i(23 DOWNTO 16);
-          WHEN 9 => wbs_dat_o <= adns1_delta_Y_i(31 DOWNTO 24);
+
           WHEN 10 => wbs_dat_o <= adns1_squal_i(7 DOWNTO 0);
                      -- adns 2
-          WHEN 11 => wbs_dat_o <= adns2_delta_X_i(7 DOWNTO 0);
-          WHEN 12 => wbs_dat_o <= adns2_delta_X_i(15 DOWNTO 8);
-          WHEN 13 => wbs_dat_o <= adns2_delta_X_i(23 DOWNTO 16);
-          WHEN 14 => wbs_dat_o <= adns2_delta_X_i(31 DOWNTO 24);
-          WHEN 15 => wbs_dat_o <= adns2_delta_Y_i(7 DOWNTO 0);
-          WHEN 16 => wbs_dat_o <= adns2_delta_Y_i(15 DOWNTO 8);
-          WHEN 17 => wbs_dat_o <= adns2_delta_Y_i(23 DOWNTO 16);
-          WHEN 18 => wbs_dat_o <= adns2_delta_Y_i(31 DOWNTO 24);
           WHEN 19 => wbs_dat_o <= adns2_squal_i(7 DOWNTO 0);
                      -- adns 3
-          WHEN 20 => wbs_dat_o <= adns3_delta_X_i(7 DOWNTO 0);
-          WHEN 21 => wbs_dat_o <= adns3_delta_X_i(15 DOWNTO 8);
-          WHEN 22 => wbs_dat_o <= adns3_delta_X_i(23 DOWNTO 16);
-          WHEN 23 => wbs_dat_o <= adns3_delta_X_i(31 DOWNTO 24);
-          WHEN 24 => wbs_dat_o <= adns3_delta_Y_i(7 DOWNTO 0);
-          WHEN 25 => wbs_dat_o <= adns3_delta_Y_i(15 DOWNTO 8);
-          WHEN 26 => wbs_dat_o <= adns3_delta_Y_i(23 DOWNTO 16);
-          WHEN 27 => wbs_dat_o <= adns3_delta_Y_i(31 DOWNTO 24);
           WHEN 28 => wbs_dat_o <= adns3_squal_i(7 DOWNTO 0);
                      -- fault
           WHEN 29 => wbs_dat_o <= fault_i;
@@ -200,8 +149,7 @@ BEGIN  -- adns9500_wishbone_interface_1
           WHEN 30 => wbs_dat_o(0) <= auto_enable_s;
                      -- spi interface
           WHEN 31 => wbs_dat_o <= spi_data_i;
-          WHEN 32 => wbs_dat_o <= (7=>adns_reset_s,
-                                   3=>spi_busy_i,
+          WHEN 32 => wbs_dat_o <= (3=>spi_busy_i,
                                    2=> spi_send_data_s,
                                    1=> spi_cs_s(1),
                                    0=> spi_cs_s(0),
@@ -220,11 +168,7 @@ BEGIN  -- adns9500_wishbone_interface_1
     END IF;
   END PROCESS read_bloc_p;
 
-  adns_reset_o <= adns_reset_s;
   spi_send_data_o <= spi_send_data_s;
-  adns1_lock_o <= lock_adns_s(0);
-  adns2_lock_o <= lock_adns_s(1);
-  adns3_lock_o <= lock_adns_s(2);
   auto_enable_o <= auto_enable_s;
   spi_cs_o <= spi_cs_s;
 
