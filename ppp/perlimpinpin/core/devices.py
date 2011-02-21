@@ -79,6 +79,21 @@ class Robot:
       messages[mid] = msg
 
 
+  def messages(self):
+    """Return all messages."""
+    return [ msg
+        for dev in self.devices
+        for msg in dev.messages
+        ]
+
+  def slave_commands(self):
+    """Return commands of I2C slaves."""
+    return [ cmd
+        for dev in self.devices if isinstance(dev, SlaveDevice)
+        for cmd in dev.commands()
+        ]
+
+
 class Device:
   """
   Describe robot device (part of robot system).
@@ -122,18 +137,7 @@ class SlaveDevice(Device):
   pass
 
 class MasterDevice(Device):
-
-  def __init__(self, *args, **kw):
-    Device.__init__(self, *args, **kw)
-    if not all( isinstance(msg, Telemetry) for msg in self.messages ):
-      raise TypeError("master device can only define telemetry messages")
-
-  def commands(self):
-    ret = []
-    for dev in self.robot.devices:
-      if isinstance(dev, SlaveDevice):
-        ret += dev.commands()
-    return ret
+  pass
 
 
 class Message:

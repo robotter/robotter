@@ -11,17 +11,17 @@
 
 #define PPP_ERROR  0x80   //TODO
 
-#define PPP_MAX_PAYLOAD_RECV_SIZE  $$ppp:self.max_payload_recv_size()$$
-#define PPP_MAX_PAYLOAD_SEND_SIZE  $$ppp:self.max_payload_send_size()$$
+#define PPP_I2C_MAX_PAYLOAD_IN_SIZE   $$ppp:self.i2c_max_payload_in_size()$$
+#define PPP_I2C_MAX_PAYLOAD_OUT_SIZE  $$ppp:self.i2c_max_payload_out_size()$$
 
-#if PPP_MAX_PAYLOAD_RECV_SIZE > PPP_MAX_PAYLOAD_SEND_SIZE
-#define PPP_MAX_FRAME_SIZE (PPP_MAX_PAYLOAD_RECV_SIZE+3)
+#if PPP_I2C_MAX_PAYLOAD_IN_SIZE > PPP_I2C_MAX_PAYLOAD_OUT_SIZE
+#define PPP_I2C_MAX_FRAME_SIZE (PPP_I2C_MAX_PAYLOAD_IN_SIZE+3)
 #else
-#define PPP_MAX_FRAME_SIZE (PPP_MAX_PAYLOAD_SEND_SIZE+3)
+#define PPP_I2C_MAX_FRAME_SIZE (PPP_I2C_MAX_PAYLOAD_OUT_SIZE+3)
 #endif
 
 // for now, i2cm limits recv/send to 127 bytes
-#if PPP_MAX_FRAME_SIZE > 127
+#if PPP_I2C_MAX_FRAME_SIZE > 127
 #error "PPP payloads are too big"
 #endif
 
@@ -38,11 +38,11 @@ static uint8_t ppp_checksum(const uint8_t *data, uint16_t size);
  */
 typedef struct {
   uint8_t addr;
-  uint8_t buf[PPP_MAX_FRAME_SIZE];
+  uint8_t buf[PPP_I2C_MAX_FRAME_SIZE];
   uint16_t send_size;
   uint16_t recv_size;
 
-} PPPCmdFrame;
+} PPPI2CFrame;
 
 
 /** @brief Send a frame using I2C and receive the reply if needed.
@@ -56,7 +56,7 @@ typedef struct {
  *
  * @return 0 on success, -1 on error.
  */
-static int8_t ppp_process_frame(PPPCmdFrame *frame);
+static int8_t ppp_i2cm_process_frame(PPPI2CFrame *frame);
 
 
 void ppp_init(void)
@@ -74,7 +74,7 @@ uint8_t ppp_checksum(const uint8_t *data, uint16_t size)
   return crc;
 }
 
-int8_t ppp_process_frame(PPPCmdFrame *frame)
+int8_t ppp_i2cm_process_frame(PPPI2CFrame *frame)
 {
   uint8_t *buf = frame->buf;
   // prepare the frame data
@@ -94,10 +94,10 @@ int8_t ppp_process_frame(PPPCmdFrame *frame)
   }
 
   frame_tot_size = frame->recv_size+3;
-  uint8_t cmdid = buf[2];
+  uint8_t mid = buf[2];
   uint8_t tries;
-  for( tries=0; tries<PPP_RECV_MAX_TRIES; tries++ ) {
-    wait_ms(PPP_RECV_WAIT_MS);
+  for( tries=0; tries<PPP_I2CM_RECV_MAX_TRIES; tries++ ) {
+    wait_ms(PPP_I2CM_RECV_WAIT_MS);
     ret = i2cm_recv(frame->addr, buf, frame_tot_size);
     if( ret <= 0 ) {
       DEBUG(PPP_ERROR, "i2cm_recv() failure (got %d)", ret);
@@ -128,10 +128,10 @@ int8_t ppp_process_frame(PPPCmdFrame *frame)
       return -1;
     }
 
-    // check cmdid
-    if( buf[2] != cmdid ) {
+    // check mid
+    if( buf[2] != mid ) {
       WARNING(PPP_ERROR, "reply command ID mismatch (expected 0x%02X, got 0x%02X)",
-            cmdid, buf[2]);
+              mid, buf[2]);
       return -1;
     }
 
@@ -143,16 +143,16 @@ int8_t ppp_process_frame(PPPCmdFrame *frame)
 }
 
 
-int8_t ppp_send_command(PPPCmdData *cmddata)
+int8_t ppp_send_command(PPPMsgData *msgdata)
 {
-  PPPCmdFrame frame;
-  uint8_t cmdid = cmddata->cmdid;
-  frame.buf[2] = cmdid;
+  PPPI2CFrame frame;
+  uint8_t mid = msgdata->mid;
+  frame.buf[2] = mid;
 
-  switch(cmdid) {
+  switch(mid) {
 #pragma perlimpinpin_tpl  self.master_send_command()
     default:
-      WARNING(PPP_ERROR, "unsupported command ID: %u", cmdid);
+      WARNING(PPP_ERROR, "unsupported command ID: %u", mid);
       return -1;
   }
   return 0;

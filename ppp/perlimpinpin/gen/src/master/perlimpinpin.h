@@ -26,8 +26,8 @@
 #define PERLIMPINPIN_H
 
 
-#define PPP_RECV_MAX_TRIES  10
-#define PPP_RECV_WAIT_MS    20
+#define PPP_I2CM_RECV_MAX_TRIES  10
+#define PPP_I2CM_RECV_WAIT_MS    20
 
 
 /// Initialize perlimpinpin communications.
@@ -35,31 +35,31 @@ void ppp_init(void);
 
 
 typedef enum {
-#pragma perlimpinpin_tpl self.cmdid_enum_fields()
+#pragma perlimpinpin_tpl self.msgid_enum_fields()
 
-} PPPCmdID;
+} PPPMsgID;
 
 /// Type storing command data, both in and out.
 typedef union {
-  PPPCmdID cmdid;
-#pragma perlimpinpin_tpl self.cmddata_union_fields()
+  PPPMsgID mid;
+#pragma perlimpinpin_tpl self.msgdata_union_fields()
 
-} PPPCmdData;
+} PPPMsgData;
 
 
 /** @brief Send a command and wait for the reply.
  * @return 0 on success, -1 on error.
  */
-int8_t ppp_send_command(PPPCmdData *cmddata);
+int8_t ppp_send_command(PPPMsgData *msgdata);
 
 
 /** @name Helper macros to send messages.
  *
- * These macros fill a PPPCmdData structure then call ppp_send_command().
+ * These macros fill a PPPMsgData structure then call ppp_send_command().
  */
 //@{
 
-#pragma perlimpinpin_tpl  self.master_send_helpers()
+#pragma perlimpinpin_tpl  self.send_helpers()
 //@}
 
 

@@ -12,13 +12,13 @@
 
 #define PPP_ERROR  0x80   //TODO
 
-#define PPP_MAX_PAYLOAD_RECV_SIZE  $$ppp:self.max_payload_recv_size()$$
-#define PPP_MAX_PAYLOAD_SEND_SIZE  $$ppp:self.max_payload_send_size()$$
+#define PPP_I2C_MAX_PAYLOAD_IN_SIZE   $$ppp:self.i2c_max_payload_in_size()$$
+#define PPP_I2C_MAX_PAYLOAD_OUT_SIZE  $$ppp:self.i2c_max_payload_out_size()$$
 
-#if PPP_MAX_PAYLOAD_RECV_SIZE > (I2CS_RECV_BUF_SIZE) - 3
+#if PPP_I2C_MAX_PAYLOAD_IN_SIZE > (I2CS_RECV_BUF_SIZE) - 3
 #error "I2CS_RECV_BUF_SIZE is too small for PPP input payloads"
 #endif
-#if PPP_MAX_PAYLOAD_SEND_SIZE > (I2CS_SEND_BUF_SIZE) - 3
+#if PPP_I2C_MAX_PAYLOAD_OUT_SIZE > (I2CS_SEND_BUF_SIZE) - 3
 #error "I2CS_SEND_BUF_SIZE is too small for PPP output payloads"
 #endif
 
@@ -32,13 +32,13 @@ static uint8_t ppp_checksum(const uint8_t *data, uint16_t size);
  * \e recv_buf and \e send_buf contain only the payload, not the size and checksum.
  */
 typedef struct {
-  PPPCmdData data;
+  PPPMsgData data;
   const uint8_t *recv_buf;
   uint8_t *send_buf;
   uint16_t recv_size;
   uint16_t send_size;
 
-} PPPCmdPayload;
+} PPPMsgPayload;
 
 
 /** @brief Process a PPP command payload.
@@ -54,7 +54,7 @@ typedef struct {
  *
  * @return 0 on success, -1 on error.
  */
-static int8_t ppp_process_cmd_payload(PPPCmdPayload *pl);
+static int8_t ppp_process_cmd_payload(PPPMsgPayload *pl);
 
 
 void ppp_init(void)
@@ -63,7 +63,7 @@ void ppp_init(void)
 }
 
 
-void ppp_update(void)
+void ppp_i2cs_update(void)
 {
   if( i2cs_recv_size == 0 ) {
     return;  // nothing to do
@@ -84,7 +84,7 @@ void ppp_update(void)
   IRQ_UNLOCK(flags);
 
 
-  PPPCmdPayload pl;
+  PPPMsgPayload pl;
 
   // get and check payload size
 
@@ -101,12 +101,6 @@ void ppp_update(void)
     return;
   }
 
-  if( pl.recv_size > PPP_MAX_PAYLOAD_RECV_SIZE ) {
-    WARNING(PPP_ERROR, "PPP input payload size is too big (max is %u, got %u)",
-            PPP_MAX_PAYLOAD_RECV_SIZE, pl.recv_size);
-    return;
-  }
-
   // checksum
   uint8_t chksum_got = data_recv[pl.recv_size+2];
   uint8_t chksum_exp = ppp_checksum(data_recv, pl.recv_size+2);
@@ -119,7 +113,7 @@ void ppp_update(void)
   // process payload
   pl.recv_buf = data_recv+2;
   pl.send_buf = i2cs_send_buf+2;
-  pl.send_size = PPP_MAX_PAYLOAD_SEND_SIZE+1;
+  pl.send_size = I2CS_SEND_BUF_SIZE-3;
   if( ppp_process_cmd_payload(&pl) != 0 ) {
     return;
   }
@@ -144,18 +138,18 @@ uint8_t ppp_checksum(const uint8_t *data, uint16_t size)
 }
 
 
-int8_t ppp_process_cmd_payload(PPPCmdPayload *pl)
+int8_t ppp_process_cmd_payload(PPPMsgPayload *pl)
 {
-  uint8_t cmdid = pl->recv_buf[0];
-  pl->data.cmdid = cmdid;
-  pl->send_buf[0] = cmdid;
+  uint8_t mid = pl->recv_buf[0];
+  pl->data.mid = mid;
+  pl->send_buf[0] = mid;
   const uint8_t *recv_data  = pl->recv_buf+1;
   const uint8_t *send_data = pl->send_buf+1;
 
-  switch(cmdid) {
+  switch(mid) {
 #pragma perlimpinpin_tpl  self.slave_process_cmd_payload_switch()
     default:
-      WARNING(PPP_ERROR, "unsupported command ID: %u", cmdid);
+      WARNING(PPP_ERROR, "unsupported command ID: %u", mid);
       return -1;
   }
   return 0;

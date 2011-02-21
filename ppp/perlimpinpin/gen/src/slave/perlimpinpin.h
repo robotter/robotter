@@ -30,21 +30,21 @@
 /// Initialize perlimpinpin communications.
 void ppp_init(void);
 
-/// Handle pending events.
-void ppp_update(void);
+/// Handle I2C pending events, for slaves.
+void ppp_i2cs_update(void);
 
 
 typedef enum {
-#pragma perlimpinpin_tpl self.cmdid_enum_fields()
+#pragma perlimpinpin_tpl self.msgid_enum_fields()
 
-} PPPCmdID;
+} PPPMsgID;
 
-/// Type storing command data, both in and out.
+/// Type storing message data, both in and out.
 typedef union {
-  PPPCmdID cmdid;
-#pragma perlimpinpin_tpl self.cmddata_union_fields()
+  PPPMsgID mid;
+#pragma perlimpinpin_tpl self.msgdata_union_fields()
 
-} PPPCmdData;
+} PPPMsgData;
 
 /** @brief Callback for received commands.
  *
@@ -52,6 +52,6 @@ typedef union {
  *
  * @return 0 on success, -1 on error.
  */
-int8_t ppp_command_callback(PPPCmdData *);
+int8_t ppp_command_callback(PPPMsgData *);
 
 #endif
