@@ -54,9 +54,10 @@ class Robot:
       else:
         dev_roids[roid] = dev
 
-    # check for duplicate message IDs
+    # check for duplicate message IDs or names (case insensitive)
     messages = {}  # messages, indexed by ID
     msgs_noid = []  # messages without ID
+    msgs_names = set()
     for dev in devices:
       for msg in dev.messages:
         mid = msg.mid
@@ -67,6 +68,11 @@ class Robot:
               % (mid, msg.name, messages[mid].name))
         else:
           messages[mid] = msg
+        name = msg.name.lower()
+        if name in msgs_names:
+          raise ValueError("message name %r already used" % name)
+        else:
+          msgs_names.add(name)
 
     # auto-attribute message IDs
     mid = 0
@@ -145,7 +151,7 @@ class Message:
   Transmitted message, either from or to a device.
 
   Attributes:
-    name -- message name (uppercase, with underscores)
+    name -- message name (lowercase, with underscores)
     mid -- message ID (automatically assigned if None)
     desc -- message description, or None
     device -- message's device (set by the device itself)
@@ -153,7 +159,7 @@ class Message:
   """
 
   def __init__(self, name, mid=None, desc=None):
-    if not re.match('^[A-Z][A-Z0-9_]*$', name):
+    if not re.match('^[a-z][a-z0-9_]*$', name):
       raise ValueError("invalid message name: %r" % name)
     self.name = name
     self.mid = mid

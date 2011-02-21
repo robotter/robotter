@@ -125,7 +125,7 @@ class CodeGenerator:
         raise TypeError("unsupported message type")
       ret += '\n  struct {\n%s  } %s;\n' % (
           ''.join( '    %s\n'%s for s in fields ),
-          cmd.name.lower(),
+          cmd.name,
           )
     return ret
 
@@ -146,7 +146,7 @@ class CodeGenerator:
     ret = ''
     for cmd in self.device.commands():
       lines = []
-      msgdata_struct = 'pl->data.%s' % cmd.name.lower()
+      msgdata_struct = 'pl->data.%s' % cmd.name
 
       # check size
       # note: send_size is checked at compile time
@@ -198,7 +198,7 @@ class CodeGenerator:
     ret = ''
     for cmd in self.device.commands():
       lines = []
-      msgdata_struct = 'msgdata->%s' % cmd.name.lower()
+      msgdata_struct = 'msgdata->%s' % cmd.name
 
       # pack arguments
       pos = 0
@@ -244,7 +244,7 @@ class CodeGenerator:
       sargs = ', '.join(args)
 
       lines = [ '(_msgdata)->mid = %u,' % cmd.mid ]
-      msgdata_struct = '(_msgdata)->%s' % cmd.name.lower()
+      msgdata_struct = '(_msgdata)->%s' % cmd.name
       for v,t in cmd.iparams:
         lines.append('%s.%s = (%s),' % (msgdata_struct, v, v))
       ret += '#define PPP_SEND_%s(%s) \\\n%s    ppp_send_command(_msgdata);\n\n' % (
