@@ -176,8 +176,8 @@ begin  -- comm_contol_unit_1
       rd_read_index_updated_s  <= '0';
       rd_begin_emission_done_s <= '0';
       i2c_read_in_progress_o   <= '0';
-	  rd_finish_read_done_s    <= '0';
-	  
+    rd_finish_read_done_s    <= '0';
+    
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
 
       -- signal that emission buffer must not be accessed
@@ -185,7 +185,7 @@ begin  -- comm_contol_unit_1
         i2c_read_in_progress_o   <= '1';
         read_index_s             <= 0;
         rd_begin_emission_done_s <= '1';
-		rd_finish_read_done_s    <= '0';
+    rd_finish_read_done_s    <= '0';
 
         -- increase read index only once and signal that operation has been done
       elsif control_unit_state_s = rd_update_read_index then
@@ -204,7 +204,7 @@ begin  -- comm_contol_unit_1
       elsif control_unit_state_s = rd_finish_read then
         i2c_read_in_progress_o  <= '0';
         rd_read_index_updated_s <= '0';
-		rd_finish_read_done_s   <= '1';
+    rd_finish_read_done_s   <= '1';
       end if;
       
     end if;
@@ -238,8 +238,8 @@ begin  -- comm_contol_unit_1
       write_index_s <= 1;
       wr_write_index_updated_s  <= '0';
       wr_begin_reception_done_s <= '0';
-	  i2c_write_in_progress_o   <= '0';
-	  wr_finish_write_done_s    <= '0';
+    i2c_write_in_progress_o   <= '0';
+    wr_finish_write_done_s    <= '0';
       
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
 
@@ -248,7 +248,7 @@ begin  -- comm_contol_unit_1
         i2c_write_in_progress_o   <= '1';
         write_index_s             <= 1;
         wr_begin_reception_done_s <= '1';
-		wr_finish_write_done_s    <= '0';
+    wr_finish_write_done_s    <= '0';
 
         -- increase read index only once and signal that operation has been done
       elsif control_unit_state_s = wr_update_write_index then
@@ -266,7 +266,7 @@ begin  -- comm_contol_unit_1
       elsif control_unit_state_s = wr_finish_write then
         i2c_write_in_progress_o  <= '0';
         wr_write_index_updated_s <= '0';
-		wr_finish_write_done_s   <= '1';
+    wr_finish_write_done_s   <= '1';
         -- reception_buffer(0) <= std_logic_vector(to_unsigned(write_index_s,8));
       end if;
       

@@ -19,12 +19,12 @@
 --! Top level file for Galipeur position manager
 -----------------------------------------------------------------------------
 
-LIBRARY ieee;
+library ieee;
 USE ieee.std_logic_1164.ALL;
 use ieee.numeric_std.all;
 
-ENTITY posman IS
-  GENERIC (
+entity posman is
+  generic (
     id           : natural := 3;
     wb_size_c    : natural := 8;           -- data port size
     adns_size_c  : natural := 16;        -- data sensor port size
@@ -32,8 +32,8 @@ ENTITY posman IS
     freq_fpga_c  : natural := 50000
     );
 
-  PORT (
-    ---------------------------------------------------------------------------
+  port (
+    ---------------------------------------------------------------------
     -- wishbone interface
     wbs_rst_i : in  std_logic;          -- asynchronous reset, active high
     wbs_clk_i : in std_logic;           -- clock
@@ -45,25 +45,25 @@ ENTITY posman IS
     wbs_ack_o : out std_logic;           -- operation succesful
     wbs_cyc_i : in std_logic;
 
-		---------------------------------------------------------------------------
-		-- ADNS9500 inputs
-		adns1_deltax_i : in signed (15 downto 0);
+    ---------------------------------------------------------------------
+    -- ADNS9500 inputs
+    adns1_deltax_i : in signed (15 downto 0);
     adns1_deltay_i : in signed (15 downto 0);
     adns2_deltax_i : in signed (15 downto 0);
     adns2_deltay_i : in signed (15 downto 0);
     adns3_deltax_i : in signed (15 downto 0);
     adns3_deltay_i : in signed (15 downto 0);
 
-		-- ADNS9500 data update
-		update_i : in std_logic
+    -- ADNS9500 data update
+    update_i : in std_logic
 
-		-- motors encoders inputs
-		motor1_i : in signed (15 downto 0);
-		motor2_i : in signed (15 downto 0);
-		motor3_i : in signed (15 downto 0);
-		
+    -- motors encoders inputs
+    motor1_i : in signed (15 downto 0);
+    motor2_i : in signed (15 downto 0);
+    motor3_i : in signed (15 downto 0);
+    
   );
 
-END adns9500;
+end adns9500;
 
 

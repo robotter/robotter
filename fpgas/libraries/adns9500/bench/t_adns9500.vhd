@@ -85,8 +85,8 @@ architecture t_adns9500_1 of t_adns9500 is
     cs2_no : out  std_logic;
     cs3_no : out  std_logic;
 
-		-- raw ADNS9500 ouputs
-		adns1_deltax_o : out signed (15 downto 0);
+    -- raw ADNS9500 ouputs
+    adns1_deltax_o : out signed (15 downto 0);
     adns1_deltay_o : out signed (15 downto 0);
     adns2_deltax_o : out signed (15 downto 0);
     adns2_deltay_o : out signed (15 downto 0);
@@ -96,8 +96,8 @@ architecture t_adns9500_1 of t_adns9500 is
     adns1_squal_o  : out std_logic_vector (7 downto 0);
     adns2_squal_o  : out std_logic_vector (7 downto 0);
     adns3_squal_o  : out std_logic_vector (7 downto 0);
-		
-		update_o : out std_logic
+    
+    update_o : out std_logic
 
     );
 
@@ -202,7 +202,7 @@ begin
     ------------------------------------------------------------------------
     -- ADNS NCS LINES TESTS
     ------------------------------------------------------------------------
-		debug_s <= x"00";
+    debug_s <= x"00";
 
     -- Drive CS to various values
 
@@ -254,7 +254,7 @@ begin
     ------------------------------------------------------------------------
     -- ADNS DIRECT SPI TEST
     ------------------------------------------------------------------------
-		debug_s <= x"01";
+    debug_s <= x"01";
 
     -- put system to NO-auto
 
@@ -264,7 +264,7 @@ begin
 
     wait for 100 ns;
 
-		debug_s <= x"02";
+    debug_s <= x"02";
     -- try direct SPI communication
 
     -- send_data <= 0
@@ -324,7 +324,7 @@ begin
     ------------------------------------------------------------------------
  
     ------------------------------------------------------------------------
-		debug_s <= x"03";
+    debug_s <= x"03";
     -- perform a latch cycle 
 
     wb_write("000001", x"07", clk_s,
@@ -341,7 +341,7 @@ begin
   
     ------------------------------------------------------------------------
     -- no SPI communication until now => all movements registers shall be 0s
-		debug_s <= x"04";
+    debug_s <= x"04";
 
     for addr in 2 to 28 loop
 
@@ -365,7 +365,7 @@ begin
     wait for 100 ns;
 
     
-		debug_s <= x"05";
+    debug_s <= x"05";
     for step in 0 to 3 loop
       -------------------------------------------------------------------------
       -- simulate SPI communication 
@@ -391,10 +391,10 @@ begin
         assert out_s = x"50" report "CU READ MOTION REGISTER fail" severity warning;
         
         -- motion register bit 7 indicate motion occured since last report
-				debug_s<=x"06";
+        debug_s<=x"06";
 
         spi_prepdata(x"80", out_s, mosi_s, miso_s, sck_s); -- motion
-				spi_prepdata(x"00", out_s, mosi_s, miso_s, sck_s); -- observation
+        spi_prepdata(x"00", out_s, mosi_s, miso_s, sck_s); -- observation
         spi_prepdata(x"FF", out_s, mosi_s, miso_s, sck_s); -- deltax 
         spi_prepdata(x"2C", out_s, mosi_s, miso_s, sck_s); -- deltax 
         spi_prepdata(x"FF", out_s, mosi_s, miso_s, sck_s); -- deltay 

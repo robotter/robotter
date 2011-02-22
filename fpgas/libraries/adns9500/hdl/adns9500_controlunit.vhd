@@ -82,8 +82,8 @@ entity adns9500_controlunit is
     adns3_deltay_o : out signed(15 downto 0);
     adns3_squal_o  : out std_logic_vector(7 downto 0);
 
-		-- data update, r_e on data updated
-		update_o : out std_logic;
+    -- data update, r_e on data updated
+    update_o : out std_logic;
 
     ----------------------------------------------------------
     -- fault
@@ -144,7 +144,7 @@ begin
   spi_p : process(reset_ni, clk_i, enable_i)
 
     variable spi_pstart_v : std_logic;
-		type SPI_STATE_TYPE is (SPI_STATE_INIT, SPI_STATE_DATA, SPI_STATE_BEGIN, SPI_STATE_BUSY, SPI_STATE_WAIT);
+    type SPI_STATE_TYPE is (SPI_STATE_INIT, SPI_STATE_DATA, SPI_STATE_BEGIN, SPI_STATE_BUSY, SPI_STATE_WAIT);
     variable spi_state_v : SPI_STATE_TYPE;
 
   begin
@@ -175,39 +175,39 @@ begin
         -- store last spi_start value
         spi_pstart_v := spi_start_s;
 
-				case spi_state_v is
-       	  -- init communication
-					when SPI_STATE_INIT =>
- 	          spi_senddata_o <= '0';
-   	        spi_state_v := SPI_STATE_DATA;
+        case spi_state_v is
+           -- init communication
+          when SPI_STATE_INIT =>
+             spi_senddata_o <= '0';
+             spi_state_v := SPI_STATE_DATA;
 
-        	-- send data to SPI and wait one tick
-        	when SPI_STATE_DATA =>
-          	spi_datain_o <= spi_datatosend_s;
-          	spi_state_v := SPI_STATE_BEGIN;
+          -- send data to SPI and wait one tick
+          when SPI_STATE_DATA =>
+            spi_datain_o <= spi_datatosend_s;
+            spi_state_v := SPI_STATE_BEGIN;
         
-        	-- set senddata high to begin SPI communication 
-        	-- and wait for busy to go high
-        	when SPI_STATE_BEGIN =>
- 	          spi_senddata_o <= '1';
-          	if spi_busy_i = '1' then
-            	spi_state_v := SPI_STATE_BUSY;
-	          end if;
+          -- set senddata high to begin SPI communication 
+          -- and wait for busy to go high
+          when SPI_STATE_BEGIN =>
+             spi_senddata_o <= '1';
+            if spi_busy_i = '1' then
+              spi_state_v := SPI_STATE_BUSY;
+            end if;
         
-        	-- set senddata low and wait for busy to go low
-        	-- to read data from SPI
-        	when SPI_STATE_BUSY =>
-          	spi_senddata_o <= '0';
-          	if spi_busy_i = '0' then
-            	spi_datareceived_s <= spi_dataout_i;
-            	spi_done_s <= '1';
-            	spi_state_v := SPI_STATE_WAIT;
-          	end if;
+          -- set senddata low and wait for busy to go low
+          -- to read data from SPI
+          when SPI_STATE_BUSY =>
+            spi_senddata_o <= '0';
+            if spi_busy_i = '0' then
+              spi_datareceived_s <= spi_dataout_i;
+              spi_done_s <= '1';
+              spi_state_v := SPI_STATE_WAIT;
+            end if;
 
-        	-- final state, machine stay here
-        	when SPI_STATE_WAIT =>
-						-- it's a trap
-				end case;
+          -- final state, machine stay here
+          when SPI_STATE_WAIT =>
+            -- it's a trap
+        end case;
       end if; -- r_e(clk_i)
     end if; -- reset_ni = '0' 
 
@@ -219,11 +219,11 @@ begin
   -- Main state machine handling data sent over SPI
   controlunit_p : process(reset_ni, clk_i, enable_i)
 
-		type CU_STATE_TYPE is (CU_INIT,CU_1,CU_2,CU_3,CU_4,CU_5,CU_6,CU_7,
-														CU_8,CU_9,CU_10,CU_11,CU_12,CU_13,CU_14,
-														CU_15,CU_16,CU_17,CU_18,CU_19);
+    type CU_STATE_TYPE is (CU_INIT,CU_1,CU_2,CU_3,CU_4,CU_5,CU_6,CU_7,
+                            CU_8,CU_9,CU_10,CU_11,CU_12,CU_13,CU_14,
+                            CU_15,CU_16,CU_17,CU_18,CU_19);
 
-		variable controlunit_state_v : CU_STATE_TYPE;
+    variable controlunit_state_v : CU_STATE_TYPE;
 
     variable timer_v : natural := 0;
     variable current_adns_v : natural range 1 to 4 := 1;
@@ -256,7 +256,7 @@ begin
       adns3_deltay_o <= (others => '0');
       adns3_squal_o  <= (others => '0');
 
-			update_o <= '0';
+      update_o <= '0';
 
       adns1_deltax_s <= (others => '0');
       adns1_deltay_s <= (others => '0');
@@ -276,27 +276,27 @@ begin
 
     elsif rising_edge( clk_i ) then
       
-			case controlunit_state_v is
+      case controlunit_state_v is
         -- set CS high for current ADNS9500
         when CU_INIT =>
 
-					-- latch ouput values if current adns == 1
-					if current_adns_v = 1 then
-			  		adns1_deltax_o <= adns1_deltax_s;
-				  	adns1_deltay_o <= adns1_deltay_s;
-				  	adns1_squal_o <= adns1_squal_s;
-				  	adns2_deltax_o <= adns2_deltax_s;
-				  	adns2_deltay_o <= adns2_deltay_s;
-				  	adns2_squal_o <= adns2_squal_s;
-				  	adns3_deltax_o <= adns3_deltax_s;
-				  	adns3_deltay_o <= adns3_deltay_s;
-				  	adns3_squal_o <= adns3_squal_s;
-						
-						-- update_o r_e on new data latched
-						update_o <= '1';
-					else
-						update_o <= '0';
-					end if;
+          -- latch ouput values if current adns == 1
+          if current_adns_v = 1 then
+            adns1_deltax_o <= adns1_deltax_s;
+            adns1_deltay_o <= adns1_deltay_s;
+            adns1_squal_o <= adns1_squal_s;
+            adns2_deltax_o <= adns2_deltax_s;
+            adns2_deltay_o <= adns2_deltay_s;
+            adns2_squal_o <= adns2_squal_s;
+            adns3_deltax_o <= adns3_deltax_s;
+            adns3_deltay_o <= adns3_deltay_s;
+            adns3_squal_o <= adns3_squal_s;
+            
+            -- update_o r_e on new data latched
+            update_o <= '1';
+          else
+            update_o <= '0';
+          end if;
 
           -- pull CS high for current ADNS
           adns_cs_o <= std_logic_vector( to_unsigned(current_adns_v,2) );
@@ -541,8 +541,8 @@ begin
           ----------------------------------------------------------
           -- go back to first state
           controlunit_state_v := CU_INIT;
-		 	
-				end case;
+       
+        end case;
         ----------------------------------------------------------
 
     end if; -- reset_ni = '0' 
