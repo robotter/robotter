@@ -18,7 +18,7 @@ class Robot:
     Check device and message consistency.
     Auto-attribute IDs to message without ID.
     """
-    # asigne robot to devices, split master and slaves
+    # assign robot to devices, split master and slaves
     self.master = None
     self.slaves = []
     for dev in devices:
