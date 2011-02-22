@@ -37,17 +37,18 @@ architecture t_encoder_inc_reader_1 of t_encoder_inc_reader is
   signal ch_a_s  : std_logic;
   signal ch_b_s  : std_logic;
   signal speed_s : signed(15 downto 0);
+  signal synchro_s : std_logic;
 
   component encoder_inc_reader
 		generic (
-			clk_freq_c :natural := 50000; --50 MHz
-			speed_frequency_c :natural := 1000 -- 1kHz
+			clk_freq_c :natural := 50000 --50 MHz
 		);
     port (
       clk_i   : in  std_logic;
       reset_ni : in  std_logic;
       ch_a_i  : in  std_logic; --! channel A
       ch_b_i  : in  std_logic; --! channel B
+			synchro_i : in std_logic;
       speed_o : out signed(15 downto 0)
     );
   end component encoder_inc_reader;
@@ -61,6 +62,7 @@ begin
     reset_ni => reset_ns,
     ch_a_i  => ch_a_s,
     ch_b_i  => ch_b_s,
+		synchro_i => synchro_s,
     speed_o => speed_s
   );
 
@@ -75,15 +77,19 @@ begin
     ch_a_s <= ch_a_c(0);
     ch_b_s <= ch_b_c(0);
     reset_ns <= '0';
+		synchro_s <= '0';
     wait for 5 * fpga_period_c;
     reset_ns <= '1';
 
-		for t in 0 to 10000 loop
-	    for i in ch_a_c'range loop
-  	    ch_a_s <= ch_a_c(i);
-    	  ch_b_s <= ch_b_c(i);
-      	wait for fpga_period_c;
-	    end loop;
+		for m in 0 to 10 loop
+			synchro_s <= not synchro_s;
+		  for t in 0 to 1000 loop
+	      for i in ch_a_c'range loop
+  	      ch_a_s <= ch_a_c(i);
+      	  ch_b_s <= ch_b_c(i);
+        	wait for fpga_period_c;
+	      end loop;
+		  end loop;
 		end loop;
 
     wait for 5 * fpga_period_c;

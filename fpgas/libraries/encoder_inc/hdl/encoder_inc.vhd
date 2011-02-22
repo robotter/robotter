@@ -26,11 +26,11 @@ entity encoder_inc is
 
   generic (
     --! Debouncer register size
-    reg_size_c : natural := 10;
-		--! frequency at which encoder speed is computed in Hz
-		speed_frequency_c : natural := 1000
+    reg_size_c : natural := 10
   );
   port (
+		--! calculus synchronisation, reset speed counter, latch new data on speed output 
+		synchro_i : in std_logic;
 		--! encoder speed
 		speed_o : out signed(15 downto 0);
 
@@ -45,6 +45,7 @@ end entity encoder_inc;
 architecture encoder_inc_1 of encoder_inc is
 
   signal speed_s :signed(15 downto 0);
+  signal synchro_s : std_logic;
   signal debounced_a_s : std_logic;
   signal debounced_b_s : std_logic;
 
@@ -69,7 +70,8 @@ architecture encoder_inc_1 of encoder_inc is
       reset_i : in  std_logic;
       ch_a_i  : in  std_logic;
       ch_b_i  : in  std_logic;
-      angle_o : out integer
+			synchro_i : in std_logic;
+      speed_o : out integer
     );
   end component encoder_inc_reader;
   for encoder_inc_reader_0 : encoder_inc_reader use entity work.encoder_inc_reader;
@@ -104,9 +106,11 @@ begin
     reset_i => wbs_rst_i,
     ch_a_i  => debounced_a_s,
     ch_b_i  => debounced_b_s,
+		synchro_i => synchro_s,
     speed_o => speed_s
   );
 
+	synchro_s <= synchro_i;
 	speed_o <= speed_s;
 
 end architecture encoder_inc_1;
