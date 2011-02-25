@@ -3,7 +3,7 @@
 from perlimpinpin.core import *
 
 robot = Robot([
-  MasterDevice('strat', 0x20,
+  Device('strat', 0x20,
     [
       Telemetry('speak', [('value','int16')]),
       Telemetry('breathe', [('one','uint8'), ('two','uint8')]),
@@ -11,11 +11,10 @@ robot = Robot([
       Telemetry('time', [('hep','int32'), ('hop','int8')]),
       Telemetry('gig', [('value','uint32')]),
       ],
-    uartnum = 0,
     outdir = '../avrs/projects/unioc_strat/'
     ),
 
-  SlaveDevice('prop', 0x42,
+  Device('prop', 0x42,
     [
       Command('none', [], [],
         desc="Do nothing, just for tests"),
@@ -64,7 +63,6 @@ robot = Robot([
 
       ],
 
-    uartnum = 1,
     outdir = '../avrs/projects/unioc_asserv/'
     )
 ])

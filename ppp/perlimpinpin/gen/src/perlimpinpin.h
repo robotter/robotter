@@ -17,21 +17,15 @@
  */
 
 /** @file
- * @brief Perlimpinpin symbols for master $$ppp:self.device.name$$.
+ * @brief Perlimpinpin symbols.
  * @date $$ppp:time.strftime('%Y-%m-%d %H:%m:%S')$$
+ *
+ * The user must define the ppp_command_callback() function in a separate
+ * object file.
  */
-
 
 #ifndef PERLIMPINPIN_H
 #define PERLIMPINPIN_H
-
-
-#define PPP_I2CM_RECV_MAX_TRIES  10
-#define PPP_I2CM_RECV_WAIT_MS    20
-
-
-/// Initialize perlimpinpin communications.
-void ppp_init(void);
 
 
 typedef enum {
@@ -39,19 +33,36 @@ typedef enum {
 
 } PPPMsgID;
 
-/// Type storing command data, both in and out.
+/// Type storing message data, both in and out.
 typedef union {
   PPPMsgID mid;
 #pragma perlimpinpin_tpl self.msgdata_union_fields()
 
 } PPPMsgData;
 
-
-/** @brief Send a command and wait for the reply.
+/** @brief Callback for received commands.
+ *
+ * This function must be defined by the user.
+ *
  * @return 0 on success, -1 on error.
  */
-int8_t ppp_send_command(PPPMsgData *msgdata);
+int8_t ppp_command_callback(PPPMsgData *);
 
+
+/// Initialize perlimpinpin communications.
+void ppp_init(void);
+
+/** @brief Handle all pending events.
+ *
+ * This method does not block except when transferring an UART command to an
+ * I2C slave when it will block to complete a frame send or receive.
+ */
+void ppp_update(void);
+
+/** @brief Send a message and wait for the reply (if any).
+ * @return 0 on success, -1 on error.
+ */
+int8_t ppp_send_message(PPPMsgData *msgdata);
 
 /** @name Helper macros to send messages.
  *

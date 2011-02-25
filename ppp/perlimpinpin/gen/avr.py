@@ -1,13 +1,13 @@
 import re, os
 import time  # used by templates
 
-from ..core import MasterDevice, SlaveDevice, Telemetry, Command, Message, ppp_types
+from ..core import Telemetry, Command, Message, ppp_types
 
 
 def templatize(tpl, out, loc):
   """Process a template.
 
-  '#pragma perlimpinpin_tpl CODE' and '$$ppp:CODE' sequences are replaced,
+  '#pragma perlimpinpin_tpl CODE' and '$$ppp:CODE$$' sequences are replaced,
   where CODE is Python code. Multiline #pragma (using backslash at end of line)
   are not supported.
 
@@ -86,15 +86,8 @@ class CodeGenerator:
   def generate(self):
     """Generate all files."""
 
-    if isinstance(self.device, SlaveDevice):
-      tpldir = 'src/slave'
-    elif isinstance(self.device, MasterDevice):
-      tpldir = 'src/master'
-    else:
-      raise TypeError("unsupported device type")
-
     loc = { 'self': self }
-    tpldir = os.path.join(os.path.dirname(__file__), tpldir)
+    tpldir = os.path.join(os.path.dirname(__file__), 'src')
     for f in os.listdir(tpldir):
       if os.path.splitext(f)[1] in ('.c', '.h'):
         tpl = os.path.join(tpldir, f)
@@ -129,39 +122,42 @@ class CodeGenerator:
           )
     return ret
 
-  def i2c_max_payload_in_size(self):
+
+  #XXX we could use device specific max payload sizes
+
+  def max_payload_in_size(self):
     return max(
         sum( self.avr_sizeof(t) for v,t in cmd.iparams )
-        for cmd in self.device.robot.slave_commands()
+        for cmd in self.device.robot.commands()
         )
 
-  def i2c_max_payload_out_size(self):
+  def max_payload_out_size(self):
     return max(
         sum( self.avr_sizeof(t) for v,t in cmd.oparams )
-        for cmd in self.device.robot.slave_commands()
+        for cmd in self.device.robot.commands()
         )
 
 
-  def slave_process_cmd_payload_switch(self):
+  def process_input_frame_switch(self):
     ret = ''
     for cmd in self.device.commands():
       lines = []
-      msgdata_struct = 'pl->data.%s' % cmd.name
+      msgdata_struct = 'msgdata.%s' % cmd.name
 
       # check size
       # note: send_size is checked at compile time
       size_exp = sum( self.avr_sizeof(t) for v,t in cmd.iparams )
       lines.extend((
-        'if( pl->recv_size != %u ) {' % size_exp,
-        '  WARNING(PPP_ERROR, "invalid payload size for %s (expected %u, got %%u)", pl->recv_size);' % (cmd.name, size_exp),
+        'if( payload_size != %u ) {' % size_exp,
+        '  WARNING(PPP_ERROR, "invalid payload size for %s (expected %u, got %%u)", payload_size);' % (cmd.name, size_exp),
         '  return -1;',
         '}',
         ))
 
       # unpack arguments
-      pos = 0
+      pos = 3
       for v,t in cmd.iparams:
-        lines.append('%s.%s = *(const %s *)(recv_data+%u);'
+        lines.append('%s.%s = *(const %s *)(rbuf+%u);'
             % (msgdata_struct, v, self.avr_typename(t), pos))
         pos += self.avr_sizeof(t)
 
@@ -170,21 +166,21 @@ class CodeGenerator:
       fmt_args = ', '.join( '%s.%s'%(msgdata_struct, v) for v,t in cmd.iparams )
       if fmt_args != '':
         fmt_args = ', '+fmt_args
-      lines.append('DEBUG(PPP_ERROR, "received order %s(%s)"%s);' % (cmd.name, fmt_str, fmt_args))
+      lines.append('DEBUG(PPP_ERROR, "received message %s(%s)"%s);' % (cmd.name, fmt_str, fmt_args))
 
       # call the user callback
-      lines.append( 'ppp_command_callback(&pl->data);' )
+      lines.append( 'ppp_command_callback(&msgdata);' )
 
       # pack reply (if needed)
       if len(cmd.oparams) != 0:
-        pos = 0
+        pos = 3
         for v,t in cmd.oparams:
-          lines.append('*((%s *)(send_data+%u)) = %s.%s;'
+          lines.append('*((%s *)(frame->send_buf+%u)) = %s.%s;'
               % (self.avr_typename(t), pos, msgdata_struct, v))
           pos += self.avr_sizeof(t)
-        lines.append('pl->send_size = %u;' % (pos+1))  # +1 for mid
+        lines.append('payload_size = %u;' % (pos-2))  # - size (2)
       else:
-        lines.append('pl->send_size = 0;  // no reply')
+        lines.append('payload_size = 0;  // no reply')
 
       lines.append('break;')
       ret += '    case %s:\n%s\n' % (
@@ -194,38 +190,39 @@ class CodeGenerator:
     return ret
 
 
-  def master_send_command(self):
+  def send_message_switch(self):
+    #TODO telemetry
     ret = ''
     for cmd in self.device.commands():
       lines = []
       msgdata_struct = 'msgdata->%s' % cmd.name
 
       # pack arguments
-      pos = 0
+      pos = 3
       for v,t in cmd.oparams:
-        lines.append('*((%s *)(frame.buf+%u)) = %s.%s;'
-            % (self.avr_typename(t), pos+3, msgdata_struct, v))
+        lines.append('*((%s*)(frame.buf+%u)) = %s.%s;'
+            % (self.avr_typename(t), pos, msgdata_struct, v))
         pos += self.avr_sizeof(t)
-      lines.append('frame.send_size = %u;' % (pos+1))  # +1 for mid
+      lines.append('frame.send_size = %u;' % (pos+1))  # + checksum (1)
 
       # debug line
       fmt_str = ','.join( self.avr_printf_fmt(t) for v,t in cmd.iparams )
       fmt_args = ', '.join( '%s.%s'%(msgdata_struct, v) for v,t in cmd.iparams )
       if fmt_args != '':
         fmt_args = ', '+fmt_args
-      lines.append('DEBUG(PPP_ERROR, "send order %s(%s)"%s);' % (cmd.name, fmt_str, fmt_args))
+      lines.append('DEBUG(PPP_ERROR, "send message %s(%s)"%s);' % (cmd.name, fmt_str, fmt_args))
 
-      # process the order
+      # process the message
       lines.extend((
-        'if( ppp_i2cm_process_frame(&frame) != 0 ) {',
+        'if( ppp_i2cm_process_output_frame(&frame, 0x%02X) != 0 ) {' % cmd.device.roid,
         '  return -1;',
         '}',
         ))
 
       # unpack reply (if any)
-      pos = 0
+      pos = 3
       for v,t in cmd.oparams:
-        lines.append('*((%s *)(frame.buf+%u)) = %s.%s;'
+        lines.append('*((%s*)(frame.buf+%u)) = %s.%s;'
             % (self.avr_typename(t), pos+3, msgdata_struct, v))
         pos += self.avr_sizeof(t)
 
@@ -234,10 +231,13 @@ class CodeGenerator:
           self.msgid_enum_name(cmd),
           ''.join('      %s\n'%s for s in lines),
           )
+    #TODO telemetry
+    ret = '#ifdef PPP_I2C_MASTER\n%s\n#endif\n' % ret
     return ret
 
 
   def send_helpers(self):
+    #TODO telemetry
     ret = ''
     for cmd in self.device.commands():
       args = ['_msgdata'] + [ v for v,t in cmd.iparams ]

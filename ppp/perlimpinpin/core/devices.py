@@ -8,8 +8,6 @@ class Robot:
 
   Attributes:
     devices -- a list of devices (Device instances)
-    master -- the master device
-    slaves -- list of slave devices
 
   """
 
@@ -18,21 +16,11 @@ class Robot:
     Check device and message consistency.
     Auto-attribute IDs to message without ID.
     """
-    # assign robot to devices, split master and slaves
-    self.master = None
-    self.slaves = []
+    # assign robot to devices
     for dev in devices:
       if dev.robot is not None:
         raise AttributeError("device %r already assigned to a robot" % dev.name)
       dev.robot = self
-      if isinstance(dev, MasterDevice):
-        if self.master is not None:
-          raise ValueError("master already defined: %r" % self.master.name)
-        self.master = dev
-      elif isinstance(dev, SlaveDevice):
-        self.slaves.append(dev)
-    if self.master is None:
-      raise ValueError("no master")
     self.devices = devices
 
     # check for duplicate names (case insensitive)
@@ -92,10 +80,10 @@ class Robot:
         for msg in dev.messages
         ]
 
-  def slave_commands(self):
-    """Return commands of I2C slaves."""
+  def commands(self):
+    """Return all commands."""
     return [ cmd
-        for dev in self.devices if isinstance(dev, SlaveDevice)
+        for dev in self.devices
         for cmd in dev.commands()
         ]
 
@@ -137,13 +125,6 @@ class Device:
     """Return device commands."""
     return [ msg for msg in self.messages if isinstance(msg, Command) ]
 
-
-
-class SlaveDevice(Device):
-  pass
-
-class MasterDevice(Device):
-  pass
 
 
 class Message:
