@@ -94,7 +94,7 @@ void log_event(struct error * e, ...)
     scheduler_del_event(event_cs);
   
     // wait for key
-    uint8_t key;
+    int key;
     while(1)
     {
       key = cli_getkey();

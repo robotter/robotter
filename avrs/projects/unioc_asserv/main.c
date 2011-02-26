@@ -222,12 +222,15 @@ int main(void)
 
   NOTICE(0,"'x' to reboot / 'c' manual control / 'a' ADNS test / 'z' position test / 'p' PWM test / 't' test code / (key/cord) to go ");
  
-  uint8_t c, cord_status, lock;
+  int c;
+  uint8_t cord_status, lock;
   lock = 0;
   while(1)
   {
     // get input key
     c = cli_getkey_nowait();
+    if(c == -1)
+      continue;
 
     // get cord status
     cord_status = cord_isPlugged();

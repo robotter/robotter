@@ -28,12 +28,12 @@
 
 #define CLI_USER_UART 1
 
-static inline uint8_t cli_getkey(void)
+static inline int cli_getkey(void)
 {
   return (uart_recv(CLI_USER_UART));
 }
 
-static inline uint8_t cli_getkey_nowait(void)
+static inline int cli_getkey_nowait(void)
 {
   return (uart_recv_nowait(CLI_USER_UART));
 }
