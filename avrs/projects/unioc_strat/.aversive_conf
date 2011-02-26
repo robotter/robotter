@@ -11,8 +11,9 @@ AVRDUDE_PORT = "/dev/parport0"
 AVARICE_PROGRAMMER = mkI
 AVARICE_PORT = "/dev/ttyS0"
 AVARICE_DEBUG_PORT = 1234
-MODULES = base/cirbuf
+MODULES = base/cirbuf debug/error
 
-ROBOTTER_MODULES = ../../modules/debug/error ../../modules/comm/i2c_robotter ../../modules/hardware/adns6010
-MODULES := $(ROBOTTER_MODULES) $(MODULES)
+ROBOTTER_MODULES := comm/perlimpinpin comm/i2c_robotter hardware/adns6010
+AVERSIVE_MODULES := $(MODULES)
+MODULES := $(addprefix ../../modules/,$(ROBOTTER_MODULES)) $(MODULES)
 
