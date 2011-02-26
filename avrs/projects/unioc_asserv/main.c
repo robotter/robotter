@@ -39,7 +39,7 @@
 #include "htrajectory.h"
 #include "logging.h"
 #include "cli.h"
-#include "stratcomm.h"
+#include "perlimpinpin.h"
 #include "cord.h"
 
 #include "settings.h"
@@ -77,9 +77,6 @@ extern hrobot_system_t system;
 
 // ADNS sensors validity
 extern sensorsValidity_t sensors_validity;
-
-// communications
-extern stratcomm_t stratcomm;
 
 // CSs cpu usage in percent (0-100)
 extern uint8_t cs_cpuUsage;
@@ -195,7 +192,7 @@ int main(void)
   cord_init();
 
   NOTICE(0,"Initializing communications");
-  stratcomm_init(&stratcomm);
+  ppp_init();
 
   //--------------------------------------------------------
 

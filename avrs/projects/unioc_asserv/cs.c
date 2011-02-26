@@ -36,13 +36,10 @@
 #include "acfilter.h"
 #include "compass.h"
 #include "time.h"
-#include "stratcomm.h"
+#include "perlimpinpin.h"
 #include "avoidance.h"
 
 #include "settings.h"
-
-// Strategic communications
-stratcomm_t stratcomm;
 
 // Robot position
 hrobot_position_t position;
@@ -167,8 +164,8 @@ void cs_update(void* dummy)
   // reset TIMER3
   timer3_set(0);
 
-  // update communications with stratcomm
-  stratcomm_update(&stratcomm);
+  // update communications with perlimpinpin
+  ppp_update();
 
   // update avoidance system
   avoidance_update(&avoidance);

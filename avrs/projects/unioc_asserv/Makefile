@@ -1,21 +1,5 @@
 TARGET = main
 
-# repertoire des modules
-AVERSIVE_DIR =../..
+SRC = $(TARGET).c cs.c motor_cs.c robot_cs.c htrajectory.c logging.c fpga.c compass.c acfilter.c hposition_manager.c hrobot_manager.c reset.c motor_encoders.c avoidance.c cord.c
 
-# List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c cs.c motor_cs.c robot_cs.c htrajectory.c logging.c fpga.c compass.c acfilter.c hposition_manager.c hrobot_manager.c reset.c stratcomm.c stratcomm_process.c stratcomm_callbacks.c motor_encoders.c avoidance.c cord.c
-
-# List Assembler source files here.
-# Make them always end in a capital .S.  Files ending in a lowercase .s
-# will not be considered source files but generated files (assembler
-# output from the compiler), and will be deleted upon "make clean"!
-# Even though the DOS/Win* filesystem matches both .s and .S the same,
-# it will preserve the spelling of the filenames, and gcc itself does
-# care about how the name is spelled on its command-line.
-ASRC = 
-
-########################################
-
--include .aversive_conf
-include $(AVERSIVE_DIR)/mk/robotter_project.mk
+include ../../mk/project.mk
