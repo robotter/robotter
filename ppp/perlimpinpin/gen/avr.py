@@ -85,8 +85,37 @@ class CodeGenerator:
       raise TypeError("unsupported type: %s" % typ)
 
   @classmethod
-  def msgid_enum_name(cls, cmd):
-    return 'PPP_MID_%s' % cmd.name.upper()
+  def msgid_enum_name(cls, msg):
+    return 'PPP_MID_%s' % msg.name.upper()
+
+  @classmethod
+  def roid_macro_name(cls, dev):
+    return 'ROID_%s' % dev.name.upper()
+
+  @classmethod
+  def pretty_enum_fields(cls, fields, indent='  '):
+    """Return nicely aligned enum fields declarations.
+    fields is an iterable of (name, val, doc) tuples, with doc the field
+    documentation. val and doc may be None, doc may be omitted.
+    """
+    fields = tuple(fields)
+    names_len = max( len(nvd[0]) for nvd in fields )
+    vals_len = max( len(str(nvd[1])) if nvd[1] is not None else 0 for nvd in fields )
+    ret = ''
+    for nvd in fields:
+      try:
+        name, val, doc = nvd
+      except ValueError:
+        (name, val), doc = nvd, None
+      if val is not None:
+        s = '%-*s = %*s,' % (names_len, name, vals_len, val)
+      else:
+        s = '%s,' % name
+      if doc is not None:
+        s = '%s  ///< %s' % (s.ljust(names_len+vals_len+len(' = ,')), doc)
+      ret += '%s%s\n' % (indent, s)
+    return ret
+
 
   def generate(self):
     """Generate all files."""
@@ -113,35 +142,40 @@ class CodeGenerator:
       templatize(tpl, out, loc)
 
 
-  def msgid_enum_fields(self):
+  def device_roid_macros(self):
+    name_len = max( len(self.roid_macro_name(dev)) for dev in self.robot.devices )
     return ''.join(
-        '  %s = %u,\n' % (self.msgid_enum_name(cmd), cmd.mid)
-        for cmd in self.robot.messages()
+        '#define %-*s 0x%02X\n' % (name_len, self.roid_macro_name(dev), dev.roid)
+        for dev in self.robot.devices
+        )
+
+  def msgid_enum_fields(self):
+    return self.pretty_enum_fields( 
+        (self.msgid_enum_name(msg), msg.mid)
+        for msg in self.robot.messages()
         )
 
   def msgdata_union_fields(self):
     ret = ''
-    for cmd in self.robot.messages():
+    for msg in self.robot.messages():
       fields = ['PPPMsgID mid;']
-      if isinstance(cmd, Telemetry):
-        fields.extend( '%s %s;' % (self.avr_typename(t), v) for v,t in cmd.params )
-      elif isinstance(cmd, Command):
-        if len(cmd.iparams) != 0:
+      if isinstance(msg, Telemetry):
+        fields.extend( '%s %s;' % (self.avr_typename(t), v) for v,t in msg.params )
+      elif isinstance(msg, Command):
+        if len(msg.iparams) != 0:
           fields.append('// input')
-          fields.extend( '%s %s;' % (self.avr_typename(t), v) for v,t in cmd.iparams )
-        if len(cmd.oparams) != 0:
+          fields.extend( '%s %s;' % (self.avr_typename(t), v) for v,t in msg.iparams )
+        if len(msg.oparams) != 0:
           fields.append('// output')
-          fields.extend( '%s %s;' % (self.avr_typename(t), v) for v,t in cmd.oparams )
+          fields.extend( '%s %s;' % (self.avr_typename(t), v) for v,t in msg.oparams )
       else:
         raise TypeError("unsupported message type")
       ret += '\n  struct {\n%s  } %s;\n' % (
           ''.join( '    %s\n'%s for s in fields ),
-          cmd.name,
+          msg.name,
           )
     return ret
 
-
-  #XXX we could use device specific max payload sizes
 
   def max_payload_in_size(self):
     return max(
@@ -201,10 +235,13 @@ class CodeGenerator:
         lines.append('payload_size = 0;  // no reply')
 
       lines.append('break;')
-      ret += '    case %s:\n%s\n' % (
-          self.msgid_enum_name(cmd),
-          ''.join('      %s\n'%s for s in lines),
-          )
+      ret += ('#if PPP_DEVICE_ROID == %s\n'
+              '    case %s:\n%s'
+              '#endif\n\n') % (
+                 self.roid_macro_name(cmd.device),
+                 self.msgid_enum_name(cmd),
+                 ''.join('      %s\n'%s for s in lines),
+                 )
     return ret
 
 
@@ -218,7 +255,7 @@ class CodeGenerator:
       # pack arguments
       pos = 3
       for v,t in cmd.oparams:
-        lines.append('*((%s*)(frame.buf+%u)) = %s.%s;'
+        lines.append('*((%s*)(frame.send_buf+%u)) = %s.%s;'
             % (self.avr_typename(t), pos, msgdata_struct, v))
         pos += self.avr_sizeof(t)
       lines.append('frame.send_size = %u;' % (pos+1))  # + checksum (1)
@@ -240,17 +277,18 @@ class CodeGenerator:
       # unpack reply (if any)
       pos = 3
       for v,t in cmd.oparams:
-        lines.append('*((%s*)(frame.buf+%u)) = %s.%s;'
+        lines.append('*((%s*)(frame.recv_buf+%u)) = %s.%s;'
             % (self.avr_typename(t), pos+3, msgdata_struct, v))
         pos += self.avr_sizeof(t)
 
       lines.append('break;')
-      ret += '    case %s:\n%s\n' % (
-          self.msgid_enum_name(cmd),
-          ''.join('      %s\n'%s for s in lines),
-          )
-    #TODO telemetry
-    ret = '#ifdef PPP_I2C_MASTER\n%s\n#endif\n' % ret
+      ret += ('#if defined(PPP_I2C_MASTER) && PPP_DEVICE_ROID != %s\n'
+              '    case %s:\n%s'
+              '#endif\n\n') % (
+                 self.roid_macro_name(cmd.device),
+                 self.msgid_enum_name(cmd),
+                 ''.join('      %s\n'%s for s in lines),
+                 )
     return ret
 
 
@@ -265,9 +303,12 @@ class CodeGenerator:
       msgdata_struct = '(_msgdata)->%s' % cmd.name
       for v,t in cmd.iparams:
         lines.append('%s.%s = (%s),' % (msgdata_struct, v, v))
-      ret += '#define PPP_SEND_%s(%s) \\\n%s    ppp_send_command(_msgdata);\n\n' % (
-          cmd.name.upper(), sargs,
-          ''.join( '    %s \\\n'%s for s in lines ),
-          )
+      ret += ('#if defined(PPP_I2C_MASTER) && PPP_DEVICE_ROID != %s\n'
+              '#define PPP_SEND_%s(%s) \\\n%s    ppp_send_command(_msgdata);\n'
+              '#endif\n\n') % (
+                 self.roid_macro_name(cmd.device),
+                 cmd.name.upper(), sargs,
+                 ''.join( '    %s \\\n'%s for s in lines ),
+                 )
     return ret
 

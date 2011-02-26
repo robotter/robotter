@@ -27,9 +27,17 @@
 #ifndef PERLIMPINPIN_H
 #define PERLIMPINPIN_H
 
+/** @name Map device names to their ROID.
+ */
+//@{
+#pragma perlimpinpin_tpl self.device_roid_macros()
+//@}
+
+
 #include "perlimpinpin_config.h"
 
 
+/// Message IDs.
 typedef enum {
 #pragma perlimpinpin_tpl self.msgid_enum_fields()
 

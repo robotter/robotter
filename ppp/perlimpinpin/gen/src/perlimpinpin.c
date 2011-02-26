@@ -10,6 +10,8 @@
 #include <aversive.h>
 #include <aversive/error.h>
 #include <aversive/wait.h>
+#include "perlimpinpin.h"
+
 #ifdef PPP_I2C_MASTER
 #include <i2cm.h>
 #endif
@@ -19,7 +21,6 @@
 #ifdef PPP_UART_NUM
 #include <uart.h>
 #endif
-#include "perlimpinpin.h"
 
 #define PPP_ERROR  0x80   //TODO
 
@@ -58,8 +59,10 @@
 #endif
 
 
+#if defined(PPP_UART_NUM) || defined(PPP_I2C_SLAVE) || defined(PPP_I2C_MASTER)
 /// Compute a packet checksum.
 static uint8_t ppp_checksum(const uint8_t *data, uint16_t size);
+#endif
 
 
 #ifdef PPP_UART_NUM
@@ -85,6 +88,7 @@ typedef struct {
 } PPPMsgFrame;
 
 
+#if defined(PPP_UART_NUM) || defined(PPP_I2C_SLAVE)
 /** @brief Process an input message frame.
  *
  * Used to process a message buffer received either by UART or by an I2C slave.
@@ -96,6 +100,7 @@ typedef struct {
  * @return 0 on success, -1 on error.
  */
 static int8_t ppp_process_input_frame(PPPMsgFrame *frame);
+#endif
 
 #ifdef PPP_I2C_MASTER
 /** @brief Send a frame using I2C and receive the reply if needed.
@@ -112,6 +117,7 @@ static int8_t ppp_i2cm_process_output_frame(PPPMsgFrame *frame, uint8_t addr);
 #endif
 
 
+#if defined(PPP_UART_NUM) || defined(PPP_I2C_SLAVE) || defined(PPP_I2C_MASTER)
 uint8_t ppp_checksum(const uint8_t *data, uint16_t size)
 {
   uint8_t crc = 0x00;
@@ -119,6 +125,21 @@ uint8_t ppp_checksum(const uint8_t *data, uint16_t size)
   for(it=0;it<size;it++)
     crc += data[it]; 
   return crc;
+}
+#endif
+
+
+void ppp_init(void)
+{
+#ifdef PPP_I2C_MASTER
+  i2cm_init();
+#endif
+#ifdef PPP_I2C_SLAVE
+  i2cs_init(PPP_DEVICE_ROID);
+#endif
+#ifdef PPP_UART_NUM
+  uart_init();
+#endif
 }
 
 
@@ -260,6 +281,7 @@ void ppp_i2cs_update(void)
 #endif
 
 
+#if defined(PPP_UART_NUM) || defined(PPP_I2C_SLAVE)
 int8_t ppp_process_input_frame(PPPMsgFrame *frame)
 {
   uint8_t *rbuf = frame->recv_buf;
@@ -293,6 +315,7 @@ int8_t ppp_process_input_frame(PPPMsgFrame *frame)
   // unpack, call message callback, pack response
   // set payload_size to the output payload_size
   switch(mid) {
+
 #pragma perlimpinpin_tpl  self.process_input_frame_switch()
     default:
       WARNING(PPP_ERROR, "unsupported input message ID: %u", mid);
@@ -308,6 +331,7 @@ int8_t ppp_process_input_frame(PPPMsgFrame *frame)
 
   return 0;
 }
+#endif
 
 
 int8_t ppp_send_message(PPPMsgData *msgdata)
@@ -320,6 +344,7 @@ int8_t ppp_send_message(PPPMsgData *msgdata)
 
   // pack, send I2C frame, unpack response
   switch(mid) {
+
 #pragma perlimpinpin_tpl  self.send_message_switch()
     default:
       WARNING(PPP_ERROR, "unsupported output message ID: %u", mid);
@@ -377,7 +402,7 @@ int8_t ppp_i2cm_process_output_frame(PPPMsgFrame *frame, uint8_t addr)
 
     // checksum
     uint8_t chksum_got = rbuf[payload_recv_size+2];
-    uint8_t chksum_exp = ppp_checksum(buf, payload_recv_size+2);
+    uint8_t chksum_exp = ppp_checksum(rbuf, payload_recv_size+2);
     if( chksum_got != chksum_exp ) {
       WARNING(PPP_ERROR, "checksum mismatch (expected 0x%02X, got 0x%02X)",
               chksum_exp, chksum_got);
@@ -387,7 +412,7 @@ int8_t ppp_i2cm_process_output_frame(PPPMsgFrame *frame, uint8_t addr)
     // check mid
     if( rbuf[2] != sbuf[2] ) {
       WARNING(PPP_ERROR, "reply message ID mismatch (expected 0x%02X, got 0x%02X)",
-              sbuf[2], buf[2]);
+              sbuf[2], rbuf[2]);
       return -1;
     }
 
