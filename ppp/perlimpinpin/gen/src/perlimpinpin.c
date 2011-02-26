@@ -10,6 +10,7 @@
 #include <aversive.h>
 #include <aversive/error.h>
 #include <aversive/wait.h>
+#include <string.h>
 #include "perlimpinpin.h"
 
 #ifdef PPP_I2C_MASTER
@@ -25,18 +26,8 @@
 #define PPP_ERROR  0x80   //TODO
 
 
-
-//TODO check that I2CS_RECV_BUF_SIZE and I2CS_SEND_BUF_SIZE are large enough
-//TODO check or suggest appropriated UART buffer size
-
-#define PPP_MAX_PAYLOAD_IN_SIZE   $$ppp:self.max_payload_in_size()$$
-#define PPP_MAX_PAYLOAD_OUT_SIZE  $$ppp:self.max_payload_out_size()$$
-
-#if PPP_MAX_PAYLOAD_IN_SIZE > PPP_MAX_PAYLOAD_OUT_SIZE
-#define PPP_MAX_FRAME_SIZE (PPP_MAX_PAYLOAD_IN_SIZE+3)
-#else
-#define PPP_MAX_FRAME_SIZE (PPP_MAX_PAYLOAD_OUT_SIZE+3)
-#endif
+#define PPP_MAX_PAYLOAD_SIZE   $$ppp:self.max_payload_size()$$
+#define PPP_MAX_FRAME_SIZE     (PPP_MAX_PAYLOAD_SIZE+3)
 
 #ifdef PPP_I2C_MASTER
 
@@ -49,14 +40,28 @@
 
 #ifdef PPP_I2C_SLAVE
 
-#if PPP_MAX_PAYLOAD_IN_SIZE > (I2CS_RECV_BUF_SIZE) - 3
-#error "I2CS_RECV_BUF_SIZE is too small for PPP input payloads"
+//XXX lazy constraint: checks should separate in and out payloads and consider
+// only messages processed by the device
+#if PPP_MAX_FRAME_SIZE > I2CS_RECV_BUF_SIZE
+#error "I2CS_RECV_BUF_SIZE is too small for PPP payloads"
 #endif
-#if PPP_MAX_PAYLOAD_OUT_SIZE > (I2CS_SEND_BUF_SIZE) - 3
-#error "I2CS_SEND_BUF_SIZE is too small for PPP output payloads"
+#if PPP_MAX_FRAME_SIZE > I2CS_SEND_BUF_SIZE
+#error "I2CS_SEND_BUF_SIZE is too small for PPP payloads"
 #endif
 
 #endif
+
+#ifdef PPP_UART_NUM
+
+#if !((PPP_UART_NUM == 1 && UART1_ENABLED == 1) || \
+      (PPP_UART_NUM == 2 && UART2_ENABLED == 1) || \
+      (PPP_UART_NUM == 3 && UART3_ENABLED == 1) || \
+      (PPP_UART_NUM == 4 && UART4_ENABLED == 1) )
+#error "PPP_UART_NUM is not enabled in UART config."
+#endif
+
+#endif
+
 
 
 #if defined(PPP_UART_NUM) || defined(PPP_I2C_SLAVE) || defined(PPP_I2C_MASTER)
@@ -217,7 +222,7 @@ void ppp_uart_update(void)
 
       // process the frame
       PPPMsgFrame frame = {
-        buf, buf, *(uint16_t*)rbuf, I2CS_SEND_BUF_SIZE
+        buf, buf, *(uint16_t*)buf, I2CS_SEND_BUF_SIZE
       };
 
       if( ppp_process_input_frame(&frame) != 0 ) {

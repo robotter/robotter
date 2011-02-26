@@ -176,18 +176,17 @@ class CodeGenerator:
           )
     return ret
 
-
-  def max_payload_in_size(self):
-    return max(
-        sum( self.avr_sizeof(t) for v,t in cmd.iparams )
-        for cmd in self.robot.commands()
-        )
-
-  def max_payload_out_size(self):
-    return max(
-        sum( self.avr_sizeof(t) for v,t in cmd.oparams )
-        for cmd in self.robot.commands()
-        )
+  def max_payload_size(self):
+    payloads = []
+    for msg in self.robot.messages():
+      if isinstance(msg, Telemetry):
+        payloads.append( msg.params )
+      elif isinstance(msg, Command):
+        payloads.append( msg.iparams )
+        payloads.append( msg.oparams )
+      else:
+        raise TypeError("unsupported message type")
+    return max( sum( self.avr_sizeof(t) for v,t in pl ) for pl in payloads )
 
 
   def process_input_frame_switch(self):
@@ -304,7 +303,7 @@ class CodeGenerator:
       for v,t in cmd.iparams:
         lines.append('%s.%s = (%s),' % (msgdata_struct, v, v))
       ret += ('#if defined(PPP_I2C_MASTER) && PPP_DEVICE_ROID != %s\n'
-              '#define PPP_SEND_%s(%s) \\\n%s    ppp_send_command(_msgdata);\n'
+              '#define PPP_SEND_%s(%s) \\\n%s    ppp_send_message(_msgdata);\n'
               '#endif\n\n') % (
                  self.roid_macro_name(cmd.device),
                  cmd.name.upper(), sargs,

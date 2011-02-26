@@ -76,7 +76,7 @@ int8_t ppp_send_message(PPPMsgData *msgdata);
 
 /** @name Helper macros to send messages.
  *
- * These macros fill a PPPMsgData structure then call ppp_send_command().
+ * These macros fill a PPPMsgData structure then call ppp_send_message().
  */
 //@{
 
