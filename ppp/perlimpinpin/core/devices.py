@@ -96,23 +96,17 @@ class Device:
     name -- device's name
     roid -- device's ROID (and I2C address)
     messages -- list of messsages
-    uartnum -- ATmega UART number or None
-    outdir -- directory for device's generated files
     robot -- device's robot (set by the robot itself)
 
   """
-  def __init__(self, name, roid, messages, uartnum=None, outdir=None):
+  def __init__(self, name, roid, messages):
     if not re.match('^[a-zA-Z][a-zA-Z0-9_]*$', name):
       raise ValueError("invalid device name: %r" % name)
-    if uartnum is not None and not 0 <= uartnum < 8:
-      raise ValueError("invalid UART number")
     if not 0x08 <= roid < 0x78:
       raise ValueError("invalid ROID: %r" % roid)
     self.name = name
     self.roid = int(roid)
     self.messages = messages
-    self.uartnum = uartnum
-    self.outdir = outdir
     self.robot = None
 
     # assign device to messages

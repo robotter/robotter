@@ -45,6 +45,13 @@ bool 'match UART (ROBOTTER)' CONFIG_MODULE_MATCHUART_ROBOTTER
 
 #
 
+bool 'perlimpinpin' CONFIG_MODULE_PERLIMPINPIN
+
+dep_bool '  |-- Create Default perlimpinpin config' CONFIG_MODULE_PERLIMPINPIN_CREATE_CONFIG \
+	$CONFIG_MODULE_PERLIMPINPIN
+
+#
+
 dep_bool 'AX12' CONFIG_MODULE_AX12_ROBOTTER
 
 dep_bool '  |-- Create Default ax12 config' CONFIG_MODULE_AX12_ROBOTTER_CREATE_CONFIG \

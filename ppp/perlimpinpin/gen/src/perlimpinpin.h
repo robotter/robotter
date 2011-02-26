@@ -27,6 +27,8 @@
 #ifndef PERLIMPINPIN_H
 #define PERLIMPINPIN_H
 
+#include "perlimpinpin_config.h"
+
 
 typedef enum {
 #pragma perlimpinpin_tpl self.msgid_enum_fields()

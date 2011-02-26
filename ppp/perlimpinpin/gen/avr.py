@@ -35,7 +35,11 @@ class CodeGenerator:
   Generate Perlimpinpin code for AVR.
 
   Attributes:
-    device -- device for which files are generated
+    robot -- robot for which files are generated
+    srcdir -- output directory for main source files
+    conf -- output file or directory for configuration
+            None to use srcdir, False to skip generation
+    replaceconf -- False to not regenerate configuration file if it already exists
 
   """
 
@@ -46,10 +50,11 @@ class CodeGenerator:
       'bool':  '%d',
       }
 
-  def __init__(self, device):
-    if device.outdir is None:
-      raise ValueError("output directory not specified")
-    self.device = device
+  def __init__(self, robot, srcdir, conf=None, replaceconf=False):
+    self.robot = robot
+    self.srcdir = srcdir
+    self.conf = conf
+    self.replaceconf = replaceconf
 
   @classmethod
   def avr_typename(cls, typ):
@@ -89,21 +94,34 @@ class CodeGenerator:
     loc = { 'self': self }
     tpldir = os.path.join(os.path.dirname(__file__), 'src')
     for f in os.listdir(tpldir):
-      if os.path.splitext(f)[1] in ('.c', '.h'):
-        tpl = os.path.join(tpldir, f)
-        out = os.path.join(self.device.outdir, f)
-        templatize(tpl, out, loc)
+      if not os.path.splitext(f)[1] in ('.c', '.h'):
+        continue
+      tpl = os.path.join(tpldir, f)
+      if f.endswith('_config.h'):
+        if self.conf is False:
+          continue  # don't generate configuration
+        elif self.conf is None:
+          out = os.path.join(self.srcdir, f)
+        elif os.path.isdir(self.conf) or self.conf.endswith('/'):
+          out = os.path.join(self.conf, f)
+        else:
+          out = self.conf
+        if os.path.isfile(out) and not self.replaceconf:
+          continue  # don't replace existing configuration
+      else:
+        out = os.path.join(self.srcdir, f)
+      templatize(tpl, out, loc)
 
 
   def msgid_enum_fields(self):
     return ''.join(
         '  %s = %u,\n' % (self.msgid_enum_name(cmd), cmd.mid)
-        for cmd in self.device.robot.messages()
+        for cmd in self.robot.messages()
         )
 
   def msgdata_union_fields(self):
     ret = ''
-    for cmd in self.device.robot.messages():
+    for cmd in self.robot.messages():
       fields = ['PPPMsgID mid;']
       if isinstance(cmd, Telemetry):
         fields.extend( '%s %s;' % (self.avr_typename(t), v) for v,t in cmd.params )
@@ -128,19 +146,19 @@ class CodeGenerator:
   def max_payload_in_size(self):
     return max(
         sum( self.avr_sizeof(t) for v,t in cmd.iparams )
-        for cmd in self.device.robot.commands()
+        for cmd in self.robot.commands()
         )
 
   def max_payload_out_size(self):
     return max(
         sum( self.avr_sizeof(t) for v,t in cmd.oparams )
-        for cmd in self.device.robot.commands()
+        for cmd in self.robot.commands()
         )
 
 
   def process_input_frame_switch(self):
     ret = ''
-    for cmd in self.device.commands():
+    for cmd in self.robot.commands():
       lines = []
       msgdata_struct = 'msgdata.%s' % cmd.name
 
@@ -193,7 +211,7 @@ class CodeGenerator:
   def send_message_switch(self):
     #TODO telemetry
     ret = ''
-    for cmd in self.device.commands():
+    for cmd in self.robot.commands():
       lines = []
       msgdata_struct = 'msgdata->%s' % cmd.name
 
@@ -239,7 +257,7 @@ class CodeGenerator:
   def send_helpers(self):
     #TODO telemetry
     ret = ''
-    for cmd in self.device.commands():
+    for cmd in self.robot.commands():
       args = ['_msgdata'] + [ v for v,t in cmd.iparams ]
       sargs = ', '.join(args)
 

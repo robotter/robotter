@@ -3,6 +3,10 @@
  * @date $$ppp:time.strftime('%Y-%m-%d %H:%m:%S')$$
  */
 
+#if defined(PPP_I2C_MASTER) && defined(PPP_I2C_SLAVE)
+#error "Cannot act as both master en slave"
+#endif
+
 #include <aversive.h>
 #include <aversive/error.h>
 #include <aversive/wait.h>
@@ -18,6 +22,7 @@
 #include "perlimpinpin.h"
 
 #define PPP_ERROR  0x80   //TODO
+
 
 
 //TODO check that I2CS_RECV_BUF_SIZE and I2CS_SEND_BUF_SIZE are large enough

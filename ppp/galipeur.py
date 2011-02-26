@@ -11,7 +11,6 @@ robot = Robot([
       Telemetry('time', [('hep','int32'), ('hop','int8')]),
       Telemetry('gig', [('value','uint32')]),
       ],
-    outdir = '../avrs/projects/unioc_strat/'
     ),
 
   Device('prop', 0x42,
@@ -63,15 +62,15 @@ robot = Robot([
 
       ],
 
-    outdir = '../avrs/projects/unioc_asserv/'
     )
 ])
 
 
 if __name__ == '__main__':
+  import os
   import perlimpinpin.gen.avr as gen_avr
-  for dev in robot.devices:
-    print "Generate %s" % dev.name
-    cg = gen_avr.CodeGenerator(dev)
-    cg.generate()
+  module_dir = os.path.join(os.path.dirname(__file__), '../avrs/modules/comm/perlimpinpin')
+  conf_dir = os.path.join(module_dir, 'config')
+  cg = gen_avr.CodeGenerator(robot, module_dir, conf_dir, True)
+  cg.generate()
 
