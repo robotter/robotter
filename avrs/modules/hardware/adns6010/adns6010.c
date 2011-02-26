@@ -527,7 +527,7 @@ uint8_t adns6010_checkSPI(void)
                             it, byte_pid, byte_ipid);
 
     // Test if productID and inverse productID are consistents
-    if( byte_pid != (uint8_t)(~byte_ipid) )
+    if( (uint8_t)(byte_pid ^ byte_ipid) != 0xff )  // byte_pid != ~byte_ipid
     {  
       adns6010_spi_cs(0);
       ERROR(ADNS6010_ERROR,
