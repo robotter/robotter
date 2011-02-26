@@ -1,7 +1,7 @@
 #include <aversive.h>
 #include <aversive/error.h>
 
-#include <stratcomm_send.h>
+#include <perlimpinpin.h>
 
 int main(void)
 {
