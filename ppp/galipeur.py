@@ -67,10 +67,6 @@ robot = Robot([
 
 
 if __name__ == '__main__':
-  import os
-  import perlimpinpin.gen.avr as gen_avr
-  module_dir = os.path.join(os.path.dirname(__file__), '../avrs/modules/comm/perlimpinpin')
-  conf_dir = os.path.join(module_dir, 'config')
-  cg = gen_avr.CodeGenerator(robot, module_dir, conf_dir, True)
-  cg.generate()
+  from perlimpinpin.gen.avr import main
+  main(robot)
 

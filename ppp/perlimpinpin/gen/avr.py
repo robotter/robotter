@@ -359,3 +359,65 @@ class CodeGenerator:
 
     return ret
 
+
+def main(robot):
+  """Main function to generate AVR source files.
+
+  Intended to be used in a script which defines a Robot instance.
+  How-to use:
+
+    if __name__ == '__main__':
+      from perlimpinpin.gen.avr import main
+      main(my_robot)
+
+  """
+
+  module_dir = module_dir = os.path.normpath(os.path.join(
+      os.path.dirname(__file__), '../../../avrs/modules/comm/perlimpinpin'))
+  module_conf_dir = os.path.join(module_dir, 'config')
+
+  import optparse
+  parser = optparse.OptionParser(
+      usage=(
+        'usage: %prog [OPTIONS]\n'
+        '       %prog --module'
+        ),
+      epilog=(
+        'DEST may be a Python source file or a module containing a Robot instance.\n'
+        'path to perlimpinpin AVR module:\n'
+        '  %s\n'
+        ) % module_dir,
+      )
+  parser.add_option('-o', '--output-dir', dest='srcdir',
+      help="output directory of generated files")
+  parser.add_option('-c', '--conf', dest='conf',
+      help="file or directory of generated configuration (same as --output-dir if empty)")
+  parser.add_option('--preserve-conf', dest='preserve_conf', action='store_true',
+      help="preserve configuration file if it already exists")
+  parser.add_option('--module', dest='domodule', action='store_true',
+      help="regenerate Rob'Otter perlimpinpin module")
+  parser.set_defaults(
+      srcdir=None,
+      conf=False,
+      preserve_conf=False,
+      )
+
+  # hack to have a properly formatted epilog
+  parser.formatter.format_epilog = lambda x:'\n%s\n'%x
+
+  opts, args = parser.parse_args()
+
+  if len(args) > 0:
+    parser.error("extra arguments")
+
+  if opts.domodule:
+    srcdir, conf, replaceconf = module_dir, module_conf_dir, True
+  else:
+    if opts.conf == '':
+      opts.conf = None
+    srcdir, conf, replaceconf = opts.srcdir, opts.conf, not opts.preserve_conf
+
+  cg = CodeGenerator(robot, srcdir, conf, replaceconf)
+  cg.generate()
+
+
