@@ -42,16 +42,15 @@ ENTITY adns9500_wishbone_interface IS
   PORT (
     ---------------------------------------------------------------------------
     -- wishbone interface
-    wbs_rst_i : IN  std_logic;          -- asynchronous reset, active high
-    wbs_clk_i : IN std_logic;           -- clock
+    wbs_rst_i : IN  std_logic;
+    wbs_clk_i : IN std_logic;
 
-    wbs_adr_i : IN std_logic_vector(5 DOWNTO 0);    -- address BUS
-    wbs_dat_o : OUT std_logic_vector(wb_size_c-1 DOWNTO 0);  -- data readden
-                                                             -- from bus
-    wbs_dat_i : IN std_logic_vector(wb_size_c-1 DOWNTO 0); -- data write from BUS
-    wbs_we_i  : IN std_logic;           -- read/write
-    wbs_stb_i : IN std_logic;           -- validate read/write operation
-    wbs_ack_o : OUT std_logic;           -- operation succesful
+    wbs_adr_i : IN std_logic_vector(5 DOWNTO 0);
+    wbs_dat_o : OUT std_logic_vector(wb_size_c-1 DOWNTO 0);
+    wbs_dat_i : IN std_logic_vector(wb_size_c-1 DOWNTO 0);
+    wbs_we_i  : IN std_logic;
+    wbs_stb_i : IN std_logic;
+    wbs_ack_o : OUT std_logic;
     wbs_cyc_i : IN std_logic;
 
     ---------------------------------------------------------------------------

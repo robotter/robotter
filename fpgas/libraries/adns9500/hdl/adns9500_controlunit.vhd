@@ -82,8 +82,8 @@ entity adns9500_controlunit is
     adns3_deltay_o : out signed(15 downto 0);
     adns3_squal_o  : out std_logic_vector(7 downto 0);
 
-    -- data update, r_e on data updated
-    update_o : out std_logic;
+    --! calculus synchronisation, reset counters, latch new datas
+    synchro_i : in std_logic;
 
     ----------------------------------------------------------
     -- fault
@@ -235,6 +235,8 @@ begin
     variable deltay_v : std_logic_vector(15 downto 0);
     variable squal_v : std_logic_vector(7 downto 0);
 
+    variable l_synchro_v : std_logic;
+
   begin
     
     -- fpga reset or enable go low
@@ -256,8 +258,6 @@ begin
       adns3_deltay_o <= (others => '0');
       adns3_squal_o  <= (others => '0');
 
-      update_o <= '0';
-
       adns1_deltax_s <= (others => '0');
       adns1_deltay_s <= (others => '0');
       adns1_squal_s  <= (others => '0');
@@ -276,27 +276,32 @@ begin
 
     elsif rising_edge( clk_i ) then
       
+      -- on synchro signal rising edge
+      if l_synchro_v = '0' and synchro_i = '1' then
+        -- latch data
+        adns1_deltax_o <= adns1_deltax_s;
+        adns1_deltay_o <= adns1_deltay_s;
+        adns1_squal_o <= adns1_squal_s;
+        adns2_deltax_o <= adns2_deltax_s;
+        adns2_deltay_o <= adns2_deltay_s;
+        adns2_squal_o <= adns2_squal_s;
+        adns3_deltax_o <= adns3_deltax_s;
+        adns3_deltay_o <= adns3_deltay_s;
+        adns3_squal_o <= adns3_squal_s;
+        
+        -- reset sums 
+        adns1_deltax_s <= (others => '0');
+        adns1_deltay_s <= (others => '0');
+        adns2_deltax_s <= (others => '0');
+        adns2_deltay_s <= (others => '0');
+        adns3_deltax_s <= (others => '0');
+        adns3_deltay_s <= (others => '0');
+      end if;
+      l_synchro_v := synchro_i;
+
       case controlunit_state_v is
         -- set CS high for current ADNS9500
         when CU_INIT =>
-
-          -- latch ouput values if current adns == 1
-          if current_adns_v = 1 then
-            adns1_deltax_o <= adns1_deltax_s;
-            adns1_deltay_o <= adns1_deltay_s;
-            adns1_squal_o <= adns1_squal_s;
-            adns2_deltax_o <= adns2_deltax_s;
-            adns2_deltay_o <= adns2_deltay_s;
-            adns2_squal_o <= adns2_squal_s;
-            adns3_deltax_o <= adns3_deltax_s;
-            adns3_deltay_o <= adns3_deltay_s;
-            adns3_squal_o <= adns3_squal_s;
-            
-            -- update_o r_e on new data latched
-            update_o <= '1';
-          else
-            update_o <= '0';
-          end if;
 
           -- pull CS high for current ADNS
           adns_cs_o <= std_logic_vector( to_unsigned(current_adns_v,2) );
@@ -507,16 +512,16 @@ begin
 
           -- update motion values
           if current_adns_v = 1 then
-            adns1_deltax_s <= signed(deltax_v);
-            adns1_deltay_s <= signed(deltay_v);
+            adns1_deltax_s <= adns1_deltax_s + signed(deltax_v);
+            adns1_deltay_s <= adns1_deltay_s + signed(deltay_v);
             adns1_squal_s  <= squal_v;
           elsif current_adns_v = 2 then
-            adns2_deltax_s <= signed(deltax_v);
-            adns2_deltay_s <= signed(deltay_v);
+            adns2_deltax_s <= adns2_deltax_s + signed(deltax_v);
+            adns2_deltay_s <= adns2_deltay_s + signed(deltay_v);
             adns2_squal_s  <= squal_v;
           else
-            adns3_deltax_s <= signed(deltax_v);
-            adns3_deltay_s <= signed(deltay_v);
+            adns3_deltax_s <= adns3_deltax_s + signed(deltax_v);
+            adns3_deltay_s <= adns3_deltay_s + signed(deltay_v);
             adns3_squal_s  <= squal_v;
           end if;     
 

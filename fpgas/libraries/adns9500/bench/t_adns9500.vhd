@@ -55,6 +55,8 @@ architecture t_adns9500_1 of t_adns9500 is
   signal byte_s : std_logic_vector(7 downto 0);
   signal debug_s : std_logic_vector(7 downto 0);
   
+  signal synchro_s : std_logic;
+
   component adns9500 is 
   generic (
     id         : natural := 2;
@@ -97,7 +99,7 @@ architecture t_adns9500_1 of t_adns9500 is
     adns2_squal_o  : out std_logic_vector (7 downto 0);
     adns3_squal_o  : out std_logic_vector (7 downto 0);
     
-    update_o : out std_logic
+    synchro_i : in std_logic
 
     );
 
@@ -150,7 +152,9 @@ begin
     sck_o => sck_s,
     cs1_no => cs1_s,
     cs2_no => cs2_s,
-    cs3_no => cs3_s
+    cs3_no => cs3_s,
+
+    synchro_i => synchro_s
   );
 
 
@@ -168,6 +172,20 @@ begin
     wait for fpga_period_c/2;
   end process clock_p;
   -------------------------------------------------
+
+  -------------------------------------------------
+  -- SYNCHRO TEST PROCESS
+  synchro_clock_p : process
+  begin
+    if endofsimulation_s = true then
+      wait;
+    end if;
+
+    synchro_s <= '1';
+    wait for 1 ms;
+    synchro_s <= '0';
+    wait for 1 ms;
+  end process synchro_clock_p;
 
   -------------------------------------------------
   -- MAIN PROCESS
@@ -365,13 +383,13 @@ begin
     wait for 100 ns;
 
     
-    debug_s <= x"05";
     for step in 0 to 3 loop
       -------------------------------------------------------------------------
       -- simulate SPI communication 
 
         -- loop on adns
         for i in 0 to 2 loop
+        debug_s <= std_logic_vector(to_unsigned(i+step*3,8));
         
         -- first CU shall access motion register and perform burst 
 
@@ -391,7 +409,6 @@ begin
         assert out_s = x"50" report "CU READ MOTION REGISTER fail" severity warning;
         
         -- motion register bit 7 indicate motion occured since last report
-        debug_s<=x"06";
 
         spi_prepdata(x"80", out_s, mosi_s, miso_s, sck_s); -- motion
         spi_prepdata(x"00", out_s, mosi_s, miso_s, sck_s); -- observation

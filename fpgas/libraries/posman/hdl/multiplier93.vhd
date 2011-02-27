@@ -122,9 +122,13 @@ begin
       l_compute_v := '0';
       running_s <= '0';
       done_o <= '0';
+      a_s <= (others => '0');
+      b0_s <= (others => '0');
+      b1_s <= (others => '0');
+      b2_s <= (others => '0');
     elsif rising_edge(clk_i) then
       
-      if running_s = '1' and valid_i = '1' then
+      if running_s = '1' and valid_i = '0' then
         
         case state_v is
           when MM_STATE_0 =>

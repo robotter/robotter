@@ -67,7 +67,7 @@ ENTITY adns9500 IS
     adns2_squal_o  : out std_logic_vector (7 downto 0);
     adns3_squal_o  : out std_logic_vector (7 downto 0);
     
-    update_o : out std_logic
+    synchro_i : in std_logic
   );
 
 END adns9500;
@@ -253,8 +253,7 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
     adns3_deltay_o : out signed (15 downto 0);
     adns3_squal_o  : out std_logic_vector (7 downto 0);
     
-    -- data update, r_e on data updated
-    update_o : out std_logic;
+    synchro_i: in std_logic;
 
     -----------------------------------------------------------
     -- fault
@@ -287,7 +286,7 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   signal adns3_deltay_s : signed(adns_size_c-1 downto 0);
   signal adns3_squal_s   : std_logic_vector(squal_size_c-1 downto 0);
 
-  signal update_s : std_logic;
+  signal synchro_s : std_logic;
   ----------------------------------------------------------------------
   -- common register to the ControlUnit
 
@@ -474,7 +473,7 @@ reset_ns <= not(wbs_rst_i);
     adns3_deltay_o => adns3_deltay_s,
     adns3_squal_o  => adns3_squal_s,
   
-    update_o => update_s,
+    synchro_i => synchro_s,
 
     fault_o => fault_s
   );
@@ -489,6 +488,6 @@ reset_ns <= not(wbs_rst_i);
   adns3_deltay_o <= adns3_deltay_s;
   adns3_squal_o <= adns3_squal_s;
 
-  update_o <= update_s;
+  synchro_s <= synchro_i;
 
 END adns9500_1;
