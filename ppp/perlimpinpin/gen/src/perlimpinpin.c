@@ -53,10 +53,10 @@
 
 #ifdef PPP_UART_NUM
 
-#if !((PPP_UART_NUM == 1 && UART1_ENABLED == 1) || \
+#if !((PPP_UART_NUM == 0 && UART0_ENABLED == 1) || \
+      (PPP_UART_NUM == 1 && UART1_ENABLED == 1) || \
       (PPP_UART_NUM == 2 && UART2_ENABLED == 1) || \
-      (PPP_UART_NUM == 3 && UART3_ENABLED == 1) || \
-      (PPP_UART_NUM == 4 && UART4_ENABLED == 1) )
+      (PPP_UART_NUM == 3 && UART3_ENABLED == 1) )
 #error "PPP_UART_NUM is not enabled in UART config."
 #endif
 
