@@ -82,9 +82,16 @@ class Robot:
 
   def commands(self):
     """Return all commands."""
-    return [ cmd
+    return [ msg
         for dev in self.devices
-        for cmd in dev.commands()
+        for msg in dev.commands()
+        ]
+
+  def telemetries(self):
+    """Return all telemetries."""
+    return [ msg
+        for dev in self.devices
+        for msg in dev.telemetries()
         ]
 
 
@@ -118,6 +125,10 @@ class Device:
   def commands(self):
     """Return device commands."""
     return [ msg for msg in self.messages if isinstance(msg, Command) ]
+
+  def telemetries(self):
+    """Return device telemetries."""
+    return [ msg for msg in self.messages if isinstance(msg, Telemetry) ]
 
 
 

@@ -191,41 +191,41 @@ class CodeGenerator:
 
   def process_input_frame_switch(self):
     ret = ''
-    for cmd in self.robot.commands():
+    for msg in self.robot.commands():
       lines = []
-      msgdata_struct = 'msgdata.%s' % cmd.name
+      msgdata_struct = 'msgdata.%s' % msg.name
 
       # check size
       # note: send_size is checked at compile time
-      size_exp = sum( self.avr_sizeof(t) for v,t in cmd.iparams )
+      size_exp = sum( self.avr_sizeof(t) for v,t in msg.iparams )
       lines.extend((
         'if( payload_size != %u ) {' % size_exp,
-        '  WARNING(PPP_ERROR, "invalid payload size for %s (expected %u, got %%u)", payload_size);' % (cmd.name, size_exp),
+        '  WARNING(PPP_ERROR, "invalid payload size for %s (expected %u, got %%u)", payload_size);' % (msg.name, size_exp),
         '  return -1;',
         '}',
         ))
 
       # unpack arguments
       pos = 3
-      for v,t in cmd.iparams:
+      for v,t in msg.iparams:
         lines.append('%s.%s = *(const %s *)(rbuf+%u);'
             % (msgdata_struct, v, self.avr_typename(t), pos))
         pos += self.avr_sizeof(t)
 
       # debug line
-      fmt_str = ','.join( self.avr_printf_fmt(t) for v,t in cmd.iparams )
-      fmt_args = ', '.join( '%s.%s'%(msgdata_struct, v) for v,t in cmd.iparams )
+      fmt_str = ','.join( self.avr_printf_fmt(t) for v,t in msg.iparams )
+      fmt_args = ', '.join( '%s.%s'%(msgdata_struct, v) for v,t in msg.iparams )
       if fmt_args != '':
         fmt_args = ', '+fmt_args
-      lines.append('DEBUG(PPP_ERROR, "received message %s(%s)"%s);' % (cmd.name, fmt_str, fmt_args))
+      lines.append('DEBUG(PPP_ERROR, "received message %s(%s)"%s);' % (msg.name, fmt_str, fmt_args))
 
       # call the user callback
       lines.append( 'ppp_command_callback(&msgdata);' )
 
       # pack reply (if needed)
-      if len(cmd.oparams) != 0:
+      if len(msg.oparams) != 0:
         pos = 3
-        for v,t in cmd.oparams:
+        for v,t in msg.oparams:
           lines.append('*((%s *)(frame->send_buf+%u)) = %s.%s;'
               % (self.avr_typename(t), pos, msgdata_struct, v))
           pos += self.avr_sizeof(t)
@@ -237,45 +237,45 @@ class CodeGenerator:
       ret += ('#if PPP_DEVICE_ROID == %s\n'
               '    case %s:\n%s'
               '#endif\n\n') % (
-                 self.roid_macro_name(cmd.device),
-                 self.msgid_enum_name(cmd),
+                 self.roid_macro_name(msg.device),
+                 self.msgid_enum_name(msg),
                  ''.join('      %s\n'%s for s in lines),
                  )
     return ret
 
 
   def send_message_switch(self):
-    #TODO telemetry
     ret = ''
-    for cmd in self.robot.commands():
+
+    for msg in self.robot.commands():
       lines = []
-      msgdata_struct = 'msgdata->%s' % cmd.name
+      msgdata_struct = 'msgdata->%s' % msg.name
 
       # pack arguments
       pos = 3
-      for v,t in cmd.oparams:
+      for v,t in msg.iparams:
         lines.append('*((%s*)(frame.send_buf+%u)) = %s.%s;'
             % (self.avr_typename(t), pos, msgdata_struct, v))
         pos += self.avr_sizeof(t)
       lines.append('frame.send_size = %u;' % (pos+1))  # + checksum (1)
 
       # debug line
-      fmt_str = ','.join( self.avr_printf_fmt(t) for v,t in cmd.iparams )
-      fmt_args = ', '.join( '%s.%s'%(msgdata_struct, v) for v,t in cmd.iparams )
+      fmt_str = ','.join( self.avr_printf_fmt(t) for v,t in msg.iparams )
+      fmt_args = ', '.join( '%s.%s'%(msgdata_struct, v) for v,t in msg.iparams )
       if fmt_args != '':
         fmt_args = ', '+fmt_args
-      lines.append('DEBUG(PPP_ERROR, "send message %s(%s)"%s);' % (cmd.name, fmt_str, fmt_args))
+      lines.append('DEBUG(PPP_ERROR, "send message %s(%s)"%s);' % (msg.name, fmt_str, fmt_args))
 
       # process the message
       lines.extend((
-        'if( ppp_i2cm_process_output_frame(&frame, 0x%02X) != 0 ) {' % cmd.device.roid,
+        'if( ppp_i2cm_process_output_frame(&frame, 0x%02X) != 0 ) {' % msg.device.roid,
         '  return -1;',
         '}',
         ))
 
       # unpack reply (if any)
       pos = 3
-      for v,t in cmd.oparams:
+      for v,t in msg.oparams:
         lines.append('*((%s*)(frame.recv_buf+%u)) = %s.%s;'
             % (self.avr_typename(t), pos+3, msgdata_struct, v))
         pos += self.avr_sizeof(t)
@@ -284,30 +284,78 @@ class CodeGenerator:
       ret += ('#if defined(PPP_I2C_MASTER) && PPP_DEVICE_ROID != %s\n'
               '    case %s:\n%s'
               '#endif\n\n') % (
-                 self.roid_macro_name(cmd.device),
-                 self.msgid_enum_name(cmd),
+                 self.roid_macro_name(msg.device),
+                 self.msgid_enum_name(msg),
                  ''.join('      %s\n'%s for s in lines),
                  )
+
+    for msg in self.robot.telemetries():
+      lines = []
+      msgdata_struct = 'msgdata->%s' % msg.name
+
+      # pack arguments
+      pos = 3
+      for v,t in msg.params:
+        lines.append('*((%s*)(frame.send_buf+%u)) = %s.%s;'
+            % (self.avr_typename(t), pos, msgdata_struct, v))
+        pos += self.avr_sizeof(t)
+      lines.append('frame.send_size = %u;' % (pos+1))  # + checksum (1)
+
+      # debug line
+      fmt_str = ','.join( self.avr_printf_fmt(t) for v,t in msg.params )
+      fmt_args = ', '.join( '%s.%s'%(msgdata_struct, v) for v,t in msg.params )
+      if fmt_args != '':
+        fmt_args = ', '+fmt_args
+      lines.append('DEBUG(PPP_ERROR, "send message %s(%s)"%s);' % (msg.name, fmt_str, fmt_args))
+
+      # process the message
+      lines.append('ppp_uart_send(frame.send_buf, frame.send_size);')
+      lines.append('break;')
+      ret += ('#if defined(PPP_UART_NUM) && PPP_DEVICE_ROID == %s\n'
+              '    case %s:\n%s'
+              '#endif\n\n') % (
+                 self.roid_macro_name(msg.device),
+                 self.msgid_enum_name(msg),
+                 ''.join('      %s\n'%s for s in lines),
+                 )
+
     return ret
 
 
   def send_helpers(self):
-    #TODO telemetry
     ret = ''
-    for cmd in self.robot.commands():
-      args = ['_msgdata'] + [ v for v,t in cmd.iparams ]
+
+    for msg in self.robot.commands():
+      args = ['_msgdata'] + [ v for v,t in msg.iparams ]
       sargs = ', '.join(args)
 
-      lines = [ '(_msgdata)->mid = %u,' % cmd.mid ]
-      msgdata_struct = '(_msgdata)->%s' % cmd.name
-      for v,t in cmd.iparams:
+      lines = [ '(_msgdata)->mid = %u,' % msg.mid ]
+      msgdata_struct = '(_msgdata)->%s' % msg.name
+      for v,t in msg.iparams:
         lines.append('%s.%s = (%s),' % (msgdata_struct, v, v))
       ret += ('#if defined(PPP_I2C_MASTER) && PPP_DEVICE_ROID != %s\n'
               '#define PPP_SEND_%s(%s) \\\n%s    ppp_send_message(_msgdata);\n'
               '#endif\n\n') % (
-                 self.roid_macro_name(cmd.device),
-                 cmd.name.upper(), sargs,
+                 self.roid_macro_name(msg.device),
+                 msg.name.upper(), sargs,
                  ''.join( '    %s \\\n'%s for s in lines ),
                  )
+
+    for msg in self.robot.telemetries():
+      args = ['_msgdata'] + [ v for v,t in msg.params ]
+      sargs = ', '.join(args)
+
+      lines = [ '(_msgdata)->mid = %u,' % msg.mid ]
+      msgdata_struct = '(_msgdata)->%s' % msg.name
+      for v,t in msg.params:
+        lines.append('%s.%s = (%s),' % (msgdata_struct, v, v))
+      ret += ('#if defined(PPP_UART_NUM) && PPP_DEVICE_ROID == %s\n'
+              '#define PPP_SEND_%s(%s) \\\n%s    ppp_send_message(_msgdata);\n'
+              '#endif\n\n') % (
+                 self.roid_macro_name(msg.device),
+                 msg.name.upper(), sargs,
+                 ''.join( '    %s \\\n'%s for s in lines ),
+                 )
+
     return ret
 

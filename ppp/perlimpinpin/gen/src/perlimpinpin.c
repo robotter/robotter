@@ -121,6 +121,11 @@ static int8_t ppp_process_input_frame(PPPMsgFrame *frame);
 static int8_t ppp_i2cm_process_output_frame(PPPMsgFrame *frame, uint8_t addr);
 #endif
 
+#ifdef PPP_UART_NUM
+/// Send a buffer over UART.
+static void ppp_uart_send(const uint8_t *data, uint16_t size);
+#endif
+
 
 #if defined(PPP_UART_NUM) || defined(PPP_I2C_SLAVE) || defined(PPP_I2C_MASTER)
 uint8_t ppp_checksum(const uint8_t *data, uint16_t size)
@@ -168,7 +173,7 @@ void ppp_uart_update(void)
   //   4  : reading
   static uint8_t state = 0;
   static uint8_t buf[PPP_MAX_FRAME_SIZE]; // read/wrote frame
-  static uint8_t *bufp = NULL; // current read/write position in buf
+  static uint8_t *bufp = NULL; // current read position in buf
   static uint16_t size = 0; // size to read
 
   for(;;) {
@@ -228,12 +233,8 @@ void ppp_uart_update(void)
       return;
     }
 
-    // send the reponse
-    bufp = buf;
-    while( frame.send_size != 0 ) {
-      uart_send(PPP_UART_NUM, *(bufp++));
-      bufp++; frame.send_size--;
-    }
+    // send the response
+    ppp_uart_send(buf, frame.send_size);
     state = 0;
   }
   // never reached
@@ -418,6 +419,18 @@ int8_t ppp_i2cm_process_output_frame(PPPMsgFrame *frame, uint8_t addr)
 
   WARNING(PPP_ERROR, "failed to receive reply: too much tries");
   return -1;
+}
+#endif
+
+
+#ifdef PPP_UART_NUM
+void ppp_uart_send(const uint8_t *data, uint16_t size)
+{
+  const uint8_t *p = data; 
+  while( size != 0 ) {
+    uart_send(PPP_UART_NUM, *p);
+    p++; size--;
+  }
 }
 #endif
 
