@@ -1,0 +1,237 @@
+\mychapter{Questionnaire}
+
+\textbf{Nom équipe :} Rob'Otter  / / \textbf{N\up{o} pré-inscription :} 125\\
+
+\textbf{1} : Autorisez-vous la diffusion de ce projet, avant la compétition, à des
+partenaires du concours? \\
+\begin{center} OUI \end{center}
+
+\section{L'équipe}
+
+\textbf{2} : Y'a-t-il eu des changements dans la constitution de l'équipe depuis votre
+pré-inscription ? (départs, arrivées...)\\
+\begin{center} NON \end{center}
+
+\section{Planning}
+
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+
+ \hline
+ & 10\% & 25\% & 50\% & 75\% & 90\% &  100\% & Fin & Commentaires \\\hline
+ \textbf{Méca} / Conception 			& & & & & $\surd$ & & Février& \\\hline
+ \textbf{Méca} / Réalisation 		& & & & $\surd$ & & & Mars& \\\hline
+ \textbf{Méca} / Test unitaires 	& & & & $\surd$ & & & Avril & \\\hline
+ \textbf{Élec} / Conception 			& & & & & & $\surd$ & Janvier & \\\hline
+ \textbf{Élec} / Réalisation 		& & &$\surd$& & & & Mars & \\\hline
+ \textbf{Élec} / Test unitaires 	& & & $\surd$ & & & & Avril & \\\hline
+ \textbf{Info} / Conception 			& & &$\surd$& & & & Mars & \\\hline
+ \textbf{Info} / Réalisation 		& & &$\surd$& & & & Avril & \\\hline
+ \textbf{Info} / Test unitaires 	& & &$\surd$ & & & & Mai & \\\hline
+ Intégration 						& & $\surd$ & & & & & Avril & \\\hline
+ Tests finaux						& $\surd$ & & & & & & Mai & \\\hline
+ 
+\end{tabular}
+
+\vskip 1cm
+
+\textbf{5} : Date à laquelle le robot se déplacera :\\
+\begin{center} Il se déplace déjà seul ! \\
+\href{URL}{http://www.youtube.com/watch?v=oIJq3ZryeHE} \end{center}
+
+\textbf{6} : Date à laquelle votre robot sera homologable :\\
+\begin{center} Début avril. \end{center}
+
+\textbf{7} : Matchs d'entraînements :\\
+\begin{center} NON \end{center}
+
+\textbf{8} : Suivi de l'équipe par un bénévole :\\
+\begin{center} NON \end{center}
+
+\section{Le budget}
+
+\textbf{1} : Budget prévisionnel (hors déplacement)
+
+\begin{center}
+\begin{tabular} {|l|r|}
+\hline
+mécanique & 300\euro \\\hline
+électronique & 500\euro \\\hline
+\hline
+total & 800\euro \\\hline
+\end{tabular}
+\end{center}
+
+\vskip 1cm
+
+\textbf{2} : Buget prévisionnel du voyage :\\
+\begin{center} 1000\euro \end{center}
+
+\textbf{3} : Partenaires :\\
+\begin{itemize}
+  \item CEA
+  \item Atecsi
+  \item RS automation
+  \item Armadeus
+  \item Eolite Systems
+  \item Eirbot
+\end{itemize}
+
+\vskip 1cm
+
+\textbf{4} : Matériel à disposition : \\
+\begin{itemize}
+  \item outillage mécanique basique (personnel + sponsors + partenariat équipe Eirbot);
+  \item outillage électronique : moyen de réalisation PCB, oscilloscope,
+  moyens soudage, etc (personnel + sponsors + partenariat équipe Eirbot);
+  \item table de jeu (partenariat équipe Eirbot).
+\end{itemize}
+
+\mychapter{Descriptif du projet}
+
+\section{Description générale}
+
+Le robot va ramasser les épis à l'aide de plusieurs pinces disposées sur deux de
+ses faces. Les tomates sont manipulées au moyen d'un "pousse-tomate" fixé
+sur une face du robot.\\
+La stratégie en cours de match consistera à se concentrer sur le ramassage des
+épis. Un capteur de distance situé sur chaque pince permettra d'affiner la
+recherche et la préhension des épis.\\
+Une fois suffisement d'épis ramassés, le robot se déplacera jusqu'au conteneur
+afin de vider les épis ramassés. Si une tomate est rencontrée en chemin, le
+robot utilisera le "pousse-tomate" pour se frayer un chemin et pousser cette
+tomate jusqu'au conteneur si possible.\\
+Aucune stratégie ou préhenseur n'est prévu pour les oranges.\\
+
+\begin{itemize}
+\item Hauteur du robot : \textbf{30cm}
+\item Périmètre du robot en position de départ : \textbf{110cm}
+\item Périmètre du robot déployé : \textbf{130cm}
+\item Couleur du robot : structure aluminium (gris/blanc), roues en plastique
+bleu, plaques de plexiglass transparent pour coque.
+\end{itemize}
+
+\vskip 2cm
+
+Design mécanique du robot : base roulante seule.\\
+\includegraphics[width=1.0\textwidth]{img/robot.jpg}\\
+
+\clearpage
+Design mécanique du robot : pinces à épis et "pousse-tomate".
+\vskip 1cm
+\includegraphics{img/robot_pinces.png}
+\vskip 1cm
+Les pinces sont constituées de servos AX12, capables de serrer un épi et de le
+soulever afin de l'extraire de la table.\\
+Le "pousse-tomate", quant à lui, se contente de pousser.
+
+\section{Description technique}
+
+\subsection{Motorisation}
+
+Le robot sera propulsé de manière holonome par 3 motoréducteurs RE25/PLG32. Le
+contact au sol est effectué par 3 omniwheels FXA315 positionnées à 120°.\\
+
+La motorisation fixe la vitesse maximale du robot à 1 m/s environ même si les
+contraintes d'asservissement donnent une vitesse de 0.5 m/s plus probable.
+
+\subsection{Positionnement}
+
+Le positionnement est réalisé par 3 capteurs optiques laser ADNS6010 situés sous
+la base du robot, en contact avec le sol.\\
+Une chaîne de traitement constituée d'un FPGA Altera Cyclone 2 et d'un
+microcontrôleur AVR ATmega 128 assure le traitement des capteurs et le calcul
+de la position.
+
+\subsection{Asservissement}
+
+Les moteurs sont asservis en vitesse grâce aux codeurs incrémentaux présents sur
+le motoréducteur. Le robot est asservi en position par le retour des capteurs
+optiques.
+
+Les asservissements sont réalisés par des filtres de type PIDf, implémentés dans
+le microcontrôleur.
+
+\subsection{Énergie}
+
+Deux batteries au plomb alimenteront sous 24V les moteurs et l'étage puissance
+du robot. Une batterie au plomb supplémentaire est dédiée à l'étage logique du
+robot. \\
+
+Les 3 batteries assurent une autonomie de fonctionnement d'une bonne 1/2 heure
+pour la puissance et presque 4 heures pour la logique
+(\emph{surdimensionné} est le mot que vous cherchez). \\
+
+Deux jeux complets de batteries sont disponibles.\\
+
+Un interrupteur arrêt d'urgence coupant le circuit de puissance du robot est
+présent sur le haut de ce dernier.
+
+\subsection{Éléments de jeu}
+
+Les quatre pinces pourront stocker jusqu'à quatre épis simultanément.
+Dans la configuration actuelle nous ne ramasserons pas les oranges.
+
+\subsection{Stratégie}
+
+Les pinces et le déplacement holonome du robot lui permettront d'atteindre
+rapidement les zones de largage pour déposer les épis et les tomates.
+Nous avons choisi volontairement d'ignorer les oranges.
+
+\subsection{Système d'évitement}
+
+Le système d'évitement est constitué de deux balises, l'une placée sur le robot
+adverse constitué d'un réflecteur et l'autre placée sur le robot en dessous de
+l'espace réservé à la balise adverse.
+Cette dernière est constituée
+d'un capteur SICK de type barrière laser et d'un miroir rotatif permettant de
+détecter le réflecteur placé sur le robot adverse et ainsi connaître la position
+du robot (l'angle est connu par la position du miroir de la balise, la distance
+par un calcul basé sur le temps durant lequel le réflecteur est détecté).
+
+\subsection{Capteurs}
+
+Outre le positionnement, nous disposerons de télémètres IR SHARP GP2* et divers
+capteurs de position.\\
+Les servomoteurs AX12 utilisés sont "intelligents" et permettent de connaître
+diverses informations telles que leurs positions, vitesses, couple instantannés,
+etc.\\
+
+De plus, une caméra nous permettra d'effectuer des détections de zones de
+couleurs.
+
+\subsection{Laser}
+
+Les capteurs optiques ADNS6010 utilisent des diodes laser IR de classe 1, de
+plus les faisceaux sont dirigés vers le sol, et ne devraient pas sortir du périmètre
+du robot.\\
+
+Le capteur SICK utilisé par la balise de détection dispose d'un laser visible
+de classe 1.
+
+\subsection{Intelligence}
+
+L'intelligence du robot est réalisée par :
+\begin{itemize}
+\item Une carte APF9328 de la société ARMAdeus embarquant un Linux et constituée d'un processeur ARM et
+d'un FPGA Xilinx assurant le contrôle haut-niveau du robot et la gestion de la
+caméra;
+\item un carte constituée d'un AVR ATmega 128 et d'un FPGA Altera Cyclone 2, assurant
+l'asservissement en position du robot;
+\item une carte constituée d'un microcontrôleur AVR ATmega assurant le contrôle
+des servomoteurs AX-12 et autres capteurs du robot.
+\end{itemize}
+
+En parallèle du développement embarqué sur le robot, un simulateur est
+développé par l'équipe.\\
+\href{URL}{http://code.google.com/p/simulotter/}
+\begin{center} \includegraphics[width=0.5\textwidth]{img/view2align.png} \end{center}
+
+Ce dernier permet de tester des stratégies de manière simple (utilisation du
+langage de haut-niveau Lua pour l'intelligence).\\
+
+Un des objectifs de l'équipe est d'utiliser la même architecture logicielle pour
+le simulateur et l'intelligence du robot permettant ainsi de passer de manière
+transparente un code de stratégie testé sur le simulateur vers le robot.\\
+
+Les langages utilisés seront C, VHDL et quelques langages haut-niveau (Python et
+Lua).

@@ -1,0 +1,68 @@
+%%%%%%%%%%%%%%%% Entête et pied de page %%%%%%%%%%%%
+
+\fancypagestyle{plain}{
+	\fancyhf{}
+	\renewcommand{\headrulewidth}{0pt}
+	\renewcommand{\footrulewidth}{0pt}
+	\fancyfoot[L]{\includegraphics[height=6ex]{img/logo_mono.png}}
+	\fancyfoot[R]{\thepage}
+}
+
+\fancypagestyle{normal}{
+	\fancyhf{}
+	\renewcommand{\footrulewidth}{0pt}
+	\fancyfoot[L]{\includegraphics[height=6ex]{img/logo_mono.png}}
+	\fancyfoot[R]{\thepage}
+	\fancyhead[L]{\Roman{chapter}~\leftmark}
+}
+
+\renewcommand{\footrulewidth}{1pt}
+
+%%%%%%%%%%%%%%%%%% Boîtes colorées %%%%%%%%%%%%%%%
+
+\DefineVerbatimEnvironment{matlab}{Verbatim}{%
+frame=single,framerule=0.2pt,framesep=1.5mm,label=Code Matlab,
+fontsize=\footnotesize,
+xleftmargin=30pt,xrightmargin=30pt}
+
+%% BOITE AVEC UN TITRE EN HAUT-GAUCHE
+\newcommand{\titlebox}[2]{%
+\tikzstyle{titlebox}=[rectangle,inner sep=20pt,inner ysep=20pt,line
+width=1pt,draw=titleboxcolor]%
+\tikzstyle{title}=[fill=white,text=titleboxcolor,right]%
+%
+\bigskip\noindent\begin{tikzpicture}
+\node[titlebox] (box){%
+\renewcommand{\labelitemi}{\textbullet}
+\begin{minipage}{0.8\textwidth}
+\color{black}
+#2
+\end{minipage}
+};
+%\draw[color=blue] (box.north west)--(box.north east);
+\node[yshift=3ex,xshift=-.1\textwidth,title] at (box.north west)
+{\large{\textsc{#1}}};
+\end{tikzpicture}\bigskip%
+} 
+
+
+%% BOITE SANS TITRE (ni marge)
+\newcommand{\simplebox}[1]{%
+\tikzstyle{simplebox}=[rectangle,inner sep=20pt,inner ysep=20pt,line
+width=1pt,draw=titleboxcolor]%
+%
+\begin{center}
+\bigskip\noindent\begin{tikzpicture}
+\node[simplebox] (box){%
+\renewcommand{\labelitemi}{\textbullet}
+\begin{minipage}{0.9\textwidth}
+\color{black}
+#1
+\end{minipage}
+};
+%\draw[color=blue] (box.north west)--(box.north east);
+\end{tikzpicture}\bigskip%
+\end{center}
+} 
+
+\endinput
