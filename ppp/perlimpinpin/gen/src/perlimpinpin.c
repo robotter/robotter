@@ -166,81 +166,73 @@ void ppp_uart_update(void)
   //  0-1 : waiting starting bytes
   //  2-3 : waiting size bytes
   //   4  : reading
-  //   5  : writing
   static uint8_t state = 0;
-  static uint8_t buf[PPP_MAX_FRAME_SIZE]; // read/write frame
+  static uint8_t buf[PPP_MAX_FRAME_SIZE]; // read/wrote frame
   static uint8_t *bufp = NULL; // current read/write position in buf
-  static uint16_t size = 0; // size to read/write
+  static uint16_t size = 0; // size to read
 
   for(;;) {
-    if( state != 5 ) {
-      // wait for start bytes
-      while( state < 2 ) {
-        switch( uart_recv_nowait(PPP_UART_NUM) ) {
-          case -1:
-            return;
-          case 0xff:
-            state++;
-            break;
-          default:
-            state = 0;
-        }
-      }
-
-      // wait for frame size
-      if( state < 3 ) {
-        int ret = uart_recv_nowait(PPP_UART_NUM);
-        if( ret == -1 ) {
+    // wait for start bytes
+    while( state < 2 ) {
+      switch( uart_recv_nowait(PPP_UART_NUM) ) {
+        case -1:
           return;
-        }
-        buf[0] = ret;
-      }
-      if( state < 4 ) {
-        int ret = uart_recv_nowait(PPP_UART_NUM);
-        if( ret == -1 ) {
-          return;
-        }
-        buf[1] = ret;
-        size = *(uint16_t*)buf;
-        if( size > sizeof(buf)-3 ) {
-          WARNING(PPP_ERROR, "UART frame size is too big (got %u)", *(uint16_t*)buf);
+        case 0xff:
+          state++;
+          break;
+        default:
           state = 0;
-          return;
-        }
-        bufp = buf + 2;
       }
-
-      // fill the frame buffer
-      while( size != 0 ) {
-        int ret = uart_recv_nowait(PPP_UART_NUM);
-        if( ret == -1 ) {
-          return;
-        }
-        *bufp = ret;
-        bufp++; size--;
-      }
-
-      // process the frame
-      PPPMsgFrame frame = {
-        buf, buf, *(uint16_t*)buf, I2CS_SEND_BUF_SIZE
-      };
-
-      if( ppp_process_input_frame(&frame) != 0 ) {
-        state = 0;
-        return;
-      }
-      size = frame.send_size;
-      bufp = buf;
-      state = 5;
     }
 
-    // send the reponse
-    while( size != 0 ) {
-      int ret = uart_send_nowait(PPP_UART_NUM, *bufp);
+    // wait for frame size
+    if( state < 3 ) {
+      int ret = uart_recv_nowait(PPP_UART_NUM);
       if( ret == -1 ) {
         return;
       }
+      buf[0] = ret;
+    }
+    if( state < 4 ) {
+      int ret = uart_recv_nowait(PPP_UART_NUM);
+      if( ret == -1 ) {
+        return;
+      }
+      buf[1] = ret;
+      size = *(uint16_t*)buf;
+      if( size > sizeof(buf)-3 ) {
+        WARNING(PPP_ERROR, "UART frame size is too big (got %u)", *(uint16_t*)buf);
+        state = 0;
+        return;
+      }
+      bufp = buf + 2;
+    }
+
+    // fill the frame buffer
+    while( size != 0 ) {
+      int ret = uart_recv_nowait(PPP_UART_NUM);
+      if( ret == -1 ) {
+        return;
+      }
+      *bufp = ret;
       bufp++; size--;
+    }
+
+    // process the frame
+    PPPMsgFrame frame = {
+      buf, buf, *(uint16_t*)buf, I2CS_SEND_BUF_SIZE
+    };
+
+    if( ppp_process_input_frame(&frame) != 0 ) {
+      state = 0;
+      return;
+    }
+
+    // send the reponse
+    bufp = buf;
+    while( frame.send_size != 0 ) {
+      uart_send(PPP_UART_NUM, *(bufp++));
+      bufp++; frame.send_size--;
     }
     state = 0;
   }
