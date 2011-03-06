@@ -103,15 +103,16 @@ l'aide du positionnement du robot et de capteurs de couleur.\\
 
 \begin{itemize}
 \item Hauteur du robot : \textbf{30cm}
-\item Périmètre du robot en position de départ : \textbf{130cm}
-\item Périmètre du robot déployé : \textbf{150cm}
+\item Périmètre du robot en position de départ : \textbf{110cm}
+\item Périmètre du robot déployé : \textbf{130cm}
 \item Couleur du robot : structure aluminium (gris/blanc), roues en plastique
 bleu, plaques de plexiglass transparent pour coque.
 \end{itemize}
 
 \vskip 2cm
 
-Design mécanique du robot : base roulante seule.\\
+Design mécanique du robot : base roulante seule. Ce plan et le périmètre indiqués ne reflétent 
+pas les dimensions finales, les bras n'étant pas représentés.\\
 \includegraphics[width=1.0\textwidth]{img/robot.jpg}\\
 
 \clearpage
@@ -163,7 +164,6 @@ le microcontrôleur.
 Deux batteries au plomb alimenteront sous 24V les moteurs et l'étage puissance
 du robot. Une batterie au plomb supplémentaire est dédiée à l'étage logique du
 robot. \\
-
 Les 3 batteries assurent une autonomie de fonctionnement d'une bonne 1/2 heure
 pour la puissance et presque 4 heures pour la logique
 (\emph{surdimensionné} est le mot que vous cherchez). \\
@@ -206,6 +206,14 @@ etc.\\
 
 De plus, une caméra nous permettra d'effectuer des détections de zones de
 couleurs.
+
+\subsection{Arrêt d'urgence et limite de temps}
+
+Un bouton d'arrêt d'urgence placé sur le dessus de la coque du robot permet de couper
+l'alimentation puissance du robot, stoppant ses actionneurs.\\
+
+Un système logiciel intégré à l'asservissement du robot le stoppe dès que la limite de jeu
+de 90s est atteinte.\\
 
 \subsection{Laser}
 
