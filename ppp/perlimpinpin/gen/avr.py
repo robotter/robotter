@@ -379,7 +379,7 @@ def main(robot):
   import optparse
   parser = optparse.OptionParser(
       usage=(
-        'usage: %prog [OPTIONS]\n'
+        'usage: %prog [OPTIONS] -o DIR\n'
         '       %prog --module'
         ),
       epilog=(
@@ -415,6 +415,8 @@ def main(robot):
   else:
     if opts.conf == '':
       opts.conf = None
+    if opts.srcdir is None:
+      parser.error("missing -o option")
     srcdir, conf, replaceconf = opts.srcdir, opts.conf, not opts.preserve_conf
 
   cg = CodeGenerator(robot, srcdir, conf, replaceconf)
