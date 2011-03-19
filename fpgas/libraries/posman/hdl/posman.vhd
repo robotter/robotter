@@ -75,7 +75,8 @@ architecture posman_1 of posman is
 
   --
   constant ram_data_width_c : natural := 16;
-  constant ram_addr_width_c : natural := 8;
+  constant matrix_ram_addr_width_c : natural := 8;
+  constant results_ram_addr_width_c : natural := 8;
 
   constant int_size_c : natural := 16;
   constant frac_size_c : natural := 8;
@@ -86,14 +87,14 @@ architecture posman_1 of posman is
   generic (
     freq_fpga_c : natural;
     ram_data_width_c : natural;
-    ram_addr_width_c : natural;
+    matrix_ram_addr_width_c : natural;
     int_size_c : natural
     );
   port (
     clk_i : std_logic;
     reset_ni : std_logic;
-    ram_addr_o : out natural range 0 to 2**ram_addr_width_c-1;
-    ram_data_i : in std_logic_vector(ram_data_width_c-1 downto 0);
+    matrix_ram_addr_o : out natural range 0 to 2**matrix_ram_addr_width_c-1;
+    matrix_ram_data_i : in std_logic_vector(ram_data_width_c-1 downto 0);
     start_i : in std_logic;
     done_o : out std_logic;
     synchro_o : out std_logic;
@@ -130,12 +131,17 @@ architecture posman_1 of posman is
   end component dual_port_ram;
 
   --
-  signal ram_raddr_s : natural range 0 to 2**ram_addr_width_c-1;
-  signal ram_waddr_s : natural range 0 to 2**ram_addr_width_c-1;
-  signal ram_data_s : std_logic_vector(ram_data_width_c-1 downto 0);
-  signal ram_q_s : std_logic_vector(ram_data_width_c-1 downto 0);
-  signal ram_we_s : std_logic;
+  signal matrix_ram_raddr_s : natural range 0 to 2**matrix_ram_addr_width_c-1;
+  signal matrix_ram_waddr_s : natural range 0 to 2**matrix_ram_addr_width_c-1;
+  signal matrix_ram_data_s : std_logic_vector(ram_data_width_c-1 downto 0);
+  signal matrix_ram_q_s : std_logic_vector(ram_data_width_c-1 downto 0);
+  signal matrix_ram_we_s : std_logic;
 
+  signal results_ram_raddr_s : natural range 0 to 2**results_ram_addr_width_c-1;
+  signal results_ram_waddr_s : natural range 0 to 2**results_ram_addr_width_c-1;
+  signal results_ram_data_s : std_logic_vector(ram_data_width_c-1 downto 0);
+  signal results_ram_q_s : std_logic_vector(ram_data_width_c-1 downto 0);
+  signal results_ram_we_s : std_logic;
   ----
 
   component multiplier93 is
@@ -183,7 +189,7 @@ architecture posman_1 of posman is
   generic (
     id_c : natural;
     wb_size_c : natural := 8;
-    ram_addr_width_c : natural;
+    matrix_ram_addr_width_c : natural;
     ram_data_width_c : natural;
     freq_fpga_c  : natural
     );
@@ -197,9 +203,9 @@ architecture posman_1 of posman is
     wbs_stb_i : IN std_logic;
     wbs_ack_o : OUT std_logic;
     wbs_cyc_i : IN std_logic;
-    ram_addr_o : out natural range 0 to 2**ram_addr_width_c-1;
-    ram_data_o : out std_logic_vector(ram_data_width_c-1 downto 0);
-    ram_we_o : out std_logic
+    matrix_ram_addr_o : out natural range 0 to 2**matrix_ram_addr_width_c-1;
+    matrix_ram_data_o : out std_logic_vector(ram_data_width_c-1 downto 0);
+    matrix_ram_we_o : out std_logic
   );
   end component posman_wishbone_interface;
   
@@ -240,7 +246,7 @@ begin
     id_c => id_c,
     wb_size_c => wb_size_c,
     ram_data_width_c => ram_data_width_c,
-    ram_addr_width_c => ram_addr_width_c,
+    matrix_ram_addr_width_c => matrix_ram_addr_width_c,
     freq_fpga_c => freq_fpga_c
     )
   port map (
@@ -253,9 +259,9 @@ begin
     wbs_stb_i => wbs_stb_s,
     wbs_ack_o => wbs_ack_s,
     wbs_cyc_i => wbs_cyc_s,
-    ram_addr_o => ram_waddr_s,
-    ram_data_o => ram_data_s,
-    ram_we_o => ram_we_s
+    matrix_ram_addr_o => matrix_ram_waddr_s,
+    matrix_ram_data_o => matrix_ram_data_s,
+    matrix_ram_we_o => matrix_ram_we_s
   );
   --
   wbs_rst_s <= wbs_rst_i;
@@ -273,13 +279,13 @@ begin
   generic map (
     freq_fpga_c => freq_fpga_c,
     ram_data_width_c => ram_data_width_c,
-    ram_addr_width_c => ram_addr_width_c,
+    matrix_ram_addr_width_c => matrix_ram_addr_width_c,
     int_size_c => int_size_c)
   port map (
     clk_i => clk_s,
     reset_ni => reset_ns,
-    ram_addr_o => ram_raddr_s,
-    ram_data_i => ram_q_s,
+    matrix_ram_addr_o => matrix_ram_raddr_s,
+    matrix_ram_data_i => matrix_ram_q_s,
     start_i => cu_start_s,
     done_o => cu_done_s,
     synchro_o => cu_synchro_s,
@@ -296,15 +302,27 @@ begin
   matrix_ram : dual_port_ram
   generic map (
     DATA_WIDTH => ram_data_width_c,
-    ADDR_WIDTH => ram_addr_width_c)
+    ADDR_WIDTH => matrix_ram_addr_width_c)
   port map (
     clk => clk_s,
-    raddr => ram_raddr_s,
-    waddr => ram_waddr_s,
-    data => ram_data_s,
-    we => ram_we_s,
-    q => ram_q_s
+    raddr => matrix_ram_raddr_s,
+    waddr => matrix_ram_waddr_s,
+    data => matrix_ram_data_s,
+    we => matrix_ram_we_s,
+    q => matrix_ram_q_s
   );
+
+  result_ram : dual_port_ram
+  generic map (
+    DATA_WIDTH => ram_data_width_c,
+    ADDR_WIDTH => results_ram_addr_width_c)
+  port map (
+    clk => clk_s,
+    raddr => results_ram_raddr_s,
+    waddr => results_ram_waddr_s,
+    data => results_ram_data_s,
+    we => results_ram_we_s,
+    q => results_ram_q_s);
 
   -- matrix multiplier
   matrix_multiplier : multiplier93

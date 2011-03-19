@@ -27,7 +27,7 @@ entity posman_control is
   generic (
     freq_fpga_c  : natural;
     ram_data_width_c : natural;
-    ram_addr_width_c : natural;
+    matrix_ram_addr_width_c : natural;
     int_size_c : natural
     );
 
@@ -37,8 +37,8 @@ entity posman_control is
     reset_ni : std_logic;
 
     -- RAM access
-    ram_addr_o : out natural range 0 to 2**ram_addr_width_c-1;
-    ram_data_i : in std_logic_vector(ram_data_width_c-1 downto 0);
+    matrix_ram_addr_o : out natural range 0 to 2**matrix_ram_addr_width_c-1;
+    matrix_ram_data_i : in std_logic_vector(ram_data_width_c-1 downto 0);
 
     -- calculation control
     start_i : in std_logic;
@@ -62,6 +62,8 @@ architecture posman_control_1 of posman_control is
 
   signal matrix_loader_start_s : std_logic;
   signal matrix_loader_done_s : std_logic;
+  -- matrix start address in RAM
+  signal matrix_loader_address_s : natural range 0 to 2**matrix_ram_addr_width_c-1;
 
 begin
   
@@ -103,6 +105,7 @@ begin
           state_v := CC_LOADING;
 
         when CC_LOADING =>
+          matrix_loader_address_s <= 0;
           matrix_loader_start_s <= '1';
           
           -- on loader done r_e
@@ -148,7 +151,7 @@ begin
       if l_matrix_loader_start_v = '0' and matrix_loader_start_s = '1' then
         matrix_loader_done_s <= '0';
         -- load first matrix element from RAM
-        ram_addr_o <= 0;
+        matrix_ram_addr_o <= 27*matrix_loader_address_s;
       end if;
       l_matrix_loader_start_v := matrix_loader_start_s;
 
@@ -160,9 +163,9 @@ begin
         else
           if matrix_valid_s = '0' then
             -- load value
-            matrix_value_o <= signed(ram_data_i(int_size_c-1 downto 0));
+            matrix_value_o <= signed(matrix_ram_data_i(int_size_c-1 downto 0));
             -- prepare next RAM element
-            ram_addr_o <= it_v;
+            matrix_ram_addr_o <= 27*matrix_loader_address_s + it_v;
             -- do a valid rising_edge
             matrix_valid_s <= '1';
 
