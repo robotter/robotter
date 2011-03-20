@@ -177,8 +177,8 @@ begin
              wbs_stb_s, wbs_ack_s, wbs_cyc_s, byte_s);
     wait until rising_edge(clk_s);
     
-    -- fill matrix
-    for i in 0 to 26 loop
+    -- fill all matrices (5 of them)
+    for i in 0 to 129 loop
       address_v := std_logic_vector(to_unsigned(i,8));
       data_v :=    std_logic_vector(to_unsigned(1, 16));
       wb_write("000001", address_v, clk_s, wbs_adr_s, wbs_dati_s,
@@ -202,9 +202,21 @@ begin
     motor2_s <= x"0100";
     motor3_s <= x"0100";
 
+    wait for 10 us;
 
-    wait for 5 us;
-
+    -- read results
+    for i in 0 to 14 loop
+      address_v := std_logic_vector(to_unsigned(i,8));
+      wb_write("000100", address_v, clk_s, wbs_adr_s, wbs_dati_s,
+               wbs_we_s, wbs_stb_s, wbs_ack_s, wbs_cyc_s);
+      wb_read("000110", clk_s, wbs_adr_s, wbs_dato_s, wbs_we_s, 
+             wbs_stb_s, wbs_ack_s, wbs_cyc_s, byte_s);
+      wait until rising_edge(clk_s);
+      wb_read("000111", clk_s, wbs_adr_s, wbs_dato_s, wbs_we_s, 
+             wbs_stb_s, wbs_ack_s, wbs_cyc_s, byte_s);
+      wait until rising_edge(clk_s);
+    end loop;
+ 
     endofsimulation_s <= true;
     wait;
   end process main_p;
