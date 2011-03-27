@@ -217,7 +217,9 @@ architecture posman_1 of posman is
     matrix_ram_data_o : out std_logic_vector(ram_data_width_c-1 downto 0);
     matrix_ram_we_o : out std_logic;
     results_ram_addr_o : out natural range 0 to 2**results_ram_addr_width_c-1;
-    results_ram_data_i : in std_logic_vector(ram_data_width_c-1 downto 0)
+    results_ram_data_i : in std_logic_vector(ram_data_width_c-1 downto 0);
+    cu_start_o : out std_logic;
+    cu_done_i : in std_logic
 
   );
   end component posman_wishbone_interface;
@@ -251,7 +253,6 @@ begin
 
   -- synchro signals
   synchro_o <= cu_synchro_s;
-  cu_start_s <= debug_i;
 
   -- wishbone interface
   posman_wbi : posman_wishbone_interface
@@ -276,7 +277,10 @@ begin
     matrix_ram_data_o => matrix_ram_data_s,
     matrix_ram_we_o => matrix_ram_we_s,
     results_ram_addr_o => results_ram_raddr_s,
-    results_ram_data_i => results_ram_q_s
+    results_ram_data_i => results_ram_q_s,
+    cu_start_o => cu_start_s,
+    cu_done_i => cu_done_s
+
   );
   --
   wbs_rst_s <= wbs_rst_i;

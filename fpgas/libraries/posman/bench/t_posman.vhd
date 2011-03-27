@@ -189,8 +189,6 @@ begin
                 wbs_dati_s, wbs_we_s, wbs_stb_s, wbs_ack_s, wbs_cyc_s);
     end loop;
     
-    -- start a calculus
-    debug_s <= '1';
 
     adns1_deltax_s <= x"0100";
     adns1_deltay_s <= x"0100";
@@ -202,8 +200,24 @@ begin
     motor2_s <= x"0100";
     motor3_s <= x"0100";
 
-    wait for 10 us;
+    -- start a calculus
+    wb_write("001000", x"01", clk_s, wbs_adr_s, wbs_dati_s,
+                wbs_we_s, wbs_stb_s, wbs_ack_s, wbs_cyc_s);
 
+    -- wait for calculus end
+
+    for i in 0 to 100 loop
+      wb_read("001001", clk_s, wbs_adr_s, wbs_dato_s, wbs_we_s, 
+             wbs_stb_s, wbs_ack_s, wbs_cyc_s, byte_s);
+      wait until rising_edge(clk_s);
+      
+      if byte_s = x"01" then
+        exit;
+      end if;
+
+      wait for 1 us;
+    end loop;
+  
     -- read results
     for i in 0 to 14 loop
       address_v := std_logic_vector(to_unsigned(i,8));

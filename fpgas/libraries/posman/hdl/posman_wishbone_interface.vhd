@@ -52,7 +52,10 @@ entity posman_wishbone_interface is
 
     -- results ram access
     results_ram_addr_o : out natural range 0 to 2**results_ram_addr_width_c-1;
-    results_ram_data_i : in std_logic_vector(ram_data_width_c-1 downto 0)
+    results_ram_data_i : in std_logic_vector(ram_data_width_c-1 downto 0);
+    
+    cu_start_o : out std_logic;
+    cu_done_i : in std_logic
     
   );
 
@@ -97,11 +100,14 @@ begin  -- adns9500_wishbone_interface_1
           when 4 =>
             results_ram_addr_o <= to_integer(unsigned(
                               wbs_dat_i(results_ram_addr_width_c-1 downto 0)));
+          when 8 =>
+            cu_start_o <= wbs_dat_i(0);
 
           when others=>
         end case;                        
       else
         ack_write_s <= '0';
+        cu_start_o <= '0';
         -- clear RAM write
         matrix_ram_we_o <= '0';
       end if;
@@ -130,8 +136,10 @@ begin  -- adns9500_wishbone_interface_1
 
           when 7 => -- HI
             wbs_dat_o <= results_ram_data_i(ram_data_width_c-1 downto wb_size_c);
+          when 9 =>
+            wbs_dat_o <= "0000000" & cu_done_i;
 
-          when others => null;
+          when others =>
         end case;
 
       else
