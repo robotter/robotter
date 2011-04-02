@@ -79,7 +79,7 @@ def split_hex_chunks(chunks, size, fill):
         continue  # page still incomplete
       # start new page
       ret.append( (paddr, pdata) )
-      paddr, pdata, data = addr+n, '', data[n:]
+      paddr, pdata, addr, data = addr+n, '', addr+n, data[n:]
     else:
       # pad and push previous page
       if pdata:
