@@ -1147,11 +1147,11 @@ class Blosh(cmd.Cmd):
         self.print_fmt('{help_cmd}%s{help_brief} -- %s', cmd,brief)
         if desc:
           desc = re.subn(r'(.{1,76}\S)(?:\n|\s+|$)', r'\1\n', desc)[0]
-          self.out_write('  '+ desc.rstrip().replace('\n', '\n  '))
+          self.print_ln('  '+ desc.rstrip().replace('\n', '\n  '))
       except KeyError:
         self.print_fmt('{error}no help on {arg}%s', line)
     else:
-      self.out_write("Help topics:\n")
+      self.print_ln("Help topics:")
       it = sorted(self._help_topics.items())
       for k,v in it:
         self.print_ln("  %-10s  %s" % (k,v[1]))
