@@ -8,6 +8,8 @@ Types are also available in the types map
 
 """
 
+import struct
+
 __all__ = []  # protect against "import *" misuse
 types = {}  # map of defined types
 
@@ -27,7 +29,6 @@ class _Type(type):
       if name in types:
         raise ValueError("type '%s' already defined" % name)
       types[name] = tcls
-      globals()['ppp_%s'%name] = tcls
       return tcls
     else:
       fields['name'] = None
@@ -41,33 +42,93 @@ class _Type(type):
 
 
 class _BaseType:
-  """Base class for types."""
+  """
+  Base class for types.
+
+  Class attributes:
+    packsize -- byte size of packed value
+  """
   __metaclass__ = _Type
 
-class _Boolean(_BaseType):
-  """Boolean type."""
-  name = 'bool'
+  @classmethod
+  def pack(cls, v):
+    """Return the payload data for a value."""
+    raise NotImplementedError()
 
-class _Integer(_BaseType):
+  @classmethod
+  def unpack(cls, data):
+    """Unpack a value from payload data.
+    Return the Python unpacked value and the remaining data.
+    """
+    raise NotImplementedError()
+
+
+class ppp_int(_BaseType):
   """
   Integer type
-    bitsize -- bit size
     signed -- True if signed, False if unsigned
+    packfmt -- packing format
   """
   name = 'int'
+  packsize = None
+
+  @classmethod
+  def pack(cls, v):
+    if cls == ppp_int:
+      raise TypeError("base integer type cannot be packed")
+    return struct.pack(cls.packfmt, v)
+
+  @classmethod
+  def unpack(cls, data):
+    if cls == ppp_int:
+      raise TypeError("base integer type cannot be unpacked")
+    n = struct.calcsize(cls.packfmt)
+    if len(data) < n:
+      raise ValueError("not enough data to unpack (expected %u, got %u)" % (n, len(data)))
+    return struct.unpack(cls.packfmt, data[:n])[0], data[n:]
 
 
 # define common integer types
-for n in (8, 16, 32):
-  class _IntN(_Integer):
-    name = 'int%d' % n
-    bitsize = n
-    signed = True
-  class _UIntN(_Integer):
-    name = 'uint%d' % n
-    bitsize = n
-    signed = False
-  del _IntN, _UIntN
-del n
 
+class ppp_int8(ppp_int):
+  name = 'int8'
+  signed = True
+  packfmt = '<b'
+  packsize = 1
+
+class ppp_uint8(ppp_int):
+  name = 'uint8'
+  signed = False
+  packfmt = '<B'
+  packsize = 1
+
+class ppp_int16(ppp_int):
+  name = 'int16'
+  signed = True
+  packfmt = '<h'
+  packsize = 2
+
+class ppp_uint16(ppp_int):
+  name = 'uint16'
+  signed = False
+  packfmt = '<H'
+  packsize = 2
+
+class ppp_int32(ppp_int):
+  name = 'int32'
+  signed = True
+  packfmt = '<i'
+  packsize = 4
+
+class ppp_uint32(ppp_int):
+  name = 'uint32'
+  signed = False
+  packfmt = '<I'
+  packsize = 4
+
+
+class ppp_bool(ppp_uint8):
+  """Boolean type."""
+  name = 'bool'
+  packfmt = '<?'
 

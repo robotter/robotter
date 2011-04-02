@@ -61,18 +61,6 @@ class CodeGenerator:
     """Return C typename of a PPP type."""
     if issubclass(typ, ppp_types.ppp_int):
       return '%s_t' % typ.name
-    elif issubclass(typ, ppp_types.ppp_bool):
-      return 'uint8_t'
-    else:
-      raise TypeError("unsupported type: %s" % typ)
-
-  @classmethod
-  def avr_sizeof(cls, typ):
-    """Return byte size of a PPP type."""
-    if hasattr(typ, 'bitsize'):
-      return int( (typ.bitsize+7)//8 )  # ceil(bitsize/8)
-    elif issubclass(typ, ppp_types.ppp_bool):
-      return 1
     else:
       raise TypeError("unsupported type: %s" % typ)
 
@@ -186,7 +174,7 @@ class CodeGenerator:
         payloads.append( msg.oparams )
       else:
         raise TypeError("unsupported message type")
-    return max( sum( self.avr_sizeof(t) for v,t in pl ) for pl in payloads )
+    return max( sum( t.packsize for v,t in pl ) for pl in payloads )
 
 
   def process_input_frame_switch(self):
@@ -197,7 +185,7 @@ class CodeGenerator:
 
       # check size
       # note: send_size is checked at compile time
-      size_exp = sum( self.avr_sizeof(t) for v,t in msg.iparams )
+      size_exp = sum( t.packsize for v,t in msg.iparams )
       lines.extend((
         'if( payload_size != %u ) {' % size_exp,
         '  WARNING(PPP_ERROR, "invalid payload size for %s (expected %u, got %%u)", payload_size);' % (msg.name, size_exp),
@@ -210,7 +198,7 @@ class CodeGenerator:
       for v,t in msg.iparams:
         lines.append('%s.%s = *(const %s *)(rbuf+%u);'
             % (msgdata_struct, v, self.avr_typename(t), pos))
-        pos += self.avr_sizeof(t)
+        pos += t.packsize
 
       # debug line
       fmt_str = ','.join( self.avr_printf_fmt(t) for v,t in msg.iparams )
@@ -228,7 +216,7 @@ class CodeGenerator:
         for v,t in msg.oparams:
           lines.append('*((%s *)(frame->send_buf+%u)) = %s.%s;'
               % (self.avr_typename(t), pos, msgdata_struct, v))
-          pos += self.avr_sizeof(t)
+          pos += t.packsize
         lines.append('payload_size = %u;' % (pos-2))  # - size (2)
       else:
         lines.append('payload_size = 0;  // no reply')
@@ -256,7 +244,7 @@ class CodeGenerator:
       for v,t in msg.iparams:
         lines.append('*((%s*)(frame.send_buf+%u)) = %s.%s;'
             % (self.avr_typename(t), pos, msgdata_struct, v))
-        pos += self.avr_sizeof(t)
+        pos += t.packsize
       lines.append('frame.send_size = %u;' % (pos+1))  # + checksum (1)
 
       # debug line
@@ -278,7 +266,7 @@ class CodeGenerator:
       for v,t in msg.oparams:
         lines.append('*((%s*)(frame.recv_buf+%u)) = %s.%s;'
             % (self.avr_typename(t), pos+3, msgdata_struct, v))
-        pos += self.avr_sizeof(t)
+        pos += t.packsize
 
       lines.append('break;')
       ret += ('#if defined(PPP_I2C_MASTER) && PPP_DEVICE_ROID != %s\n'
@@ -298,7 +286,7 @@ class CodeGenerator:
       for v,t in msg.params:
         lines.append('*((%s*)(frame.send_buf+%u)) = %s.%s;'
             % (self.avr_typename(t), pos, msgdata_struct, v))
-        pos += self.avr_sizeof(t)
+        pos += t.packsize
       lines.append('frame.send_size = %u;' % (pos+1))  # + checksum (1)
 
       # debug line
