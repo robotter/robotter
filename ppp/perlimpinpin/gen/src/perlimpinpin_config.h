@@ -25,4 +25,7 @@
 /// Delay between each I2C master receive attempt.
 #define PPP_I2CM_RECV_WAIT_MS    20
 
+/// Use Aversive's error module.
+//#define PPP_AVERSIVE_ERROR
+
 #endif

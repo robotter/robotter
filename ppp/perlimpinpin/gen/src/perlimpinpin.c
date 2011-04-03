@@ -8,10 +8,19 @@
 #endif
 
 #include <aversive.h>
-#include <aversive/error.h>
 #include <aversive/wait.h>
 #include <string.h>
 #include "perlimpinpin.h"
+#ifdef PPP_AVERSIVE_ERROR
+#include <aversive/error.h>
+#else
+#ifndef WARNING
+#define WARNING(...)
+#endif
+#ifndef DEBUG
+#define DEBUG(...)
+#endif
+#endif
 
 #ifdef PPP_I2C_MASTER
 #include <i2cm.h>
