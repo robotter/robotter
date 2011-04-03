@@ -174,7 +174,8 @@ class CodeGenerator:
         payloads.append( msg.oparams )
       else:
         raise TypeError("unsupported message type")
-    return max( sum( t.packsize for v,t in pl ) for pl in payloads )
+    # +1 for the mid
+    return 1+max( sum( t.packsize for v,t in pl ) for pl in payloads )
 
 
   def process_input_frame_switch(self):
@@ -246,6 +247,10 @@ class CodeGenerator:
             % (self.avr_typename(t), pos, msgdata_struct, v))
         pos += t.packsize
       lines.append('frame.send_size = %u;' % (pos+1))  # + checksum (1)
+      # set receive size, if needed
+      recv_size = sum( t.packsize for v,t in msg.oparams )
+      if recv_size != 0:
+        lines.append('frame.recv_size = %u;' % (recv_size+4))
 
       # debug line
       fmt_str = ','.join( self.avr_printf_fmt(t) for v,t in msg.iparams )
@@ -256,7 +261,7 @@ class CodeGenerator:
 
       # process the message
       lines.extend((
-        'if( ppp_i2cm_process_output_frame(&frame, 0x%02X) != 0 ) {' % msg.device.roid,
+        'if( ppp_i2cm_process_output_frame(&frame, %s) != 0 ) {' % self.roid_macro_name(msg.device),
         '  return -1;',
         '}',
         ))
@@ -264,8 +269,8 @@ class CodeGenerator:
       # unpack reply (if any)
       pos = 3
       for v,t in msg.oparams:
-        lines.append('*((%s*)(frame.recv_buf+%u)) = %s.%s;'
-            % (self.avr_typename(t), pos+3, msgdata_struct, v))
+        lines.append('%s.%s = *((%s*)(frame.recv_buf+%u));'
+            % (msgdata_struct, v, self.avr_typename(t), pos))
         pos += t.packsize
 
       lines.append('break;')
@@ -297,7 +302,7 @@ class CodeGenerator:
       lines.append('DEBUG(PPP_ERROR, "send message %s(%s)"%s);' % (msg.name, fmt_str, fmt_args))
 
       # process the message
-      lines.append('ppp_uart_send(frame.send_buf, frame.send_size);')
+      lines.append('ppp_uart_process_output_frame(&frame);')
       lines.append('break;')
       ret += ('#if defined(PPP_UART_NUM) && PPP_DEVICE_ROID == %s\n'
               '    case %s:\n%s'
@@ -314,13 +319,13 @@ class CodeGenerator:
     ret = ''
 
     for msg in self.robot.commands():
-      args = ['_msgdata'] + [ v for v,t in msg.iparams ]
+      args = ['_msgdata'] + [ v+'_' for v,t in msg.iparams ]
       sargs = ', '.join(args)
 
-      lines = [ '(_msgdata)->mid = %u,' % msg.mid ]
+      lines = [ '(_msgdata)->mid = %s,' % self.msgid_enum_name(msg) ]
       msgdata_struct = '(_msgdata)->%s' % msg.name
       for v,t in msg.iparams:
-        lines.append('%s.%s = (%s),' % (msgdata_struct, v, v))
+        lines.append('%s.%s = (%s),' % (msgdata_struct, v, v+'_'))
       ret += ('#if defined(PPP_I2C_MASTER) && PPP_DEVICE_ROID != %s\n'
               '#define PPP_SEND_%s(%s) \\\n%s    ppp_send_message(_msgdata);\n'
               '#endif\n\n') % (
@@ -330,13 +335,13 @@ class CodeGenerator:
                  )
 
     for msg in self.robot.telemetries():
-      args = ['_msgdata'] + [ v for v,t in msg.params ]
+      args = ['_msgdata'] + [ v+'_' for v,t in msg.params ]
       sargs = ', '.join(args)
 
-      lines = [ '(_msgdata)->mid = %u,' % msg.mid ]
+      lines = [ '(_msgdata)->mid = %s,' % self.msgid_enum_name(msg) ]
       msgdata_struct = '(_msgdata)->%s' % msg.name
       for v,t in msg.params:
-        lines.append('%s.%s = (%s),' % (msgdata_struct, v, v))
+        lines.append('%s.%s = (%s),' % (msgdata_struct, v, v+'_'))
       ret += ('#if defined(PPP_UART_NUM) && PPP_DEVICE_ROID == %s\n'
               '#define PPP_SEND_%s(%s) \\\n%s    ppp_send_message(_msgdata);\n'
               '#endif\n\n') % (

@@ -73,12 +73,6 @@
 
 
 
-#if defined(PPP_UART_NUM) || defined(PPP_I2C_SLAVE) || defined(PPP_I2C_MASTER)
-/// Compute a packet checksum.
-static uint8_t ppp_checksum(const uint8_t *data, uint16_t size);
-#endif
-
-
 #ifdef PPP_UART_NUM
 /// Handle pending UART events.
 static void ppp_uart_update(void);
@@ -102,14 +96,23 @@ typedef struct {
 } PPPMsgFrame;
 
 
+#if defined(PPP_UART_NUM) || defined(PPP_I2C_SLAVE) || defined(PPP_I2C_MASTER)
+/// Compute a packet checksum.
+static uint8_t ppp_checksum(const uint8_t *data, uint16_t size);
+/// Set size an checksum in a frame send buffer.
+static void ppp_prepare_send_frame(PPPMsgFrame *frame);
+#endif
+
+
 #if defined(PPP_UART_NUM) || defined(PPP_I2C_SLAVE)
 /** @brief Process an input message frame.
  *
  * Used to process a message buffer received either by UART or by an I2C slave.
- * This method checks frame size and checksum.
+ * This method checks frame size and checksum but does not prepare the send
+ * buffer.
  *
  * It is OK for \e recv_buf and \e send_buf point to be the same buffer.
- * \e send_size is assumed to be large enough.
+ * \e send_size is not checked end \e send_buf is assumed to be large enough.
  *
  * @return 0 on success, -1 on error.
  */
@@ -131,8 +134,12 @@ static int8_t ppp_i2cm_process_output_frame(PPPMsgFrame *frame, uint8_t addr);
 #endif
 
 #ifdef PPP_UART_NUM
-/// Send a buffer over UART.
-static void ppp_uart_send(const uint8_t *data, uint16_t size);
+/** @brief Send a frame over UART.
+ *
+ * This method set the frame size and checksum and send the UART frame prefix
+ * (two 0xff bytes).
+ */
+static void ppp_uart_process_output_frame(PPPMsgFrame *frame);
 #endif
 
 
@@ -144,6 +151,12 @@ uint8_t ppp_checksum(const uint8_t *data, uint16_t size)
   for(it=0;it<size;it++)
     crc += data[it]; 
   return crc;
+}
+
+void ppp_prepare_send_frame(PPPMsgFrame *frame)
+{
+  *(uint16_t*)(frame->send_buf) = frame->send_size-3; // - size (2) - checksum (1)
+  frame->send_buf[frame->send_size-1] = ppp_checksum(frame->send_buf, frame->send_size-1);
 }
 #endif
 
@@ -206,6 +219,7 @@ void ppp_uart_update(void)
         return;
       }
       buf[0] = ret;
+      state++;
     }
     if( state < 4 ) {
       int ret = uart_recv_nowait(PPP_UART_NUM);
@@ -215,11 +229,13 @@ void ppp_uart_update(void)
       buf[1] = ret;
       size = *(uint16_t*)buf;
       if( size > sizeof(buf)-3 ) {
-        WARNING(PPP_ERROR, "UART frame size is too big (got %u)", *(uint16_t*)buf);
+        WARNING(PPP_ERROR, "UART frame size is too big (got %u)", size);
         state = 0;
         return;
       }
+      size++; // for the checksum
       bufp = buf + 2;
+      state++;
     }
 
     // fill the frame buffer
@@ -231,20 +247,20 @@ void ppp_uart_update(void)
       *bufp = ret;
       bufp++; size--;
     }
+    state = 0; // reset state now
 
     // process the frame
     PPPMsgFrame frame = {
-      buf, buf, *(uint16_t*)buf, I2CS_SEND_BUF_SIZE
+      buf, buf, *(uint16_t*)buf+3, sizeof(buf)
     };
 
     if( ppp_process_input_frame(&frame) != 0 ) {
-      state = 0;
       return;
     }
-
-    // send the response
-    ppp_uart_send(buf, frame.send_size);
-    state = 0;
+    // send the response, if any
+    if( frame.send_size != 0 ) {
+      ppp_uart_process_output_frame(&frame);
+    }
   }
   // never reached
 }
@@ -282,6 +298,9 @@ void ppp_i2cs_update(void)
     return;
   }
   // set i2c state machine to READY (data OK to be sent)
+  if( frame.send_size != 0 ) {
+    ppp_prepare_send_frame(&frame);
+  }
   // no-op if there is nothing to send (frame.send_size == 0)
   i2cs_send_size = frame.send_size;
 }
@@ -318,6 +337,7 @@ int8_t ppp_process_input_frame(PPPMsgFrame *frame)
   PPPMsgData msgdata;
   uint8_t mid = rbuf[2];
   msgdata.mid = mid;
+  payload_size--;
 
   // unpack, call message callback, pack response
   // set payload_size to the output payload_size
@@ -330,9 +350,9 @@ int8_t ppp_process_input_frame(PPPMsgFrame *frame)
   }
 
   // set common reply values
-  if( payload_size != 0 ) {
-    *(uint16_t*)(frame->send_buf) = payload_size; // payload size only
-    frame->send_buf[frame->send_size+2] = ppp_checksum(frame->send_buf, payload_size+2);
+  if( payload_size == 0 ) {
+    frame->send_size = 0;
+  } else {
     frame->send_size = payload_size+3; // + size (2) + checksum (1)
   }
 
@@ -365,11 +385,9 @@ int8_t ppp_send_message(PPPMsgData *msgdata)
 #ifdef PPP_I2C_MASTER
 int8_t ppp_i2cm_process_output_frame(PPPMsgFrame *frame, uint8_t addr)
 {
+  ppp_prepare_send_frame(frame);
   uint8_t *sbuf = frame->send_buf;
   uint8_t frame_size = frame->send_size;
-  // prepare the frame data
-  *(uint16_t*)sbuf = frame->send_size-3; // - size (2) - checksum (1)
-  sbuf[frame_size] = ppp_checksum(sbuf, frame_size-1);
   // send it
   int8_t ret = i2cm_send(addr, sbuf, frame_size);
   if( ret != frame_size ) {
@@ -433,9 +451,13 @@ int8_t ppp_i2cm_process_output_frame(PPPMsgFrame *frame, uint8_t addr)
 
 
 #ifdef PPP_UART_NUM
-void ppp_uart_send(const uint8_t *data, uint16_t size)
+void ppp_uart_process_output_frame(PPPMsgFrame *frame)
 {
-  const uint8_t *p = data; 
+  ppp_prepare_send_frame(frame);
+  uart_send(PPP_UART_NUM, 0xff);
+  uart_send(PPP_UART_NUM, 0xff);
+  const uint8_t *p = frame->send_buf;
+  uint16_t size = frame->send_size;
   while( size != 0 ) {
     uart_send(PPP_UART_NUM, *p);
     p++; size--;
