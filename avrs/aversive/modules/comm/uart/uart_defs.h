@@ -46,11 +46,21 @@
 
 /* For arch with only one UART, we consider that UART0 = UART */
 #if !defined(SIG_UART0_DATA) && !defined(SIG_USART0_DATA)
+#if defined SIG_UART_DATA
 #define SIG_UART0_DATA SIG_UART_DATA
+#elif defined SIG_USART_DATA
+#define SIG_UART0_DATA SIG_USART_DATA
 #endif
+#endif
+
 #if !defined(SIG_UART0_RECV) && !defined(SIG_USART0_RECV)
+#if defined SIG_UART_RECV
 #define SIG_UART0_RECV  SIG_UART_RECV
+#elif defined SIG_USART_RECV
+#define SIG_UART0_RECV  SIG_USART_RECV
 #endif
+#endif
+
 #ifndef UDR0
 #define UDR0 UDR
 #endif
