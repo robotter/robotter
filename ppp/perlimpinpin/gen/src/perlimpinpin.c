@@ -4,7 +4,7 @@
  */
 
 #if defined(PPP_I2C_MASTER) && defined(PPP_I2C_SLAVE)
-#error "Cannot act as both master en slave"
+#error "Cannot act as both master and slave"
 #endif
 
 #include <aversive.h>
