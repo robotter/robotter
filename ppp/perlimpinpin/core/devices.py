@@ -55,6 +55,8 @@ class Robot:
           raise ValueError("message ID %u set on %r already used by %r"
               % (mid, msg.name, messages[mid].name))
         else:
+          if not 1 <= mid <= 0xff:
+            raise ValueError("invalid message ID set on %r: %u" % (msg.name, mid))
           messages[mid] = msg
         name = msg.name.lower()
         if name in msgs_names:
@@ -63,7 +65,7 @@ class Robot:
           msgs_names.add(name)
 
     # auto-attribute message IDs
-    mid = 0
+    mid = 1
     for msg in msgs_noid:
       while mid in messages:
         mid += 1
