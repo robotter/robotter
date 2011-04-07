@@ -1,7 +1,7 @@
 import re, os
 import time  # used by templates
 
-from ..core import Telemetry, Command, Message, ppp_types
+from ..core import Message, ppp_types
 
 
 def templatize(tpl, out, loc):
@@ -140,216 +140,67 @@ class CodeGenerator:
   def msgid_enum_fields(self):
     return self.pretty_enum_fields( 
         (self.msgid_enum_name(msg), msg.mid)
-        for msg in self.robot.messages()
+        for msg in self.robot.messages
         )
 
   def msgdata_union_fields(self):
     ret = ''
-    for msg in self.robot.messages():
-      fields = ['PPPMsgID mid;']
-      if isinstance(msg, Telemetry):
-        fields.extend( '%s %s;' % (self.avr_typename(t), v) for v,t in msg.params )
-      elif isinstance(msg, Command):
-        if len(msg.iparams) != 0:
-          fields.append('// input')
-          fields.extend( '%s %s;' % (self.avr_typename(t), v) for v,t in msg.iparams )
-        if len(msg.oparams) != 0:
-          fields.append('// output')
-          fields.extend( '%s %s;' % (self.avr_typename(t), v) for v,t in msg.oparams )
-      else:
-        raise TypeError("unsupported message type")
-      ret += '\n  struct {\n%s  } %s;\n' % (
-          ''.join( '    %s\n'%s for s in fields ),
+    for msg in self.robot.messages:
+      fields = ( '%s %s;' % (self.avr_typename(t), v) for v,t in msg.params )
+      ret += '\n    struct {\n%s    } %s;\n' % (
+          ''.join( '      %s\n'%s for s in fields ),
           msg.name,
           )
     return ret
 
   def max_payload_size(self):
-    payloads = []
-    for msg in self.robot.messages():
-      if isinstance(msg, Telemetry):
-        payloads.append( msg.params )
-      elif isinstance(msg, Command):
-        payloads.append( msg.iparams )
-        payloads.append( msg.oparams )
-      else:
-        raise TypeError("unsupported message type")
     # +1 for the mid
-    return 1+max( sum( t.packsize for v,t in pl ) for pl in payloads )
+    return 1+max(
+        sum( t.packsize for v,t in msg.params )
+        for msg in self.robot.messages
+        )
 
 
-  def process_input_frame_switch(self):
+  def trace_msg_switch(self):
     ret = ''
-    for msg in self.robot.commands():
-      lines = []
-      msgdata_struct = 'msgdata.%s' % msg.name
-
-      # check size
-      # note: send_size is checked at compile time
-      size_exp = sum( t.packsize for v,t in msg.iparams )
-      lines.extend((
-        'if( payload_size != %u ) {' % size_exp,
-        '  WARNING(PPP_ERROR, "invalid payload size for %s (expected %u, got %%u)", payload_size);' % (msg.name, size_exp),
-        '  return -1;',
-        '}',
-        ))
-
-      # unpack arguments
-      pos = 3
-      for v,t in msg.iparams:
-        lines.append('%s.%s = *(const %s *)(rbuf+%u);'
-            % (msgdata_struct, v, self.avr_typename(t), pos))
-        pos += t.packsize
-
-      # debug line
-      fmt_str = ','.join( self.avr_printf_fmt(t) for v,t in msg.iparams )
-      fmt_args = ', '.join( '%s.%s'%(msgdata_struct, v) for v,t in msg.iparams )
-      if fmt_args != '':
-        fmt_args = ', '+fmt_args
-      lines.append('DEBUG(PPP_ERROR, "received message %s(%s)"%s);' % (msg.name, fmt_str, fmt_args))
-
-      # call the user callback
-      lines.append( 'ppp_command_callback(&msgdata);' )
-
-      # pack reply (if needed)
-      if len(msg.oparams) != 0:
-        pos = 3
-        for v,t in msg.oparams:
-          lines.append('*((%s *)(frame->send_buf+%u)) = %s.%s;'
-              % (self.avr_typename(t), pos, msgdata_struct, v))
-          pos += t.packsize
-        lines.append('payload_size = %u;' % (pos-2))  # - size (2)
-      else:
-        lines.append('payload_size = 0;  // no reply')
-
-      lines.append('break;')
-      ret += ('#if PPP_DEVICE_ROID == %s\n'
-              '    case %s:\n%s'
-              '#endif\n\n') % (
-                 self.roid_macro_name(msg.device),
-                 self.msgid_enum_name(msg),
-                 ''.join('      %s\n'%s for s in lines),
-                 )
-    return ret
-
-
-  def send_message_switch(self):
-    ret = ''
-
-    for msg in self.robot.commands():
-      lines = []
-      msgdata_struct = 'msgdata->%s' % msg.name
-
-      # pack arguments
-      pos = 3
-      for v,t in msg.iparams:
-        lines.append('*((%s*)(frame.send_buf+%u)) = %s.%s;'
-            % (self.avr_typename(t), pos, msgdata_struct, v))
-        pos += t.packsize
-      lines.append('frame.send_size = %u;' % (pos+1))  # + checksum (1)
-      # set receive size, if needed
-      recv_size = sum( t.packsize for v,t in msg.oparams )
-      if recv_size != 0:
-        lines.append('frame.recv_size = %u;' % (recv_size+4))
-
-      # debug line
-      fmt_str = ','.join( self.avr_printf_fmt(t) for v,t in msg.iparams )
-      fmt_args = ', '.join( '%s.%s'%(msgdata_struct, v) for v,t in msg.iparams )
-      if fmt_args != '':
-        fmt_args = ', '+fmt_args
-      lines.append('DEBUG(PPP_ERROR, "send message %s(%s)"%s);' % (msg.name, fmt_str, fmt_args))
-
-      # process the message
-      lines.extend((
-        'if( ppp_i2cm_process_output_frame(&frame, %s) != 0 ) {' % self.roid_macro_name(msg.device),
-        '  return -1;',
-        '}',
-        ))
-
-      # unpack reply (if any)
-      pos = 3
-      for v,t in msg.oparams:
-        lines.append('%s.%s = *((%s*)(frame.recv_buf+%u));'
-            % (msgdata_struct, v, self.avr_typename(t), pos))
-        pos += t.packsize
-
-      lines.append('break;')
-      ret += ('#if defined(PPP_I2C_MASTER) && PPP_DEVICE_ROID != %s\n'
-              '    case %s:\n%s'
-              '#endif\n\n') % (
-                 self.roid_macro_name(msg.device),
-                 self.msgid_enum_name(msg),
-                 ''.join('      %s\n'%s for s in lines),
-                 )
-
-    for msg in self.robot.telemetries():
-      lines = []
-      msgdata_struct = 'msgdata->%s' % msg.name
-
-      # pack arguments
-      pos = 3
-      for v,t in msg.params:
-        lines.append('*((%s*)(frame.send_buf+%u)) = %s.%s;'
-            % (self.avr_typename(t), pos, msgdata_struct, v))
-        pos += t.packsize
-      lines.append('frame.send_size = %u;' % (pos+1))  # + checksum (1)
-
-      # debug line
+    for msg in self.robot.messages:
       fmt_str = ','.join( self.avr_printf_fmt(t) for v,t in msg.params )
-      fmt_args = ', '.join( '%s.%s'%(msgdata_struct, v) for v,t in msg.params )
+      fmt_args = ', '.join( 'frame->%s.%s'%(msg.name, v) for v,t in msg.params )
       if fmt_args != '':
         fmt_args = ', '+fmt_args
-      lines.append('DEBUG(PPP_ERROR, "send message %s(%s)"%s);' % (msg.name, fmt_str, fmt_args))
-
-      # process the message
-      lines.append('ppp_uart_process_output_frame(&frame);')
-      lines.append('break;')
-      ret += ('#if defined(PPP_UART_NUM) && PPP_DEVICE_ROID == %s\n'
-              '    case %s:\n%s'
-              '#endif\n\n') % (
-                 self.roid_macro_name(msg.device),
-                 self.msgid_enum_name(msg),
-                 ''.join('      %s\n'%s for s in lines),
-                 )
-
+      ret += (
+          '    case %s:\n'
+          '      DEBUG(PPP_ERROR, "%%s(0x%%02X>0x%%02X): %s(%s)", way, frame->src, frame->dst%s);\n'
+          '      break;\n'
+          ) % (
+              self.msgid_enum_name(msg),
+              msg.name, fmt_str, fmt_args,
+              )
     return ret
 
 
   def send_helpers(self):
     ret = ''
-
-    for msg in self.robot.commands():
-      args = ['_msgdata'] + [ v+'_' for v,t in msg.iparams ]
-      sargs = ', '.join(args)
-
-      lines = [ '(_msgdata)->mid = %s,' % self.msgid_enum_name(msg) ]
-      msgdata_struct = '(_msgdata)->%s' % msg.name
-      for v,t in msg.iparams:
-        lines.append('%s.%s = (%s),' % (msgdata_struct, v, v+'_'))
-      ret += ('#if defined(PPP_I2C_MASTER) && PPP_DEVICE_ROID != %s\n'
-              '#define PPP_SEND_%s(%s) \\\n%s    ppp_send_message(_msgdata);\n'
-              '#endif\n\n') % (
-                 self.roid_macro_name(msg.device),
-                 msg.name.upper(), sargs,
-                 ''.join( '    %s \\\n'%s for s in lines ),
-                 )
-
-    for msg in self.robot.telemetries():
-      args = ['_msgdata'] + [ v+'_' for v,t in msg.params ]
-      sargs = ', '.join(args)
-
-      lines = [ '(_msgdata)->mid = %s,' % self.msgid_enum_name(msg) ]
-      msgdata_struct = '(_msgdata)->%s' % msg.name
-      for v,t in msg.params:
-        lines.append('%s.%s = (%s),' % (msgdata_struct, v, v+'_'))
-      ret += ('#if defined(PPP_UART_NUM) && PPP_DEVICE_ROID == %s\n'
-              '#define PPP_SEND_%s(%s) \\\n%s    ppp_send_message(_msgdata);\n'
-              '#endif\n\n') % (
-                 self.roid_macro_name(msg.device),
-                 msg.name.upper(), sargs,
-                 ''.join( '    %s \\\n'%s for s in lines ),
-                 )
-
+    for msg in self.robot.messages:
+      ret += (
+          '#define PPP_SEND_%s(_d%s) do { \\\n'
+          '    PPPMsgFrame _frame = { \\\n'
+          '      .plsize = %u, \\\n'
+          '      .src = PPP_DEVICE_ROID, .dst = (_d), \\\n'
+          '      .mid = %s \\\n'
+          '    }; \\\n'
+          '%s'
+          '    ppp_send_msg(&_frame); \\\n'
+          '  } while(0);\n\n') % (
+              msg.name.upper(),
+              ''.join( ', _%s'%v for v,t in msg.params ),
+              3+sum( t.packsize for v,t in msg.params ),
+              self.msgid_enum_name(msg),
+              ''.join(
+                '    (_frame).%s.%s = (_%s); \\\n' % (msg.name, v, v)
+                for v,t in msg.params
+                ),
+              )
     return ret
 
 

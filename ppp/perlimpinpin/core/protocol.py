@@ -11,28 +11,32 @@ class Frame(object):
   PPP frame.
 
   Attributes:
-    payload -- payload data (without size nor checksum)
+    src, dst -- source and destination ROID
+    payload -- payload data (without size, src, dst, checksum)
     unparsed -- payload data to be unpacked
 
   """
 
-  def __init__(self, data=None):
+  def __init__(self, src=None, dst=None, data=None):
     """Create a empty frame with optional data to unpack."""
+    self.src = src
+    self.dst = dst
     self.payload = data or ''
     self.unparsed = data
 
   @classmethod
   def fromdata(cls, data):
     """Parse data into a frame."""
-    if len(data) < 3:
-      raise ValueError("frame is too short (expected at least 3 bytes, got %u)" % len(data))
+    if len(data) < 5:
+      raise ValueError("frame is too short (expected at least 5 bytes, got %u)" % len(data))
     chksum_exp, chksum_got = struct.unpack('<B', data[-1])[0], checksum(data[:-1])
     if chksum_exp != chksum_got:
       raise ValueError("checksum mismatch (expected 0x%02X, got 0x%02X)" % (chksum_exp, chksum_got))
     size_exp, size_got = struct.unpack('<H', data[:2])[0], len(data)-3
     if size_exp != size_got:
       raise ValueError("frame and payload sizes mismatch (expected payload size was %u, got %u)" % (size_exp, size_got))
-    return cls(data[2:-1])
+    src, dst = struct.unpack('<BB', data[2:4])
+    return cls(src, dst, data[4:-1])
 
 
   def pack(self, typ, val):
@@ -98,7 +102,8 @@ class Frame(object):
 
   def data(self):
     """Return the formatted frame data."""
-    data = struct.pack('<H', len(self.payload))+self.payload
+    data = struct.pack('<HBB', len(self.payload)+2, self.src, self.dst)
+    data += self.payload
     return data + chr(checksum(data))
 
 
