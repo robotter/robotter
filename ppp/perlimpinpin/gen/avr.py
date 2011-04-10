@@ -372,7 +372,7 @@ def main(robot):
   import optparse
   parser = optparse.OptionParser(
       usage=(
-        'usage: %prog [OPTIONS] -o DIR\n'
+        'usage: %prog [OPTIONS] -o DEST\n'
         '       %prog --module'
         ),
       epilog=(
