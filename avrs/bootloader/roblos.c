@@ -910,7 +910,7 @@ int main(void)
 #ifdef ENABLE_I2C_SLAVE
   // I2C init
   TWAR = I2C_ADDR << 1;
-  TWCR = (1<<TWIE)|(1<<TWEN)|(1<<TWINT)|(1<<TWEA);
+  TWCR = (1<<TWEN)|(1<<TWINT)|(1<<TWEA);
 #endif
 
 #ifdef ENABLE_UART
