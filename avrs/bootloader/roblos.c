@@ -16,6 +16,7 @@
 #include <avr/io.h>
 #include <avr/boot.h>
 #include <avr/pgmspace.h>
+#include <avr/wdt.h>
 #include <util/crc16.h>
 #include <util/delay.h>
 #include <util/twi.h>
@@ -890,6 +891,11 @@ slave_i2c_error:
  */
 int main(void)
 {
+  // On some devices (e.g. at88), WDE is not correctly cleared, being overriden
+  // by WDRF, and has to be cleared manually.
+  MCUSR &= ~(1<<WDRF);
+  wdt_disable();
+
 #ifdef INIT_CODE
   do{ INIT_CODE }while(0);
 #endif
