@@ -406,7 +406,7 @@ class Blosh(cmd.Cmd):
     self.prompt = self.theme.do_prompt('%s> ' % ('>' if id == '' else id))
     return True
 
-  
+
   def bl_enter(self):
     """Enter bootloader mode.
     Return True on success, None if bootloader was already active.
@@ -586,7 +586,7 @@ class Blosh(cmd.Cmd):
         pfilter.stdin.write(c)
       else:
         print_rx(c)
-        
+
       match_data[0] += c
       for k in self._matches:
         if match_data[0].endswith(k):
