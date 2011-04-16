@@ -270,6 +270,7 @@ class Blosh(cmd.Cmd):
       'r': 'reset',
       't': 'terminal',
       'p': 'program',
+      'b': 'boot',
       }
 
 
