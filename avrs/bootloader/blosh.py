@@ -1189,7 +1189,7 @@ class Blosh(cmd.Cmd):
     self.print_ln(self.theme.do_error(s))
 
 
-if __name__ == '__main__':
+def main():
   from optparse import OptionParser
   from robloc import Serial
 
@@ -1234,4 +1234,8 @@ if __name__ == '__main__':
     cmd.execute('terminal')
   else:
     cmd.cmdloop()
+
+
+if __name__ == '__main__':
+  main()
 
