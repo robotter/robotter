@@ -864,6 +864,13 @@ class Blosh(cmd.Cmd):
     self.print_ln('') # extra newline
     return True
 
+  def cmdloop(self, *a):
+    while True:
+      try:
+        return cmd.Cmd.cmdloop(self, *a)
+      except KeyboardInterrupt:
+        self.print_error('interrupted')
+
   def emptyline(self):
     pass
 
