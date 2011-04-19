@@ -133,7 +133,6 @@ typedef uint16_t addr_type;
 #define UCSRxB  UCSR3B
 #define UCSRxC  UCSR3C
 #define RXCx    RXC3
-#define RXCx    RXC3
 #define UDRx    UDR3
 #define UDREx   UDRE3
 #define U2Xx    U2X3
