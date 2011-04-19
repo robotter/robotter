@@ -26,16 +26,16 @@ use ieee.numeric_std.all;
 entity pwm_signed is
   
   generic (
-    default_period_c : natural range 0 to 4095 := 4095  -- pwm period after reset
+    default_period_c : natural range 0 to 8191 := 8191  -- pwm period after reset
     );
   port (
     clk_i   : in std_logic;             -- clock
     reset_i : in std_logic;             -- reset
 
-    period_i            : in  std_logic_vector(11 downto 0);  -- period of the pwm
-    pulse_duration_i    : in  std_logic_vector(12 downto 0);  -- pulse duration of the pwm, signed
-    period_o            : out std_logic_vector(11 downto 0);  -- period of the pwm currently applied
-    pulse_duration_o    : out std_logic_vector(12 downto 0);  -- pulse duration of the pwm currently applied
+    period_i            : in  std_logic_vector(12 downto 0);  -- period of the pwm
+    pulse_duration_i    : in  std_logic_vector(13 downto 0);  -- pulse duration of the pwm, signed
+    period_o            : out std_logic_vector(12 downto 0);  -- period of the pwm currently applied
+    pulse_duration_o    : out std_logic_vector(13 downto 0);  -- pulse duration of the pwm currently applied
     update_param_i      : in  std_logic;  -- update values of period and pulse duration signal
     update_param_done_o : out std_logic;  -- update values of period and pulse duration signa
     ce_pwm_i            : in  std_logic;  -- enable emission of pwm
@@ -45,8 +45,8 @@ end entity;
 
 architecture pwm_signed_1 of pwm_signed
 is
-  SIGNAL period_s                  : natural range 0 to 4095;
-  SIGNAL pulse_duration_s          : natural range 0 to 4095;  -- = pulse_duration_s 
+  SIGNAL period_s                  : natural range 0 to 8191;
+  SIGNAL pulse_duration_s          : natural range 0 to 8191;  -- = pulse_duration_s 
   SIGNAL pwm_sign_s                : std_logic;  -- sign of the pwm, applied to output
                                         -- synchronously with beginning of
                                                  -- pulse ( data extracted from pulse_duration_i(12))
@@ -64,15 +64,19 @@ begin  -- pwm_signed_1
       pwm_sign_s              <= '0';
       previous_update_param_v := '0';
       update_param_done_o     <= '0';
+      period_o <= (others => '1');
+      pulse_duration_o <= (others => '0');
       
     elsif rising_edge(clk_i) then
 
       -- avoid to affect period to 0, 
-      if previous_update_param_v = '0' and update_param_i = '1' and period_i /= X"000" then
-        period_s            <= to_integer(unsigned(period_i(11 downto 0)));
-        pwm_sign_s          <= pulse_duration_i(12);
-        pulse_duration_s    <= to_integer(unsigned(pulse_duration_i(11 downto 0)));
+      if previous_update_param_v = '0' and update_param_i = '1' and period_i /= "0000000000000" then
+        period_s            <= to_integer(unsigned(period_i(12 downto 0)));
+        pwm_sign_s          <= pulse_duration_i(13);
+        pulse_duration_s    <= to_integer(unsigned(pulse_duration_i(12 downto 0)));
         update_param_done_o <= '1';
+        period_o <= period_i;
+        pulse_duration_o <= pulse_duration_i;
       end if;
 
       if update_param_i = '0' then
@@ -86,12 +90,11 @@ begin  -- pwm_signed_1
 
 
   pwm_process_p : process(clk_i, reset_i)
-    variable pwm_counter_v            : natural range 0 to 4095;
-    variable period_pwm_v             : natural range 0 to 4095;
-    variable pulse_duration_v         : natural range 0 to 4095;
+    variable pwm_counter_v            : natural range 0 to 8191;
+    variable period_pwm_v             : natural range 0 to 8191;
+    variable pulse_duration_v         : natural range 0 to 8191;
     variable pwm_sign_v               : std_logic;
     variable pwm_out_v                : std_logic;
-    variable pulse_duration_reached_v : std_logic;  -- avoid dead lock when pulse duration is greater than period
     
   begin
     if reset_i = '0' then
@@ -102,7 +105,6 @@ begin  -- pwm_signed_1
       pwm_sign_v               := '0';
       pulse_duration_v         := 1;
       pwm_out_v                := '0';
-      pulse_duration_reached_v := '0';
       
     elsif rising_edge(clk_i) then
 
@@ -124,7 +126,7 @@ begin  -- pwm_signed_1
       end if;
 
       -- increment pwm counter
-      if pwm_counter_v = 4095 then
+      if pwm_counter_v = 8191 then
         pwm_counter_v := 0;
       end if;
       pwm_counter_v := pwm_counter_v +1;

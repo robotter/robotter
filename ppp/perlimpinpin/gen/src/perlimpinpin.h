@@ -20,7 +20,7 @@
  * @brief Perlimpinpin symbols.
  * @date $$ppp:time.strftime('%Y-%m-%d %H:%m:%S')$$
  *
- * The user must define the ppp_command_callback() function in a separate
+ * The user must define the ppp_msg_callback() function in a separate
  * object file.
  */
 
@@ -31,6 +31,10 @@
  */
 //@{
 #pragma perlimpinpin_tpl self.device_roid_macros()
+
+/// Bitmask value for an ROID associated to UART interface.
+#define PPP_UART_ROID  0x80
+
 //@}
 
 
@@ -43,20 +47,23 @@ typedef enum {
 
 } PPPMsgID;
 
-/// Type storing message data, both in and out.
-typedef union {
+/// Type storing message frame.
+typedef struct {
+  uint16_t plsize;   ///< payload size, with src, dst, mid
+  uint8_t src, dst;  ///< Message source and destination addresses
   PPPMsgID mid;
+  union {
+    uint8_t _data[$$ppp:self.max_payload_size()$$+1]; // +1 for checksum
 #pragma perlimpinpin_tpl self.msgdata_union_fields()
 
-} PPPMsgData;
+  };
+} __attribute__((__packed__)) PPPMsgFrame;
 
-/** @brief Callback for received commands.
+/** @brief Callback for received messages.
  *
  * This function must be defined by the user.
- *
- * @return 0 on success, -1 on error.
  */
-int8_t ppp_command_callback(PPPMsgData *);
+void ppp_msg_callback(PPPMsgFrame *);
 
 
 /// Initialize perlimpinpin communications.
@@ -64,19 +71,25 @@ void ppp_init(void);
 
 /** @brief Handle all pending events.
  *
- * This method does not block except when transferring an UART command to an
- * I2C slave when it will block to complete a frame send or receive.
+ * This method does not block except when transferring I2C frames.
  */
 void ppp_update(void);
 
-/** @brief Send a message and wait for the reply (if any).
- * @return 0 on success, -1 on error.
+/** @brief Send a message.
+ *
+ * When sending over I2C, the transfer will be retried on failure, depending on
+ * configuration. Broadcasting will not fail if no slave acknowledges.
+ *
+ * Between each try, pending I2C messages will be processed, as if ppp_update()
+ * was called, in order to avoid devices waiting for each other.
+ * As a consequence, ppp_msg_callback() and ppp_send_msg() may be called
+ * recursively.
  */
-int8_t ppp_send_message(PPPMsgData *msgdata);
+void ppp_send_msg(PPPMsgFrame *frame);
 
 /** @name Helper macros to send messages.
  *
- * These macros fill a PPPMsgData structure then call ppp_send_message().
+ * These macros fill a PPPMsgFrame structure then call ppp_send_msg().
  */
 //@{
 
