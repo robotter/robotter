@@ -30,8 +30,8 @@ architecture t_stratcomm_i2cslave_1 of t_stratcomm_i2cslave is
   signal clk_s   : std_logic;
   signal reset_s : std_logic;
 
-  signal i2c_scl_s : std_logic;
-  signal i2c_sda_s : std_logic;
+	signal i2c_scl_s : std_logic;
+	signal i2c_sda_s : std_logic;
 
   signal i2c_self_address_s : std_logic_vector(6 downto 0);
 
@@ -128,8 +128,8 @@ begin
   port map (
     clk_i   => clk_s,
     reset_ni => reset_s,
-    i2c_scl_i => i2c_scl_s,
-    i2c_sda_io => i2c_sda_s,
+		i2c_scl_i => i2c_scl_s,
+		i2c_sda_io => i2c_sda_s,
     i2c_self_address_i => i2c_self_address_s,
     data_in_i => data_in_s,
     data_out_o => data_out_s

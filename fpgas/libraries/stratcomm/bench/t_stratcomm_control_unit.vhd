@@ -46,7 +46,7 @@ PACKAGE p_i2c_module_proc IS
     SIGNAL i2c_communicating_so : out std_logic;
     signal i2c_new_transfert_so : out std_logic;
     signal i2c_r_nw_operation_so : out std_logic;
-  signal data_beginning_si : natural;
+	signal data_beginning_si : natural;
     signal i2c_data_out_so : out std_logic_vector(7 downto 0));
 
 END p_i2c_module_proc;
@@ -72,7 +72,7 @@ PACKAGE BODY p_i2c_module_proc IS
       wait for 9 * i2c_period_v;
     end loop;  -- it_v
     i2c_communicating_so <= '0';
-  wait for i2c_period_v;
+	wait for i2c_period_v;
   end i2c_read_sequence;
 
   PROCEDURE i2c_write_sequence(
@@ -80,7 +80,7 @@ PACKAGE BODY p_i2c_module_proc IS
     SIGNAL i2c_communicating_so : out std_logic;
     signal i2c_new_transfert_so : out std_logic;
     signal i2c_r_nw_operation_so : out std_logic;
-  signal data_beginning_si : natural;
+	signal data_beginning_si : natural;
     signal i2c_data_out_so : out std_logic_vector(7 downto 0))
   is
     variable i2c_period_v : time;
@@ -95,8 +95,8 @@ PACKAGE BODY p_i2c_module_proc IS
       i2c_new_transfert_so <= '1', '0' after 20 ns;
       wait for 9 * i2c_period_v;
     end loop;  -- it_v
-  i2c_communicating_so <= '0';
-  wait for i2c_period_v;
+	i2c_communicating_so <= '0';
+	wait for i2c_period_v;
   end i2c_write_sequence;
 
   
@@ -135,7 +135,7 @@ architecture t_stratcomm_control_unit_1 of t_stratcomm_control_unit is
       reset_ni : in std_logic;            -- reset
 
       -- whishbone interface
-    i2c_write_in_progress_o : out std_logic;  -- indicates that reception buffer is
+	  i2c_write_in_progress_o : out std_logic;  -- indicates that reception buffer is
                                               -- curently  modified and should not be readden
     reception_buffer_o      : out std_logic_ram_8(reception_buffer_size_c downto 0);
     i2c_read_in_progress_o  : out std_logic;  -- indicates that emission buffer
@@ -217,22 +217,22 @@ begin
     reset_s <= '0', '1' after 1 us;
     wait for 50 us;
     reset_s <= '0', '1' after 1 us;
-  
-  wait until endofsimulation_s;
-  
+	
+	wait until endofsimulation_s;
+	
   end process reset_generator_p;
   
 
   
   main_p : process
   begin
-  
-  it_s <= 0;
-  
+	
+	it_s <= 0;
+	
     for i in 1 to 10 loop
       i2c_read_sequence(400, i2c_communicating_s, i2c_new_transfert_s, i2c_r_nw_operation_s, i2c_data_out_s);
       wait for 10 us;
-    
+		
       i2c_write_sequence(400, i2c_communicating_s, i2c_new_transfert_s, i2c_r_nw_operation_s, it_s,  i2c_data_in_s);
       it_s <= it_s +1;
       wait for 10 us;

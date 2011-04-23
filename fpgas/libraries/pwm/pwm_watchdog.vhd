@@ -24,13 +24,14 @@ use ieee.numeric_std.all;
 
 
 entity pwm_watchdog is
-
+  
   generic (
-    fpga_frequency_khz_c :    natural                 := 50000
+    fpga_frequency_khz_c : natural                 := 50000;
+    default_period_c     : natural range 0 to 4095 := 4095  -- pwm period after reset
     );
   port (
-    clk_i                : in std_logic;  -- clock
-    reset_i              : in std_logic;  -- reset
+    clk_i   : in std_logic;             -- clock
+    reset_i : in std_logic;             -- reset
 
     watchdog_timeout_i             : in  std_logic_vector(7 downto 0);  --watchdog timout value (in ms)
     watchdog_timeout_o             : out std_logic_vector(7 downto 0);  --watchdog timout value used (in ms)
@@ -39,12 +40,8 @@ entity pwm_watchdog is
                                         -- reset_watchdog_i rising edge
     watchdog_timeout_update_done_o : out std_logic;  --watchdog_timeout_update_i handshake
 
-    watchdog_enable_i : in  std_logic;  -- enable watchdog if high
-    watchdog_enable_o : out std_logic;
-
     reset_watchdog_i          : in  std_logic;  -- resets the watchdog counter
     watchdog_timout_reached_o : out std_logic  -- timout signal, reset by reset_watchdog_i
-
     );                                  -- sign of the pwm
 end entity;
 
@@ -56,12 +53,9 @@ is
   signal s_watchdog_timout_reached : std_logic;
 begin  -- pwm_signed_1
 
-  watchdog_timout_reached_o <= s_watchdog_timout_reached when watchdog_enable_i = '1'
-                               else '0';
-  
-  watchdog_enable_o <= watchdog_enable_i;  -- update enable status
-  
-  update_parameters_p                           : process (clk_i, reset_i)
+  watchdog_timout_reached_o <= s_watchdog_timout_reached;
+
+  update_parameters_p : process (clk_i, reset_i)
     variable v_previous_watchdog_timeout_update : std_logic;
     variable v_previous_reset_watchdog          : std_logic;
     variable v_watchdog_timeout                 : std_logic_vector(7 downto 0);
@@ -72,16 +66,13 @@ begin  -- pwm_signed_1
       v_watchdog_timeout                 := X"14";
     elsif clk_i'event and clk_i = '1' then  -- rising clock edge
       if v_previous_watchdog_timeout_update = '0' and watchdog_timeout_update_i = '1' then
-        v_watchdog_timeout               := watchdog_timeout_i;
+        v_watchdog_timeout := watchdog_timeout_i;
       end if;
 
       -- only update timout when data isn't used
       if v_previous_reset_watchdog = '0' and reset_watchdog_i = '1' then
         s_watchdog_timeout <= to_integer(unsigned(v_watchdog_timeout(7 downto 0)));
         watchdog_timeout_o <= v_watchdog_timeout;
-        watchdog_timeout_update_done_o <= '1';
-      else
-        watchdog_timeout_update_done_o <= '0';
       end if;
       v_previous_watchdog_timeout_update := watchdog_timeout_update_i;
       v_previous_reset_watchdog          := reset_watchdog_i;
@@ -89,15 +80,15 @@ begin  -- pwm_signed_1
   end process update_parameters_p;
 
 
-  clk_1ms_p            : process(clk_i, reset_i)
+  clk_1ms_p : process(clk_i, reset_i)
     variable v_counter : natural range 0 to fpga_frequency_khz_c /2;
   begin
     if reset_i = '0' then
       v_counter := 0;
       s_clk_1ms <= '0';
-
+      
     elsif rising_edge(clk_i) then
-      v_counter   := v_counter +1;
+      v_counter := v_counter +1;
       if v_counter = fpga_frequency_khz_c/2 then
         s_clk_1ms <= not(s_clk_1ms);
         v_counter := 0;
@@ -106,17 +97,17 @@ begin  -- pwm_signed_1
   end process;
 
 
-  watchdog_p                           : process (clk_i, reset_i)
+  watchdog_p : process (clk_i, reset_i)
     variable v_previous_clk_1ms        : std_logic;
     variable v_counter                 : natural range 0 to 255;
     variable v_previous_reset_watchdog : std_logic;
   begin  -- process watchdog_p
     if reset_i = '0' then
-      s_watchdog_timout_reached <= '0';
+      watchdog_timout_reached_o <= '0';
       v_previous_clk_1ms        := '1';
       v_counter                 := 0;
       v_previous_reset_watchdog := '1';
-
+      
     elsif rising_edge(clk_i) then
       if v_previous_clk_1ms = '0' and s_clk_1ms = '1' and s_watchdog_timout_reached = '0' then
         v_counter := v_counter +1;
@@ -131,8 +122,8 @@ begin  -- pwm_signed_1
 
       v_previous_reset_watchdog := reset_watchdog_i;
       v_previous_clk_1ms        := s_clk_1ms;
-
+      
     end if;
   end process watchdog_p;
-
+  
 end pwm_watchdog_1;

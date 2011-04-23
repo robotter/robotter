@@ -27,17 +27,13 @@ use ieee.numeric_std.all;
 --! Angle is counted counter-clockwise (channel A leads channel B) and stored
 --! in a 32b integer.
 entity encoder_inc_reader is
-  generic (
-    --! clock frequency in kHz
-    clk_freq_c : natural
-  );
+
   port (
     clk_i   : in  std_logic;
-    reset_ni : in  std_logic;
+    reset_i : in  std_logic;
     ch_a_i  : in  std_logic; --! channel A
     ch_b_i  : in  std_logic; --! channel B
-    synchro_i : in std_logic;
-    speed_o : out signed(15 downto 0)
+    angle_o : out integer
   );
 
 end entity encoder_inc_reader;
@@ -45,35 +41,29 @@ end entity encoder_inc_reader;
 
 architecture encoder_inc_reader_1 of encoder_inc_reader is
 
-  signal speed_s : signed(15 downto 0);
+  signal angle_s : integer;
+
 begin
 
+  angle_o <= angle_s;
 
-  main_p : process (clk_i, reset_ni)
+  --! Update angle value
+  angle_p : process (clk_i, reset_i)
     variable last_ch_a_v : std_logic;
-    variable l_synchro_v : std_logic;
   begin
 
-    if reset_ni = '0' then
-      speed_s <= (others=>'0');
+    if reset_i = '1' then
+      angle_s <= 0;
       last_ch_a_v := '0';
-      l_synchro_v := '0';
 
     elsif rising_edge(clk_i) then
-
-      --! on slow clock rising edege update speed value and clear
-      if l_synchro_v = '0' and synchro_i = '1' then
-        speed_o <= speed_s;
-        speed_s <= (others=>'0');
-      end if;
-      l_synchro_v := synchro_i;
 
       --! Update on channel A falling edge
       if ch_a_i = '0' and last_ch_a_v = '1' then
         if ch_b_i = '0' then
-          speed_s <= speed_s + 1;
+          angle_s <= angle_s + 1;
         elsif ch_b_i = '1' then
-          speed_s <= speed_s - 1;
+          angle_s <= angle_s - 1;
         end if;
       end if;
 
@@ -81,7 +71,7 @@ begin
 
     end if;
 
-  end process main_p;
+  end process angle_p;
 
 end architecture encoder_inc_reader_1;
 

@@ -20,11 +20,11 @@ use ieee.numeric_std.all;
 entity multiplier33 is 
   generic (
 		-- Qn.m integer size (n+m)
-		int_size_c : natural := 16;
+		int_size_c : natural;
 		-- Qn.m fractionnal size (m)
-		frac_size_c : natural := 8;
+		frac_size_c : natural;
 		-- clock frequency
-    clk_freq_c : natural := 50000
+    clk_freq_c : natural 
     );
   port (
     clk_i     : in std_logic;
@@ -52,9 +52,7 @@ architecture multiplier33_1 of multiplier33 is
 
 	constant q_format_round_c : signed(2*int_size_c-1 downto 0) := to_signed(2**(frac_size_c-1),2*int_size_c);
 
-	type matrix_memory_t is array(0 to 8) of signed(int_size_c-1 downto 0);
-	signal matrix_s : matrix_memory_t;
-
+	signal matrix_s : signed(int_size_c*9 - 1 downto 0);
 
 	signal sum0_s : signed(2*int_size_c-1 downto 0);
 	signal sum1_s : signed(2*int_size_c-1 downto 0);
@@ -63,11 +61,6 @@ architecture multiplier33_1 of multiplier33 is
 	signal running_s : std_logic;
 
 	signal i0_s, i1_s, i2_s : signed(int_size_c-1 downto 0);
-
-	signal mul0_s, mul1_s, mul2_s : signed(2*int_size_c-1 downto 0);
-	signal a_s : signed(int_size_c-1 downto 0);
-	signal b0_s, b1_s, b2_s : signed(int_size_c-1 downto 0);
-
 begin
 
 	--
@@ -79,16 +72,14 @@ begin
 		
 		if reset_ni = '0' then
 			l_valid_v := '0';
-			matrix_s <= (others => (others=>'0'));
+			matrix_s <= (others => '0');
 		elsif rising_edge(clk_i) then
 			
 			-- on valid_i rising_edge latch input data to matrix
 			if l_valid_v = '0' and valid_i = '1' then
 				-- shift matrix by integer size
-				for it in 7 downto 0 loop
-					matrix_s(it+1) <= matrix_s(it);
-				end loop;
-				matrix_s(0) <= element_value_i;
+				matrix_s(int_size_c*9-1 downto int_size_c) <= matrix_s(int_size_c*8-1 downto 0);
+				matrix_s(int_size_c-1 downto 0) <= element_value_i;
 			end if;
 
 			l_valid_v := valid_i;
@@ -96,19 +87,13 @@ begin
 		
 	end process latch_p;
 
-	--
-	-- mutlipliers
-	--
-	mul0_s <= a_s * b0_s;
-	mul1_s <= a_s * b1_s;
-	mul2_s <= a_s * b2_s;
-
 	-- 
 	-- compute matrix multiplication
 	--
 	compute_p : process(reset_ni, clk_i)
 		type MM_STATE_TYPE is (MM_STATE_0, MM_STATE_1, MM_STATE_2,
-													 MM_STATE_3, MM_STATE_DONE);
+													 MM_STATE_3, MM_STATE_4, MM_STATE_5,
+													 MM_STATE_6, MM_STATE_7, MM_STATE_8, MM_STATE_DONE);
 		variable state_v : MM_STATE_TYPE;
 		variable l_compute_v : std_logic;
 		variable temp_v : signed(2*int_size_c-1 downto 0);
@@ -120,50 +105,43 @@ begin
 			done_o <= '0';
 		elsif rising_edge(clk_i) then
 			
-			if running_s = '1' and valid_i = '1' then
+			if running_s = '1' then
 				
 				case state_v is
 					when MM_STATE_0 =>
-						-- prepare multiplications
-						a_s <= i0_s;
-						b0_s <= matrix_s(0);
-						b1_s <= matrix_s(1);
-						b2_s <= matrix_s(2);
-
+						sum0_s <= i0_s*matrix_s(int_size_c-1 downto 0);
 						state_v := MM_STATE_1;
 
 					when MM_STATE_1 =>
-						-- sum previously computed signal
-						sum0_s <= mul0_s;
-						sum1_s <= mul1_s;
-						sum2_s <= mul2_s;
-						---
-						a_s <= i1_s;
-						b0_s <= matrix_s(3);
-						b1_s <= matrix_s(4);
-						b2_s <= matrix_s(5);
-						-- 
+						sum1_s <= i0_s*matrix_s(2*int_size_c-1 downto int_size_c);
 						state_v := MM_STATE_2;
 
 					when MM_STATE_2 =>
-						--
-						sum0_s <= sum0_s + mul0_s;
-						sum1_s <= sum1_s + mul1_s;
-						sum2_s <= sum2_s + mul2_s;
-						--
-						a_s <= i2_s;
-						b0_s <= matrix_s(6);
-						b1_s <= matrix_s(7);
-						b2_s <= matrix_s(8);
-						--
+						sum2_s <= i0_s*matrix_s(3*int_size_c-1 downto 2*int_size_c);
 						state_v := MM_STATE_3;
 
 					when MM_STATE_3 =>
-						--
-						sum0_s <= sum0_s + mul0_s;
-						sum1_s <= sum1_s + mul1_s;
-						sum2_s <= sum2_s + mul2_s;
-						--
+						sum0_s <= sum0_s + i1_s*matrix_s(4*int_size_c-1 downto 3*int_size_c); 
+						state_v := MM_STATE_4;
+
+					when MM_STATE_4 =>
+						sum1_s <= sum1_s + i1_s*matrix_s(5*int_size_c-1 downto 4*int_size_c);
+						state_v := MM_STATE_5;
+
+					when MM_STATE_5 =>
+						sum2_s <= sum2_s + i1_s*matrix_s(6*int_size_c-1 downto 5*int_size_c);
+						state_v := MM_STATE_6;
+
+					when MM_STATE_6 =>
+						sum0_s <= sum0_s + i2_s*matrix_s(7*int_size_c-1 downto 6*int_size_c);
+						state_v := MM_STATE_7;
+
+					when MM_STATE_7 =>
+						sum1_s <= sum1_s + i2_s*matrix_s(8*int_size_c-1 downto 7*int_size_c);
+						state_v := MM_STATE_8;
+
+					when MM_STATE_8 =>
+						sum2_s <= sum2_s + i2_s*matrix_s(9*int_size_c-1 downto 8*int_size_c);
 						state_v := MM_STATE_DONE;
 
 					when MM_STATE_DONE =>

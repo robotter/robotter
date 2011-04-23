@@ -21,12 +21,12 @@ generic(
 );
 port 
 (
-  -- external signals
-  ext_clk :   in std_logic ;
-  ext_rst_n : in std_logic ;
-  --internal signals
-  gls_clk :   out std_logic ;
-  gls_reset : out std_logic 
+	-- external signals
+	ext_clk :   in std_logic ;
+	ext_rst_n : in std_logic ;
+	--internal signals
+	gls_clk :   out std_logic ;
+	gls_reset : out std_logic 
 );
 end entity;
 
@@ -49,6 +49,6 @@ begin
             gls_reset <= rff1;
         end if;
     end process reset_synchroniser;
-  
+	
 end architecture rstext_syscon_1;
 
