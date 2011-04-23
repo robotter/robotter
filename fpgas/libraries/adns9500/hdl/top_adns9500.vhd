@@ -174,7 +174,7 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
     auto_enable_o : OUT std_logic;      --enable the control Unit (active High)
 
     ---------------------------------------------------------------------------
-    -- interface to the spi (controled by the µc when auto_enable_o is low)
+    -- interface to the spi (controled by the c when auto_enable_o is low)
 
     spi_data_i : IN std_logic_vector(7 DOWNTO 0);  -- data received by the spi
     spi_data_o : OUT std_logic_vector(7 DOWNTO 0);  -- data to be sent by the spi
@@ -240,31 +240,6 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
     ---------- FPGA ---------------------------------------------------------
     -- FPGA clock period in ns
     fpga_clock_period_c : natural := 20;
-
-    ---------- REGISTERS ----------------------------------------------------
-    -- register Motion_Burst address
-    addr_register_motion_burst_c : std_logic_vector(7 DOWNTO 0) := x"50";
-
-    -- motion bit in motion register
-    bit_motion_register_motion_c : natural := 7;
-    
-    -- fault bit in motion register
-    bit_fault_register_motion_c : natural := 1;
-
-    --
-    -- Motion register / fault offset in fault output
-    fault_offset_c : natural := 0;
-
-    ---------- TIMINGS in ns ------------------------------------------------
-    -- timing ratio
-    timing_ratio_c : natural := 1;
-
-    -- timing between NCS falling edge to first SCK rising edge
-    timing_ncs_sck_c : natural := 120;
-
-    -- timing between SCK falling edge to next SCK rising edge
-    -- after a read address and motion data
-    timing_srad_mot_c : natural := 75000;
 
     ---------- PHYSICAL PARAMETERS ------------------------------------------
     -- number of ADNS9500 chips
@@ -388,7 +363,6 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   SIGNAL spi_busy_s          : std_logic;
 
   SIGNAL spi_adns_cs_s       : std_logic_vector(1 DOWNTO 0);
-  SIGNAL cs1_ns : std_logic;
   
   ---------------------------------------------------------------------------
   -- signal command
@@ -417,7 +391,7 @@ reset_ns <= not(wbs_rst_i);
     mosi_o => mosi_o,
     miso_i => miso_i,
     sck_o  => sck_o, 
-    cs1_no => cs1_ns,
+    cs1_no => cs1_no,
     cs2_no => cs2_no,
     cs3_no => cs3_no,
     
@@ -530,7 +504,7 @@ reset_ns <= not(wbs_rst_i);
     auto_enable_o => auto_enable_s,
 
     ---------------------------------------------------------------------------
-    -- interface to the spi (controled by the µc when auto_enable_o is low)
+    -- interface to the spi (controled by the c when auto_enable_o is low)
 
     spi_data_i => wb_data_out_s,
     spi_data_o => wb_data_in_s,
