@@ -11,716 +11,859 @@
 ---------------------------------------------------------------------------
 
 library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_1164.all;
 use IEEE.numeric_std.all;
 
 entity top_uniocng_propmmx is
 
   generic (
-    freq_fpga_c : natural := 50000
+    freq_fpga_c                  : natural                       := 50000;
+    adns950000_base_address_c    : std_logic_vector(15 downto 0) := X"1300";
+    encoder_inc00_base_address_c : std_logic_vector(15 downto 0) := X"1400";
+    encoder_inc01_base_address_c : std_logic_vector(15 downto 0) := X"1500";
+    encoder_inc02_base_address_c : std_logic_vector(15 downto 0) := X"1600";
+    led00_base_address_c         : std_logic_vector(15 downto 0) := X"1800";
+    pwm_base_address_c           : std_logic_vector(15 downto 0) := X"1700";
+    adns950000_id_c              : natural                       := 1;
+    encoder_inc00_id_c           : natural                       := 2;
+    encoder_inc01_id_c           : natural                       := 3;
+    encoder_inc02_id_c           : natural                       := 42;
+    led00_id_c                   : natural                       := 6;
+    pwm_id_c                     : natural                       := 5
     );
   port
     (
-      int1_i : in std_logic;
-      int2_i : in std_logic;
-      sda_i : in std_logic;
-      scl_i : in std_logic;
-      clk_mega_i : in std_logic;
-      sclk_debug : in std_logic; -- ne pas enlever : pins connectees
-      encoder_inc02_ch_a_i : in std_logic;
-      encoder_inc00_ch_a_i : in std_logic;
-      encoder_inc01_ch_b_i : in std_logic;
-      encoder_inc00_ch_b_i : in std_logic;
-      encoder_inc01_ch_a_i : in std_logic;
-      rstext_syscon00_ext_rst_n : in std_logic;
-      rstext_syscon00_atm_rst_n : in std_logic; -- reset atmega
-      atmega_nodir_wb8_wrapper00_DA : inout std_logic_vector(7 downto 0);
-      atmega_nodir_wb8_wrapper00_ALE : in std_logic;
-      atmega_nodir_wb8_wrapper00_Address_H : in std_logic_vector(6 downto 0);
-      atmega_nodir_wb8_wrapper00_RD : in std_logic;
-      atmega_nodir_wb8_wrapper00_WR : in std_logic;
-      rstext_syscon00_ext_clk : in std_logic;
-      adns950000_cs3_no : out std_logic;
-      adns950000_adns_reset_o : out std_logic;
-      adns950000_mosi_o : out std_logic;
-      adns950000_sck_o : out std_logic;
-      adns950000_miso_i : in std_logic;
-      adns950000_cs2_no : out std_logic;
-      adns950000_cs1_no : out std_logic;
-      encoder_inc02_ch_b_i : in std_logic;
-      led00_led : out std_logic
+      int1_i                               : in    std_logic;
+      int2_i                               : in    std_logic;
+      sda_i                                : in    std_logic;
+      scl_i                                : in    std_logic;
+      clk_mega_i                           : in    std_logic;
+      sclk_debug                           : in    std_logic;  -- ne pas enlever : pins connectees
+      encoder_inc02_ch_a_i                 : in    std_logic;
+      encoder_inc00_ch_a_i                 : in    std_logic;
+      encoder_inc01_ch_b_i                 : in    std_logic;
+      encoder_inc00_ch_b_i                 : in    std_logic;
+      encoder_inc01_ch_a_i                 : in    std_logic;
+      rstext_syscon00_ext_rst_n            : in    std_logic;
+      rstext_syscon00_atm_rst_n            : in    std_logic;  -- reset atmega
+      atmega_nodir_wb8_wrapper00_DA        : inout std_logic_vector(7 downto 0);
+      atmega_nodir_wb8_wrapper00_ALE       : in    std_logic;
+      atmega_nodir_wb8_wrapper00_Address_H : in    std_logic_vector(6 downto 0);
+      atmega_nodir_wb8_wrapper00_RD        : in    std_logic;
+      atmega_nodir_wb8_wrapper00_WR        : in    std_logic;
+      rstext_syscon00_ext_clk              : in    std_logic;
+      adns950000_cs3_no                    : out   std_logic;
+      adns950000_adns_reset_o              : out   std_logic;
+      adns950000_mosi_o                    : out   std_logic;
+      adns950000_sck_o                     : out   std_logic;
+      adns950000_miso_i                    : in    std_logic;
+      adns950000_cs2_no                    : out   std_logic;
+      adns950000_cs1_no                    : out   std_logic;
+      encoder_inc02_ch_b_i                 : in    std_logic;
+      -- pwm outputs
+      pwm_out_1_o                          : out   std_logic;
+      pwm_sign_1_o                         : out   std_logic;
+
+      pwm_out_2_o  : out std_logic;
+      pwm_sign_2_o : out std_logic;
+
+      pwm_out_3_o  : out std_logic;
+      pwm_sign_3_o : out std_logic;
+      led00_led    : out std_logic
       );
 end entity top_uniocng_propmmx;
 
 architecture top_uniocng_propmmx_1 of top_uniocng_propmmx is
-   -------------------------
-   -- declare components  --
-   -------------------------
+  -------------------------
+  -- declare components  --
+  -------------------------
 
 
-   component rstext_syscon
-     generic(
-       invert_reset : std_logic := '1'
-       );
-     port (
-       -- candr
-       gls_clk  : out std_logic;
-       gls_reset  : out std_logic;
-       -- ext
-       ext_clk  : in std_logic;
-       ext_rst_n  : in std_logic
-       );
-   end component;
+  component rstext_syscon
+    generic(
+      invert_reset : std_logic := '1'
+      );
+    port (
+      -- candr
+      gls_clk   : out std_logic;
+      gls_reset : out std_logic;
+      -- ext
+      ext_clk   : in  std_logic;
+      ext_rst_n : in  std_logic
+      );
+  end component;
 
-   component led
-     generic(
-       id : natural := 6;
-       wb_size : natural := 8
-       );
-     port (
-       -- int_led
-       led  : out std_logic;
-       -- candr
-       gls_reset  : in std_logic;
-       gls_clk  : in std_logic;
-       -- swb8
-       wbs_add  : in std_logic;
-       wbs_writedata  : in std_logic_vector(7 downto 0);
-       wbs_readdata  : out std_logic_vector(7 downto 0);
-       wbs_strobe  : in std_logic;
-       wbs_cycle  : in std_logic;
-       wbs_write  : in std_logic;
-       wbs_ack  : out std_logic
-       );
-   end component;
+  component led
+    generic(
+      id      : natural := 6;
+      wb_size : natural := 8
+      );
+    port (
+      -- int_led
+      led           : out std_logic;
+      -- candr
+      gls_reset     : in  std_logic;
+      gls_clk       : in  std_logic;
+      -- swb8
+      wbs_add       : in  std_logic;
+      wbs_writedata : in  std_logic_vector(7 downto 0);
+      wbs_readdata  : out std_logic_vector(7 downto 0);
+      wbs_strobe    : in  std_logic;
+      wbs_cycle     : in  std_logic;
+      wbs_write     : in  std_logic;
+      wbs_ack       : out std_logic
+      );
+  end component;
 
-   component encoder_inc
-     generic(
-       id : natural := 2
-       );
-     port (
-       -- clock
-       wbs_clk_i  : in std_logic;
-       wbs_rst_i  : in std_logic;
-       -- swb8
-       wbs_adr_i  : in std_logic_vector(2 downto 0);
-       wbs_dat_o  : out std_logic_vector(7 downto 0);
-       wbs_we_i  : in std_logic;
-       wbs_stb_i  : in std_logic;
-       wbs_cyc_i  : in std_logic;
-       wbs_ack_o  : out std_logic;
-       -- channels
-       ch_a_i  : in std_logic;
-       ch_b_i  : in std_logic
-       );
-   end component;
+  component encoder_inc
+    generic(
+      id : natural := 2
+      );
+    port (
+      -- clock
+      wbs_clk_i : in  std_logic;
+      wbs_rst_i : in  std_logic;
+      -- swb8
+      wbs_adr_i : in  std_logic_vector(2 downto 0);
+      wbs_dat_o : out std_logic_vector(7 downto 0);
+      wbs_we_i  : in  std_logic;
+      wbs_stb_i : in  std_logic;
+      wbs_cyc_i : in  std_logic;
+      wbs_ack_o : out std_logic;
+      -- channels
+      ch_a_i    : in  std_logic;
+      ch_b_i    : in  std_logic
+      );
+  end component;
 
-   component adns9500
-     generic(
-       id : natural := 1;
-       wb_size_c : natural := 8;
-       freq_fpga_c : natural := 50000
-       );
-     port (
-       -- clock
-       wbs_clk_i  : in std_logic;
-       wbs_rst_i  : in std_logic;
-       -- swb8
-       wbs_adr_i  : in std_logic_vector(5 downto 0);
-       wbs_dat_i  : in std_logic_vector(7 downto 0);
-       wbs_dat_o  : out std_logic_vector(7 downto 0);
-       wbs_we_i  : in std_logic;
-       wbs_stb_i  : in std_logic;
-       wbs_cyc_i  : in std_logic;
-       wbs_ack_o  : out std_logic;
-       -- adns_spi
-       mosi_o  : out std_logic;
-       miso_i  : in std_logic;
-       sck_o  : out std_logic;
-       cs1_no  : out std_logic;
-       cs2_no  : out std_logic;
-       cs3_no  : out std_logic;
-       adns_reset_o  : out std_logic
-       );
-   end component;
+  component adns9500
+    generic(
+      id          : natural := 1;
+      wb_size_c   : natural := 8;
+      freq_fpga_c : natural := 50000
+      );
+    port (
+      -- clock
+      wbs_clk_i    : in  std_logic;
+      wbs_rst_i    : in  std_logic;
+      -- swb8
+      wbs_adr_i    : in  std_logic_vector(5 downto 0);
+      wbs_dat_i    : in  std_logic_vector(7 downto 0);
+      wbs_dat_o    : out std_logic_vector(7 downto 0);
+      wbs_we_i     : in  std_logic;
+      wbs_stb_i    : in  std_logic;
+      wbs_cyc_i    : in  std_logic;
+      wbs_ack_o    : out std_logic;
+      -- adns_spi
+      mosi_o       : out std_logic;
+      miso_i       : in  std_logic;
+      sck_o        : out std_logic;
+      cs1_no       : out std_logic;
+      cs2_no       : out std_logic;
+      cs3_no       : out std_logic;
+      adns_reset_o : out std_logic
+      );
+  end component;
 
-   component atmega_nodir_wb8_wrapper00_mwb8
-     port (
-       -- adns950000_swb8
-       adns950000_wbs_adr_i  : out std_logic_vector(5 downto 0);
-       adns950000_wbs_dat_i  : out std_logic_vector(7 downto 0);
-       adns950000_wbs_dat_o  : in std_logic_vector(7 downto 0);
-       adns950000_wbs_we_i  : out std_logic;
-       adns950000_wbs_stb_i  : out std_logic;
-       adns950000_wbs_cyc_i  : out std_logic;
-       adns950000_wbs_ack_o  : in std_logic;
-       -- adns950000_clock
-       adns950000_wbs_clk_i  : out std_logic;
-       adns950000_wbs_rst_i  : out std_logic;
-       -- encoder_inc00_swb8
-       encoder_inc00_wbs_adr_i  : out std_logic_vector(2 downto 0);
-       encoder_inc00_wbs_dat_o  : in std_logic_vector(7 downto 0);
-       encoder_inc00_wbs_we_i  : out std_logic;
-       encoder_inc00_wbs_stb_i  : out std_logic;
-       encoder_inc00_wbs_cyc_i  : out std_logic;
-       encoder_inc00_wbs_ack_o  : in std_logic;
-       -- encoder_inc00_clock
-       encoder_inc00_wbs_clk_i  : out std_logic;
-       encoder_inc00_wbs_rst_i  : out std_logic;
-       -- encoder_inc01_swb8
-       encoder_inc01_wbs_adr_i  : out std_logic_vector(2 downto 0);
-       encoder_inc01_wbs_dat_o  : in std_logic_vector(7 downto 0);
-       encoder_inc01_wbs_we_i  : out std_logic;
-       encoder_inc01_wbs_stb_i  : out std_logic;
-       encoder_inc01_wbs_cyc_i  : out std_logic;
-       encoder_inc01_wbs_ack_o  : in std_logic;
-       -- encoder_inc01_clock
-       encoder_inc01_wbs_clk_i  : out std_logic;
-       encoder_inc01_wbs_rst_i  : out std_logic;
-       -- encoder_inc02_swb8
-       encoder_inc02_wbs_adr_i  : out std_logic_vector(2 downto 0);
-       encoder_inc02_wbs_dat_o  : in std_logic_vector(7 downto 0);
-       encoder_inc02_wbs_we_i  : out std_logic;
-       encoder_inc02_wbs_stb_i  : out std_logic;
-       encoder_inc02_wbs_cyc_i  : out std_logic;
-       encoder_inc02_wbs_ack_o  : in std_logic;
-       -- encoder_inc02_clock
-       encoder_inc02_wbs_clk_i  : out std_logic;
-       encoder_inc02_wbs_rst_i  : out std_logic;
-       -- led00_swb8
-       led00_wbs_add  : out std_logic;
-       led00_wbs_writedata  : out std_logic_vector(7 downto 0);
-       led00_wbs_readdata  : in std_logic_vector(7 downto 0);
-       led00_wbs_strobe  : out std_logic;
-       led00_wbs_cycle  : out std_logic;
-       led00_wbs_write  : out std_logic;
-       led00_wbs_ack  : in std_logic;
-       -- led00_candr
-       led00_gls_reset  : out std_logic;
-       led00_gls_clk  : out std_logic;
-       -- atmega_nodir_wb8_wrapper00_mwb8
-       atmega_nodir_wb8_wrapper00_wbm_address  : in std_logic_vector(14 downto 0);
-       atmega_nodir_wb8_wrapper00_wbm_readdata  : out std_logic_vector(7 downto 0);
-       atmega_nodir_wb8_wrapper00_wbm_writedata  : in std_logic_vector(7 downto 0);
-       atmega_nodir_wb8_wrapper00_wbm_strobe  : in std_logic;
-       atmega_nodir_wb8_wrapper00_wbm_write  : in std_logic;
-       atmega_nodir_wb8_wrapper00_wbm_ack  : out std_logic;
-       atmega_nodir_wb8_wrapper00_wbm_cycle  : in std_logic;
-       -- atmega_nodir_wb8_wrapper00_candr
-       atmega_nodir_wb8_wrapper00_reset  : out std_logic;
-       atmega_nodir_wb8_wrapper00_clk  : out std_logic;
-       -- rstext_syscon00_atmega_nodir_wb8_wrapper00
-       rstext_syscon00_gls_clk  : in std_logic;
-       rstext_syscon00_gls_reset  : in std_logic
-       );
-   end component;
+  component atmega_nodir_wb8_wrapper00_mwb8
+    generic (
+      adns950000_base_address_c    : std_logic_vector(15 downto 0) := X"1300";
+      encoder_inc00_base_address_c : std_logic_vector(15 downto 0) := X"1400";
+      encoder_inc01_base_address_c : std_logic_vector(15 downto 0) := X"1500";
+      encoder_inc02_base_address_c : std_logic_vector(15 downto 0) := X"1600";
+      led00_base_address_c         : std_logic_vector(15 downto 0) := X"1800";
+      pwm_base_address_c           : std_logic_vector(15 downto 0) := X"1700");
+    port
+      (
+        -- pwm_swb8 connection
+        pwm_wbs_adr_i : out std_logic_vector(5 downto 0);
+        pwm_wbs_dat_i : out std_logic_vector(7 downto 0);
+        pwm_wbs_dat_o : in  std_logic_vector(7 downto 0);
+        pwm_wbs_we_i  : out std_logic;
+        pwm_wbs_stb_i : out std_logic;
+        pwm_wbs_cyc_i : out std_logic;
+        pwm_wbs_ack_o : in  std_logic;
 
-   component atmega_nodir_wb8_wrapper
-     port (
-       -- emi
-       Address_H  : in std_logic_vector(6 downto 0);
-       DA  : inout std_logic_vector(7 downto 0);
-       ALE  : in std_logic;
-       RD  : in std_logic;
-       WR  : in std_logic;
-       -- candr
-       reset  : in std_logic;
-       clk  : in std_logic;
-       -- mwb8
-       wbm_address  : out std_logic_vector(14 downto 0);
-       wbm_readdata  : in std_logic_vector(7 downto 0);
-       wbm_writedata  : out std_logic_vector(7 downto 0);
-       wbm_strobe  : out std_logic;
-       wbm_write  : out std_logic;
-       wbm_ack  : in std_logic;
-       wbm_cycle  : out std_logic
-       );
-   end component;
-   -------------------------
-   -- Signals declaration
-   -------------------------
+        -- pwm_clock connection
+        pwm_wbs_clk_i : out std_logic;
+        pwm_wbs_rst_i : out std_logic;
 
-   -- rstext_syscon00
-   -- candr
-   signal rstext_syscon00_gls_clk :  std_logic;
-   signal rstext_syscon00_gls_reset :  std_logic;
-   -- ext
+        -- adns950000_swb8
+        adns950000_wbs_adr_i                     : out std_logic_vector(5 downto 0);
+        adns950000_wbs_dat_i                     : out std_logic_vector(7 downto 0);
+        adns950000_wbs_dat_o                     : in  std_logic_vector(7 downto 0);
+        adns950000_wbs_we_i                      : out std_logic;
+        adns950000_wbs_stb_i                     : out std_logic;
+        adns950000_wbs_cyc_i                     : out std_logic;
+        adns950000_wbs_ack_o                     : in  std_logic;
+        -- adns950000_clock
+        adns950000_wbs_clk_i                     : out std_logic;
+        adns950000_wbs_rst_i                     : out std_logic;
+        -- encoder_inc00_swb8
+        encoder_inc00_wbs_adr_i                  : out std_logic_vector(2 downto 0);
+        encoder_inc00_wbs_dat_o                  : in  std_logic_vector(7 downto 0);
+        encoder_inc00_wbs_we_i                   : out std_logic;
+        encoder_inc00_wbs_stb_i                  : out std_logic;
+        encoder_inc00_wbs_cyc_i                  : out std_logic;
+        encoder_inc00_wbs_ack_o                  : in  std_logic;
+        -- encoder_inc00_clock
+        encoder_inc00_wbs_clk_i                  : out std_logic;
+        encoder_inc00_wbs_rst_i                  : out std_logic;
+        -- encoder_inc01_swb8
+        encoder_inc01_wbs_adr_i                  : out std_logic_vector(2 downto 0);
+        encoder_inc01_wbs_dat_o                  : in  std_logic_vector(7 downto 0);
+        encoder_inc01_wbs_we_i                   : out std_logic;
+        encoder_inc01_wbs_stb_i                  : out std_logic;
+        encoder_inc01_wbs_cyc_i                  : out std_logic;
+        encoder_inc01_wbs_ack_o                  : in  std_logic;
+        -- encoder_inc01_clock
+        encoder_inc01_wbs_clk_i                  : out std_logic;
+        encoder_inc01_wbs_rst_i                  : out std_logic;
+        -- encoder_inc02_swb8
+        encoder_inc02_wbs_adr_i                  : out std_logic_vector(2 downto 0);
+        encoder_inc02_wbs_dat_o                  : in  std_logic_vector(7 downto 0);
+        encoder_inc02_wbs_we_i                   : out std_logic;
+        encoder_inc02_wbs_stb_i                  : out std_logic;
+        encoder_inc02_wbs_cyc_i                  : out std_logic;
+        encoder_inc02_wbs_ack_o                  : in  std_logic;
+        -- encoder_inc02_clock
+        encoder_inc02_wbs_clk_i                  : out std_logic;
+        encoder_inc02_wbs_rst_i                  : out std_logic;
+        -- led00_swb8
+        led00_wbs_add                            : out std_logic;
+        led00_wbs_writedata                      : out std_logic_vector(7 downto 0);
+        led00_wbs_readdata                       : in  std_logic_vector(7 downto 0);
+        led00_wbs_strobe                         : out std_logic;
+        led00_wbs_cycle                          : out std_logic;
+        led00_wbs_write                          : out std_logic;
+        led00_wbs_ack                            : in  std_logic;
+        -- led00_candr
+        led00_gls_reset                          : out std_logic;
+        led00_gls_clk                            : out std_logic;
+        -- atmega_nodir_wb8_wrapper00_mwb8
+        atmega_nodir_wb8_wrapper00_wbm_address   : in  std_logic_vector(14 downto 0);
+        atmega_nodir_wb8_wrapper00_wbm_readdata  : out std_logic_vector(7 downto 0);
+        atmega_nodir_wb8_wrapper00_wbm_writedata : in  std_logic_vector(7 downto 0);
+        atmega_nodir_wb8_wrapper00_wbm_strobe    : in  std_logic;
+        atmega_nodir_wb8_wrapper00_wbm_write     : in  std_logic;
+        atmega_nodir_wb8_wrapper00_wbm_ack       : out std_logic;
+        atmega_nodir_wb8_wrapper00_wbm_cycle     : in  std_logic;
+        -- atmega_nodir_wb8_wrapper00_candr
+        atmega_nodir_wb8_wrapper00_reset         : out std_logic;
+        atmega_nodir_wb8_wrapper00_clk           : out std_logic;
+        -- rstext_syscon00_atmega_nodir_wb8_wrapper00
+        rstext_syscon00_gls_clk                  : in  std_logic;
+        rstext_syscon00_gls_reset                : in  std_logic
+        );
+  end component;
 
-   -- atmega_nodir_wb8_wrapper00
-   -- emi
-   -- candr
-   signal atmega_nodir_wb8_wrapper00_reset :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_clk :  std_logic;
-   -- mwb8
-   signal atmega_nodir_wb8_wrapper00_wbm_address :  std_logic_vector(14 downto 0);
-   signal atmega_nodir_wb8_wrapper00_wbm_readdata :  std_logic_vector(7 downto 0);
-   signal atmega_nodir_wb8_wrapper00_wbm_writedata :  std_logic_vector(7 downto 0);
-   signal atmega_nodir_wb8_wrapper00_wbm_strobe :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_wbm_write :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_wbm_ack :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_wbm_cycle :  std_logic;
+  component atmega_nodir_wb8_wrapper
+    port (
+      -- emi
+      Address_H     : in    std_logic_vector(6 downto 0);
+      DA            : inout std_logic_vector(7 downto 0);
+      ALE           : in    std_logic;
+      RD            : in    std_logic;
+      WR            : in    std_logic;
+      -- candr
+      reset         : in    std_logic;
+      clk           : in    std_logic;
+      -- mwb8
+      wbm_address   : out   std_logic_vector(14 downto 0);
+      wbm_readdata  : in    std_logic_vector(7 downto 0);
+      wbm_writedata : out   std_logic_vector(7 downto 0);
+      wbm_strobe    : out   std_logic;
+      wbm_write     : out   std_logic;
+      wbm_ack       : in    std_logic;
+      wbm_cycle     : out   std_logic
+      );
+  end component;
 
-   -- adns950000
-   -- clock
-   signal adns950000_wbs_clk_i :  std_logic;
-   signal adns950000_wbs_rst_i :  std_logic;
-   -- swb8
-   signal adns950000_wbs_adr_i :  std_logic_vector(5 downto 0);
-   signal adns950000_wbs_dat_i :  std_logic_vector(7 downto 0);
-   signal adns950000_wbs_dat_o :  std_logic_vector(7 downto 0);
-   signal adns950000_wbs_we_i :  std_logic;
-   signal adns950000_wbs_stb_i :  std_logic;
-   signal adns950000_wbs_cyc_i :  std_logic;
-   signal adns950000_wbs_ack_o :  std_logic;
-   -- adns_spi
+  component top_pwm is
+    generic (
+      id_c                 : natural                 := 10;    -- module ID
+      wb_size_c            : natural                 := 8;  -- data port size
+      default_period_c     : natural range 0 to 8191 := 8191;  -- pwm period after reset
+      fpga_frequency_khz_c : natural                 := 50000
+      );
+    port (
+      -- wishbone interface
+      wbs_rst_i : in std_logic;         -- asynchronous reset, active high
+      wbs_clk_i : in std_logic;         -- clock
 
-   -- encoder_inc00
-   -- clock
-   signal encoder_inc00_wbs_clk_i :  std_logic;
-   signal encoder_inc00_wbs_rst_i :  std_logic;
-   -- swb8
-   signal encoder_inc00_wbs_adr_i :  std_logic_vector(2 downto 0);
-   signal encoder_inc00_wbs_dat_o :  std_logic_vector(7 downto 0);
-   signal encoder_inc00_wbs_we_i :  std_logic;
-   signal encoder_inc00_wbs_stb_i :  std_logic;
-   signal encoder_inc00_wbs_cyc_i :  std_logic;
-   signal encoder_inc00_wbs_ack_o :  std_logic;
-   -- channels
+      wbs_adr_i : in  std_logic_vector(5 downto 0);            -- address BUS
+      wbs_dat_o : out std_logic_vector(wb_size_c-1 downto 0);  -- data readden
+                                                               -- from bus
+      wbs_dat_i : in  std_logic_vector(wb_size_c-1 downto 0);  -- data write from BUS
+      wbs_we_i  : in  std_logic;        -- read/write
+      wbs_stb_i : in  std_logic;        -- validate read/write operation
+      wbs_ack_o : out std_logic;        -- operation succesful
+      wbs_cyc_i : in  std_logic;
 
-   -- encoder_inc01
-   -- clock
-   signal encoder_inc01_wbs_clk_i :  std_logic;
-   signal encoder_inc01_wbs_rst_i :  std_logic;
-   -- swb8
-   signal encoder_inc01_wbs_adr_i :  std_logic_vector(2 downto 0);
-   signal encoder_inc01_wbs_dat_o :  std_logic_vector(7 downto 0);
-   signal encoder_inc01_wbs_we_i :  std_logic;
-   signal encoder_inc01_wbs_stb_i :  std_logic;
-   signal encoder_inc01_wbs_cyc_i :  std_logic;
-   signal encoder_inc01_wbs_ack_o :  std_logic;
-   -- channels
+      -- pwm outputs
+      pwm_out_1_o  : out std_logic;
+      pwm_sign_1_o : out std_logic;
 
-   -- encoder_inc02
-   -- clock
-   signal encoder_inc02_wbs_clk_i :  std_logic;
-   signal encoder_inc02_wbs_rst_i :  std_logic;
-   -- swb8
-   signal encoder_inc02_wbs_adr_i :  std_logic_vector(2 downto 0);
-   signal encoder_inc02_wbs_dat_o :  std_logic_vector(7 downto 0);
-   signal encoder_inc02_wbs_we_i :  std_logic;
-   signal encoder_inc02_wbs_stb_i :  std_logic;
-   signal encoder_inc02_wbs_cyc_i :  std_logic;
-   signal encoder_inc02_wbs_ack_o :  std_logic;
-   -- channels
+      pwm_out_2_o  : out std_logic;
+      pwm_sign_2_o : out std_logic;
 
-   -- led00
-   -- int_led
-   -- candr
-   signal led00_gls_reset :  std_logic;
-   signal led00_gls_clk :  std_logic;
-   -- swb8
-   signal led00_wbs_add :  std_logic;
-   signal led00_wbs_writedata :  std_logic_vector(7 downto 0);
-   signal led00_wbs_readdata :  std_logic_vector(7 downto 0);
-   signal led00_wbs_strobe :  std_logic;
-   signal led00_wbs_cycle :  std_logic;
-   signal led00_wbs_write :  std_logic;
-   signal led00_wbs_ack :  std_logic;
+      pwm_out_3_o  : out std_logic;
+      pwm_sign_3_o : out std_logic
+      );
+  end component;
 
-   -- atmega_nodir_wb8_wrapper00_mwb8_intercon
-   -- adns950000_swb8
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_adr_i :  std_logic_vector(5 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_dat_i :  std_logic_vector(7 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_dat_o :  std_logic_vector(7 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_we_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_stb_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_cyc_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_ack_o :  std_logic;
-   -- adns950000_clock
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_clk_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_rst_i :  std_logic;
-   -- encoder_inc00_swb8
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_adr_i :  std_logic_vector(2 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_dat_o :  std_logic_vector(7 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_we_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_stb_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_cyc_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_ack_o :  std_logic;
-   -- encoder_inc00_clock
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_clk_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_rst_i :  std_logic;
-   -- encoder_inc01_swb8
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_adr_i :  std_logic_vector(2 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_dat_o :  std_logic_vector(7 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_we_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_stb_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_cyc_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_ack_o :  std_logic;
-   -- encoder_inc01_clock
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_clk_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_rst_i :  std_logic;
-   -- encoder_inc02_swb8
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_adr_i :  std_logic_vector(2 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_dat_o :  std_logic_vector(7 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_we_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_stb_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_cyc_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_ack_o :  std_logic;
-   -- encoder_inc02_clock
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_clk_i :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_rst_i :  std_logic;
-   -- led00_swb8
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_add :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_writedata :  std_logic_vector(7 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_readdata :  std_logic_vector(7 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_strobe :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_cycle :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_write :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_ack :  std_logic;
-   -- led00_candr
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_gls_reset :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_gls_clk :  std_logic;
-   -- atmega_nodir_wb8_wrapper00_mwb8
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_address :  std_logic_vector(14 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_readdata :  std_logic_vector(7 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_writedata :  std_logic_vector(7 downto 0);
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_strobe :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_write :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_ack :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_cycle :  std_logic;
-   -- atmega_nodir_wb8_wrapper00_candr
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_reset :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_clk :  std_logic;
-   -- rstext_syscon00_atmega_nodir_wb8_wrapper00
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_clk :  std_logic;
-   signal atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_reset :  std_logic;
+  -------------------------
+  -- Signals declaration
+  -------------------------
 
-   -- void pins
+  -- rstext_syscon00
+  -- candr
+  signal rstext_syscon00_gls_clk   : std_logic;
+  signal rstext_syscon00_gls_reset : std_logic;
+  -- ext
 
-   begin
-     -------------------------
-     -- declare instances
-     -------------------------
+  -- atmega_nodir_wb8_wrapper00
+  -- emi
+  -- candr
+  signal atmega_nodir_wb8_wrapper00_reset         : std_logic;
+  signal atmega_nodir_wb8_wrapper00_clk           : std_logic;
+  -- mwb8
+  signal atmega_nodir_wb8_wrapper00_wbm_address   : std_logic_vector(14 downto 0);
+  signal atmega_nodir_wb8_wrapper00_wbm_readdata  : std_logic_vector(7 downto 0);
+  signal atmega_nodir_wb8_wrapper00_wbm_writedata : std_logic_vector(7 downto 0);
+  signal atmega_nodir_wb8_wrapper00_wbm_strobe    : std_logic;
+  signal atmega_nodir_wb8_wrapper00_wbm_write     : std_logic;
+  signal atmega_nodir_wb8_wrapper00_wbm_ack       : std_logic;
+  signal atmega_nodir_wb8_wrapper00_wbm_cycle     : std_logic;
 
-     rstext_syscon00 : rstext_syscon
-       generic map (
-         invert_reset => '1'
-         )
-       port map (
-         -- candr
-         gls_clk => rstext_syscon00_gls_clk,
-         --gls_reset => rstext_syscon00_gls_reset,
-         -- ext
-         ext_clk => rstext_syscon00_ext_clk,
-         ext_rst_n => rstext_syscon00_ext_rst_n
-         );
-			
-			rstext_syscon00_gls_reset <= not(rstext_syscon00_ext_rst_n);
-			
-     atmega_nodir_wb8_wrapper00 : atmega_nodir_wb8_wrapper
-       port map (
-         -- emi
-         Address_H => atmega_nodir_wb8_wrapper00_Address_H,
-         DA => atmega_nodir_wb8_wrapper00_DA,
-         ALE => atmega_nodir_wb8_wrapper00_ALE,
-         RD => atmega_nodir_wb8_wrapper00_RD,
-         WR => atmega_nodir_wb8_wrapper00_WR,
-         -- candr
-         reset => atmega_nodir_wb8_wrapper00_reset,
-         clk => atmega_nodir_wb8_wrapper00_clk,
-         -- mwb8
-         wbm_address => atmega_nodir_wb8_wrapper00_wbm_address,
-         wbm_readdata => atmega_nodir_wb8_wrapper00_wbm_readdata,
-         wbm_writedata => atmega_nodir_wb8_wrapper00_wbm_writedata,
-         wbm_strobe => atmega_nodir_wb8_wrapper00_wbm_strobe,
-         wbm_write => atmega_nodir_wb8_wrapper00_wbm_write,
-         wbm_ack => atmega_nodir_wb8_wrapper00_wbm_ack,
-         wbm_cycle => atmega_nodir_wb8_wrapper00_wbm_cycle
-         );
+  -- pwm
+  -- clock
+  signal pwm_wbs_clk_i : std_logic;
+  signal pwm_wbs_rst_i : std_logic;
+  -- swb8
+  signal pwm_wbs_adr_i : std_logic_vector(5 downto 0);
+  signal pwm_wbs_dat_i : std_logic_vector(7 downto 0);
+  signal pwm_wbs_dat_o : std_logic_vector(7 downto 0);
+  signal pwm_wbs_we_i  : std_logic;
+  signal pwm_wbs_stb_i : std_logic;
+  signal pwm_wbs_cyc_i : std_logic;
+  signal pwm_wbs_ack_o : std_logic;
 
-     adns950000 : adns9500
-       generic map (
-         id => 1,
-         wb_size_c => 8,
-         freq_fpga_c => freq_fpga_c
-         )
-       port map (
-         -- clock
-         wbs_clk_i => adns950000_wbs_clk_i,
-         wbs_rst_i => adns950000_wbs_rst_i,
-         -- swb8
-         wbs_adr_i => adns950000_wbs_adr_i,
-         wbs_dat_i => adns950000_wbs_dat_i,
-         wbs_dat_o => adns950000_wbs_dat_o,
-         wbs_we_i => adns950000_wbs_we_i,
-         wbs_stb_i => adns950000_wbs_stb_i,
-         wbs_cyc_i => adns950000_wbs_cyc_i,
-         wbs_ack_o => adns950000_wbs_ack_o,
-         -- adns_spi
-         mosi_o => adns950000_mosi_o,
-         miso_i => adns950000_miso_i,
-         sck_o => adns950000_sck_o,
-         cs1_no => adns950000_cs1_no,
-         cs2_no => adns950000_cs2_no,
-         cs3_no => adns950000_cs3_no,
-         adns_reset_o => adns950000_adns_reset_o
-         );
+  -- adns950000
+  -- clock
+  signal adns950000_wbs_clk_i : std_logic;
+  signal adns950000_wbs_rst_i : std_logic;
+  -- swb8
+  signal adns950000_wbs_adr_i : std_logic_vector(5 downto 0);
+  signal adns950000_wbs_dat_i : std_logic_vector(7 downto 0);
+  signal adns950000_wbs_dat_o : std_logic_vector(7 downto 0);
+  signal adns950000_wbs_we_i  : std_logic;
+  signal adns950000_wbs_stb_i : std_logic;
+  signal adns950000_wbs_cyc_i : std_logic;
+  signal adns950000_wbs_ack_o : std_logic;
+  -- adns_spi
 
-     encoder_inc00 : encoder_inc
-       generic map (
-         id => 2
-         )
-       port map (
-         -- clock
-         wbs_clk_i => encoder_inc00_wbs_clk_i,
-         wbs_rst_i => encoder_inc00_wbs_rst_i,
-         -- swb8
-         wbs_adr_i => encoder_inc00_wbs_adr_i,
-         wbs_dat_o => encoder_inc00_wbs_dat_o,
-         wbs_we_i => encoder_inc00_wbs_we_i,
-         wbs_stb_i => encoder_inc00_wbs_stb_i,
-         wbs_cyc_i => encoder_inc00_wbs_cyc_i,
-         wbs_ack_o => encoder_inc00_wbs_ack_o,
-         -- channels
-         ch_a_i => encoder_inc00_ch_a_i,
-         ch_b_i => encoder_inc00_ch_b_i
-         );
+  -- encoder_inc00
+  -- clock
+  signal encoder_inc00_wbs_clk_i : std_logic;
+  signal encoder_inc00_wbs_rst_i : std_logic;
+  -- swb8
+  signal encoder_inc00_wbs_adr_i : std_logic_vector(2 downto 0);
+  signal encoder_inc00_wbs_dat_o : std_logic_vector(7 downto 0);
+  signal encoder_inc00_wbs_we_i  : std_logic;
+  signal encoder_inc00_wbs_stb_i : std_logic;
+  signal encoder_inc00_wbs_cyc_i : std_logic;
+  signal encoder_inc00_wbs_ack_o : std_logic;
+  -- channels
 
-     encoder_inc01 : encoder_inc
-       generic map (
-         id => 3
-         )
-       port map (
-         -- clock
-         wbs_clk_i => encoder_inc01_wbs_clk_i,
-         wbs_rst_i => encoder_inc01_wbs_rst_i,
-         -- swb8
-         wbs_adr_i => encoder_inc01_wbs_adr_i,
-         wbs_dat_o => encoder_inc01_wbs_dat_o,
-         wbs_we_i => encoder_inc01_wbs_we_i,
-         wbs_stb_i => encoder_inc01_wbs_stb_i,
-         wbs_cyc_i => encoder_inc01_wbs_cyc_i,
-         wbs_ack_o => encoder_inc01_wbs_ack_o,
-         -- channels
-         ch_a_i => encoder_inc01_ch_a_i,
-         ch_b_i => encoder_inc01_ch_b_i
-         );
+  -- encoder_inc01
+  -- clock
+  signal encoder_inc01_wbs_clk_i : std_logic;
+  signal encoder_inc01_wbs_rst_i : std_logic;
+  -- swb8
+  signal encoder_inc01_wbs_adr_i : std_logic_vector(2 downto 0);
+  signal encoder_inc01_wbs_dat_o : std_logic_vector(7 downto 0);
+  signal encoder_inc01_wbs_we_i  : std_logic;
+  signal encoder_inc01_wbs_stb_i : std_logic;
+  signal encoder_inc01_wbs_cyc_i : std_logic;
+  signal encoder_inc01_wbs_ack_o : std_logic;
+  -- channels
 
-     encoder_inc02 : encoder_inc
-       generic map (
-         id => 4
-         )
-       port map (
-         -- clock
-         wbs_clk_i => encoder_inc02_wbs_clk_i,
-         wbs_rst_i => encoder_inc02_wbs_rst_i,
-         -- swb8
-         wbs_adr_i => encoder_inc02_wbs_adr_i,
-         wbs_dat_o => encoder_inc02_wbs_dat_o,
-         wbs_we_i => encoder_inc02_wbs_we_i,
-         wbs_stb_i => encoder_inc02_wbs_stb_i,
-         wbs_cyc_i => encoder_inc02_wbs_cyc_i,
-         wbs_ack_o => encoder_inc02_wbs_ack_o,
-         -- channels
-         ch_a_i => encoder_inc02_ch_a_i,
-         ch_b_i => encoder_inc02_ch_b_i
-         );
+  -- encoder_inc02
+  -- clock
+  signal encoder_inc02_wbs_clk_i : std_logic;
+  signal encoder_inc02_wbs_rst_i : std_logic;
+  -- swb8
+  signal encoder_inc02_wbs_adr_i : std_logic_vector(2 downto 0);
+  signal encoder_inc02_wbs_dat_o : std_logic_vector(7 downto 0);
+  signal encoder_inc02_wbs_we_i  : std_logic;
+  signal encoder_inc02_wbs_stb_i : std_logic;
+  signal encoder_inc02_wbs_cyc_i : std_logic;
+  signal encoder_inc02_wbs_ack_o : std_logic;
+  -- channels
 
-     led00 : led
-       generic map (
-         id => 6,
-         wb_size => 8
-         )
-       port map (
-         -- int_led
-         led => led00_led,
-         -- candr
-         gls_reset => led00_gls_reset,
-         gls_clk => led00_gls_clk,
-         -- swb8
-         wbs_add => led00_wbs_add,
-         wbs_writedata => led00_wbs_writedata,
-         wbs_readdata => led00_wbs_readdata,
-         wbs_strobe => led00_wbs_strobe,
-         wbs_cycle => led00_wbs_cycle,
-         wbs_write => led00_wbs_write,
-         wbs_ack => led00_wbs_ack
-         );
+  -- led00
+  -- int_led
+  -- candr
+  signal led00_gls_reset     : std_logic;
+  signal led00_gls_clk       : std_logic;
+  -- swb8
+  signal led00_wbs_add       : std_logic;
+  signal led00_wbs_writedata : std_logic_vector(7 downto 0);
+  signal led00_wbs_readdata  : std_logic_vector(7 downto 0);
+  signal led00_wbs_strobe    : std_logic;
+  signal led00_wbs_cycle     : std_logic;
+  signal led00_wbs_write     : std_logic;
+  signal led00_wbs_ack       : std_logic;
 
-     atmega_nodir_wb8_wrapper00_mwb8_intercon : atmega_nodir_wb8_wrapper00_mwb8
-       port map (
-         -- adns950000_swb8
-         adns950000_wbs_adr_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_adr_i,
-         adns950000_wbs_dat_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_dat_i,
-         adns950000_wbs_dat_o => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_dat_o,
-         adns950000_wbs_we_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_we_i,
-         adns950000_wbs_stb_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_stb_i,
-         adns950000_wbs_cyc_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_cyc_i,
-         adns950000_wbs_ack_o => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_ack_o,
-         -- adns950000_clock
-         adns950000_wbs_clk_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_clk_i,
-         adns950000_wbs_rst_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_rst_i,
-         -- encoder_inc00_swb8
-         encoder_inc00_wbs_adr_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_adr_i,
-         encoder_inc00_wbs_dat_o => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_dat_o,
-         encoder_inc00_wbs_we_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_we_i,
-         encoder_inc00_wbs_stb_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_stb_i,
-         encoder_inc00_wbs_cyc_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_cyc_i,
-         encoder_inc00_wbs_ack_o => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_ack_o,
-         -- encoder_inc00_clock
-         encoder_inc00_wbs_clk_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_clk_i,
-         encoder_inc00_wbs_rst_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_rst_i,
-         -- encoder_inc01_swb8
-         encoder_inc01_wbs_adr_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_adr_i,
-         encoder_inc01_wbs_dat_o => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_dat_o,
-         encoder_inc01_wbs_we_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_we_i,
-         encoder_inc01_wbs_stb_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_stb_i,
-         encoder_inc01_wbs_cyc_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_cyc_i,
-         encoder_inc01_wbs_ack_o => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_ack_o,
-         -- encoder_inc01_clock
-         encoder_inc01_wbs_clk_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_clk_i,
-         encoder_inc01_wbs_rst_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_rst_i,
-         -- encoder_inc02_swb8
-         encoder_inc02_wbs_adr_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_adr_i,
-         encoder_inc02_wbs_dat_o => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_dat_o,
-         encoder_inc02_wbs_we_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_we_i,
-         encoder_inc02_wbs_stb_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_stb_i,
-         encoder_inc02_wbs_cyc_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_cyc_i,
-         encoder_inc02_wbs_ack_o => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_ack_o,
-         -- encoder_inc02_clock
-         encoder_inc02_wbs_clk_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_clk_i,
-         encoder_inc02_wbs_rst_i => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_rst_i,
-         -- led00_swb8
-         led00_wbs_add => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_add,
-         led00_wbs_writedata => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_writedata,
-         led00_wbs_readdata => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_readdata,
-         led00_wbs_strobe => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_strobe,
-         led00_wbs_cycle => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_cycle,
-         led00_wbs_write => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_write,
-         led00_wbs_ack => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_ack,
-         -- led00_candr
-         led00_gls_reset => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_gls_reset,
-         led00_gls_clk => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_gls_clk,
-         -- atmega_nodir_wb8_wrapper00_mwb8
-         atmega_nodir_wb8_wrapper00_wbm_address => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_address,
-         atmega_nodir_wb8_wrapper00_wbm_readdata => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_readdata,
-         atmega_nodir_wb8_wrapper00_wbm_writedata => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_writedata,
-         atmega_nodir_wb8_wrapper00_wbm_strobe => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_strobe,
-         atmega_nodir_wb8_wrapper00_wbm_write => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_write,
-         atmega_nodir_wb8_wrapper00_wbm_ack => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_ack,
-         atmega_nodir_wb8_wrapper00_wbm_cycle => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_cycle,
-         -- atmega_nodir_wb8_wrapper00_candr
-         atmega_nodir_wb8_wrapper00_reset => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_reset,
-         atmega_nodir_wb8_wrapper00_clk => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_clk,
-         -- rstext_syscon00_atmega_nodir_wb8_wrapper00
-         rstext_syscon00_gls_clk => atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_clk,
-         rstext_syscon00_gls_reset => atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_reset
-         );
+  -- atmega_nodir_wb8_wrapper00_mwb8_intercon
+  -- adns950000_swb8
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_adr_i                     : std_logic_vector(5 downto 0);
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_dat_i                     : std_logic_vector(7 downto 0);
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_dat_o                     : std_logic_vector(7 downto 0);
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_we_i                      : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_stb_i                     : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_cyc_i                     : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_ack_o                     : std_logic;
+  -- adns950000_clock
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_clk_i                     : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_rst_i                     : std_logic;
+  -- encoder_inc00_swb8
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_adr_i                  : std_logic_vector(2 downto 0);
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_dat_o                  : std_logic_vector(7 downto 0);
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_we_i                   : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_stb_i                  : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_cyc_i                  : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_ack_o                  : std_logic;
+  -- encoder_inc00_clock
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_clk_i                  : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_rst_i                  : std_logic;
+  -- encoder_inc01_swb8
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_adr_i                  : std_logic_vector(2 downto 0);
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_dat_o                  : std_logic_vector(7 downto 0);
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_we_i                   : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_stb_i                  : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_cyc_i                  : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_ack_o                  : std_logic;
+  -- encoder_inc01_clock
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_clk_i                  : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_rst_i                  : std_logic;
+  -- encoder_inc02_swb8
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_adr_i                  : std_logic_vector(2 downto 0);
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_dat_o                  : std_logic_vector(7 downto 0);
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_we_i                   : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_stb_i                  : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_cyc_i                  : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_ack_o                  : std_logic;
+  -- encoder_inc02_clock
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_clk_i                  : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_rst_i                  : std_logic;
+  -- led00_swb8
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_add                            : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_writedata                      : std_logic_vector(7 downto 0);
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_readdata                       : std_logic_vector(7 downto 0);
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_strobe                         : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_cycle                          : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_write                          : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_ack                            : std_logic;
+  -- led00_candr
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_gls_reset                          : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_gls_clk                            : std_logic;
+  -- atmega_nodir_wb8_wrapper00_mwb8
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_address   : std_logic_vector(14 downto 0);
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_readdata  : std_logic_vector(7 downto 0);
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_writedata : std_logic_vector(7 downto 0);
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_strobe    : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_write     : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_ack       : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_cycle     : std_logic;
+  -- atmega_nodir_wb8_wrapper00_candr
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_reset         : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_clk           : std_logic;
+  -- rstext_syscon00_atmega_nodir_wb8_wrapper00
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_clk                  : std_logic;
+  signal atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_reset                : std_logic;
 
-     ---------------------------
-     -- instances connections --
-     ---------------------------
+  -- void pins
 
-     -- connect rstext_syscon00
-     -- candr
-     -- ext
+begin
+  -------------------------
+  -- declare instances
+  -------------------------
 
-     -- connect atmega_nodir_wb8_wrapper00
-     -- emi
-     -- candr
-     atmega_nodir_wb8_wrapper00_reset <= atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_reset;
-     atmega_nodir_wb8_wrapper00_clk <= atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_clk;
-     -- mwb8
-     atmega_nodir_wb8_wrapper00_wbm_readdata <= atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_readdata;
-     atmega_nodir_wb8_wrapper00_wbm_ack <= atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_ack;
+  rstext_syscon00 : rstext_syscon
+    generic map (
+      invert_reset => '1'
+      )
+    port map (
+      -- candr
+      gls_clk   => rstext_syscon00_gls_clk,
+      --gls_reset => rstext_syscon00_gls_reset,
+      -- ext
+      ext_clk   => rstext_syscon00_ext_clk,
+      ext_rst_n => rstext_syscon00_ext_rst_n
+      );
 
-     -- connect adns950000
-     -- clock
-     adns950000_wbs_clk_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_clk_i;
-     adns950000_wbs_rst_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_rst_i;
-     -- swb8
-     adns950000_wbs_adr_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_adr_i;
-     adns950000_wbs_dat_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_dat_i;
-     adns950000_wbs_we_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_we_i;
-     adns950000_wbs_stb_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_stb_i;
-     adns950000_wbs_cyc_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_cyc_i;
-     -- adns_spi
+  rstext_syscon00_gls_reset <= not(rstext_syscon00_ext_rst_n);
 
-     -- connect encoder_inc00
-     -- clock
-     encoder_inc00_wbs_clk_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_clk_i;
-     encoder_inc00_wbs_rst_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_rst_i;
-     -- swb8
-     encoder_inc00_wbs_adr_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_adr_i;
-     encoder_inc00_wbs_we_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_we_i;
-     encoder_inc00_wbs_stb_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_stb_i;
-     encoder_inc00_wbs_cyc_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_cyc_i;
-     -- channels
+  atmega_nodir_wb8_wrapper00 : atmega_nodir_wb8_wrapper
+    port map (
+      -- emi
+      Address_H     => atmega_nodir_wb8_wrapper00_Address_H,
+      DA            => atmega_nodir_wb8_wrapper00_DA,
+      ALE           => atmega_nodir_wb8_wrapper00_ALE,
+      RD            => atmega_nodir_wb8_wrapper00_RD,
+      WR            => atmega_nodir_wb8_wrapper00_WR,
+      -- candr
+      reset         => atmega_nodir_wb8_wrapper00_reset,
+      clk           => atmega_nodir_wb8_wrapper00_clk,
+      -- mwb8
+      wbm_address   => atmega_nodir_wb8_wrapper00_wbm_address,
+      wbm_readdata  => atmega_nodir_wb8_wrapper00_wbm_readdata,
+      wbm_writedata => atmega_nodir_wb8_wrapper00_wbm_writedata,
+      wbm_strobe    => atmega_nodir_wb8_wrapper00_wbm_strobe,
+      wbm_write     => atmega_nodir_wb8_wrapper00_wbm_write,
+      wbm_ack       => atmega_nodir_wb8_wrapper00_wbm_ack,
+      wbm_cycle     => atmega_nodir_wb8_wrapper00_wbm_cycle
+      );
 
-     -- connect encoder_inc01
-     -- clock
-     encoder_inc01_wbs_clk_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_clk_i;
-     encoder_inc01_wbs_rst_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_rst_i;
-     -- swb8
-     encoder_inc01_wbs_adr_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_adr_i;
-     encoder_inc01_wbs_we_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_we_i;
-     encoder_inc01_wbs_stb_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_stb_i;
-     encoder_inc01_wbs_cyc_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_cyc_i;
-     -- channels
 
-     -- connect encoder_inc02
-     -- clock
-     encoder_inc02_wbs_clk_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_clk_i;
-     encoder_inc02_wbs_rst_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_rst_i;
-     -- swb8
-     encoder_inc02_wbs_adr_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_adr_i;
-     encoder_inc02_wbs_we_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_we_i;
-     encoder_inc02_wbs_stb_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_stb_i;
-     encoder_inc02_wbs_cyc_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_cyc_i;
-     -- channels
+  adns950000 : adns9500
+    generic map (
+      id          => adns950000_id_c,
+      wb_size_c   => 8,
+      freq_fpga_c => freq_fpga_c
+      )
+    port map (
+      -- clock
+      wbs_clk_i    => adns950000_wbs_clk_i,
+      wbs_rst_i    => adns950000_wbs_rst_i,
+      -- swb8
+      wbs_adr_i    => adns950000_wbs_adr_i,
+      wbs_dat_i    => adns950000_wbs_dat_i,
+      wbs_dat_o    => adns950000_wbs_dat_o,
+      wbs_we_i     => adns950000_wbs_we_i,
+      wbs_stb_i    => adns950000_wbs_stb_i,
+      wbs_cyc_i    => adns950000_wbs_cyc_i,
+      wbs_ack_o    => adns950000_wbs_ack_o,
+      -- adns_spi
+      mosi_o       => adns950000_mosi_o,
+      miso_i       => adns950000_miso_i,
+      sck_o        => adns950000_sck_o,
+      cs1_no       => adns950000_cs1_no,
+      cs2_no       => adns950000_cs2_no,
+      cs3_no       => adns950000_cs3_no,
+      adns_reset_o => adns950000_adns_reset_o
+      );
 
-     -- connect led00
-     -- int_led
-     -- candr
-     led00_gls_reset <= atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_gls_reset;
-     led00_gls_clk <= atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_gls_clk;
-     -- swb8
-     led00_wbs_add <= atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_add;
-     led00_wbs_writedata <= atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_writedata;
-     led00_wbs_strobe <= atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_strobe;
-     led00_wbs_cycle <= atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_cycle;
-     led00_wbs_write <= atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_write;
+  encoder_inc00 : encoder_inc
+    generic map (
+      id => encoder_inc00_id_c
+      )
+    port map (
+      -- clock
+      wbs_clk_i => encoder_inc00_wbs_clk_i,
+      wbs_rst_i => encoder_inc00_wbs_rst_i,
+      -- swb8
+      wbs_adr_i => encoder_inc00_wbs_adr_i,
+      wbs_dat_o => encoder_inc00_wbs_dat_o,
+      wbs_we_i  => encoder_inc00_wbs_we_i,
+      wbs_stb_i => encoder_inc00_wbs_stb_i,
+      wbs_cyc_i => encoder_inc00_wbs_cyc_i,
+      wbs_ack_o => encoder_inc00_wbs_ack_o,
+      -- channels
+      ch_a_i    => encoder_inc00_ch_a_i,
+      ch_b_i    => encoder_inc00_ch_b_i
+      );
 
-     -- connect atmega_nodir_wb8_wrapper00_mwb8_intercon
-     -- adns950000_swb8
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_dat_o <= adns950000_wbs_dat_o;
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_ack_o <= adns950000_wbs_ack_o;
-     -- adns950000_clock
-     -- encoder_inc00_swb8
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_dat_o <= encoder_inc00_wbs_dat_o;
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_ack_o <= encoder_inc00_wbs_ack_o;
-     -- encoder_inc00_clock
-     -- encoder_inc01_swb8
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_dat_o <= encoder_inc01_wbs_dat_o;
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_ack_o <= encoder_inc01_wbs_ack_o;
-     -- encoder_inc01_clock
-     -- encoder_inc02_swb8
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_dat_o <= encoder_inc02_wbs_dat_o;
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_ack_o <= encoder_inc02_wbs_ack_o;
-     -- encoder_inc02_clock
-     -- led00_swb8
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_readdata <= led00_wbs_readdata;
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_ack <= led00_wbs_ack;
-     -- led00_candr
-     -- atmega_nodir_wb8_wrapper00_mwb8
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_address <= atmega_nodir_wb8_wrapper00_wbm_address;
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_writedata <= atmega_nodir_wb8_wrapper00_wbm_writedata;
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_strobe <= atmega_nodir_wb8_wrapper00_wbm_strobe;
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_write <= atmega_nodir_wb8_wrapper00_wbm_write;
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_cycle <= atmega_nodir_wb8_wrapper00_wbm_cycle;
-     -- atmega_nodir_wb8_wrapper00_candr
-     -- rstext_syscon00_atmega_nodir_wb8_wrapper00
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_clk <= rstext_syscon00_gls_clk;
-     atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_reset <= rstext_syscon00_gls_reset;
+  encoder_inc01 : encoder_inc
+    generic map (
+      id => encoder_inc01_id_c
+      )
+    port map (
+      -- clock
+      wbs_clk_i => encoder_inc01_wbs_clk_i,
+      wbs_rst_i => encoder_inc01_wbs_rst_i,
+      -- swb8
+      wbs_adr_i => encoder_inc01_wbs_adr_i,
+      wbs_dat_o => encoder_inc01_wbs_dat_o,
+      wbs_we_i  => encoder_inc01_wbs_we_i,
+      wbs_stb_i => encoder_inc01_wbs_stb_i,
+      wbs_cyc_i => encoder_inc01_wbs_cyc_i,
+      wbs_ack_o => encoder_inc01_wbs_ack_o,
+      -- channels
+      ch_a_i    => encoder_inc01_ch_a_i,
+      ch_b_i    => encoder_inc01_ch_b_i
+      );
 
-   end architecture top_uniocng_propmmx_1;
+  encoder_inc02 : encoder_inc
+    generic map (
+      id => encoder_inc02_id_c
+      )
+    port map (
+      -- clock
+      wbs_clk_i => encoder_inc02_wbs_clk_i,
+      wbs_rst_i => encoder_inc02_wbs_rst_i,
+      -- swb8
+      wbs_adr_i => encoder_inc02_wbs_adr_i,
+      wbs_dat_o => encoder_inc02_wbs_dat_o,
+      wbs_we_i  => encoder_inc02_wbs_we_i,
+      wbs_stb_i => encoder_inc02_wbs_stb_i,
+      wbs_cyc_i => encoder_inc02_wbs_cyc_i,
+      wbs_ack_o => encoder_inc02_wbs_ack_o,
+      -- channels
+      ch_a_i    => encoder_inc02_ch_a_i,
+      ch_b_i    => encoder_inc02_ch_b_i
+      );
+
+  led00 : led
+    generic map (
+      id      => led00_id_c,
+      wb_size => 8
+      )
+    port map (
+      -- int_led
+      led           => led00_led,
+      -- candr
+      gls_reset     => led00_gls_reset,
+      gls_clk       => led00_gls_clk,
+      -- swb8
+      wbs_add       => led00_wbs_add,
+      wbs_writedata => led00_wbs_writedata,
+      wbs_readdata  => led00_wbs_readdata,
+      wbs_strobe    => led00_wbs_strobe,
+      wbs_cycle     => led00_wbs_cycle,
+      wbs_write     => led00_wbs_write,
+      wbs_ack       => led00_wbs_ack
+      );
+
+  atmega_nodir_wb8_wrapper00_mwb8_intercon : atmega_nodir_wb8_wrapper00_mwb8
+    generic map(
+      adns950000_base_address_c    => adns950000_base_address_c,
+      encoder_inc00_base_address_c => encoder_inc00_base_address_c,
+      encoder_inc01_base_address_c => encoder_inc01_base_address_c,
+      encoder_inc02_base_address_c => encoder_inc02_base_address_c,
+      led00_base_address_c         => led00_base_address_c,
+      pwm_base_address_c           => pwm_base_address_c)
+    port map (
+      -- pwm_swb8
+      pwm_wbs_adr_i => pwm_wbs_adr_i,
+      pwm_wbs_dat_i => pwm_wbs_dat_i,
+      pwm_wbs_dat_o => pwm_wbs_dat_o,
+      pwm_wbs_we_i  => pwm_wbs_we_i,
+      pwm_wbs_stb_i => pwm_wbs_stb_i,
+      pwm_wbs_cyc_i => pwm_wbs_cyc_i,
+      pwm_wbs_ack_o => pwm_wbs_ack_o,
+
+      -- pwm_clock connection
+      pwm_wbs_clk_i => pwm_wbs_clk_i,
+      pwm_wbs_rst_i => pwm_wbs_rst_i,
+
+      -- adns950000_swb8
+      adns950000_wbs_adr_i                     => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_adr_i,
+      adns950000_wbs_dat_i                     => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_dat_i,
+      adns950000_wbs_dat_o                     => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_dat_o,
+      adns950000_wbs_we_i                      => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_we_i,
+      adns950000_wbs_stb_i                     => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_stb_i,
+      adns950000_wbs_cyc_i                     => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_cyc_i,
+      adns950000_wbs_ack_o                     => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_ack_o,
+      -- adns950000_clock
+      adns950000_wbs_clk_i                     => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_clk_i,
+      adns950000_wbs_rst_i                     => atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_rst_i,
+      -- encoder_inc00_swb8
+      encoder_inc00_wbs_adr_i                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_adr_i,
+      encoder_inc00_wbs_dat_o                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_dat_o,
+      encoder_inc00_wbs_we_i                   => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_we_i,
+      encoder_inc00_wbs_stb_i                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_stb_i,
+      encoder_inc00_wbs_cyc_i                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_cyc_i,
+      encoder_inc00_wbs_ack_o                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_ack_o,
+      -- encoder_inc00_clock
+      encoder_inc00_wbs_clk_i                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_clk_i,
+      encoder_inc00_wbs_rst_i                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_rst_i,
+      -- encoder_inc01_swb8
+      encoder_inc01_wbs_adr_i                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_adr_i,
+      encoder_inc01_wbs_dat_o                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_dat_o,
+      encoder_inc01_wbs_we_i                   => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_we_i,
+      encoder_inc01_wbs_stb_i                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_stb_i,
+      encoder_inc01_wbs_cyc_i                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_cyc_i,
+      encoder_inc01_wbs_ack_o                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_ack_o,
+      -- encoder_inc01_clock
+      encoder_inc01_wbs_clk_i                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_clk_i,
+      encoder_inc01_wbs_rst_i                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_rst_i,
+      -- encoder_inc02_swb8
+      encoder_inc02_wbs_adr_i                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_adr_i,
+      encoder_inc02_wbs_dat_o                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_dat_o,
+      encoder_inc02_wbs_we_i                   => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_we_i,
+      encoder_inc02_wbs_stb_i                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_stb_i,
+      encoder_inc02_wbs_cyc_i                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_cyc_i,
+      encoder_inc02_wbs_ack_o                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_ack_o,
+      -- encoder_inc02_clock
+      encoder_inc02_wbs_clk_i                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_clk_i,
+      encoder_inc02_wbs_rst_i                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_rst_i,
+      -- led00_swb8
+      led00_wbs_add                            => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_add,
+      led00_wbs_writedata                      => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_writedata,
+      led00_wbs_readdata                       => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_readdata,
+      led00_wbs_strobe                         => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_strobe,
+      led00_wbs_cycle                          => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_cycle,
+      led00_wbs_write                          => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_write,
+      led00_wbs_ack                            => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_ack,
+      -- led00_candr
+      led00_gls_reset                          => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_gls_reset,
+      led00_gls_clk                            => atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_gls_clk,
+      -- atmega_nodir_wb8_wrapper00_mwb8
+      atmega_nodir_wb8_wrapper00_wbm_address   => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_address,
+      atmega_nodir_wb8_wrapper00_wbm_readdata  => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_readdata,
+      atmega_nodir_wb8_wrapper00_wbm_writedata => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_writedata,
+      atmega_nodir_wb8_wrapper00_wbm_strobe    => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_strobe,
+      atmega_nodir_wb8_wrapper00_wbm_write     => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_write,
+      atmega_nodir_wb8_wrapper00_wbm_ack       => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_ack,
+      atmega_nodir_wb8_wrapper00_wbm_cycle     => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_cycle,
+      -- atmega_nodir_wb8_wrapper00_candr
+      atmega_nodir_wb8_wrapper00_reset         => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_reset,
+      atmega_nodir_wb8_wrapper00_clk           => atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_clk,
+      -- rstext_syscon00_atmega_nodir_wb8_wrapper00
+      rstext_syscon00_gls_clk                  => atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_clk,
+      rstext_syscon00_gls_reset                => atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_reset
+      );
+
+  
+  
+  pwm00 : top_pwm
+    generic map(
+      id_c                 => pwm_id_c,
+      wb_size_c            => 8,
+      default_period_c     => 8191,
+      fpga_frequency_khz_c => freq_fpga_c
+      )
+    port map(
+      -- wishbone interface
+      wbs_adr_i => pwm_wbs_adr_i,
+      wbs_dat_i => pwm_wbs_dat_i,
+      wbs_dat_o => pwm_wbs_dat_o,
+      wbs_we_i  => pwm_wbs_we_i,
+      wbs_stb_i => pwm_wbs_stb_i,
+      wbs_cyc_i => pwm_wbs_cyc_i,
+      wbs_ack_o => pwm_wbs_ack_o,
+
+      wbs_clk_i => pwm_wbs_clk_i,
+      wbs_rst_i => pwm_wbs_rst_i,
+
+      -- pwm outputs
+      pwm_out_1_o  => pwm_out_1_o,
+      pwm_sign_1_o => pwm_sign_1_o,
+
+      pwm_out_2_o  => pwm_out_2_o,
+      pwm_sign_2_o => pwm_sign_2_o,
+
+      pwm_out_3_o  => pwm_out_3_o,
+      pwm_sign_3_o => pwm_sign_3_o
+      );
+
+  ---------------------------
+  -- instances connections --
+  ---------------------------
+
+  -- connect rstext_syscon00
+  -- candr
+  -- ext
+
+  -- connect atmega_nodir_wb8_wrapper00
+  -- emi
+  -- candr
+  atmega_nodir_wb8_wrapper00_reset        <= atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_reset;
+  atmega_nodir_wb8_wrapper00_clk          <= atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_clk;
+  -- mwb8
+  atmega_nodir_wb8_wrapper00_wbm_readdata <= atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_readdata;
+  atmega_nodir_wb8_wrapper00_wbm_ack      <= atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_ack;
+
+  -- connect adns950000
+  -- clock
+  adns950000_wbs_clk_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_clk_i;
+  adns950000_wbs_rst_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_rst_i;
+  -- swb8
+  adns950000_wbs_adr_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_adr_i;
+  adns950000_wbs_dat_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_dat_i;
+  adns950000_wbs_we_i  <= atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_we_i;
+  adns950000_wbs_stb_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_stb_i;
+  adns950000_wbs_cyc_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_cyc_i;
+  -- adns_spi
+
+  -- connect encoder_inc00
+  -- clock
+  encoder_inc00_wbs_clk_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_clk_i;
+  encoder_inc00_wbs_rst_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_rst_i;
+  -- swb8
+  encoder_inc00_wbs_adr_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_adr_i;
+  encoder_inc00_wbs_we_i  <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_we_i;
+  encoder_inc00_wbs_stb_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_stb_i;
+  encoder_inc00_wbs_cyc_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_cyc_i;
+  -- channels
+
+  -- connect encoder_inc01
+  -- clock
+  encoder_inc01_wbs_clk_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_clk_i;
+  encoder_inc01_wbs_rst_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_rst_i;
+  -- swb8
+  encoder_inc01_wbs_adr_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_adr_i;
+  encoder_inc01_wbs_we_i  <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_we_i;
+  encoder_inc01_wbs_stb_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_stb_i;
+  encoder_inc01_wbs_cyc_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_cyc_i;
+  -- channels
+
+  -- connect encoder_inc02
+  -- clock
+  encoder_inc02_wbs_clk_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_clk_i;
+  encoder_inc02_wbs_rst_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_rst_i;
+  -- swb8
+  encoder_inc02_wbs_adr_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_adr_i;
+  encoder_inc02_wbs_we_i  <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_we_i;
+  encoder_inc02_wbs_stb_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_stb_i;
+  encoder_inc02_wbs_cyc_i <= atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_cyc_i;
+  -- channels
+
+  -- connect led00
+  -- int_led
+  -- candr
+  led00_gls_reset     <= atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_gls_reset;
+  led00_gls_clk       <= atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_gls_clk;
+  -- swb8
+  led00_wbs_add       <= atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_add;
+  led00_wbs_writedata <= atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_writedata;
+  led00_wbs_strobe    <= atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_strobe;
+  led00_wbs_cycle     <= atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_cycle;
+  led00_wbs_write     <= atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_write;
+
+  -- connect atmega_nodir_wb8_wrapper00_mwb8_intercon
+  -- adns950000_swb8
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_dat_o                     <= adns950000_wbs_dat_o;
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_adns950000_wbs_ack_o                     <= adns950000_wbs_ack_o;
+  -- adns950000_clock
+  -- encoder_inc00_swb8
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_dat_o                  <= encoder_inc00_wbs_dat_o;
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc00_wbs_ack_o                  <= encoder_inc00_wbs_ack_o;
+  -- encoder_inc00_clock
+  -- encoder_inc01_swb8
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_dat_o                  <= encoder_inc01_wbs_dat_o;
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc01_wbs_ack_o                  <= encoder_inc01_wbs_ack_o;
+  -- encoder_inc01_clock
+  -- encoder_inc02_swb8
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_dat_o                  <= encoder_inc02_wbs_dat_o;
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_encoder_inc02_wbs_ack_o                  <= encoder_inc02_wbs_ack_o;
+  -- encoder_inc02_clock
+  -- led00_swb8
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_readdata                       <= led00_wbs_readdata;
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_led00_wbs_ack                            <= led00_wbs_ack;
+  -- led00_candr
+  -- atmega_nodir_wb8_wrapper00_mwb8
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_address   <= atmega_nodir_wb8_wrapper00_wbm_address;
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_writedata <= atmega_nodir_wb8_wrapper00_wbm_writedata;
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_strobe    <= atmega_nodir_wb8_wrapper00_wbm_strobe;
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_write     <= atmega_nodir_wb8_wrapper00_wbm_write;
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_atmega_nodir_wb8_wrapper00_wbm_cycle     <= atmega_nodir_wb8_wrapper00_wbm_cycle;
+  -- atmega_nodir_wb8_wrapper00_candr
+  -- rstext_syscon00_atmega_nodir_wb8_wrapper00
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_clk                  <= rstext_syscon00_gls_clk;
+  atmega_nodir_wb8_wrapper00_mwb8_intercon_rstext_syscon00_gls_reset                <= rstext_syscon00_gls_reset;
+
+end architecture top_uniocng_propmmx_1;

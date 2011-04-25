@@ -11,222 +11,273 @@
 ---------------------------------------------------------------------------
 
 library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_1164.all;
 use IEEE.numeric_std.all;
 
-Entity atmega_nodir_wb8_wrapper00_mwb8 is
-    port
+entity atmega_nodir_wb8_wrapper00_mwb8 is
+  generic (
+
+    adns950000_base_address_c    : std_logic_vector(15 downto 0) := X"1300";
+    encoder_inc00_base_address_c : std_logic_vector(15 downto 0) := X"1400";
+    encoder_inc01_base_address_c : std_logic_vector(15 downto 0) := X"1500";
+    encoder_inc02_base_address_c : std_logic_vector(15 downto 0) := X"1600";
+    led00_base_address_c         : std_logic_vector(15 downto 0) := X"1800";
+    pwm_base_address_c           : std_logic_vector(15 downto 0) := X"1700");
+  port
     (
+      -- pwm_swb8 connection
+      pwm_wbs_adr_i : out std_logic_vector(5 downto 0);
+      pwm_wbs_dat_i : out std_logic_vector(7 downto 0);
+      pwm_wbs_dat_o : in  std_logic_vector(7 downto 0);
+      pwm_wbs_we_i  : out std_logic;
+      pwm_wbs_stb_i : out std_logic;
+      pwm_wbs_cyc_i : out std_logic;
+      pwm_wbs_ack_o : in  std_logic;
 
-        -- adns950000_swb8 connection
-        adns950000_wbs_adr_i                     : out  std_logic_vector(5 downto 0);
-        adns950000_wbs_dat_i                     : out  std_logic_vector(7 downto 0);
-        adns950000_wbs_dat_o                     : in   std_logic_vector(7 downto 0);
-        adns950000_wbs_we_i                      : out  std_logic;
-        adns950000_wbs_stb_i                     : out  std_logic;
-        adns950000_wbs_cyc_i                     : out  std_logic;
-        adns950000_wbs_ack_o                     : in   std_logic;
+      -- pwm_clock connection
+      pwm_wbs_clk_i : out std_logic;
+      pwm_wbs_rst_i : out std_logic;
 
-        -- adns950000_clock connection
-        adns950000_wbs_clk_i                     : out  std_logic;
-        adns950000_wbs_rst_i                     : out  std_logic;
+      -- adns950000_swb8 connection
+      adns950000_wbs_adr_i : out std_logic_vector(5 downto 0);
+      adns950000_wbs_dat_i : out std_logic_vector(7 downto 0);
+      adns950000_wbs_dat_o : in  std_logic_vector(7 downto 0);
+      adns950000_wbs_we_i  : out std_logic;
+      adns950000_wbs_stb_i : out std_logic;
+      adns950000_wbs_cyc_i : out std_logic;
+      adns950000_wbs_ack_o : in  std_logic;
 
-        -- encoder_inc00_swb8 connection
-        encoder_inc00_wbs_adr_i                  : out  std_logic_vector(2 downto 0);
-        encoder_inc00_wbs_dat_o                  : in   std_logic_vector(7 downto 0);
-        encoder_inc00_wbs_we_i                   : out  std_logic;
-        encoder_inc00_wbs_stb_i                  : out  std_logic;
-        encoder_inc00_wbs_cyc_i                  : out  std_logic;
-        encoder_inc00_wbs_ack_o                  : in   std_logic;
+      -- adns950000_clock connection
+      adns950000_wbs_clk_i : out std_logic;
+      adns950000_wbs_rst_i : out std_logic;
 
-        -- encoder_inc00_clock connection
-        encoder_inc00_wbs_clk_i                  : out  std_logic;
-        encoder_inc00_wbs_rst_i                  : out  std_logic;
+      -- encoder_inc00_swb8 connection
+      encoder_inc00_wbs_adr_i : out std_logic_vector(2 downto 0);
+      encoder_inc00_wbs_dat_o : in  std_logic_vector(7 downto 0);
+      encoder_inc00_wbs_we_i  : out std_logic;
+      encoder_inc00_wbs_stb_i : out std_logic;
+      encoder_inc00_wbs_cyc_i : out std_logic;
+      encoder_inc00_wbs_ack_o : in  std_logic;
 
-        -- encoder_inc01_swb8 connection
-        encoder_inc01_wbs_adr_i                  : out  std_logic_vector(2 downto 0);
-        encoder_inc01_wbs_dat_o                  : in   std_logic_vector(7 downto 0);
-        encoder_inc01_wbs_we_i                   : out  std_logic;
-        encoder_inc01_wbs_stb_i                  : out  std_logic;
-        encoder_inc01_wbs_cyc_i                  : out  std_logic;
-        encoder_inc01_wbs_ack_o                  : in   std_logic;
+      -- encoder_inc00_clock connection
+      encoder_inc00_wbs_clk_i : out std_logic;
+      encoder_inc00_wbs_rst_i : out std_logic;
 
-        -- encoder_inc01_clock connection
-        encoder_inc01_wbs_clk_i                  : out  std_logic;
-        encoder_inc01_wbs_rst_i                  : out  std_logic;
+      -- encoder_inc01_swb8 connection
+      encoder_inc01_wbs_adr_i : out std_logic_vector(2 downto 0);
+      encoder_inc01_wbs_dat_o : in  std_logic_vector(7 downto 0);
+      encoder_inc01_wbs_we_i  : out std_logic;
+      encoder_inc01_wbs_stb_i : out std_logic;
+      encoder_inc01_wbs_cyc_i : out std_logic;
+      encoder_inc01_wbs_ack_o : in  std_logic;
 
-        -- encoder_inc02_swb8 connection
-        encoder_inc02_wbs_adr_i                  : out  std_logic_vector(2 downto 0);
-        encoder_inc02_wbs_dat_o                  : in   std_logic_vector(7 downto 0);
-        encoder_inc02_wbs_we_i                   : out  std_logic;
-        encoder_inc02_wbs_stb_i                  : out  std_logic;
-        encoder_inc02_wbs_cyc_i                  : out  std_logic;
-        encoder_inc02_wbs_ack_o                  : in   std_logic;
+      -- encoder_inc01_clock connection
+      encoder_inc01_wbs_clk_i : out std_logic;
+      encoder_inc01_wbs_rst_i : out std_logic;
 
-        -- encoder_inc02_clock connection
-        encoder_inc02_wbs_clk_i                  : out  std_logic;
-        encoder_inc02_wbs_rst_i                  : out  std_logic;
+      -- encoder_inc02_swb8 connection
+      encoder_inc02_wbs_adr_i : out std_logic_vector(2 downto 0);
+      encoder_inc02_wbs_dat_o : in  std_logic_vector(7 downto 0);
+      encoder_inc02_wbs_we_i  : out std_logic;
+      encoder_inc02_wbs_stb_i : out std_logic;
+      encoder_inc02_wbs_cyc_i : out std_logic;
+      encoder_inc02_wbs_ack_o : in  std_logic;
 
-        -- led00_swb8 connection
-        led00_wbs_add                            : out  std_logic;
-        led00_wbs_writedata                      : out  std_logic_vector(7 downto 0);
-        led00_wbs_readdata                       : in   std_logic_vector(7 downto 0);
-        led00_wbs_strobe                         : out  std_logic;
-        led00_wbs_cycle                          : out  std_logic;
-        led00_wbs_write                          : out  std_logic;
-        led00_wbs_ack                            : in   std_logic;
+      -- encoder_inc02_clock connection
+      encoder_inc02_wbs_clk_i : out std_logic;
+      encoder_inc02_wbs_rst_i : out std_logic;
 
-        -- led00_candr connection
-        led00_gls_reset                          : out  std_logic;
-        led00_gls_clk                            : out  std_logic;
+      -- led00_swb8 connection
+      led00_wbs_add       : out std_logic;
+      led00_wbs_writedata : out std_logic_vector(7 downto 0);
+      led00_wbs_readdata  : in  std_logic_vector(7 downto 0);
+      led00_wbs_strobe    : out std_logic;
+      led00_wbs_cycle     : out std_logic;
+      led00_wbs_write     : out std_logic;
+      led00_wbs_ack       : in  std_logic;
 
-        -- atmega_nodir_wb8_wrapper00_mwb8 connection
-        atmega_nodir_wb8_wrapper00_wbm_address   : in   std_logic_vector(14 downto 0);
-        atmega_nodir_wb8_wrapper00_wbm_readdata  : out  std_logic_vector(7 downto 0);
-        atmega_nodir_wb8_wrapper00_wbm_writedata : in   std_logic_vector(7 downto 0);
-        atmega_nodir_wb8_wrapper00_wbm_strobe    : in   std_logic;
-        atmega_nodir_wb8_wrapper00_wbm_write     : in   std_logic;
-        atmega_nodir_wb8_wrapper00_wbm_ack       : out  std_logic;
-        atmega_nodir_wb8_wrapper00_wbm_cycle     : in   std_logic;
+      -- led00_candr connection
+      led00_gls_reset : out std_logic;
+      led00_gls_clk   : out std_logic;
 
-        -- atmega_nodir_wb8_wrapper00_candr connection
-        atmega_nodir_wb8_wrapper00_reset         : out  std_logic;
-        atmega_nodir_wb8_wrapper00_clk           : out  std_logic;
+      -- atmega_nodir_wb8_wrapper00_mwb8 connection
+      atmega_nodir_wb8_wrapper00_wbm_address   : in  std_logic_vector(14 downto 0);
+      atmega_nodir_wb8_wrapper00_wbm_readdata  : out std_logic_vector(7 downto 0);
+      atmega_nodir_wb8_wrapper00_wbm_writedata : in  std_logic_vector(7 downto 0);
+      atmega_nodir_wb8_wrapper00_wbm_strobe    : in  std_logic;
+      atmega_nodir_wb8_wrapper00_wbm_write     : in  std_logic;
+      atmega_nodir_wb8_wrapper00_wbm_ack       : out std_logic;
+      atmega_nodir_wb8_wrapper00_wbm_cycle     : in  std_logic;
 
-        -- rstext_syscon00_atmega_nodir_wb8_wrapper00 connection
-        rstext_syscon00_gls_clk                  : in   std_logic;
-        rstext_syscon00_gls_reset                : in   std_logic
-    );
+      -- atmega_nodir_wb8_wrapper00_candr connection
+      atmega_nodir_wb8_wrapper00_reset : out std_logic;
+      atmega_nodir_wb8_wrapper00_clk   : out std_logic;
+
+      -- rstext_syscon00_atmega_nodir_wb8_wrapper00 connection
+      rstext_syscon00_gls_clk   : in std_logic;
+      rstext_syscon00_gls_reset : in std_logic
+      );
 end entity;
 
 architecture atmega_nodir_wb8_wrapper00_mwb8_1 of atmega_nodir_wb8_wrapper00_mwb8 is
-    signal adns950000_swb8_cs                       : std_logic := '0' ;
-    signal encoder_inc00_swb8_cs                    : std_logic := '0' ;
-    signal encoder_inc01_swb8_cs                    : std_logic := '0' ;
-    signal encoder_inc02_swb8_cs                    : std_logic := '0' ;
-    signal led00_swb8_cs                            : std_logic := '0' ;
+  signal pwm_swb8_cs           : std_logic := '0';
+  signal adns950000_swb8_cs    : std_logic := '0';
+  signal encoder_inc00_swb8_cs : std_logic := '0';
+  signal encoder_inc01_swb8_cs : std_logic := '0';
+  signal encoder_inc02_swb8_cs : std_logic := '0';
+  signal led00_swb8_cs         : std_logic := '0';
 begin
 
-    -- Clock and Reset connection
-    adns950000_wbs_clk_i                     <= rstext_syscon00_gls_clk;
-    adns950000_wbs_rst_i                     <= rstext_syscon00_gls_reset;
+  -- Clock and Reset connection
+  pwm_wbs_clk_i <= rstext_syscon00_gls_clk;
+  pwm_wbs_rst_i <= rstext_syscon00_gls_reset;
 
-    encoder_inc00_wbs_clk_i                  <= rstext_syscon00_gls_clk;
-    encoder_inc00_wbs_rst_i                  <= rstext_syscon00_gls_reset;
+  adns950000_wbs_clk_i <= rstext_syscon00_gls_clk;
+  adns950000_wbs_rst_i <= rstext_syscon00_gls_reset;
 
-    encoder_inc01_wbs_clk_i                  <= rstext_syscon00_gls_clk;
-    encoder_inc01_wbs_rst_i                  <= rstext_syscon00_gls_reset;
+  encoder_inc00_wbs_clk_i <= rstext_syscon00_gls_clk;
+  encoder_inc00_wbs_rst_i <= rstext_syscon00_gls_reset;
 
-    encoder_inc02_wbs_clk_i                  <= rstext_syscon00_gls_clk;
-    encoder_inc02_wbs_rst_i                  <= rstext_syscon00_gls_reset;
+  encoder_inc01_wbs_clk_i <= rstext_syscon00_gls_clk;
+  encoder_inc01_wbs_rst_i <= rstext_syscon00_gls_reset;
 
-    led00_gls_reset                          <= rstext_syscon00_gls_reset;
-    led00_gls_clk                            <= rstext_syscon00_gls_clk;
+  encoder_inc02_wbs_clk_i <= rstext_syscon00_gls_clk;
+  encoder_inc02_wbs_rst_i <= rstext_syscon00_gls_reset;
 
-    atmega_nodir_wb8_wrapper00_reset         <= rstext_syscon00_gls_reset;
-    atmega_nodir_wb8_wrapper00_clk           <= rstext_syscon00_gls_clk;
+  led00_gls_reset <= rstext_syscon00_gls_reset;
+  led00_gls_clk   <= rstext_syscon00_gls_clk;
 
-    -----------------------
-    -- Address decoding  --
-    -----------------------
-    adns950000_wbs_adr_i <= atmega_nodir_wb8_wrapper00_wbm_address(5 downto 0);
-    encoder_inc00_wbs_adr_i <= atmega_nodir_wb8_wrapper00_wbm_address(2 downto 0);
-    encoder_inc01_wbs_adr_i <= atmega_nodir_wb8_wrapper00_wbm_address(2 downto 0);
-    encoder_inc02_wbs_adr_i <= atmega_nodir_wb8_wrapper00_wbm_address(2 downto 0);
-    led00_wbs_add <= atmega_nodir_wb8_wrapper00_wbm_address(0);
+  atmega_nodir_wb8_wrapper00_reset <= rstext_syscon00_gls_reset;
+  atmega_nodir_wb8_wrapper00_clk   <= rstext_syscon00_gls_clk;
 
-    decodeproc : process(rstext_syscon00_gls_clk,rstext_syscon00_gls_reset,atmega_nodir_wb8_wrapper00_wbm_address)
-    begin
-        if rstext_syscon00_gls_reset='1' then
-            adns950000_swb8_cs <= '0';
-            encoder_inc00_swb8_cs <= '0';
-            encoder_inc01_swb8_cs <= '0';
-            encoder_inc02_swb8_cs <= '0';
-            led00_swb8_cs <= '0';
-        elsif rising_edge(rstext_syscon00_gls_clk) then
+  -----------------------
+  -- Address decoding  --
+  -----------------------
+  adns950000_wbs_adr_i    <= atmega_nodir_wb8_wrapper00_wbm_address(adns950000_wbs_adr_i'left downto 0);
+  encoder_inc00_wbs_adr_i <= atmega_nodir_wb8_wrapper00_wbm_address(encoder_inc00_wbs_adr_i'left downto 0);
+  encoder_inc01_wbs_adr_i <= atmega_nodir_wb8_wrapper00_wbm_address(encoder_inc01_wbs_adr_i'left downto 0);
+  encoder_inc02_wbs_adr_i <= atmega_nodir_wb8_wrapper00_wbm_address(encoder_inc02_wbs_adr_i'left downto 0);
+  led00_wbs_add           <= atmega_nodir_wb8_wrapper00_wbm_address(0);
+  pwm_wbs_adr_i <= atmega_nodir_wb8_wrapper00_wbm_address(pwm_wbs_adr_i'left downto 0);
 
-            if atmega_nodir_wb8_wrapper00_wbm_address(14 downto 6)="001001100" and atmega_nodir_wb8_wrapper00_wbm_strobe='1' then
-                adns950000_swb8_cs <= '1';
-            else
-                adns950000_swb8_cs <= '0';
-            end if;
+  decodeproc : process(rstext_syscon00_gls_clk, rstext_syscon00_gls_reset, atmega_nodir_wb8_wrapper00_wbm_address)
+  begin
+    if rstext_syscon00_gls_reset = '1' then
+      pwm_swb8_cs           <= '0';
+      adns950000_swb8_cs    <= '0';
+      encoder_inc00_swb8_cs <= '0';
+      encoder_inc01_swb8_cs <= '0';
+      encoder_inc02_swb8_cs <= '0';
+      led00_swb8_cs         <= '0';
+      
+    elsif rising_edge(rstext_syscon00_gls_clk) then
 
-            if atmega_nodir_wb8_wrapper00_wbm_address(14 downto 3)="001010000000" and atmega_nodir_wb8_wrapper00_wbm_strobe='1' then
-                encoder_inc00_swb8_cs <= '1';
-            else
-                encoder_inc00_swb8_cs <= '0';
-            end if;
+     
+      if atmega_nodir_wb8_wrapper00_wbm_address(14 downto pwm_wbs_adr_i'left +1) = pwm_base_address_c(14 downto pwm_wbs_adr_i'left+1)
+        and atmega_nodir_wb8_wrapper00_wbm_strobe = '1' then
+        pwm_swb8_cs <= '1';
+      else
+        pwm_swb8_cs <= '0';
+      end if;
 
-            if atmega_nodir_wb8_wrapper00_wbm_address(14 downto 3)="001010100000" and atmega_nodir_wb8_wrapper00_wbm_strobe='1' then
-                encoder_inc01_swb8_cs <= '1';
-            else
-                encoder_inc01_swb8_cs <= '0';
-            end if;
+      
+      if atmega_nodir_wb8_wrapper00_wbm_address(14 downto adns950000_wbs_adr_i'left +1) = adns950000_base_address_c(14 downto pwm_wbs_adr_i'left+1)
+        and atmega_nodir_wb8_wrapper00_wbm_strobe = '1' then
+        adns950000_swb8_cs <= '1';
+      else
+        adns950000_swb8_cs <= '0';
+      end if;
 
-            if atmega_nodir_wb8_wrapper00_wbm_address(14 downto 3)="001011000000" and atmega_nodir_wb8_wrapper00_wbm_strobe='1' then
-                encoder_inc02_swb8_cs <= '1';
-            else
-                encoder_inc02_swb8_cs <= '0';
-            end if;
+      if atmega_nodir_wb8_wrapper00_wbm_address(14 downto encoder_inc00_wbs_adr_i'left+1) = encoder_inc00_base_address_c(14 downto encoder_inc00_wbs_adr_i'left+1)
+        and atmega_nodir_wb8_wrapper00_wbm_strobe = '1' then
+        encoder_inc00_swb8_cs <= '1';
+      else
+        encoder_inc00_swb8_cs <= '0';
+      end if;
 
-            if atmega_nodir_wb8_wrapper00_wbm_address(14 downto 1)="00110000000000" and atmega_nodir_wb8_wrapper00_wbm_strobe='1' then
-                led00_swb8_cs <= '1';
-            else
-                led00_swb8_cs <= '0';
-            end if;
+      if atmega_nodir_wb8_wrapper00_wbm_address(14 downto encoder_inc01_wbs_adr_i'left+1) = encoder_inc01_base_address_c(14 downto encoder_inc01_wbs_adr_i'left+1)
+        and atmega_nodir_wb8_wrapper00_wbm_strobe = '1' then
+        encoder_inc01_swb8_cs <= '1';
+      else
+        encoder_inc01_swb8_cs <= '0';
+      end if;
 
-        end if;
-    end process decodeproc;
+      if atmega_nodir_wb8_wrapper00_wbm_address(14 downto encoder_inc01_wbs_adr_i'left+1) = encoder_inc02_base_address_c(14 downto encoder_inc02_wbs_adr_i'left+1)
+        and atmega_nodir_wb8_wrapper00_wbm_strobe = '1' then
+        encoder_inc02_swb8_cs <= '1';
+      else
+        encoder_inc02_swb8_cs <= '0';
+      end if;
 
-    -----------------------------
-    -- Control signals to slave
-    -----------------------------
+      if atmega_nodir_wb8_wrapper00_wbm_address(14 downto 1) = led00_base_address_c(14 downto 1)
+        and atmega_nodir_wb8_wrapper00_wbm_strobe = '1' then
+        led00_swb8_cs <= '1';
+      else
+        led00_swb8_cs <= '0';
+      end if;
 
-    -- for adns950000
-    adns950000_wbs_stb_i <= (atmega_nodir_wb8_wrapper00_wbm_strobe and adns950000_swb8_cs );
-    adns950000_wbs_cyc_i <= (atmega_nodir_wb8_wrapper00_wbm_cycle and adns950000_swb8_cs );
-    adns950000_wbs_we_i <= (atmega_nodir_wb8_wrapper00_wbm_write and adns950000_swb8_cs );
-    adns950000_wbs_dat_i <= atmega_nodir_wb8_wrapper00_wbm_writedata when (atmega_nodir_wb8_wrapper00_wbm_write and adns950000_swb8_cs ) = '1' else (others => '0');
+    end if;
+  end process decodeproc;
 
-    -- for encoder_inc00
-    encoder_inc00_wbs_stb_i <= (atmega_nodir_wb8_wrapper00_wbm_strobe and encoder_inc00_swb8_cs );
-    encoder_inc00_wbs_cyc_i <= (atmega_nodir_wb8_wrapper00_wbm_cycle and encoder_inc00_swb8_cs );
-    encoder_inc00_wbs_we_i <= '0';
+  -----------------------------
+  -- Control signals to slave
+  -----------------------------
 
-    -- for encoder_inc01
-    encoder_inc01_wbs_stb_i <= (atmega_nodir_wb8_wrapper00_wbm_strobe and encoder_inc01_swb8_cs );
-    encoder_inc01_wbs_cyc_i <= (atmega_nodir_wb8_wrapper00_wbm_cycle and encoder_inc01_swb8_cs );
-    encoder_inc01_wbs_we_i <= '0';
-
-    -- for encoder_inc02
-    encoder_inc02_wbs_stb_i <= (atmega_nodir_wb8_wrapper00_wbm_strobe and encoder_inc02_swb8_cs );
-    encoder_inc02_wbs_cyc_i <= (atmega_nodir_wb8_wrapper00_wbm_cycle and encoder_inc02_swb8_cs );
-    encoder_inc02_wbs_we_i <= '0';
-
-    -- for led00
-    led00_wbs_strobe <= (atmega_nodir_wb8_wrapper00_wbm_strobe and led00_swb8_cs );
-    led00_wbs_cycle <= (atmega_nodir_wb8_wrapper00_wbm_cycle and led00_swb8_cs );
-    led00_wbs_write <= (atmega_nodir_wb8_wrapper00_wbm_write and led00_swb8_cs );
-    led00_wbs_writedata <= atmega_nodir_wb8_wrapper00_wbm_writedata when (atmega_nodir_wb8_wrapper00_wbm_write and led00_swb8_cs ) = '1' else (others => '0');
+  -- for pwm
+  pwm_wbs_stb_i <= (atmega_nodir_wb8_wrapper00_wbm_strobe and pwm_swb8_cs);
+  pwm_wbs_cyc_i <= (atmega_nodir_wb8_wrapper00_wbm_cycle and pwm_swb8_cs);
+  pwm_wbs_we_i  <= (atmega_nodir_wb8_wrapper00_wbm_write and pwm_swb8_cs);
+  pwm_wbs_dat_i <= atmega_nodir_wb8_wrapper00_wbm_writedata when (atmega_nodir_wb8_wrapper00_wbm_write and pwm_swb8_cs) = '1' else (others => '0');
 
 
-    -------------------------------
-    -- Control signal for master --
-    -------------------------------
-    atmega_nodir_wb8_wrapper00_wbm_readdata <=  adns950000_wbs_dat_o when adns950000_swb8_cs='1' else
-                                       encoder_inc00_wbs_dat_o when encoder_inc00_swb8_cs='1' else
-                                       encoder_inc01_wbs_dat_o when encoder_inc01_swb8_cs='1' else
-                                       encoder_inc02_wbs_dat_o when encoder_inc02_swb8_cs='1' else
-                                       led00_wbs_readdata when led00_swb8_cs='1' else
-                                       (others => '0');
-    atmega_nodir_wb8_wrapper00_wbm_ack <=  (adns950000_wbs_ack_o and adns950000_swb8_cs)
-                                    or 
-                                (encoder_inc00_wbs_ack_o and encoder_inc00_swb8_cs)
-                                    or 
-                                (encoder_inc01_wbs_ack_o and encoder_inc01_swb8_cs)
-                                    or 
-                                (encoder_inc02_wbs_ack_o and encoder_inc02_swb8_cs)
-                                    or 
-                                (led00_wbs_ack and led00_swb8_cs);
+  -- for adns950000
+  adns950000_wbs_stb_i <= (atmega_nodir_wb8_wrapper00_wbm_strobe and adns950000_swb8_cs);
+  adns950000_wbs_cyc_i <= (atmega_nodir_wb8_wrapper00_wbm_cycle and adns950000_swb8_cs);
+  adns950000_wbs_we_i  <= (atmega_nodir_wb8_wrapper00_wbm_write and adns950000_swb8_cs);
+  adns950000_wbs_dat_i <= atmega_nodir_wb8_wrapper00_wbm_writedata when (atmega_nodir_wb8_wrapper00_wbm_write and adns950000_swb8_cs) = '1' else (others => '0');
+
+  -- for encoder_inc00
+  encoder_inc00_wbs_stb_i <= (atmega_nodir_wb8_wrapper00_wbm_strobe and encoder_inc00_swb8_cs);
+  encoder_inc00_wbs_cyc_i <= (atmega_nodir_wb8_wrapper00_wbm_cycle and encoder_inc00_swb8_cs);
+  encoder_inc00_wbs_we_i  <= '0';
+
+  -- for encoder_inc01
+  encoder_inc01_wbs_stb_i <= (atmega_nodir_wb8_wrapper00_wbm_strobe and encoder_inc01_swb8_cs);
+  encoder_inc01_wbs_cyc_i <= (atmega_nodir_wb8_wrapper00_wbm_cycle and encoder_inc01_swb8_cs);
+  encoder_inc01_wbs_we_i  <= '0';
+
+  -- for encoder_inc02
+  encoder_inc02_wbs_stb_i <= (atmega_nodir_wb8_wrapper00_wbm_strobe and encoder_inc02_swb8_cs);
+  encoder_inc02_wbs_cyc_i <= (atmega_nodir_wb8_wrapper00_wbm_cycle and encoder_inc02_swb8_cs);
+  encoder_inc02_wbs_we_i  <= '0';
+
+  -- for led00
+  led00_wbs_strobe    <= (atmega_nodir_wb8_wrapper00_wbm_strobe and led00_swb8_cs);
+  led00_wbs_cycle     <= (atmega_nodir_wb8_wrapper00_wbm_cycle and led00_swb8_cs);
+  led00_wbs_write     <= (atmega_nodir_wb8_wrapper00_wbm_write and led00_swb8_cs);
+  led00_wbs_writedata <= atmega_nodir_wb8_wrapper00_wbm_writedata when (atmega_nodir_wb8_wrapper00_wbm_write and led00_swb8_cs) = '1' else (others => '0');
+
+
+  -------------------------------
+  -- Control signal for master --
+  -------------------------------
+  atmega_nodir_wb8_wrapper00_wbm_readdata <= pwm_wbs_dat_o when pwm_swb8_cs = '1' else
+                                             adns950000_wbs_dat_o    when adns950000_swb8_cs = '1'    else
+                                             encoder_inc00_wbs_dat_o when encoder_inc00_swb8_cs = '1' else
+                                             encoder_inc01_wbs_dat_o when encoder_inc01_swb8_cs = '1' else
+                                             encoder_inc02_wbs_dat_o when encoder_inc02_swb8_cs = '1' else
+                                             led00_wbs_readdata      when led00_swb8_cs = '1'         else
+                                             (others => '0');
+  atmega_nodir_wb8_wrapper00_wbm_ack <= (pwm_wbs_ack_o and pwm_swb8_cs)
+                                        or
+                                        (adns950000_wbs_ack_o and adns950000_swb8_cs)
+                                        or
+                                        (encoder_inc00_wbs_ack_o and encoder_inc00_swb8_cs)
+                                        or
+                                        (encoder_inc01_wbs_ack_o and encoder_inc01_swb8_cs)
+                                        or
+                                        (encoder_inc02_wbs_ack_o and encoder_inc02_swb8_cs)
+                                        or
+                                        (led00_wbs_ack and led00_swb8_cs);
 
 end architecture atmega_nodir_wb8_wrapper00_mwb8_1;

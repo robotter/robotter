@@ -34,65 +34,65 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 ---------------------------------------------------------------------------
-entity adns9500_controlunit is 
+entity adns9500_controlunit is
 ---------------------------------------------------------------------------
   generic (
     ---------- FPGA ---------------------------------------------------------
     -- FPGA clock period in ns
     fpga_clock_period_c : natural := 40;
 
-   
+
     ---------- PHYSICAL PARAMETERS ------------------------------------------
     -- number of ADNS9500 chips
     adns_number_c : natural := 3
-  );
+    );
 
-  port 
-  (
-    -- FPGA signals
-    clk_i : in std_logic;
-    reset_ni : in std_logic;
+  port
+    (
+      -- FPGA signals
+      clk_i    : in std_logic;
+      reset_ni : in std_logic;
 
-    ----------------------------------------------------------
-    -- Enable signal activate component on high state
-    enable_i : in std_logic;
+      ----------------------------------------------------------
+      -- Enable signal activate component on high state
+      enable_i : in std_logic;
 
-    ----------------------------------------------------------
-    -- SPI port
-    spi_datain_o   : out std_logic_vector (7 downto 0);
-    spi_dataout_i  : in std_logic_vector (7 downto 0);
-    spi_senddata_o : out std_logic;
-    spi_busy_i     : in std_logic;
+      ----------------------------------------------------------
+      -- SPI port
+      spi_datain_o   : out std_logic_vector (7 downto 0);
+      spi_dataout_i  : in  std_logic_vector (7 downto 0);
+      spi_senddata_o : out std_logic;
+      spi_busy_i     : in  std_logic;
 
-    ----------------------------------------------------------
-    -- CS ADNS selection
-    adns_cs_o : out std_logic_vector (1 downto 0);
+      ----------------------------------------------------------
+      -- CS ADNS selection
+      adns_cs_o : out std_logic_vector (1 downto 0);
 
-    ----------------------------------------------------------
-    -- first encoder values
-    adns1_deltax_o : out std_logic_vector (31 downto 0);
-    adns1_deltay_o : out std_logic_vector (31 downto 0);
-    adns1_squal_o  : out std_logic_vector (7 downto 0);
+      ----------------------------------------------------------
+      -- first encoder values
+      adns1_deltax_o : out std_logic_vector (31 downto 0);
+      adns1_deltay_o : out std_logic_vector (31 downto 0);
+      adns1_squal_o  : out std_logic_vector (7 downto 0);
 
-    -- second encoder values
-    adns2_deltax_o : out std_logic_vector (31 downto 0);
-    adns2_deltay_o : out std_logic_vector (31 downto 0);
-    adns2_squal_o  : out std_logic_vector (7 downto 0);
+      -- second encoder values
+      adns2_deltax_o : out std_logic_vector (31 downto 0);
+      adns2_deltay_o : out std_logic_vector (31 downto 0);
+      adns2_squal_o  : out std_logic_vector (7 downto 0);
 
-    -- third encoder values
-    adns3_deltax_o : out std_logic_vector (31 downto 0);
-    adns3_deltay_o : out std_logic_vector (31 downto 0);
-    adns3_squal_o  : out std_logic_vector (7 downto 0);
+      -- third encoder values
+      adns3_deltax_o : out std_logic_vector (31 downto 0);
+      adns3_deltay_o : out std_logic_vector (31 downto 0);
+      adns3_squal_o  : out std_logic_vector (7 downto 0);
 
-    -----------------------------------------------------------
-    -- fault
-    -- 7 :              3 : 
-    -- 6 :              2 : ADNS #3 Fault
-    -- 5 :              1 : ADNS #2 Fault
-    -- 4 :              0 : ADNS #1 Fault
-    fault_o : out std_logic_vector (7 downto 0)
+      -----------------------------------------------------------
+      -- fault
+      -- 7 :              3 : 
+      -- 6 :              2 : ADNS #3 Fault
+      -- 5 :              1 : ADNS #2 Fault
+      -- 4 :              0 : ADNS #1 Fault
+      fault_o : out std_logic_vector (7 downto 0)
 
-  );
+      );
 end entity adns9500_controlunit;
 
 ---------------------------------------------------------------------------
@@ -102,24 +102,26 @@ architecture adns9500_controlunit_1 of adns9500_controlunit is
   -- register Motion_Burst address
   constant addr_register_motion_burst_c : std_logic_vector(7 downto 0) := x"50";
   -- motion bit in motion register
-  constant bit_motion_register_motion_c : natural := 7;
+  constant bit_motion_register_motion_c : natural                      := 7;
   -- fault bit in motion register
-  constant bit_fault_register_motion_c : natural := 1;
+  constant bit_fault_register_motion_c  : natural                      := 1;
   -- Motion register / fault offset in fault output
-  constant fault_offset_c : natural := 0;
+  constant fault_offset_c               : natural                      := 0;
   ---------- TIMINGS in ns ----------------------------------
   -- timing ratio
-  constant timing_ratio_c : natural := 1;
+  constant timing_ratio_c               : natural                      := 1;
   -- timing between NCS falling edge to first SCK rising edge
-  constant timing_ncs_sck_c : natural := 120;
+  constant timing_ncs_sck_c             : natural                      := 120;
   -- timing between SCK falling edge to next SCK rising edge
   -- after a read address and motion data
-  constant timing_srad_mot_c : natural := 100000;
- 
+  constant timing_srad_mot_c            : natural                      := 100000;
 
-  signal spi_start_s : std_logic;
-  signal spi_done_s : std_logic;
-  signal spi_datatosend_s : std_logic_vector(7 downto 0);
+  -- timing between each burst read of adns value in automatic mode
+  constant timing_read_burst_wait_us : natural := 1500;
+
+  signal spi_start_s        : std_logic;
+  signal spi_done_s         : std_logic;
+  signal spi_datatosend_s   : std_logic_vector(7 downto 0);
   signal spi_datareceived_s : std_logic_vector(7 downto 0);
 
   signal adns1_deltax_s : std_logic_vector (31 downto 0);
@@ -137,15 +139,15 @@ begin
 
   adns1_deltax_o <= adns1_deltax_s;
   adns1_deltay_o <= adns1_deltay_s;
-  adns1_squal_o <= adns1_squal_s;
+  adns1_squal_o  <= adns1_squal_s;
 
   adns2_deltax_o <= adns2_deltax_s;
   adns2_deltay_o <= adns2_deltay_s;
-  adns2_squal_o <= adns2_squal_s;
+  adns2_squal_o  <= adns2_squal_s;
 
   adns3_deltax_o <= adns3_deltax_s;
   adns3_deltay_o <= adns3_deltay_s;
-  adns3_squal_o <= adns3_squal_s;
+  adns3_squal_o  <= adns3_squal_s;
 
 
   ----------------------------------------------------------
@@ -155,9 +157,9 @@ begin
 
     variable spi_pstart_v : std_logic;
 
-		type SPI_STATE_TYPE is (SPI_STATE_INIT, SPI_STATE_DATA, SPI_STATE_BEGIN, SPI_STATE_BUSY, SPI_STATE_WAIT);
-		attribute SPI_ENUM_ENCODING: STRING;
-		attribute SPI_ENUM_ENCODING of SPI_STATE_TYPE: type is "001 010 011 100 101";
+    type SPI_STATE_TYPE is (SPI_STATE_INIT, SPI_STATE_DATA, SPI_STATE_BEGIN, SPI_STATE_BUSY, SPI_STATE_WAIT);
+
+
 
     variable spi_state_v : SPI_STATE_TYPE;
 
@@ -167,15 +169,15 @@ begin
 
       spi_senddata_o <= '0';
       spi_datain_o   <= x"00";
-      
-      spi_done_s <= '0';
-      spi_state_v := SPI_STATE_WAIT;
+
+      spi_done_s         <= '0';
+      spi_state_v        := SPI_STATE_WAIT;
       spi_datareceived_s <= x"00";
-      spi_pstart_v := '0';
+      spi_pstart_v       := '0';
 
     else
       if rising_edge(clk_i) then
-        
+
         -- start SPI transmission on r_e( spi_start_s )
         if spi_pstart_v = '0' and spi_start_s = '1' then
           spi_state_v := SPI_STATE_INIT;
@@ -185,45 +187,45 @@ begin
         if spi_pstart_v = '1' and spi_start_s = '0' then
           spi_done_s <= '0';
         end if;
-        
+
         -- store last spi_start value
         spi_pstart_v := spi_start_s;
 
-				case spi_state_v is
-       	  -- init communication
-					when SPI_STATE_INIT =>
- 	          spi_senddata_o <= '0';
-   	        spi_state_v := SPI_STATE_DATA;
+        case spi_state_v is
+          -- init communication
+          when SPI_STATE_INIT =>
+            spi_senddata_o <= '0';
+            spi_state_v    := SPI_STATE_DATA;
 
-        	-- send data to SPI and wait one tick
-        	when SPI_STATE_DATA =>
-          	spi_datain_o <= spi_datatosend_s;
-          	spi_state_v := SPI_STATE_BEGIN;
-        
-        	-- set senddata high to begin SPI communication 
-        	-- and wait for busy to go high
-        	when SPI_STATE_BEGIN =>
- 	          spi_senddata_o <= '1';
-          	if spi_busy_i = '1' then
-            	spi_state_v := SPI_STATE_BUSY;
-	          end if;
-        
-        	-- set senddata low and wait for busy to go low
-        	-- to read data from SPI
-        	when SPI_STATE_BUSY =>
-          	spi_senddata_o <= '0';
-          	if spi_busy_i = '0' then
-            	spi_datareceived_s <= spi_dataout_i;
-            	spi_done_s <= '1';
-            	spi_state_v := SPI_STATE_WAIT;
-          	end if;
+            -- send data to SPI and wait one tick
+          when SPI_STATE_DATA =>
+            spi_datain_o <= spi_datatosend_s;
+            spi_state_v  := SPI_STATE_BEGIN;
 
-        	-- final state, machine stay here
-        	when SPI_STATE_WAIT =>
-						-- it's a trap
-				end case;
-      end if; -- r_e(clk_i)
-    end if; -- reset_ni = '0' 
+            -- set senddata high to begin SPI communication 
+            -- and wait for busy to go high
+          when SPI_STATE_BEGIN =>
+            spi_senddata_o <= '1';
+            if spi_busy_i = '1' then
+              spi_state_v := SPI_STATE_BUSY;
+            end if;
+
+            -- set senddata low and wait for busy to go low
+            -- to read data from SPI
+          when SPI_STATE_BUSY =>
+            spi_senddata_o <= '0';
+            if spi_busy_i = '0' then
+              spi_datareceived_s <= spi_dataout_i;
+              spi_done_s         <= '1';
+              spi_state_v        := SPI_STATE_WAIT;
+            end if;
+
+            -- final state, machine stay here
+          when SPI_STATE_WAIT =>
+                                        -- it's a trap
+        end case;
+      end if;  -- r_e(clk_i)
+    end if;  -- reset_ni = '0' 
 
 
   end process spi_p;
@@ -233,15 +235,13 @@ begin
   -- Main state machine handling data sent over SPI
   controlunit_p : process(reset_ni, clk_i, enable_i)
 
-		type CU_STATE_TYPE is (CU_INIT,CU_1,CU_2,CU_3,CU_4,CU_5,CU_6,CU_7,
-														CU_8,CU_9,CU_10,CU_11,CU_12,CU_13,CU_14,
-														CU_15,CU_16,CU_17,CU_18,CU_19);
-		attribute CU_ENUM_ENCODING: STRING;
-		attribute CU_ENUM_ENCODING of CU_STATE_TYPE:type is "00001 00010 00011 00100 00101 00110 00111 01000 01001 01010 01011 01100 01101 01110 01111 10000 10001 10010 10011";
+    type CU_STATE_TYPE is (CU_INIT, CU_1, CU_2, CU_3, CU_4, CU_5, CU_6, CU_7,
+                           CU_8, CU_9, CU_10, CU_11, CU_12, CU_13, CU_14,
+                           CU_15, CU_16, CU_17, CU_18, CU_19, CU_20);
 
-		variable controlunit_state_v : CU_STATE_TYPE;
+    variable controlunit_state_v : CU_STATE_TYPE;
 
-    variable timer_v : natural := 0;
+    variable timer_v        : natural              := 0;
     variable current_adns_v : natural range 1 to 4 := 1;
 
     variable sumdeltax_v : std_logic_vector(31 downto 0);
@@ -249,10 +249,10 @@ begin
 
     variable deltax_v : std_logic_vector(15 downto 0);
     variable deltay_v : std_logic_vector(15 downto 0);
-    variable squal_v : std_logic_vector(7 downto 0);
+    variable squal_v  : std_logic_vector(7 downto 0);
 
   begin
-    
+
     -- fpga reset or enable go low
     if reset_ni = '0' or enable_i = '0' then
 
@@ -265,7 +265,7 @@ begin
       adns1_deltax_s <= (others => '0');
       adns1_deltay_s <= (others => '0');
       adns1_squal_s  <= (others => '0');
-                    
+
       adns2_deltax_s <= (others => '0');
       adns2_deltay_s <= (others => '0');
       adns2_squal_s  <= (others => '0');
@@ -275,78 +275,78 @@ begin
       adns3_squal_s  <= (others => '0');
 
       spi_datatosend_s <= (others => '0');
-      
+
       -- reset machine state
-      current_adns_v := 1;
+      current_adns_v      := 1;
       controlunit_state_v := CU_INIT;
 
-    elsif rising_edge( clk_i ) then
+    elsif rising_edge(clk_i) then
       
-			case controlunit_state_v is
+      case controlunit_state_v is
         -- set CS high for current ADNS9500
         when CU_INIT =>
 
           -- pull CS high for current ADNS
-          adns_cs_o <= std_logic_vector( to_unsigned(current_adns_v,2) );
-          
+          adns_cs_o <= std_logic_vector(to_unsigned(current_adns_v, 2));
+
           -- reset timer
           timer_v := 0;
-          
+
           -- go next state
           controlunit_state_v := CU_1;
-        
-        -- wait at least t(NCS-SCK) 
+
+          -- wait at least t(NCS-SCK) 
         when CU_1 =>
 
           -- increment timer
-          timer_v := timer_v +  1;
+          timer_v := timer_v + 1;
 
           -- check if we wait enough
           if timer_v >= ((timing_ncs_sck_c/fpga_clock_period_c)*timing_ratio_c) then
             controlunit_state_v := CU_2;
           end if;
 
-        -- start sending address over SPI
+          -- start sending address over SPI
         when CU_2 =>
-          
+
           -- start a Motion Burst 
           spi_datatosend_s <= addr_register_motion_burst_c;
-          spi_start_s <= '1';
-          
+          spi_start_s      <= '1';
+
           controlunit_state_v := CU_3;
 
-        -- wait for data to be sent 
+          -- wait for data to be sent 
         when CU_3 =>
           
           if spi_done_s = '1' then
-            spi_start_s <= '0';
-            timer_v := 0;
+            spi_start_s         <= '0';
+            timer_v             := 0;
             controlunit_state_v := CU_4;
           end if;
-        
-        -- wait at least t(SRAD-MOT)
+
+          -- wait at least t(SRAD-MOT)
         when CU_4 =>
           
           timer_v := timer_v + 1;
-              
+
           if timer_v >= ((timing_srad_mot_c/fpga_clock_period_c)*timing_ratio_c) then
             controlunit_state_v := CU_5;
           end if;
-        
-        -- start reading first byte of Motion burst
+
+          -- start reading first byte of Motion burst
         when CU_5 =>
 
           spi_datatosend_s <= x"00";
-          spi_start_s <= '1';
+          spi_start_s      <= '1';
 
           controlunit_state_v := CU_6;
-        
-        -- wait Motion byte to be received 
+
+          -- wait Motion byte to be received 
         when CU_6 =>
 
           if spi_done_s = '1' then
             spi_start_s <= '0';
-            
+
             -- first byte is Motion register
 
             -- set fault to 1 if occured
@@ -382,115 +382,117 @@ begin
               current_adns_v := current_adns_v + 1;
 
               if current_adns_v > adns_number_c then
-                current_adns_v :=  1;
+                current_adns_v := 1;
+                controlunit_state_v := CU_20;
+                timer_v := 0;
+              else
+                controlunit_state_v := CU_INIT; 
               end if;
-
-              -- Go back to first state
-              controlunit_state_v := CU_INIT;
 
             end if;
 
           end if;
 
-        -- prepare to read next byte
+          -- prepare to read next byte
         when CU_7 =>
 
           spi_datatosend_s <= x"00";
-          spi_start_s <= '1';
+          spi_start_s      <= '1';
 
           controlunit_state_v := CU_8;
-    
-        -- read OBSERVATION byte
+
+          -- read OBSERVATION byte
         when CU_8 =>
 
           if spi_done_s = '1' then
-            spi_start_s <= '0';
+            spi_start_s         <= '0';
             controlunit_state_v := CU_9;
           end if;
 
-        -- prepare to read next byte
+          -- prepare to read next byte
         when CU_9 =>
 
           spi_datatosend_s <= x"00";
-          spi_start_s <= '1';
+          spi_start_s      <= '1';
 
           controlunit_state_v := CU_10;
-    
-        -- read Delta_X_L byte
+
+          -- read Delta_X_L byte
         when CU_10 =>
 
           if spi_done_s = '1' then
-            spi_start_s <= '0';
-            deltax_v(7 downto 0) :=  spi_datareceived_s;
-            controlunit_state_v := CU_11;
+            spi_start_s          <= '0';
+            deltax_v(7 downto 0) := spi_datareceived_s;
+            controlunit_state_v  := CU_11;
           end if;
 
-        -- prepare to read next byte
+          -- prepare to read next byte
         when CU_11 =>
 
           spi_datatosend_s <= x"00";
-          spi_start_s <= '1';
+          spi_start_s      <= '1';
 
           controlunit_state_v := CU_12;
-    
-  
-        -- read Delta_X_H byte
+
+
+          -- read Delta_X_H byte
         when CU_12 =>
 
           if spi_done_s = '1' then
-            spi_start_s <= '0';
-            deltax_v(15 downto 8) :=  spi_datareceived_s;
-            controlunit_state_v := CU_13;
+            spi_start_s           <= '0';
+            deltax_v(15 downto 8) := spi_datareceived_s;
+            controlunit_state_v   := CU_13;
           end if;
 
-        -- prepare to read next byte
+          -- prepare to read next byte
         when CU_13 =>
 
           spi_datatosend_s <= x"00";
-          spi_start_s <= '1';
+          spi_start_s      <= '1';
 
           controlunit_state_v := CU_14;
-    
-        -- read Delta_Y_L byte
+
+          -- read Delta_Y_L byte
         when CU_14 =>
 
           if spi_done_s = '1' then
-            spi_start_s <= '0';
-            deltay_v(7 downto 0) :=  spi_datareceived_s;
-            controlunit_state_v := CU_15;
-          end if;          
+            spi_start_s          <= '0';
+            deltay_v(7 downto 0) := spi_datareceived_s;
+            controlunit_state_v  := CU_15;
+          end if;
 
-        -- prepare to read next byte
+          -- prepare to read next byte
         when CU_15 =>
           spi_datatosend_s <= x"00";
-          spi_start_s <= '1';
+          spi_start_s      <= '1';
 
           controlunit_state_v := CU_16;
-    
-        -- read Delta_Y_H byte
+
+          -- read Delta_Y_H byte
         when CU_16 =>
           if spi_done_s = '1' then
-            spi_start_s <= '0';
-            deltay_v(15 downto 8) :=  spi_datareceived_s;
-            controlunit_state_v := CU_17;
+            spi_start_s           <= '0';
+            deltay_v(15 downto 8) := spi_datareceived_s;
+            controlunit_state_v   := CU_17;
           end if;
 
-        -- prepare to read next byte
+          -- prepare to read next byte
         when CU_17 =>
           spi_datatosend_s <= x"00";
-          spi_start_s <= '1';
+          spi_start_s      <= '1';
 
           controlunit_state_v := CU_18;
-    
-        -- read SQUAL byte
+
+          -- read SQUAL byte
         when CU_18 =>
           if spi_done_s = '1' then
-            spi_start_s <= '0';
-            squal_v :=  spi_datareceived_s;
+            spi_start_s         <= '0';
+            squal_v             := spi_datareceived_s;
             controlunit_state_v := CU_19;
+            
           end if;
 
-        -- sum deltas, update squal and go next ADNS
+          -- sum deltas, update squal and go next ADNS
         when CU_19 =>
           -- get current motion values
           if current_adns_v = 1 then
@@ -506,7 +508,7 @@ begin
 
           -- sum deltax and deltay
           sumdeltax_v := std_logic_vector(signed(sumdeltax_v) + signed(deltax_v));
-          sumdeltay_v := std_logic_vector(signed(sumdeltay_v) + signed(deltay_v));       
+          sumdeltay_v := std_logic_vector(signed(sumdeltay_v) + signed(deltay_v));
 
           -- update motion values
           if current_adns_v = 1 then
@@ -521,7 +523,7 @@ begin
             adns3_deltax_s <= sumdeltax_v;
             adns3_deltay_s <= sumdeltay_v;
             adns3_squal_s  <= squal_v;
-          end if;     
+          end if;
 
           ----------------------------------------------
           -- exit burst mode by pulling CS low for 4us
@@ -538,17 +540,24 @@ begin
           current_adns_v := current_adns_v + 1;
 
           if current_adns_v > adns_number_c then
-            current_adns_v :=  1;
+            current_adns_v      := 1;
+            controlunit_state_v := CU_20;
+            timer_v             := 0;
+          else
+            controlunit_state_v := CU_INIT;
           end if;
-          
-          ---------------------------
-          -- go back to first state
-          controlunit_state_v := CU_INIT;
-		 	
-				end case;
-        -----------------------------------------
 
-    end if; -- reset_ni = '0' 
+
+          -----------------------------------------
+        when CU_20 =>                   -- wait state between read of all adns
+
+          if timer_v =(((timing_read_burst_wait_us*1000)/fpga_clock_period_c)*timing_ratio_c) then
+            controlunit_state_v := CU_INIT;
+          else
+            timer_v := timer_v + 1;
+          end if;
+      end case;
+    end if;  -- reset_ni = '0' 
     
   end process controlunit_p;
 

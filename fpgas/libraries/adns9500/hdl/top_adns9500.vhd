@@ -68,7 +68,7 @@ ARCHITECTURE adns9500_1 OF adns9500 IS
   
   COMPONENT adns9500_spi IS
   GENERIC (
-    spi_freq_c : natural :=  100; -- SPI clock frequency in kHz
+    spi_freq_c : natural :=  1000; -- SPI clock frequency in kHz
     clk_freq_c : natural := 25000  -- FPGA clock frequency in kHz
   );
   PORT (

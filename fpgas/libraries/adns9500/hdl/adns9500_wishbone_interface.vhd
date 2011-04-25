@@ -144,7 +144,13 @@ BEGIN  -- adns9500_wishbone_interface_1
           WHEN OTHERS=> NULL;
         END CASE;                        
       ELSE
+        spi_cs_o <= spi_cs_s;
         ack_write_s <= '0';
+        spi_send_data_o <= spi_send_data_s;
+        adns1_lock_o <= lock_adns_s(0);
+        adns2_lock_o <= lock_adns_s(1);
+        adns3_lock_o <= lock_adns_s(2);
+        auto_enable_o <= auto_enable_s;
       END IF;
     END IF;
 
@@ -213,17 +219,14 @@ BEGIN  -- adns9500_wishbone_interface_1
       ELSE
         wbs_dat_o <= (OTHERS => '0');
         ack_read_s <= '0';
+        adns_reset_o <= adns_reset_s;
+  
       END IF;
     END IF;
   END PROCESS read_bloc_p;
 
-  adns_reset_o <= adns_reset_s;
-  spi_send_data_o <= spi_send_data_s;
-  adns1_lock_o <= lock_adns_s(0);
-  adns2_lock_o <= lock_adns_s(1);
-  adns3_lock_o <= lock_adns_s(2);
-  auto_enable_o <= auto_enable_s;
-  spi_cs_o <= spi_cs_s;
+  
+ 
 
 END ARCHITECTURE adns9500_wishbone_interface_1;
 
