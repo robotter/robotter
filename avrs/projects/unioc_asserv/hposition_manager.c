@@ -27,7 +27,7 @@
 #include <aversive/error.h>
 #include <stdlib.h>
 #include <math.h>
-#include <adns6010.h>
+#include <adns9500.h>
 #include <quadramp.h>
 #include <pid.h>
 #include <control_system_manager.h>
@@ -47,7 +47,7 @@ extern compass_t compass;
 extern acfilter_t acfilter;
 
 // ADNS encoders
-adns6010_encoders_t adns6010;
+adns9500_encoders_t adns9500;
 
 // robot CSs
 extern robot_cs_t robot_cs;
@@ -164,8 +164,8 @@ void hposition_update(void *dummy)
   double *matrix    = NULL;
 
   //------------------------
-  // access ADNS6010 values
-  adns6010_encoders_get_value(&adns6010);
+  // access adns9500 values
+  adns9500_encoders_get_value(&adns9500);
 
   // access motor encoders values
   motor_encoders_get_value(&motors);
@@ -173,16 +173,16 @@ void hposition_update(void *dummy)
   // override warning if ADNS boot was previously skipped
   #ifndef SETTING_OVERRIDE_ADNSBOOT 
   // FAULT register is set
-  if( adns6010.fault )
-    WARNING(HROBOT_ERROR, "ADNS6010 FAULT register is set : fault=0x%X",
-                            adns6010.fault);
+  if( adns9500.fault )
+    WARNING(HROBOT_ERROR, "adns9500 FAULT register is set : fault=0x%X",
+                            adns9500.fault);
   #endif
 
   // first time update => update vector, quit
   if( hpos->firstUpdate )
   {
     for(i=0;i<6;i++)
-      hpos->pAdnsVectors[i] = adns6010.vectors[i];
+      hpos->pAdnsVectors[i] = adns9500.vectors[i];
     
     for(i=0;i<6;i++)
       hpos->pMotorVectors[i] = motors.vectors[i];
@@ -193,31 +193,31 @@ void hposition_update(void *dummy)
 
   //----------------------------------------------------------
   // Check ADNS validities
-  sensors_validity = hposition_getSensorsValidity(hpos, &adns6010);
+  sensors_validity = hposition_getSensorsValidity(hpos, &adns9500);
 
   switch(sensors_validity)
   {
     case SV_ADNS_123:
       pvectors = hpos->pAdnsVectors;
-      vectors = adns6010.vectors;
+      vectors = adns9500.vectors;
       matrix = hrobot_adnsMatrix_123;
       break;
 
     case SV_ADNS_12:
       pvectors = hpos->pAdnsVectors;
-      vectors = adns6010.vectors;
+      vectors = adns9500.vectors;
       matrix = hrobot_adnsMatrix_12;
       break;
 
     case SV_ADNS_23:
       pvectors = hpos->pAdnsVectors;
-      vectors = adns6010.vectors;
+      vectors = adns9500.vectors;
       matrix = hrobot_adnsMatrix_23;
       break;
 
     case SV_ADNS_13:
       pvectors = hpos->pAdnsVectors;
-      vectors = adns6010.vectors;
+      vectors = adns9500.vectors;
       matrix = hrobot_adnsMatrix_13;
       break;
 
@@ -228,7 +228,7 @@ void hposition_update(void *dummy)
       break;
 
     default: 
-      ERROR(HROBOT_ERROR, "ADNS6010 validity incorrect. validity=%d",
+      ERROR(HROBOT_ERROR, "adns9500 validity incorrect. validity=%d",
                             sensors_validity);
     break;
 
@@ -290,7 +290,7 @@ void hposition_update(void *dummy)
 
 sensorsValidity_t
   hposition_getSensorsValidity( hrobot_position_t* hpos,
-                                adns6010_encoders_t* adns)
+                                adns9500_encoders_t* adns)
 {
   uint8_t adnsval[3];
   uint8_t i;

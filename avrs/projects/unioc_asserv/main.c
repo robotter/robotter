@@ -30,7 +30,7 @@
 #include <i2cs.h>
 #include <timer.h>
 
-#include <adns6010.h>
+#include <adns9500.h>
 
 #include "fpga.h"
 #include "cs.h"
@@ -39,8 +39,9 @@
 #include "htrajectory.h"
 #include "logging.h"
 #include "cli.h"
-#include "perlimpinpin.h"
 #include "cord.h"
+#include "pwm.h"
+#include "motor_encoders.h"
 
 #include "settings.h"
 
@@ -56,6 +57,7 @@ void paddock_adnsFeedback(void);
 void paddock_positionTest(void);
 void paddock_testCode(void);
 void paddock_pwmTest(void);
+void paddock_calibration(void);
 //-----
 
 // log level
@@ -91,9 +93,6 @@ uint8_t time_startup_ok = 0;
 
 int main(void)
 {
-  // ADNS configuration
-  adns6010_configuration_t adns_config;
-
   //--------------------------------------------------------------------------
   // Booting
 
@@ -139,33 +138,25 @@ int main(void)
   _SFR_MEM8(0x1800) = 1;
   
   //--------------------------------------------------------
-  // ADNS6010
+  // ADNS9500
   //--------------------------------------------------------
 
   #ifdef SETTING_OVERRIDE_ADNSBOOT
-  WARNING(MAIN_ERROR, "ADNS6010 BOOT OVERRIDE");
+  WARNING(MAIN_ERROR, "ADNS9500 BOOT OVERRIDE");
   #else
-  NOTICE(0,"Initializing ADNS6010s");
-  adns6010_init();
+  NOTICE(0,"Initializing ADNS9500s");
+  adns9500_init();
 
-  NOTICE(0,"Checking ADNS6010s firmware");
-  adns6010_checkFirmware();
+  NOTICE(0,"Checking ADNS9500s firmware");
+  adns9500_check_firmware();
 
-  // ADNS CONFIGURATION
-  adns_config.res = SETTING_ADNS_RESOLUTION;
-  adns_config.shutter = SETTING_ADNS_SHUTTER;
-  adns_config.power = SETTING_ADNS_POWER;
+  NOTICE(0,"Booting ADNS9500s");
+  adns9500_boot();
 
-  NOTICE(0,"Checking ADNS6010s SPI communication");
-  adns6010_checkSPI();
+  NOTICE(0,"Checking ADNS9500s");
+  adns9500_checks();
 
-  NOTICE(0,"Booting ADNS6010s");
-  adns6010_boot(&adns_config);
-
-  NOTICE(0,"Checking ADNS6010s");
-  adns6010_checks();
-
-  NOTICE(0,"ADNS6010s are GO");
+  NOTICE(0,"ADNS9500s are GO");
   #endif//SETTING_OVERRIDE_ADNSBOOT
 
   //--------------------------------------------------------
@@ -192,16 +183,14 @@ int main(void)
   cord_init();
 
   NOTICE(0,"Initializing communications");
-  ppp_init();
+  //ppp_init();
 
   //--------------------------------------------------------
-
-
   // For ploting purposes
   NOTICE(0,"<PLOTMARK>");
 
-  // Set ADNS6010 system to automatic
-  adns6010_setMode(ADNS6010_BHVR_MODE_AUTOMATIC);
+  // Set ADNS9500 system to automatic
+  adns9500_set_mode(ADNS9500_BHVR_MODE_AUTOMATIC);
 
   // Unleash control systems
 
@@ -220,7 +209,10 @@ int main(void)
 
   //----------------------------------------------------------------------
 
-  NOTICE(0,"'x' to reboot / 'c' manual control / 'a' ADNS test / 'z' position test / 'p' PWM test / 't' test code / (key/cord) to go ");
+  //XXX goto calibration
+  paddock_calibration();
+
+  NOTICE(0,"'x' to reboot / 'c' manual control / 'a' ADNS test / 'z' position test / 'p' PWM test / 'l' calibration / 't' test code / (key/cord) to go ");
  
   int c;
   uint8_t cord_status, lock;
@@ -265,6 +257,9 @@ int main(void)
 
     if(c == 'p')
       paddock_pwmTest();
+
+    if(c == 'l')
+      paddock_calibration();
 
     if(c != 0xFF)
       break;
@@ -321,7 +316,7 @@ void paddock_testCode(void)
 
 void paddock_adnsFeedback(void)
 {
-  adns6010_encoders_t adns6010;
+  adns9500_encoders_t adns;
 
   NOTICE(0, "Entering ANDS feedback mode");
 
@@ -331,22 +326,22 @@ void paddock_adnsFeedback(void)
 
   while(1)
   {
-    adns6010_encoders_get_value(&adns6010);
+    adns9500_encoders_get_value(&adns);
     
     NOTICE(0,"ADNS 0x%2.2x | %6ld %6ld %6ld %6ld %6ld %6ld | %3.3f %3.3f %3.3f | %d %d %d",
-              adns6010.fault,
-              adns6010.vectors[0],
-              adns6010.vectors[1],
-              adns6010.vectors[2],
-              adns6010.vectors[3],
-              adns6010.vectors[4],
-              adns6010.vectors[5],
-              sqrt(adns6010.vectors[0]*adns6010.vectors[0] + adns6010.vectors[1]*adns6010.vectors[1]),
-              sqrt(adns6010.vectors[2]*adns6010.vectors[2] + adns6010.vectors[3]*adns6010.vectors[3]),
-              sqrt(adns6010.vectors[4]*adns6010.vectors[4] + adns6010.vectors[5]*adns6010.vectors[5]),
-              adns6010.squals[0],
-              adns6010.squals[1],
-              adns6010.squals[2]);
+              adns.fault,
+              adns.vectors[0],
+              adns.vectors[1],
+              adns.vectors[2],
+              adns.vectors[3],
+              adns.vectors[4],
+              adns.vectors[5],
+              sqrt(adns.vectors[0]*adns.vectors[0] + adns.vectors[1]*adns.vectors[1]),
+              sqrt(adns.vectors[2]*adns.vectors[2] + adns.vectors[3]*adns.vectors[3]),
+              sqrt(adns.vectors[4]*adns.vectors[4] + adns.vectors[5]*adns.vectors[5]),
+              adns.squals[0],
+              adns.squals[1],
+              adns.squals[2]);
   }
 }
 
@@ -434,6 +429,7 @@ void paddock_pwmTest(void)
   int32_t pwm1 = 0;
   int32_t pwm2 = 0;
   int32_t pwm3 = 0;
+  uint16_t period = 5000;
   
   NOTICE(0,"Entering PWM test mode");
 
@@ -475,6 +471,14 @@ void paddock_pwmTest(void)
         pwm3 -= SETTING_PADDOCK_PWMTEST_INC;
         break;
 
+      case 'u':
+        period += 10;
+        break;
+
+      case 'j':
+        period -= 10;
+        break;
+
       case 'z': 
         pwm1 = 0;
         pwm2 = 0;
@@ -482,12 +486,54 @@ void paddock_pwmTest(void)
         break;
     }
 
-    NOTICE(0,"PWM1=%5ld PWM2=%5ld PWM3=%5ld",pwm1,pwm2,pwm3);
-    
+
+    _SFR_MEM16(PWM_REGISTER_PERIOD_L1) = period;
+    _SFR_MEM16(PWM_REGISTER_PERIOD_L2) = period;
+    _SFR_MEM16(PWM_REGISTER_PERIOD_L3) = period;   
     set_pwm_motor1(NULL, pwm1);
     set_pwm_motor2(NULL, pwm2);
     set_pwm_motor3(NULL, pwm3);
+
+    NOTICE(0,"PWM1=%5ld PWM2=%5ld PWM3=%5ld PERIOD=%d",pwm1,pwm2,pwm3,period);
+
   }
+
+  while(1) nop();
+}
+
+void paddock_calibration(void)
+{
+  uint8_t key;
+  
+  NOTICE(0,"Entering calibration");
+
+  // kill CSs
+  scheduler_del_event(event_cs);
+
+#ifdef SETTING_COMPILE_CALIBRATION
+
+  adns9500_encoders_t adns;
+  motor_encoders_t me;
+
+  NOTICE(0,"<CALIBRATION>");
+  while(1)
+  {
+    adns9500_encoders_get_value(&adns);
+    motor_encoders_get_value(&me);
+
+    printf("%ld %ld %ld %ld %ld %ld %ld %ld %ld\n",
+              me.vectors[0],
+              me.vectors[1],
+              me.vectors[2],
+              adns.vectors[0],
+              adns.vectors[1],
+              adns.vectors[2],
+              adns.vectors[3],
+              adns.vectors[4],
+              adns.vectors[5]);
+  }
+
+#endif
 
   while(1) nop();
 }

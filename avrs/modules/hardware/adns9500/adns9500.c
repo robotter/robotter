@@ -99,7 +99,7 @@ void adns9500_boot(void)
     _delay_us(ADNS9500_TIMINGS_SRAD);
     byte = adns9500_spi_recv();
     _delay_us(ADNS9500_TIMINGS_SRWSRR);
-
+    
     adns9500_spi_send(ADNS9500_SPIREGISTER_INVPRODUCTID);
     _delay_us(ADNS9500_TIMINGS_SRAD);
     uint8_t byte_inv = adns9500_spi_recv();
@@ -265,20 +265,11 @@ void adns9500_checks(void)
     DEBUG(ADNS9500_ERROR,"ADNS9500 #%u observation=0x%X",it,byte);
 
     // Check if ADNS is running on SROM code, if not, error.
-    if( !bit_is_set(byte,ADNS9500_OBSERVATION_BIT_OB7) )
+    if( !bit_is_set(byte,ADNS9500_OBSERVATION_BIT_OB6) )
     {
       adns9500_spi_cs(0);
       ERROR(ADNS9500_ERROR,
               "ADNS9500 #%u : ADNS is not running on SROM code, observation=0x%X",
-              it,byte);
-    }
-
-    // Check if NPD pulse was detected, if true, error.
-    if( bit_is_set(byte,ADNS9500_OBSERVATION_BIT_OB5) )
-    {
-      adns9500_spi_cs(0);
-      ERROR(ADNS9500_ERROR,
-              "ADNS9500 #%u : NPD pulse detected, observation=0x%X",
               it,byte);
     }
 

@@ -26,7 +26,7 @@
 #ifndef _HPOSITION_MANAGER_H_
 #define _HPOSITION_MANAGER_H_
 
-#include <adns6010.h>
+#include <adns9500.h>
 #include "vector.h"
 
 #define HROBOT_DX 0
@@ -110,6 +110,6 @@ void hposition_update( void* );
 /**@brief Compute sensors validity
   */
 sensorsValidity_t hposition_getSensorsValidity( hrobot_position_t*,
-                                                adns6010_encoders_t* );
+                                                adns9500_encoders_t* );
 
 #endif/*_HPOSITION_MANAGER_H_*/

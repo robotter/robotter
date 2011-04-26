@@ -33,7 +33,7 @@
 #define ADNS9500_ERROR 0x10
 
 /// Number of ADNS
-#define ADNS9500_NUM 1 //XXX:debug 3
+#define ADNS9500_NUM 3
 
 // Vectors
 #define ADNS9500_VX1 0
@@ -57,25 +57,6 @@ typedef struct
 
 } adns9500_encoders_t;
 
-/// ADNS resolutions
-typedef enum
-{
-  ADNS9500_RES_400 = 0,
-  ADNS9500_RES_800,
-  ADNS9500_RES_1600,
-  ADNS9500_RES_2000
-
-} adns9500_resolution_t;
-
-/// ADNS LASER shutter mode
-typedef enum
-{
-  ADNS9500_SHUTTER_OFF = 0,
-  ADNS9500_SHUTTER_ON
-
-} adns9500_shuttermode_t;
-
-/// Behaviour modes
 typedef enum
 {
   ADNS9500_BHVR_MODE_UC_DRIVEN = 0,

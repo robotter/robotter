@@ -36,7 +36,6 @@
 #include "acfilter.h"
 #include "compass.h"
 #include "time.h"
-#include "perlimpinpin.h"
 #include "avoidance.h"
 
 #include "settings.h"
@@ -165,7 +164,7 @@ void cs_update(void* dummy)
   timer3_set(0);
 
   // update communications with perlimpinpin
-  ppp_update();
+  //ppp_update();
 
   // update avoidance system
   avoidance_update(&avoidance);

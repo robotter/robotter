@@ -29,8 +29,9 @@
 // -- SECURITY --
 
 //#define SETTING_OVERRIDE_ADNSBOOT
-
 #define SETTING_OVERRIDE_CPUUSAGE
+
+#define SETTING_COMPILE_CALIBRATION
 
 // -- match --
 
@@ -48,7 +49,11 @@
 
 // -- FPGA --
 
+#define SETTING_FPGA_FREQUENCY_KHZ (50000)
 #define SETTING_FPGA_BOOTTIME (1000)
+
+// -- PWM --
+#define SETTING_PWM_FREQUENCY_KHZ (10)
 
 // -- schedulers --
 
@@ -61,6 +66,10 @@
 // -- motors --
 
 #define SETTING_MOTORS_MAXPWM (2000)
+
+#define SETTING_MOTOR_A_DIR (1)
+#define SETTING_MOTOR_B_DIR (-1)
+#define SETTING_MOTOR_C_DIR (1)
 
 // -- pid motor -- 
 
