@@ -13,6 +13,6 @@ AVARICE_PORT = "/dev/ttyS0"
 AVARICE_DEBUG_PORT = 1234
 MODULES = comm/uart hardware/adc base/cirbuf debug/error
 
-ROBOTTER_MODULES = ../..//modules/comm/i2c_robotter ../..//modules/hardware/gp2pack
+ROBOTTER_MODULES =
 MODULES := $(ROBOTTER_MODULES) $(MODULES)
 

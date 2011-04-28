@@ -521,16 +521,14 @@ void paddock_calibration(void)
     adns9500_encoders_get_value(&adns);
     motor_encoders_get_value(&me);
 
-    printf("%ld %ld %ld %ld %ld %ld %ld %ld %ld\n",
-              me.vectors[0],
-              me.vectors[1],
-              me.vectors[2],
+    printf("%ld,%ld,%ld,%ld,%ld,%ld\n",
               adns.vectors[0],
               adns.vectors[1],
               adns.vectors[2],
               adns.vectors[3],
               adns.vectors[4],
               adns.vectors[5]);
+    wait_ms(10);
   }
 
 #endif

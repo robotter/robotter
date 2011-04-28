@@ -7,6 +7,7 @@
 #include <scheduler.h>
 #include <math.h>
 #include <i2cs.h>
+#include <adc.h>
 
 #include <ax12.h>
 #include "ax12_user.h"
@@ -57,6 +58,9 @@ int main(void)
   // Initialize UART
   uart_init();
   fdevopen(uart0_dev_send, uart0_dev_recv);
+
+  // Initialize ADC
+  adc_init();
 
   //--------------------------------------------------------
   // Error configuration
@@ -139,6 +143,9 @@ int main(void)
 
     if(c == 'a')
       paddock_actuatorsManual();
+
+    if(c == 's')
+      paddock_sandbox();
   }
 
   while(1) nop();
@@ -263,6 +270,29 @@ void paddock_AX12manual(void)
   
 }
 
+void paddock_sandbox(void)
+{
+  uint16_t adcv;
+  uint16_t pos;
+  while(1)
+  {
+    for(pos=0x240;pos<=0x330;pos+=5)
+    {
+      // set AX12 to pos
+      actuators_ax12_setPosition(&actuators, 2, pos);
+      while( actuators_ax12_checkPosition(&actuators, 2, pos) == 0 )
+        wait_ms(1);
+
+      wait_ms(50);
+      adcv = adc_get_value( MUX_ADC1 | ADC_REF_AVCC);
+      printf("%d %d\n",pos,adcv);
+    }
+
+  }
+
+
+
+}
 
 void safe_key_pressed(void* dummy)
 {
