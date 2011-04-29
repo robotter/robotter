@@ -6,7 +6,7 @@ ROBLOS = roblos
 ROBLOCOP = roblocop
 CONFIG = roblos_config
 
--include $(CONFIG).mk
+include $(CONFIG).mk
 
 # Programs and commands
 
