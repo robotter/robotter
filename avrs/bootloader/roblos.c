@@ -79,72 +79,31 @@ typedef uint16_t addr_type;
 #ifdef ENABLE_UART
 
 #if UART_NUM == 0
-
-#define UCSRxA  UCSR0A
-#define UCSRxB  UCSR0B
-#define UCSRxC  UCSR0C
-#define RXCx    RXC0
-#define TXCx    TXC0
-#define UDRx    UDR0
-#define UDREx   UDRE0
-#define U2Xx    U2X0
-#define RXENx   RXEN0
-#define TXENx   TXEN0
-#define TXENx   TXEN0
-#define UCSZx0  UCSZ00
-#define UBRRxH  UBRR0H
-#define UBRRxL  UBRR0L
-
+#define UART_NCAT(p,s)  p ## 0 ## s
 #elif UART_NUM == 1
-
-#define UCSRxA  UCSR1A
-#define UCSRxB  UCSR1B
-#define UCSRxC  UCSR1C
-#define RXCx    RXC1
-#define TXCx    TXC1
-#define UDRx    UDR1
-#define UDREx   UDRE1
-#define U2Xx    U2X1
-#define RXENx   RXEN1
-#define TXENx   TXEN1
-#define UCSZx0  UCSZ10
-#define UBRRxH  UBRR1H
-#define UBRRxL  UBRR1L
-
+#define UART_NCAT(p,s)  p ## 1 ## s
 #elif UART_NUM == 2
-
-#define UCSRxA  UCSR2A
-#define UCSRxB  UCSR2B
-#define UCSRxC  UCSR2C
-#define RXCx    RXC2
-#define TXCx    TXC2
-#define UDRx    UDR2
-#define UDREx   UDRE2
-#define U2Xx    U2X2
-#define RXENx   RXEN2
-#define TXENx   TXEN2
-#define UCSZx0  UCSZ20
-#define UBRRxH  UBRR2H
-#define UBRRxL  UBRR2L
-
+#define UART_NCAT(p,s)  p ## 2 ## s
 #elif UART_NUM == 3
-
-#define UCSRxA  UCSR3A
-#define UCSRxB  UCSR3B
-#define UCSRxC  UCSR3C
-#define RXCx    RXC3
-#define UDRx    UDR3
-#define UDREx   UDRE3
-#define U2Xx    U2X3
-#define RXENx   RXEN3
-#define TXENx   TXEN3
-#define UCSZx0  UCSZ30
-#define UBRRxH  UBRR3H
-#define UBRRxL  UBRR3L
-
+#define UART_NCAT(p,s)  p ## 3 ## s
 #else
 #error "invalid UART number"
 #endif
+
+#define UCSRxA  UART_NCAT(UCSR,A)
+#define UCSRxB  UART_NCAT(UCSR,B)
+#define UCSRxC  UART_NCAT(UCSR,C)
+#define RXCx    UART_NCAT(RXC,)
+#define TXCx    UART_NCAT(TXC,)
+#define UDRx    UART_NCAT(UDR,)
+#define UDREx   UART_NCAT(UDRE,)
+#define U2Xx    UART_NCAT(U2X,)
+#define RXENx   UART_NCAT(RXEN,)
+#define TXENx   UART_NCAT(TXEN,)
+#define TXENx   UART_NCAT(TXEN,)
+#define UCSZx0  UART_NCAT(UCSZ,0)
+#define UBRRxH  UART_NCAT(UBRR,H)
+#define UBRRxL  UART_NCAT(UBRR,L)
 
 
 // compute register values
