@@ -3,8 +3,6 @@
  *
  * The N_(p,s) macro must be defined before including.
  * It is automatically undefined at the end of this file.
- *
- * @see Functions are documented in uart.h.
  */
 
 #define uartN(s) N_(uart,s)
