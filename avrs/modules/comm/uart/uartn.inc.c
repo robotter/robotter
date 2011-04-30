@@ -27,6 +27,9 @@ static UARTN(RxBuf) uartN(_rx_buf);
 /// Fifo for sent data.
 static UARTN(TxBuf) uartN(_tx_buf);
 
+/// Handler called for each received byte.
+static void (*uartN(_rx_event))(uint8_t) = NULL;
+
 
 /// Initialize the UART.
 static void uartN(_init)(void)
@@ -138,13 +141,22 @@ int uartN(_dev_send)(char c, FILE *fp)
   return uartN(_send)(c);
 }
 
+void uartN(_set_rx_event)(void (*f)(uint8_t))
+{
+  // no need to lock as value is only read on interruption
+  uartN(_rx_event) = f;
+}
+
 
 /// Interruption handler for received data.
 SIGNAL(SIG_UARTN(RECV))
 {
-  uint8_t v = N_(UDR,); // always read to clear RXC
+  uint8_t v = N_(UDR,);
   if( !FIFOBUF_ISFULL( &uartN(_rx_buf) ) ) {
     FIFOBUF_PUSH( &uartN(_rx_buf), v);
+  }
+  if( uartN(_rx_event) != NULL ) {
+    uartN(_rx_event)(v);
   }
 }
 

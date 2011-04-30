@@ -42,6 +42,9 @@ int uartN(_dev_recv)(FILE *);
 /// Put function to be used with fdevopen().
 int uartN(_dev_send)(char c, FILE *);
 
+/// Set the RX event handler.
+void uartN(_set_rx_event)(void (*)(uint8_t));
+
 
 #undef uartN
 #undef N_

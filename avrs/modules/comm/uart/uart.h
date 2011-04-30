@@ -147,6 +147,7 @@ void uart_init(void);
 #define uart_disable_tx   UART_NUM_ALIAS(disable_tx)
 #define uart_dev_recv     UART_NUM_ALIAS(dev_recv)
 #define uart_dev_send     UART_NUM_ALIAS(dev_send)
+#define uart_set_rx_event UART_NUM_ALIAS(set_rx_event)
 
 #endif
 
