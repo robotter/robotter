@@ -76,29 +76,25 @@ int uartN(_recv_nowait)(void)
   uint8_t flags;
   IRQ_LOCK(flags);
 
+  int ret;
   if( FIFOBUF_ISEMPTY( &uartN(_rx_buf) ) ) {
-    IRQ_UNLOCK(flags);
-    return -1;
+    ret = -1;
+  } else {
+    FIFOBUF_POP( &uartN(_rx_buf), ret );
   }
 
-  uint8_t v;
-  FIFOBUF_POP( &uartN(_rx_buf), v );
-
   IRQ_UNLOCK(flags);
-  return v;
+  return ret;
 }
 
 
 int uartN(_send)(uint8_t v)
 {
-  if( uartN(_send_nowait)(v) < 0 ) {
-    if( GLOBAL_IRQ_ARE_MASKED() && (N_(UCSR,B) & (1<<RXCIE)) ) {
-      // poll if IRQ are locked
+  while( uartN(_send_nowait)(v) < 0 ) {
+    if( GLOBAL_IRQ_ARE_MASKED() ) {
       while( !(N_(UCSR,A) & (1<<UDRE)) ) ;
+      // pop one byte from the buffer, should be the last iteration
       uartN(_send_fifo_char)();
-      FIFOBUF_PUSH( &uartN(_tx_buf), v );
-    } else {
-      while( uartN(_send_nowait)(v) < 0 ) ;
     }
   }
   return 0;
@@ -110,16 +106,17 @@ int uartN(_send_nowait)(uint8_t v)
   uint8_t flags;
   IRQ_LOCK(flags);
 
+  int ret;
   if( FIFOBUF_ISFULL( &uartN(_tx_buf) ) ) {
-    IRQ_UNLOCK(flags);
-    return -1;
+    ret = -1;
+  } else {
+    ret = 0;
+    FIFOBUF_PUSH( &uartN(_tx_buf), v );
+    N_(UCSR,B) |= (1<<UDRIE) | (1<<TXEN);  // TXEN may have been disabled
   }
 
-  FIFOBUF_PUSH( &uartN(_tx_buf), v );
-  N_(UCSR,B) |= (1<<UDRIE) | (1<<TXEN);  // TXEN may have been disabled
-
   IRQ_UNLOCK(flags);
-  return 0;
+  return ret;
 }
 
 
