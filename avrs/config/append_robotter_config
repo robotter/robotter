@@ -21,7 +21,8 @@ MODULES_LIST="CONFIG_MODULE_PERLIMPINPIN,comm/perlimpinpin
               CONFIG_MODULE_ADNS6010_ROBOTTER,hardware/adns6010
               CONFIG_MODULE_ADNS9500_ROBOTTER,hardware/adns9500
               CONFIG_MODULE_GP2PACK_ROBOTTER,hardware/gp2pack
-              CONFIG_MODULE_AX12_ROBOTTER,devices/servo/ax12"
+              CONFIG_MODULE_AX12_ROBOTTER,devices/servo/ax12
+              CONFIG_MODULE_UART_ROBOTTER,comm/uart"
 
 
 # This script is always sourced, even if configuration is not saved in
