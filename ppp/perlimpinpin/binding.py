@@ -32,6 +32,10 @@ class Binding(object):
     """Send raw data."""
     raise NotImplementedError()
 
+  def on_rawdata(self, data):
+    """Called on received non-frame data."""
+    pass
+
   def on_message(self, msg, src, args):
     """Called on received message.
     msg is the received message.
@@ -55,13 +59,12 @@ class Binding(object):
     """Process incoming data.
     Extract and process frames from incoming data.
     This method is intended to be used with streamed data (e.g. UART).
-    Return fed data without extracted frames.
     """
     data = self._feed_data + data
-    ret = ''
     while True:
       frame, pre, data = self._frame_cls.extract(data)
-      ret += pre
+      if pre:
+        self.on_rawdata(pre)
       if frame is None:
         break
       try:
@@ -82,7 +85,6 @@ class Binding(object):
       except Exception, e:
         self.on_error(frame, str(e))
     self._feed_data = data
-    return ret
 
 
   def message_frame(self, msg, dst, *args, **kw):
