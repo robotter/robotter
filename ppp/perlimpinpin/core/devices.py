@@ -78,7 +78,7 @@ class Robot:
       msgs_map[mid] = msg
 
 
-class Device:
+class Device(object):
   """
   Describe robot device (part of robot system).
 
