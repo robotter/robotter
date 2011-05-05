@@ -2,18 +2,11 @@
 
 from perlimpinpin.core import *
 
-robot = Robot([
-  Device('strat', 0x20,
+robot = Robot(
     [
-      Telemetry('speak', [('value','int16')]),
-      Telemetry('breathe', [('one','uint8'), ('two','uint8')]),
-      Telemetry('run', [('value','int32')]),
-      Telemetry('time', [('hep','int32'), ('hop','int8')]),
-      Telemetry('gig', [('value','uint32')]),
+      Device('strat', 0x20),
+      Device('prop',  0x42),
       ],
-    ),
-
-  Device('prop', 0x42,
     [
       Command('none', [], [],
         desc="Do nothing, just for tests"),
@@ -55,15 +48,12 @@ robot = Robot([
         desc="Return each ADNS SQUAL (Surface QUALity)"),
       Command('get_time', [], [('sec','uint16'), ('usec', 'uint16')],
         desc="Return elapsed time sec seconds and usec microseconds since system is running"),
-      Command('test', [('in','uint16')], [('out','int16')],
-        desc="Complex test command"),
 
       Telemetry('pwms', [('pwm1','int16'), ('pwm2','int16'), ('pwm3','int16')]),
 
       ],
 
     )
-])
 
 
 if __name__ == '__main__':
