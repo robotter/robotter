@@ -22,7 +22,8 @@ OPT = s
 # Compiler, assembler and linker flags
 
 CFLAGS += -g -O$(OPT) -std=gnu99 -Wall -Wextra -Werror -Wno-unused-function
-CFLAGS += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -mmcu=$(MCU) 
+CFLAGS += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums \
+					-ffreestanding -mmcu=$(MCU)
 ASFLAGS += -mmcu=$(MCU)
 
 
@@ -54,7 +55,7 @@ $(foreach v,$(CONFIG_VARS),$(eval $(call define_config_var,$(v))))
 $(foreach v,$(CONFIG_FLAGS),$(eval $(call define_config_flag,$(v))))
 
 LDFLAGS += -mmcu=$(MCU) -Wl,--entry=0
-LDFLAGS += -Wl,--section-start=.text=$(BOOTLOADER_ADDR) 
+LDFLAGS += -Wl,--section-start=.text=$(BOOTLOADER_ADDR) -Wl,--relax
 
 
 ## Make rules

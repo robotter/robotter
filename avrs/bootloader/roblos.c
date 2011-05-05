@@ -847,7 +847,8 @@ slave_i2c_error:
 
 /** @brief Main loop.
  */
-int main(void)
+void main(void) __attribute__ ((noreturn));
+void main(void)
 {
   // On some devices (e.g. at88), WDE is not correctly cleared, being overriden
   // by WDRF, and has to be cleared manually.
@@ -945,7 +946,5 @@ int main(void)
       reply_error(STATUS_UNKNOWN_COMMAND);
     }
   }
-
-  return 1;
 }
 
