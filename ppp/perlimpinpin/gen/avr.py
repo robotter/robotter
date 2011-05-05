@@ -19,6 +19,9 @@ def templatize(tpl, out, loc):
   if isinstance(tpl, basestring):
     tpl = open(tpl, 'rb')
   if isinstance(out, basestring):
+    dout = os.path.dirname(out)
+    if not os.path.isdir(dout):
+      os.makedirs(dout)
     out = open(out, 'wb')
   def tpl_replace(m):
     code = m.group(1).strip()
@@ -255,7 +258,7 @@ def main(robot):
     parser.error("extra arguments")
 
   if opts.domodule:
-    srcdir, conf, replaceconf = module_dir, module_conf_dir, True
+    srcdir, conf, replaceconf = module_dir, module_conf_dir+'/', True
   else:
     if opts.conf == '':
       opts.conf = None
