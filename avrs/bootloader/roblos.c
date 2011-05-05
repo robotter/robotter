@@ -24,7 +24,7 @@
 /** @brief Run the application.
  * @note Registers are not initialized.
  */
-static void run_app()
+static void run_app(void)
 {
   __asm__ __volatile__ ("ldi r30,0\n");
   __asm__ __volatile__ ("ldi r31,0\n");
