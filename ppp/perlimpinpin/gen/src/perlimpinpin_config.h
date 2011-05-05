@@ -1,6 +1,3 @@
-#ifndef PERLIMPINPIN_CONFIG_H
-#define PERLIMPINPIN_CONFIG_H
-
 
 /** @brief ROID of the device.
  *
@@ -29,4 +26,3 @@
 /// Use Aversive's error module for debug and warning messages.
 //#define PPP_AVERSIVE_ERROR
 
-#endif
