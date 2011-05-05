@@ -18,10 +18,14 @@
 #endif
 #endif
 
+#if defined(PPP_UART_NUM) && !defined(PPP_UART)
+#define PPP_UART
+#endif
+
 #ifdef PPP_I2C
 #include <i2cx.h>
 #endif
-#ifdef PPP_UART_NUM
+#ifdef PPP_UART
 #include <uart.h>
 #endif
 
@@ -43,19 +47,26 @@
 
 #endif
 
-#ifdef PPP_UART_NUM
+#ifdef PPP_UART
 
-#if !((PPP_UART_NUM == 0 && UART0_ENABLED == 1) || \
-      (PPP_UART_NUM == 1 && UART1_ENABLED == 1) || \
-      (PPP_UART_NUM == 2 && UART2_ENABLED == 1) || \
-      (PPP_UART_NUM == 3 && UART3_ENABLED == 1) )
-#error "PPP_UART_NUM is not enabled in UART config."
+#ifndef PPP_UART_NUM
+#define PPP_UART_F(s)  uart_ ## s
+#elif PPP_UART_NUM == 0
+#define PPP_UART_F(s)  uart ## 0 _ ## s
+#elif PPP_UART_NUM == 1
+#define PPP_UART_F(s)  uart ## 1 _ ## s
+#elif PPP_UART_NUM == 2
+#define PPP_UART_F(s)  uart ## 2 _ ## s
+#elif PPP_UART_NUM == 3
+#define PPP_UART_F(s)  uart ## 3 _ ## s
+#else
+#error "Invalid PPP_UART_NUM"
 #endif
 
 #endif
 
 
-#ifdef PPP_UART_NUM
+#ifdef PPP_UART
 /// Handle pending UART events.
 static void ppp_uart_update(void);
 #endif
@@ -66,7 +77,7 @@ static void ppp_i2c_update(void);
 #endif
 
 
-#if defined(PPP_UART_NUM) || defined(PPP_I2C)
+#if defined(PPP_UART) || defined(PPP_I2C)
 /// Compute a packet checksum.
 static uint8_t ppp_checksum(const uint8_t *data, uint16_t size);
 
@@ -88,7 +99,7 @@ static void ppp_debug_trace(const char *way, const PPPMsgFrame *frame);
 static void ppp_i2c_send_frame(const PPPMsgFrame *frame);
 #endif
 
-#ifdef PPP_UART_NUM
+#ifdef PPP_UART
 /** @brief Send a frame over UART.
  *
  * This method send the UART frame prefix (two 0xff bytes).
@@ -97,7 +108,7 @@ static void ppp_uart_send_frame(const PPPMsgFrame *frame);
 #endif
 
 
-#if defined(PPP_UART_NUM) || defined(PPP_I2C)
+#if defined(PPP_UART) || defined(PPP_I2C)
 uint8_t ppp_checksum(const uint8_t *data, uint16_t size)
 {
   uint8_t crc = 0x00;
@@ -127,7 +138,7 @@ void ppp_init(void)
 #ifdef PPP_I2C
   i2cx_init(PPP_DEVICE_ROID, 1);
 #endif
-#ifdef PPP_UART_NUM
+#ifdef PPP_UART
   uart_init();
 #endif
 }
@@ -138,13 +149,13 @@ void ppp_update(void)
 #ifdef PPP_I2C
   ppp_i2c_update();
 #endif
-#ifdef PPP_UART_NUM
+#ifdef PPP_UART
   ppp_uart_update();
 #endif
 }
 
 
-#ifdef PPP_UART_NUM
+#ifdef PPP_UART
 void ppp_uart_update(void)
 {
   // processing state
@@ -159,7 +170,7 @@ void ppp_uart_update(void)
   for(;;) {
     // wait for start bytes
     while( state < 2 ) {
-      switch( uart_recv_nowait(PPP_UART_NUM) ) {
+      switch( PPP_UART_F(recv_nowait)() ) {
         case -1:
           return;
         case 0xff:
@@ -172,7 +183,7 @@ void ppp_uart_update(void)
 
     // wait for frame size
     if( state < 3 ) {
-      int ret = uart_recv_nowait(PPP_UART_NUM);
+      int ret = PPP_UART_F(recv_nowait)();
       if( ret == -1 ) {
         return;
       }
@@ -180,7 +191,7 @@ void ppp_uart_update(void)
       state++;
     }
     if( state < 4 ) {
-      int ret = uart_recv_nowait(PPP_UART_NUM);
+      int ret = PPP_UART_F(recv_nowait)();
       if( ret == -1 ) {
         return;
       }
@@ -198,7 +209,7 @@ void ppp_uart_update(void)
 
     // fill the frame buffer
     while( size != 0 ) {
-      int ret = uart_recv_nowait(PPP_UART_NUM);
+      int ret = PPP_UART_F(recv_nowait)();
       if( ret == -1 ) {
         return;
       }
@@ -239,7 +250,7 @@ void ppp_i2c_update(void)
 #endif
 
 
-#if defined(PPP_UART_NUM) || defined(PPP_I2C)
+#if defined(PPP_UART) || defined(PPP_I2C)
 void ppp_process_input_frame(PPPMsgFrame *frame)
 {
   // frame and payload size
@@ -257,7 +268,7 @@ void ppp_process_input_frame(PPPMsgFrame *frame)
   }
 
   uint8_t dst = frame->dst;
-#ifdef PPP_UART_NUM
+#ifdef PPP_UART
   if( dst & PPP_UART_ROID ) {
 #ifdef PPP_DEBUG_TRACE
     ppp_debug_trace("FRWD", frame);
@@ -267,7 +278,7 @@ void ppp_process_input_frame(PPPMsgFrame *frame)
 #endif
 
 #ifdef PPP_I2C
-#ifdef PPP_UART_NUM
+#ifdef PPP_UART
     if( dst == 0 ? frame->src == (PPP_DEVICE_ROID | PPP_UART_ROID) : dst != PPP_DEVICE_ROID ) {
 #else
     if( dst != PPP_DEVICE_ROID ) {
@@ -285,7 +296,7 @@ void ppp_process_input_frame(PPPMsgFrame *frame)
       ppp_msg_callback(frame);
     }
 
-#ifdef PPP_UART_NUM
+#ifdef PPP_UART
   }
 #endif
 }
@@ -300,7 +311,7 @@ void ppp_send_msg(PPPMsgFrame *frame)
 
   frame->_data[frame->plsize-3] = ppp_checksum((void *)frame, frame->plsize+2);
   if( frame->dst == (PPP_DEVICE_ROID|PPP_UART_ROID) ) {
-#ifdef PPP_UART_NUM
+#ifdef PPP_UART
     ppp_uart_send_frame(frame);
 #endif
   } else {
@@ -339,15 +350,15 @@ void ppp_i2c_send_frame(const PPPMsgFrame *frame)
 #endif
 
 
-#ifdef PPP_UART_NUM
+#ifdef PPP_UART
 void ppp_uart_send_frame(const PPPMsgFrame *frame)
 {
-  uart_send(PPP_UART_NUM, 0xff);
-  uart_send(PPP_UART_NUM, 0xff);
+  PPP_UART_F(send)(0xff);
+  PPP_UART_F(send)(0xff);
   const uint8_t *p = (const void *)frame;
   uint16_t size = frame->plsize+3;
   while( size != 0 ) {
-    uart_send(PPP_UART_NUM, *p);
+    PPP_UART_F(send)(*p);
     p++; size--;
   }
 }

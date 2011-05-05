@@ -8,10 +8,12 @@
  */
 #define PPP_DEVICE_ROID   ROID_DEVICE_NAME
 
-/// Enable UART transmissions using given UART number.
+/// Enable UART transmissions (implied by PPP_UART_NUM).
+#define PPP_UART
+/// Use given UART number (defaults to UART_NUM).
 //#define PPP_UART_NUM  0
 
-/// Enable I2C transissions.
+/// Enable I2C transmissions.
 #define PPP_I2C
 
 /// Number of tries for sending I2C frames (infinite if undefined).
