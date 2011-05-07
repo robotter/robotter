@@ -1,3 +1,5 @@
+#ifndef MATCHUART_H__
+#define MATCHUART_H__
 
 /** @brief Initialize UART matching.
  *
@@ -10,3 +12,4 @@
  */
 void matchuart_init(uint8_t num, const char *pat, void (*cb)(void));
 
+#endif
