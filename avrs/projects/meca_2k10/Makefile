@@ -4,7 +4,7 @@ TARGET = main
 AVERSIVE_DIR =../..
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c logging.c reset.c ax12_user.c actuators.c led.c stratcomm.c scanner.c sys.c
+SRC = $(TARGET).c logging.c reset.c ax12_user.c actuators.c led.c scanner.c sys.c
 
 # List Assembler source files here.
 # Make them always end in a capital .S.  Files ending in a lowercase .s

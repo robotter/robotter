@@ -53,11 +53,11 @@
 
 // -- AX12s --
 
-#define SETTING_AX12_ID_LEFT_CLAMP_A  (0x01)
-#define SETTING_AX12_ID_LEFT_CLAMP_B  (0x02)
-#define SETTING_AX12_ID_RIGHT_CLAMP_A (0x03)
-#define SETTING_AX12_ID_RIGHT_CLAMP_B (0x04)
-#define SETTING_AX12_ID_SCANNER       (0x05)
+#define SETTING_AX12_ID_LEFT_ARM  (0x03)
+#define SETTING_AX12_ID_RIGHT_ARM (0x01)
+
+#define SETTING_AX12_ID_LEFT_SCANNER (0x04)
+#define SETTING_AX12_ID_RIGHT_SCANNER (0x02)
 
 #define SETTING_AX12_MODEL_NUMBER (0x000C)
 
@@ -66,38 +66,39 @@
 #define SETTING_AX12_DEFAULT_PUNCH (0x020) // high value = danger
 
 
-// -- AX12/clamps --
+// -- AX12/arms --
 
 // AX12 position window
 #define SETTING_AX12_WINDOW (0x10)
 // AX12 clamping torque
 #define SETTING_AX12_CLAMPING_TORQUE (0x200)
 
+// AX12 speed for arms movement
+#define SETTING_AX12_ARM_SPEED (100)
 
-// LEFT CLAMP A closed position
-#define SETTING_AX12_POS_LCA_CLOSED (0x270)
-// RIGHT CLAMP A closed position
-#define SETTING_AX12_POS_RCA_CLOSED (0x1B0)
+// LEFT ARM low position
+#define SETTING_AX12_POS_LARM_LOWERED (0x244)
+// RIGHT ARM low position
+#define SETTING_AX12_POS_RARM_LOWERED (0x250)
 
-// LEFT CLAMP A opened position
-#define SETTING_AX12_POS_LCA_OPENED (0x190)
-// RIGHT CLAMP A opened position
-#define SETTING_AX12_POS_RCA_OPENED (0x270)
+// LEFT ARM mid position
+#define SETTING_AX12_POS_LARM_MID (0x220)
+// RIGHT ARM mid position
+#define SETTING_AX12_POS_RARM_MID (0x240)
 
-// LEFT CLAMP B horizontal position
-#define SETTING_AX12_POS_LCB_LOWERED (0x200)
-// RIGHT CLAMP B horizontal position
-#define SETTING_AX12_POS_RCB_LOWERED (0x335)
+// LEFT ARM high position
+#define SETTING_AX12_POS_LARM_RAISED (0x110)
+// RIGHT ARM high position
+#define SETTING_AX12_POS_RARM_RAISED (0x100)
 
-// LEFT CLAMP B horizontal position
-#define SETTING_AX12_POS_LCB_RAISED (0x1D0)
-// RIGHT CLAMP B horizontal position
-#define SETTING_AX12_POS_RCB_RAISED (0x365)
 
-// -- AX12/scanner
+// -- scanner
 
-// AX12 scanner center position
-#define SETTING_AX12_SCANNER_CENTER (0x1FE)
+#define SETTING_SCANNER_START 308
+#define SETTING_SCANNER_STOP 455
+#define SETTING_SCANNER_STEP 40
 
+#define SETTING_SCANNER_Y_THRESHOLD 20.0
+#define SETTING_SCANNER_MIN_STEP 10
 
 #endif/*SETTINGS_H*/

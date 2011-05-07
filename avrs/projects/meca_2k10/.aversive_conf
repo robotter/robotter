@@ -13,6 +13,6 @@ AVARICE_PORT = "/dev/ttyS0"
 AVARICE_DEBUG_PORT = 1234
 MODULES = devices/servo/ax12 base/time base/scheduler comm/uart hardware/adc hardware/timer base/cirbuf debug/error
 
-ROBOTTER_MODULES = ../../modules/comm/i2c_robotter
+ROBOTTER_MODULES = ../../modules/debug/error ../../modules/comm/i2c_robotter ../../modules/devices/servo/ax12
 MODULES := $(ROBOTTER_MODULES) $(MODULES)
 

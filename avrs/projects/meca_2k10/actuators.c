@@ -44,123 +44,65 @@ void actuators_init(actuators_t* m)
   return;
 }
 
-void actuators_clamp_close(actuators_t* m, clampPos_t p)
+void actuators_arm_raise(actuators_t* m, armPos_t p)
 {
-  // left clamp
-  if( p == CT_LEFT )
-    actuators_ax12_setPosition(m, SETTING_AX12_ID_LEFT_CLAMP_A,
-                                  SETTING_AX12_POS_LCA_CLOSED);
-  // right clamp
+  if( p == ARM_LEFT )
+    actuators_ax12_setPositionSpeed(m, SETTING_AX12_ID_LEFT_ARM,
+                             SETTING_AX12_POS_LARM_RAISED,
+                             SETTING_AX12_ARM_SPEED);
   else
-     actuators_ax12_setPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_A,
-                                  SETTING_AX12_POS_RCA_CLOSED);   
-
+    actuators_ax12_setPositionSpeed(m, SETTING_AX12_ID_RIGHT_ARM,
+                             SETTING_AX12_POS_RARM_RAISED,
+                             SETTING_AX12_ARM_SPEED);
   return;
 }
 
-void actuators_clamp_open(actuators_t* m, clampPos_t p)
+void actuators_arm_lower(actuators_t* m, armPos_t p)
 {
-
-  // left clamp
-  if( p == CT_LEFT )
-    actuators_ax12_setPosition(m, SETTING_AX12_ID_LEFT_CLAMP_A,
-                                  SETTING_AX12_POS_LCA_OPENED);
-  // right clamp
+  if( p == ARM_LEFT )
+    actuators_ax12_setPositionSpeed(m, SETTING_AX12_ID_LEFT_ARM,
+                             SETTING_AX12_POS_LARM_LOWERED,
+                             SETTING_AX12_ARM_SPEED);
   else
-     actuators_ax12_setPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_A,
-                                  SETTING_AX12_POS_RCA_OPENED);   
-
-  return;
+    actuators_ax12_setPositionSpeed(m, SETTING_AX12_ID_RIGHT_ARM,
+                             SETTING_AX12_POS_RARM_LOWERED,
+                             SETTING_AX12_ARM_SPEED);
 }
 
-uint8_t actuators_clamp_isClosed(actuators_t* m, clampPos_t p)
+uint8_t actuators_arm_is_raised(actuators_t* m, armPos_t p)
 {
-  if( p == CT_LEFT )
-    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_LEFT_CLAMP_A,
-                                        SETTING_AX12_POS_LCA_CLOSED);
+  if( p == ARM_LEFT )
+    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_LEFT_ARM,
+                                        SETTING_AX12_POS_LARM_RAISED);
   else
-    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_A,
-                                        SETTING_AX12_POS_RCA_CLOSED);
+    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_RIGHT_ARM,
+                                        SETTING_AX12_POS_RARM_RAISED);
 }
 
-uint8_t actuators_clamp_isOpened(actuators_t* m, clampPos_t p)
+uint8_t actuators_arm_is_lowered(actuators_t* m, armPos_t p)
 {
-  if( p == CT_LEFT )
-    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_LEFT_CLAMP_A,
-                                        SETTING_AX12_POS_LCA_OPENED);
+  if( p == ARM_LEFT )
+    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_LEFT_ARM,
+                                        SETTING_AX12_POS_LARM_LOWERED);
   else
-    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_A,
-                                        SETTING_AX12_POS_RCA_OPENED);
-}
-
-void actuators_clamp_raise(actuators_t* m, clampPos_t p)
-{
-  if( p == CT_LEFT )
-    actuators_ax12_setPosition(m, SETTING_AX12_ID_LEFT_CLAMP_B,
-                             SETTING_AX12_POS_LCB_RAISED);
-  else
-    actuators_ax12_setPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_B,
-                             SETTING_AX12_POS_RCB_RAISED);
-  return;
-}
-
-void actuators_clamp_lower(actuators_t* m, clampPos_t p)
-{
-  if( p == CT_LEFT )
-    actuators_ax12_setPosition(m, SETTING_AX12_ID_LEFT_CLAMP_B,
-                             SETTING_AX12_POS_LCB_LOWERED);
-  else
-    actuators_ax12_setPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_B,
-                             SETTING_AX12_POS_RCB_LOWERED);
-}
-
-uint8_t actuators_clamp_isRaised(actuators_t* m, clampPos_t p)
-{
-  if( p == CT_LEFT )
-    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_LEFT_CLAMP_B,
-                                        SETTING_AX12_POS_LCB_RAISED);
-  else
-    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_B,
-                                        SETTING_AX12_POS_RCB_RAISED);
-}
-
-uint8_t actuators_clamp_isLowered(actuators_t* m, clampPos_t p)
-{
-  if( p == CT_LEFT )
-    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_LEFT_CLAMP_B,
-                                        SETTING_AX12_POS_LCB_LOWERED);
-  else
-    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_RIGHT_CLAMP_B,
-                                        SETTING_AX12_POS_RCB_LOWERED);
-}
-
-void actuators_scanner_setAngle(actuators_t* m, int16_t angle)
-{
-  // move scanner AX12
-  actuators_ax12_setPosition(m, SETTING_AX12_ID_SCANNER,
-                                SETTING_AX12_SCANNER_CENTER + angle);
-
-  return;
+    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_RIGHT_ARM,
+                                        SETTING_AX12_POS_RARM_LOWERED);
 }
 
 void actuators_loadDefaults(actuators_t* m)
 {
   // load up default EEPROM configuration in AX12s
-  actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_LEFT_CLAMP_A);
-  actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_LEFT_CLAMP_B);
-  actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_RIGHT_CLAMP_A);
-  actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_RIGHT_CLAMP_B);
-  //actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_SCANNER);
+  actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_LEFT_ARM);
+  actuators_ax12_loadDefaultEEPROMConfig(m, SETTING_AX12_ID_RIGHT_ARM);
 }
 
 void actuators_ax12_init(actuators_t* m)
 {
   // Check AX12s
-  actuators_ax12_check(m, SETTING_AX12_ID_LEFT_CLAMP_A);
-  actuators_ax12_check(m, SETTING_AX12_ID_LEFT_CLAMP_B);
-  actuators_ax12_check(m, SETTING_AX12_ID_RIGHT_CLAMP_A);
-  actuators_ax12_check(m, SETTING_AX12_ID_RIGHT_CLAMP_B);
-  actuators_ax12_check(m, SETTING_AX12_ID_SCANNER);
+  actuators_ax12_check(m, SETTING_AX12_ID_LEFT_ARM);
+  actuators_ax12_check(m, SETTING_AX12_ID_RIGHT_ARM);
+  actuators_ax12_check(m, SETTING_AX12_ID_LEFT_SCANNER);
+  actuators_ax12_check(m, SETTING_AX12_ID_RIGHT_SCANNER);
 
   return;
 }
@@ -193,11 +135,15 @@ uint8_t actuators_ax12_check(actuators_t* m, uint8_t id)
   return 1;
 }
 
-uint8_t actuators_ax12_setPosition(actuators_t* m,
-                                   uint8_t id, uint16_t pos)
+uint8_t actuators_ax12_setPosition(actuators_t* m, uint8_t id, uint16_t pos)
+{
+  return actuators_ax12_setPositionSpeed(m, id, pos, m->ax12Speed);
+}
+
+uint8_t actuators_ax12_setPositionSpeed(actuators_t* m, uint8_t id, uint16_t pos, uint16_t speed)
 {
   ax12_user_write_byte(&ax12, id, AA_TORQUE_ENABLE, 1);
-  ax12_user_write_int(&ax12, id, AA_MOVING_SPEED_L, m->ax12Speed);
+  ax12_user_write_int(&ax12, id, AA_MOVING_SPEED_L, speed);
   // set max torque (alarm value)
   ax12_user_write_int(&ax12, id, AA_TORQUE_LIMIT_L, m->ax12Torque);
   // set punch (applied torque)
@@ -225,4 +171,3 @@ uint8_t actuators_ax12_checkPosition(actuators_t* m, uint8_t id, uint16_t pos)
 
   return 0;
 }
-

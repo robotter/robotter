@@ -26,16 +26,17 @@
 #include <aversive.h>
 #include <aversive/error.h>
 
-typedef struct
+typedef enum
 {
+  SCANNER_LL = 0,
+  SCANNER_LR,
+  SCANNER_RL,
+  SCANNER_RR
+} scanner_t;
 
-
-}scanner_t;
-
-/** */
-void scanner_init(scanner_t*);
-
-/** */
-void scanner_update(scanner_t*);
+/** Detect pawn on scanner number n 
+ * @return Pawn distance to robot in mm, -1 on no pawn found
+ * */
+float scanner_detect(scanner_t n);
 
 #endif/*SCANNER_H*/

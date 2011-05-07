@@ -40,9 +40,9 @@ typedef struct
 
 typedef enum
 {
-  CT_LEFT = 0,
-  CT_RIGHT
-}clampPos_t;
+  ARM_LEFT = 0,
+  ARM_RIGHT
+}armPos_t;
 
 // -- --
 
@@ -52,24 +52,13 @@ void actuators_init(actuators_t*);
 void actuators_loadDefaults(actuators_t* m);
 
 
-// -- clamps --
+// -- arms --
 
-void actuators_clamp_close(actuators_t*, clampPos_t);
-void actuators_clamp_open(actuators_t*, clampPos_t);
+void actuators_arm_raise(actuators_t*, armPos_t);
+void actuators_arm_lower(actuators_t*, armPos_t);
 
-uint8_t actuators_clamp_isClosed(actuators_t*, clampPos_t);
-uint8_t actuators_clamp_isOpened(actuators_t*, clampPos_t);
-
-void actuators_clamp_raise(actuators_t*, clampPos_t);
-void actuators_clamp_lower(actuators_t*, clampPos_t);
-
-uint8_t actuators_clamp_isRaised(actuators_t*, clampPos_t);
-uint8_t actuators_clamp_isLowered(actuators_t*, clampPos_t);
-
-// -- scanner --
-
-/** @brief Set scanner angle */
-void actuators_scanner_setAngle(actuators_t*, int16_t);
+uint8_t actuators_arm_is_raised(actuators_t*, armPos_t);
+uint8_t actuators_arm_is_lowered(actuators_t*, armPos_t);
 
 // -- ax12 --
 
@@ -86,9 +75,8 @@ uint8_t actuators_ax12_check(actuators_t*, uint8_t id);
 
 /** @brief Set AX12 angle 
   */
-uint8_t actuators_ax12_setPosition(actuators_t*, 
-                                    uint8_t id, 
-                                    uint16_t pos);
+uint8_t actuators_ax12_setPosition(actuators_t*, uint8_t id, uint16_t pos);
+uint8_t actuators_ax12_setPositionSpeed(actuators_t*, uint8_t id, uint16_t pos, uint16_t speed);
 
 /** @brief Check AX12 angle
  *

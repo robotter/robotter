@@ -33,7 +33,7 @@
 #define ADNS9500_ERROR 0x10
 
 /// Number of ADNS
-#define ADNS9500_NUM 3
+#define ADNS9500_NUM 2
 
 // Vectors
 #define ADNS9500_VX1 0

@@ -18,15 +18,11 @@
 #include "logging.h"
 #include "cli.h"
 #include "settings.h"
-#include "stratcomm.h"
 
 #define MAIN_ERROR 0x30
 
 // log level
 extern uint8_t log_level;
-
-// stratcomm
-stratcomm_t stratcomm;
 
 // ax12 modules
 extern AX12 ax12;
@@ -42,6 +38,7 @@ void safe_key_pressed(void*);
 void paddock_setAX12EEPROMs(void);
 void paddock_AX12manual(void);
 void paddock_actuatorsManual(void);
+void paddock_sandbox(void);
 
 int main(void)
 {
@@ -78,7 +75,7 @@ int main(void)
   printf("%c[0;0H",0x1B);
 
   // Some advertisment :p
-  NOTICE(0,"Robotter 2010 - Galipeur - MECA-2K10");
+  NOTICE(0,"Robotter 2011 - Galipeur - MECA-2011");
   NOTICE(0,"Compiled "__DATE__" at "__TIME__".");
 
   //--------------------------------------------------------
@@ -103,11 +100,6 @@ int main(void)
   // I2CS
   NOTICE(0,"Initializing i2c slave");
   i2cs_init(SETTING_I2C_ADDRESS);
-
-  //--------------------------------------------------------
-  // stratcomm
-  NOTICE(0,"Initializing communications");
-  stratcomm_init(&stratcomm);
 
   //--------------------------------------------------------
   // Safe key event
@@ -162,7 +154,7 @@ void paddock_actuatorsManual(void)
 {
   uint8_t c;  
 
-  NOTICE(0,"ACT MAN CONTROL | u/j LCA | i/k RCA | o/l LCB | p/m RCB");
+  NOTICE(0,"ACT MAN CONTROL LARM u/j | RARM i/k");
 
   while(1)
   {
@@ -170,21 +162,25 @@ void paddock_actuatorsManual(void)
     
     switch(c)
     {
+      case 'u':
+        actuators_arm_raise(&actuators,ARM_LEFT);
+        break;
+
+      case 'j':
+        actuators_arm_lower(&actuators,ARM_LEFT);
+        break;
+
+      case 'i':
+        actuators_arm_raise(&actuators,ARM_RIGHT);
+        break;
+
+      case 'k':
+        actuators_arm_lower(&actuators,ARM_RIGHT);
+        break;
+
       case 'x':
         EMERG(MAIN_ERROR,"safe key 'x' pressed");
       
-      case 'u': actuators_clamp_open(&actuators, CT_LEFT); break;
-      case 'j': actuators_clamp_close(&actuators, CT_LEFT); break;
-
-      case 'i': actuators_clamp_open(&actuators, CT_RIGHT); break;
-      case 'k': actuators_clamp_close(&actuators, CT_RIGHT); break;
-       
-      case 'o': actuators_clamp_raise(&actuators, CT_LEFT); break;
-      case 'l': actuators_clamp_lower(&actuators, CT_LEFT); break;
-
-      case 'p': actuators_clamp_raise(&actuators, CT_RIGHT); break;
-      case 'm': actuators_clamp_lower(&actuators, CT_RIGHT); break;
-
       default: break;
     }
   }
@@ -203,7 +199,7 @@ void paddock_AX12manual(void)
   uint16_t data;
   uint8_t datab;
 
-  NOTICE(0,"AX12 MAN CONTROL | a/z : addr | q/s : incr | i/k : pos | o/l : speed | p/m : torque | d : dump");
+  NOTICE(0,"AX12 MAN CONTROL | a/z : addr | q/s : incr | i/k : pos | o/l : speed | p/m : torque | d : dump | SPC : commit");
 
   while(1)
   {
@@ -214,7 +210,6 @@ void paddock_AX12manual(void)
       case 'x':
         EMERG(MAIN_ERROR,"safe key 'x' pressed");
 
-      case ' ': break;
       case 'a': id++; break;
       case 'z': id--; break;
       
@@ -231,7 +226,6 @@ void paddock_AX12manual(void)
       case 'm': torque-=incr; break;
       
       case 'd':
-
         data = 0;
         ax12_user_read_int(&ax12, id, AA_PRESENT_POSITION_L, &data);
         NOTICE(0,"pos=0x%03x",data);
@@ -251,7 +245,12 @@ void paddock_AX12manual(void)
         datab = 0;
         ax12_user_read_byte(&ax12, id, AA_PRESENT_TEMP, &datab);
         NOTICE(0,"temp=0x%02x",datab);
+        break;
 
+      case ' ':
+        ax12_user_write_int(&ax12, id, AA_MOVING_SPEED_L, speed);
+        ax12_user_write_int(&ax12, id, AA_TORQUE_LIMIT_L, torque);
+        ax12_user_write_int(&ax12, id, AA_GOAL_POSITION_L, pos);
         break;
 
       default: break;
@@ -263,35 +262,21 @@ void paddock_AX12manual(void)
     NOTICE(0,"ID=0x%02x | +/- 0x%04x | p=0x%03x | s=0x%03x | t=0x%03x",
               id, incr, pos, speed, torque);
     
-    ax12_user_write_int(&ax12, id, AA_MOVING_SPEED_L, speed);
-    ax12_user_write_int(&ax12, id, AA_TORQUE_LIMIT_L, torque);
-    ax12_user_write_int(&ax12, id, AA_GOAL_POSITION_L, pos);
+
   }
   
 }
 
+
+
 void paddock_sandbox(void)
 {
-  uint16_t adcv;
-  uint16_t pos;
+  int16_t d;
   while(1)
   {
-    for(pos=0x240;pos<=0x330;pos+=5)
-    {
-      // set AX12 to pos
-      actuators_ax12_setPosition(&actuators, 2, pos);
-      while( actuators_ax12_checkPosition(&actuators, 2, pos) == 0 )
-        wait_ms(1);
-
-      wait_ms(50);
-      adcv = adc_get_value( MUX_ADC1 | ADC_REF_AVCC);
-      printf("%d %d\n",pos,adcv);
-    }
-
+    d = scanner_get_distance(0);
+    NOTICE(0,"scanner_get_distance()=%d",d);
   }
-
-
-
 }
 
 void safe_key_pressed(void* dummy)

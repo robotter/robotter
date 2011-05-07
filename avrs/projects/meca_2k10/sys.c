@@ -31,7 +31,6 @@
 #include "ax12_user.h"
 #include "scanner.h"
 #include "actuators.h"
-#include "stratcomm.h"
 #include "settings.h"
 
 // ax12s
@@ -40,8 +39,6 @@ AX12 ax12;
 actuators_t actuators;
 // scanner
 scanner_t scanner;
-// stratcomm
-extern stratcomm_t stratcomm;
 
 // SYS cpu usage in percents
 uint8_t sys_cpuUsage;
@@ -53,9 +50,6 @@ void sys_init(void)
 
   NOTICE(0,"Initializing actuators");
   actuators_init(&actuators);
-
-  NOTICE(0,"Initializing scanner");
-  scanner_init(&scanner);
 }
 
 void sys_update(void* dummy)
@@ -71,12 +65,6 @@ void sys_update(void* dummy)
 
   // reset TIMER3
   timer3_set(0);
-
-  // update communications
-  stratcomm_update(&stratcomm);
-
-  // update scanner
-  scanner_update(&scanner);
 
   // compute CPU usage
   dt = timer3_get();

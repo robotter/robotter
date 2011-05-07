@@ -234,6 +234,7 @@ void adns9500_checks(void)
     }
 
     // Check LP_CFG* consistency, if not, error.
+    
     if( !bit_is_set(byte,ADNS9500_MOTION_BIT_LPVALID) )
     {
       adns9500_spi_cs(0);
