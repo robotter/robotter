@@ -1,3 +1,3 @@
 TARGET = perlimpinpin
 SRC = perlimpinpin.c
-include $(AVERSIVE_DIR)/mk/aversive_module.mk
+include $(ROBOTTER_DIR)/mk/module.mk

@@ -7,7 +7,13 @@
 
 #define UARTN(s) N_(UART,s)
 #define uartN(s) N_(uart,s)
+#if defined(SIG_USART0_RECV)
 #define SIG_UARTN(s)  N_(SIG_USART,_##s)
+#elif defined(SIG_UART0_RECV)
+#define SIG_UARTN(s)  N_(SIG_UART,_##s)
+#else
+#define SIG_UARTN(s)  SIG_USART_##s
+#endif
 
 
 typedef struct {
@@ -42,9 +48,9 @@ static void uartN(_init)(void)
   N_(UBRR,H) = UART_UBRR_VAL>>8;
   N_(UBRR,L) = UART_UBRR_VAL;
 #undef UART_UBRR_VAL
-  N_(UCSR,A) = (UARTN(_DOUBLE_SPEED)) ? (1<<U2X) : 0;
-  N_(UCSR,B) = (1<<RXEN) | (1<<TXEN) | (1<<RXCIE);
-  N_(UCSR,C) = (3<<UCSZ0);
+  N_(UCSR,A) = (UARTN(_DOUBLE_SPEED)) ? (1<<N_(U2X,)) : 0;
+  N_(UCSR,B) = (1<<N_(RXEN,)) | (1<<N_(TXEN,)) | (1<<N_(RXCIE,));
+  N_(UCSR,C) = (3<<N_(UCSZ,0));
 }
 
 
@@ -54,10 +60,10 @@ static void uartN(_init)(void)
 static void uartN(_send_fifo_char)(void)
 {
   if( FIFOBUF_ISEMPTY( &uartN(_tx_buf) ) ) {
-    N_(UCSR,B) &= ~(1<<UDRIE);
+    N_(UCSR,B) &= ~(1<<N_(UDRIE,));
   } else {
     FIFOBUF_POP( &uartN(_tx_buf), N_(UDR,) );
-    N_(UCSR,B) |= (1<<UDRIE);
+    N_(UCSR,B) |= (1<<N_(UDRIE,));
   }
 }
 
@@ -92,7 +98,7 @@ int uartN(_send)(uint8_t v)
 {
   while( uartN(_send_nowait)(v) < 0 ) {
     if( GLOBAL_IRQ_ARE_MASKED() ) {
-      while( !(N_(UCSR,A) & (1<<UDRE)) ) ;
+      while( !(N_(UCSR,A) & (1<<N_(UDRE,))) ) ;
       // pop one byte from the buffer, should be the last iteration
       uartN(_send_fifo_char)();
     }
@@ -112,7 +118,7 @@ int uartN(_send_nowait)(uint8_t v)
   } else {
     ret = 0;
     FIFOBUF_PUSH( &uartN(_tx_buf), v );
-    N_(UCSR,B) |= (1<<UDRIE) | (1<<TXEN);  // TXEN may have been disabled
+    N_(UCSR,B) |= (1<<N_(UDRIE,)) | (1<<N_(TXEN,));  // TXEN may have been disabled
   }
 
   IRQ_UNLOCK(flags);
@@ -122,7 +128,7 @@ int uartN(_send_nowait)(uint8_t v)
 
 void uartN(_disable_tx)(void)
 {
-  N_(UCSR,B) |= (1<<TXCIE);
+  N_(UCSR,B) |= (1<<N_(TXCIE,));
 }
 
 
@@ -168,7 +174,7 @@ SIGNAL(SIG_UARTN(DATA))
 /// Interruption handler to disable TX after sending a frame.
 SIGNAL(SIG_UARTN(TRANS))
 {
-  N_(UCSR,B) &= ~(1<<TXEN);
+  N_(UCSR,B) &= ~(1<<N_(TXEN,));
 }
 
 
