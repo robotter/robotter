@@ -19,8 +19,17 @@
 #include "cli.h"
 #include "settings.h"
 #include "stratcomm.h"
+#include "ground_detector.h"
+
 
 #define MAIN_ERROR 0x30
+
+#define USE_GROUND_SENSOR_0
+//#define USE_GROUND_SENSOR_1
+
+#ifdef USE_GROUND_SENSOR_0
+#undef USE_GROUND_SENSOR_1
+#endif
 
 // log level
 extern uint8_t log_level;
@@ -37,15 +46,18 @@ extern actuators_t actuators;
 // safe key
 void safe_key_pressed(void*);
 
+void apds9700_init(void);
 
 // paddocks
 void paddock_setAX12EEPROMs(void);
 void paddock_AX12manual(void);
 void paddock_actuatorsManual(void);
+void paddock_groundDetector(void);
+void paddock_sandbox(void);
 
 int main(void)
 {
-
+  //apds9700_init();
   //--------------------------------------------------------
   // Booting
 
@@ -124,7 +136,7 @@ int main(void)
 
   uint8_t c;
 
-  NOTICE(0,"Strike 'x' to reboot / 'e' AX12 EEPROM load / 'm' AX12 manual control / 'a' actuators manual control");
+  NOTICE(0,"Strike 'x' to reboot / 'e' AX12 EEPROM load / 'm' AX12 manual control / 'a' actuators manual control / 'g' ground detector sensor");
 
   led_off(1);
 
@@ -143,6 +155,9 @@ int main(void)
 
     if(c == 'a')
       paddock_actuatorsManual();
+
+    if(c == 'g')
+      paddock_groundDetector();
 
     if(c == 's')
       paddock_sandbox();
@@ -287,11 +302,154 @@ void paddock_sandbox(void)
       adcv = adc_get_value( MUX_ADC1 | ADC_REF_AVCC);
       printf("%d %d\n",pos,adcv);
     }
+  }
+}
 
+void apds9700_init(void)
+{
+  DDRG |= _BV(4);
+  PORTG &= ~_BV(4);
+  DDRC|= _BV(4);
+  PORTC |= _BV(4);
+}
+/*
+void apds9700_select_sensor(void)
+{
+  PORTC &= ~_BV(4);
+}
+
+void apds9700_deselect_sensor(void)
+{
+  PORTC |= _BV(4);
+}
+
+void apds9700_send_one_pulse(void)
+{
+  PORTG |= _BV(4);
+  _delay_us(1);
+  PORTG &= ~_BV(4);
+  _delay_us(1);
+}
+
+uint8_t apds9700_get_sensor_state(void)
+{
+  PORTC |= _BV(3);
+  return (PINE &_BV(7))==0;
+}
+
+uint16_t apds9700_get_distance(void)
+{
+  uint16_t dist = 1;
+  apds9700_select_sensor();
+  for(dist = 1; dist <= 500 && apds9700_get_sensor_state() == 0; dist ++)
+  {
+    apds9700_send_one_pulse();
+  }
+  if(dist >= 500)
+  {
+    dist = 0;
+  }
+  apds9700_deselect_sensor();
+  return dist;
+}
+*/
+void paddock_groundDetector(void)
+{
+  char c;
+  uint16_t object_threshold =10;
+  uint8_t continuous_object_scan_active =0;
+  ground_detector_t gd;
+  
+  NOTICE(0,"Ground Detector menu | s : sensor state | i/k : select | p/m : pwm | r : run measure");
+  
+  #ifdef USE_GROUND_SENSOR_0
+  ground_detector_set_pwm_port(&gd, &PORTG, 3);
+  ground_detector_set_enable_port(&gd, &PORTC, 4);
+  ground_detector_set_object_present_pin(&gd, &PINE, 7);
+  ground_detector_set_sensor_output_mux_select_port(&gd, &PORTC, 3);
+  ground_detector_set_sensor_number(&gd, 0);
+  #endif
+
+  #ifdef USE_GROUND_SENSOR_1
+  ground_detector_set_pwm_port(&gd, &PORTG, 4);
+  ground_detector_set_enable_port(&gd, &PORTC, 4);
+  ground_detector_set_object_present_pin(&gd, &PINE, 7);
+  ground_detector_set_sensor_output_mux_select_port(&gd, &PORTC, 3);
+  ground_detector_set_sensor_number(&gd, 1);
+  #endif
+
+  ground_detector_init (&gd);
+  
+  while(1)
+  {
+
+  c = cli_getkey_nowait();
+    
+    switch(c)
+    {
+      case -1:break; //no caracter received
+      case 'x':
+        EMERG(MAIN_ERROR,"safe key 'x' pressed");
+      
+      case 's': printf("%d\n", ground_detector_get_object_presence_pwm_count(&gd)); break;
+
+      case 'i': object_threshold ++; ground_detector_set_object_present_threshold(&gd, object_threshold);
+         printf("threshold : %d\n", ground_detector_get_object_present_threshold(&gd));; break;
+      case 'k': object_threshold --; ground_detector_set_object_present_threshold(&gd, object_threshold);
+        printf("threshold : %d\n", ground_detector_get_object_present_threshold(&gd)); break;
+
+      case 'r':
+        if (continuous_object_scan_active)
+        {
+          continuous_object_scan_active = 0;
+        }
+        else
+        {
+          continuous_object_scan_active = 1;
+        }
+        break;
+
+      default: break;
+    }
+    if (continuous_object_scan_active)
+    {
+      wait_ms(100);    
+      printf("%d\n",ground_detector_is_object_present(&gd));
+    }
   }
 
+/*
+  while(1)
+  {
 
+  c = cli_getkey();
+    
+    switch(c)
+    {
+      case 'x':
+        EMERG(MAIN_ERROR,"safe key 'x' pressed");
+      
+      case 's': printf("%d\n", apds9700_get_sensor_state()); break;
 
+      case 'i': apds9700_select_sensor(); break;
+      case 'k': apds9700_deselect_sensor(); break;
+
+      case 'p': PORTG |= _BV(4);break;
+      case 'm': PORTG &= ~_BV(4); break;
+      
+      case 'r':
+        while(1)
+        {
+          wait_ms(100);
+      
+          printf("%d\n",apds9700_get_distance());
+        }
+        break;
+
+      default: break;
+    }
+  }
+*/
 }
 
 void safe_key_pressed(void* dummy)
