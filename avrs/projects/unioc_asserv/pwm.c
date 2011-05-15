@@ -51,15 +51,15 @@ void pwm_init(void)
 
 void pwm_set_A(int16_t value)
 {
-  PWM_PW(3) = (PWM_PERIOD*value)/1000;
+  PWM_PW(3) = (PWM_PERIOD*SETTING_MOTOR_A_DIR*value)/1000;
 }
 
 void pwm_set_B(int16_t value)
 {
-  PWM_PW(2) = (PWM_PERIOD*value)/1000;
+  PWM_PW(2) = (PWM_PERIOD*SETTING_MOTOR_B_DIR*value)/1000;
 }
 
 void pwm_set_C(int16_t value)
 {
-  PWM_PW(1) = (PWM_PERIOD*value)/1000;
+  PWM_PW(1) = (PWM_PERIOD*SETTING_MOTOR_C_DIR*value)/1000;
 }

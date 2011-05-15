@@ -26,6 +26,10 @@
 
 #include <aversive.h>
 
+#define MOTOR_ENCODER1_ADDR (0x1600)
+#define MOTOR_ENCODER2_ADDR (0x1500)
+#define MOTOR_ENCODER3_ADDR (0x1400)
+
 typedef struct
 {
   int32_t vectors[6];

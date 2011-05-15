@@ -30,7 +30,6 @@
 #include <scheduler.h>
 
 #include "cs.h"
-#include "motor_cs.h"
 #include "robot_cs.h"
 #include "htrajectory.h"
 #include "acfilter.h"
@@ -89,15 +88,10 @@ void cs_initialize(void)
   // Initialize robot manager
   NOTICE(0,"Initializing robot manager");
   hrobot_init(&system);
-  hrobot_set_motors_accessor(&system, motor_cs_update, NULL);
 
   // Initialize position manager
   NOTICE(0,"Initializing position manager");
   hposition_init( &position );
-
-  // Initialize control systems for motors
-  NOTICE(0,"Initializing motors control systems");
-  motor_cs_init();
 
   // Initialize control systems for robot
   NOTICE(0,"Initializing robot control systems");
@@ -157,9 +151,10 @@ void cs_update(void* dummy)
     EMERG(0,"Match over");
 
   // overpwm
-  for(i=0;i<3;i++)
-    if( motor_overpwm_count[i] >= 255 )
-      EMERG(0,"Over PWM detected (i=%d)",i);
+  // XXX PUT ME BACK PLEASE XXX
+  //for(i=0;i<3;i++)
+  //  if( motor_overpwm_count[i] >= 255 )
+  //    EMERG(0,"Over PWM detected (i=%d)",i);
   // reset TIMER3
   timer3_set(0);
 
@@ -171,9 +166,6 @@ void cs_update(void* dummy)
 
   // update trajectory management
   htrajectory_update(&trajectory);
-
-  // update compass filtering
-  compass_update(&compass);
 
 	// update robot position 
 	hposition_update(&position);

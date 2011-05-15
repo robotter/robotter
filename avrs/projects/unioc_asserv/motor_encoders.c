@@ -21,14 +21,13 @@
   */
 
 #include <aversive.h>
-#include "motor_cs_config.h"
 #include "motor_encoders.h"
 
 void motor_encoders_get_value(motor_encoders_t* me)
 {
-  me->vectors[0] = _SFR_MEM32(MOTOR_CS_ENCODER1_ADDR);
-  me->vectors[1] = _SFR_MEM32(MOTOR_CS_ENCODER2_ADDR);
-  me->vectors[2] = _SFR_MEM32(MOTOR_CS_ENCODER3_ADDR);
+  me->vectors[0] = _SFR_MEM32(MOTOR_ENCODER1_ADDR);
+  me->vectors[1] = _SFR_MEM32(MOTOR_ENCODER2_ADDR);
+  me->vectors[2] = _SFR_MEM32(MOTOR_ENCODER3_ADDR);
   me->vectors[3] = 0;
   me->vectors[4] = 0;
   me->vectors[5] = 0;

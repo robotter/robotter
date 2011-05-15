@@ -27,7 +27,7 @@
 #include "reset.h"
 #include "cli.h"
 #include "logging.h"
-#include "motor_cs.h"
+#include "hrobot_manager.h"
 
 extern uint8_t event_cs;
 extern uint8_t event_position;
@@ -88,7 +88,7 @@ void log_event(struct error * e, ...)
     // TODO Add shutdown procedures here TODO
     
     // breaking motors
-    motor_cs_break(1);
+    hrobot_break(NULL,1);
 
     // killing cs & position tasks
     scheduler_del_event(event_cs);

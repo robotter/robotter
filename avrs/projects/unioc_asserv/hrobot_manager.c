@@ -31,46 +31,54 @@
 #include "logging.h"
 #include "cli.h"
 
+#include "settings.h"
+
+#include "pwm.h"
+#include "robot_cs.h"
 #include "hrobot_manager.h"
 #include "hrobot_manager_config.h"
 
 void hrobot_init( hrobot_system_t* hrs )
 {
-  hrs->motors_accessor = NULL;
-  hrs->motors_accessor_params = NULL;
+  pwm_init();
 
   return;
 }
 
-void hrobot_set_motors_accessor( hrobot_system_t* hrs,
-                                  void(*f)(void*,int32_t,int32_t,int32_t),
-                                  void* params)
+void hrobot_break( hrobot_system_t* hrs, uint8_t state)
 {
-  hrs->motors_accessor = f;
-  hrs->motors_accessor_params = params;
+  if(state)
+    cbi(SETTING_MOTOR_BREAK_PORT,SETTING_MOTOR_BREAK_PIN);
+  else    
+    sbi(SETTING_MOTOR_BREAK_PORT,SETTING_MOTOR_BREAK_PIN);
 }
 
 void hrobot_set_motors( hrobot_system_t* hrs,
                         int32_t vx, int32_t vy,
                         int32_t omega)
 {
-  int32_t v0,v1,v2;
+  uint8_t k,i;
+  float dp[3];
+  float v[3];
 
-  // project speed vector on each motor
-  v0 = vx*HROBOT_MOTOR0_COS_COURSE + vy*HROBOT_MOTOR0_SIN_COURSE;
-  v1 = vx*HROBOT_MOTOR1_COS_COURSE + vy*HROBOT_MOTOR1_SIN_COURSE;
-  v2 = vx*HROBOT_MOTOR2_COS_COURSE + vy*HROBOT_MOTOR2_SIN_COURSE;
+  v[0] = vx/(float)RCS_MM_TO_CSUNIT;
+  v[1] = vy/(float)RCS_MM_TO_CSUNIT;
+  v[2] = omega/(float)RCS_RAD_TO_CSUNIT;
 
-  // 
-  v0 += omega;
-  v1 += omega;
-  v2 += omega;
+  for(k=0;k<3;k++)
+    dp[k] = 0.0;
 
-  //DEBUG(0,"HRM : %ld %ld %ld", v0, v1, v2);
-
-  // set motors speeds
-  if(hrs->motors_accessor)
-    (hrs->motors_accessor)(hrs->motors_accessor_params, v0, v1, v2);
-
+  // compute consign in motors coordinates
+  // XXX uhhhh 
+  // XXX
+  for(i=0;i<3;i++)
+    for(k=0;k<3;k++)
+      dp[k] += hrobot_motors_matrix[i+k*3]*v[i];
+  // XXX
+  // XXX
+  //
+  pwm_set_A((int32_t)dp[0]);
+  pwm_set_B((int32_t)dp[1]);
+  pwm_set_C((int32_t)dp[2]);
   return;
 }

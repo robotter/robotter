@@ -30,20 +30,13 @@
 	*/
 typedef struct
 {
-	void (*motors_accessor)(void*,int32_t,int32_t,int32_t);
-	void* motors_accessor_params;
-
 }hrobot_system_t;
 
 /**@brief Initialize robot hardware
   */
 void hrobot_init( hrobot_system_t* );
 
-/**@brief Setup accessors for motors consigns
-  */
-void hrobot_set_motors_accessor( hrobot_system_t*,
-																	void(*)(void*,int32_t,int32_t,int32_t), 
-																	void*);
+void hrobot_break( hrobot_system_t* hrs, uint8_t brake );
 
 /**@brief Set robot course and speed 
   *@param vx robot speed x coordinate

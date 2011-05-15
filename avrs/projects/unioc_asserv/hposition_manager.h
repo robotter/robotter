@@ -57,28 +57,12 @@ typedef struct
 {
   // Robot position
   hrobot_vector_t position;
-
-  // ADNS angular position
-  double adns_alpha;
-  // Previous step ADNS vectors
-  int32_t pAdnsVectors[6];
   // Previous step motor encoders vectors
   int32_t pMotorVectors[6];
   // Is it first time update 
   uint8_t firstUpdate;
 
 } hrobot_position_t;
-
-typedef enum
-{
-  SV_NONE = 0,
-  SV_ADNS_123,
-  SV_ADNS_23,
-  SV_ADNS_13,
-  SV_ADNS_12,
-  SV_MOTORS
-
-}sensorsValidity_t;
 
 /**@brief Initialize position management
   */
@@ -106,10 +90,5 @@ void hposition_get( hrobot_position_t*, hrobot_vector_t* );
 /**@brief Update robot position
   */
 void hposition_update( void* );
-
-/**@brief Compute sensors validity
-  */
-sensorsValidity_t hposition_getSensorsValidity( hrobot_position_t*,
-                                                adns9500_encoders_t* );
 
 #endif/*_HPOSITION_MANAGER_H_*/

@@ -26,31 +26,11 @@
 #ifndef _HROBOT_MANAGER_CONFIG_H_
 #define _HROBOT_MANAGER_CONFIG_H_
 
-#include <math.h>
-
-// Motors course
-// Warning : Those values defines the motors COURSES in radians,
-// meaning the direction of the force applied
-// on the table by the motor.
-
-//       0
-//      /  
-//     /   
-//    1-----2
-//         
-
-#define HROBOT_MOTOR0_COURSE 0.0
-#define HROBOT_MOTOR1_COURSE 4.188790 // ~ 4*M_PI/3
-#define HROBOT_MOTOR2_COURSE 2.094395 // ~ 2*M_PI/3
-
-#define HROBOT_MOTOR0_COS_COURSE (-1.0)
-#define HROBOT_MOTOR0_SIN_COURSE (0.0)
-
-#define HROBOT_MOTOR1_COS_COURSE (0.5)
-#define HROBOT_MOTOR1_SIN_COURSE (0.886025388)
-
-#define HROBOT_MOTOR2_COS_COURSE (0.5)
-#define HROBOT_MOTOR2_SIN_COURSE (-0.866025388)
-
+// um/mrads -> motor encoder step
+double hrobot_motors_matrix[9] = {
+-6.22287912e-02,   4.95384615e-04,   9.97476284e+00,
+ 2.92931868e-02,   5.31196703e-02,   9.94506718e+00,
+ 2.99331868e-02,  -5.34680220e-02,   9.89061232e+00
+ };
 
 #endif/*_HROBOT_MANAGER_CONFIG_H_*/

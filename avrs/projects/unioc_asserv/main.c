@@ -34,7 +34,6 @@
 
 #include "fpga.h"
 #include "cs.h"
-#include "motor_cs.h"
 #include "robot_cs.h"
 #include "htrajectory.h"
 #include "logging.h"
@@ -76,9 +75,6 @@ extern hrobot_position_t position;
 
 // XXX
 extern hrobot_system_t system;
-
-// ADNS sensors validity
-extern sensorsValidity_t sensors_validity;
 
 // CSs cpu usage in percent (0-100)
 extern uint8_t cs_cpuUsage;
@@ -194,6 +190,7 @@ int main(void)
 
   // Unleash control systems
 
+
   event_cs = 
     scheduler_add_periodical_event_priority(&cs_update, NULL,
                                               SETTING_SCHED_CS_PERIOD,
@@ -205,12 +202,9 @@ int main(void)
                                               SETTING_SCHED_SAFEKEY_PRIORITY);
 
   // remove break
-  motor_cs_break(0);
+  hrobot_break(NULL,0);
 
   //----------------------------------------------------------------------
-
-  //XXX goto calibration
-  paddock_calibration();
 
   NOTICE(0,"'x' to reboot / 'c' manual control / 'a' ADNS test / 'z' position test / 'p' PWM test / 'l' calibration / 't' test code / (key/cord) to go ");
  
@@ -304,11 +298,21 @@ int main(void)
 
 void paddock_testCode(void)
 {
-  NOTICE(0, "Entering TEST CODE");
+  vect_xy_t path[3];
+  adns9500_encoders_t adns;
+  int16_t squal;
 
   while(1)
   {
-    wait_ms(300);
+    adns9500_encoders_get_value(&adns);
+    squal = adns.squals[1];
+
+    if(squal > 80)
+    {
+      NOTICE(0,"SQUAL !");
+    }
+
+    wait_ms(10);
   }
   
   while(1) nop();
@@ -321,7 +325,7 @@ void paddock_adnsFeedback(void)
   NOTICE(0, "Entering ANDS feedback mode");
 
   // breaking motors
-  motor_cs_break(1);
+  hrobot_break(&system,1);
   scheduler_del_event(event_cs);
 
   while(1)
@@ -356,8 +360,8 @@ void paddock_positionTest(void)
   {
     hposition_get_xy(&position, &vxy);
     hposition_get_a(&position, &a);
-    NOTICE(0,"POSITION (X,Y,A) : x=%3.3f y=%3.3f a=%3.3f (%3.3f°) VALIDITY %d",
-                vxy.x, vxy.y, a, a*180/M_PI, sensors_validity);
+    NOTICE(0,"POSITION (X,Y,A) : x=%3.3f y=%3.3f a=%3.3f (%3.3f°)",
+                vxy.x, vxy.y, a, a*180/M_PI);
 
   }
 
@@ -490,9 +494,9 @@ void paddock_pwmTest(void)
     _SFR_MEM16(PWM_REGISTER_PERIOD_L1) = period;
     _SFR_MEM16(PWM_REGISTER_PERIOD_L2) = period;
     _SFR_MEM16(PWM_REGISTER_PERIOD_L3) = period;   
-    set_pwm_motor1(NULL, pwm1);
-    set_pwm_motor2(NULL, pwm2);
-    set_pwm_motor3(NULL, pwm3);
+    pwm_set_A(pwm1);
+    pwm_set_B(pwm2);
+    pwm_set_C(pwm3);
 
     NOTICE(0,"PWM1=%5ld PWM2=%5ld PWM3=%5ld PERIOD=%d",pwm1,pwm2,pwm3,period);
 
@@ -521,17 +525,14 @@ void paddock_calibration(void)
     adns9500_encoders_get_value(&adns);
     motor_encoders_get_value(&me);
 
-    printf("%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld\n",
+    printf("%d,%d,%ld,%ld,%ld\n",
+              adns.squals[0],
+              adns.squals[1],
               me.vectors[0],
               me.vectors[1],
-              me.vectors[2],
-              adns.vectors[0],
-              adns.vectors[1],
-              adns.vectors[2],
-              adns.vectors[3],
-              adns.vectors[4],
-              adns.vectors[5]);
-    //wait_ms(10);
+              me.vectors[2]);
+
+    wait_ms(10);
   }
 
 #endif

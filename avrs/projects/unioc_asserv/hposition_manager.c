@@ -57,13 +57,9 @@ extern struct pid_filter pid_x;
 extern struct pid_filter pid_y;
 extern struct pid_filter pid_angle;
 
-// sensors validity
-sensorsValidity_t sensors_validity;
-
 void hposition_init( hrobot_position_t* hpos )
 {
   uint8_t flags;
-  uint8_t i;
 
   IRQ_LOCK(flags);
   hpos->position.x = 0.0; 
@@ -71,12 +67,7 @@ void hposition_init( hrobot_position_t* hpos )
   hpos->position.alpha = 0.0; 
   IRQ_UNLOCK(flags);
 
-  for(i=0;i<6;i++)
-    hpos->pAdnsVectors[i] = 0;
-
   hpos->firstUpdate = 1;
-
-  hpos->adns_alpha = 0.0;
 
   return;
 }
@@ -84,17 +75,11 @@ void hposition_init( hrobot_position_t* hpos )
 void hposition_set( hrobot_position_t* hpos, double x, double y, double alpha)
 {
   uint8_t flags;
-  double nadnsalpha;
-
-  // compute a new adns alpha value
-
-  nadnsalpha = hpos->adns_alpha + (alpha - hpos->position.alpha);
 
   IRQ_LOCK(flags);
   hpos->position.x = x;
   hpos->position.y = y;
   hpos->position.alpha = alpha;
-  hpos->adns_alpha = nadnsalpha;
 
   // set actual position to RCSs
   robot_cs_set_xy_consigns( &robot_cs, RCS_MM_TO_CSUNIT*x,
@@ -155,7 +140,6 @@ void hposition_update(void *dummy)
   double dp[3];
   hrobot_vector_t vec;
   double _ca,_sa;
-	double compass_a;
   motor_encoders_t motors;
   hrobot_position_t* hpos  = dummy;
 
@@ -163,27 +147,12 @@ void hposition_update(void *dummy)
   int32_t *pvectors = NULL;
   double *matrix    = NULL;
 
-  //------------------------
-  // access adns9500 values
-  adns9500_encoders_get_value(&adns9500);
-
   // access motor encoders values
   motor_encoders_get_value(&motors);
-
-  // override warning if ADNS boot was previously skipped
-  #ifndef SETTING_OVERRIDE_ADNSBOOT 
-  // FAULT register is set
-  if( adns9500.fault )
-    WARNING(HROBOT_ERROR, "adns9500 FAULT register is set : fault=0x%X",
-                            adns9500.fault);
-  #endif
 
   // first time update => update vector, quit
   if( hpos->firstUpdate )
   {
-    for(i=0;i<6;i++)
-      hpos->pAdnsVectors[i] = adns9500.vectors[i];
-    
     for(i=0;i<6;i++)
       hpos->pMotorVectors[i] = motors.vectors[i];
 
@@ -191,79 +160,34 @@ void hposition_update(void *dummy)
     return;
   }
 
-  //----------------------------------------------------------
-  // Check ADNS validities
-  sensors_validity = hposition_getSensorsValidity(hpos, &adns9500);
-
-  switch(sensors_validity)
-  {
-    case SV_ADNS_123:
-      pvectors = hpos->pAdnsVectors;
-      vectors = adns9500.vectors;
-      matrix = hrobot_adnsMatrix_123;
-      break;
-
-    case SV_ADNS_12:
-      pvectors = hpos->pAdnsVectors;
-      vectors = adns9500.vectors;
-      matrix = hrobot_adnsMatrix_12;
-      break;
-
-    case SV_ADNS_23:
-      pvectors = hpos->pAdnsVectors;
-      vectors = adns9500.vectors;
-      matrix = hrobot_adnsMatrix_23;
-      break;
-
-    case SV_ADNS_13:
-      pvectors = hpos->pAdnsVectors;
-      vectors = adns9500.vectors;
-      matrix = hrobot_adnsMatrix_13;
-      break;
-
-    case SV_MOTORS:
-      pvectors = hpos->pMotorVectors;
-      vectors = motors.vectors;
-      matrix = hrobot_motorEncodersMatrix;
-      break;
-
-    default: 
-      ERROR(HROBOT_ERROR, "adns9500 validity incorrect. validity=%d",
-                            sensors_validity);
-    break;
-
-  }
+  // set vectors & matrix
+  vectors = motors.vectors;
+  pvectors = hpos->pMotorVectors;
+  matrix = hrobot_motors_invmatrix;
 
   //----------------------------------------------------------
-  // Transform speed in ADNS coordinates to robot coordinates
+  // Transform speed in encoders coordinates to robot coordinates
   for(k=0;k<3;k++)
     dp[k] = 0.0;
 
-  // for each ADNS coordinate (vx1,vy1,vx2,vy2,vx3,vy3) 
-  for(i=0;i<6;i++)
+  // for each encoder coordinate
+  for(i=0;i<3;i++)
   {
-    // compute speed in ADNS coordinates
-    v = pvectors[i] - vectors[i];
+    // compute speed in encoder coordinates
+    v = vectors[i] - pvectors[i];
     // update previous ADNS vectors
     pvectors[i] = vectors[i];
     
     // for each robot coordinate (x,y,a) compute a dx of mouvement
     for(k=0;k<3;k++)
-      dp[k] += matrix[i+k*6]*v;
+      dp[k] += matrix[i+k*3]*v;
   }
 
-  // convert d(movement) from (2^14mm) to (mm)
+  // scale units
   for(k=0;k<3;k++)
-    dp[k] = dp[k]/(double)(1<<HPOSITION_MANAGER_MATRIX_UNITPOW);
-  
-	// apply ADNS/Compass filtering
-	compass_a = compass_get_heading_rad(&compass);
-	
-	// compute filtered alpha
-	vec.alpha = hpos->adns_alpha;//acfilter_do(&acfilter, hpos->adns_alpha, compass_a);
+    dp[k] /= 1000;
 
-	// update ADNS angular position
-	hpos->adns_alpha += dp[HROBOT_DA];
+  vec.alpha = hpos->position.alpha;
 
 	// transform ADNS position to table  
   _ca = cos(vec.alpha);
@@ -271,9 +195,9 @@ void hposition_update(void *dummy)
  
   //--------------------------------------------------
   // Integrate speed in robot coordinates to position
-
   vec.x = hpos->position.x + dp[HROBOT_DX]*_ca - dp[HROBOT_DY]*_sa;
   vec.y = hpos->position.y + dp[HROBOT_DX]*_sa + dp[HROBOT_DY]*_ca;
+	vec.alpha += dp[HROBOT_DA];
 
   //------------------------------------
   // Latch computed values to accessors
@@ -286,37 +210,5 @@ void hposition_update(void *dummy)
   IRQ_UNLOCK(flags);
 
   return;
-}
-
-sensorsValidity_t
-  hposition_getSensorsValidity( hrobot_position_t* hpos,
-                                adns9500_encoders_t* adns)
-{
-  uint8_t adnsval[3];
-  uint8_t i;
-
-  // if ADNS not used
-  #ifdef SETTING_OVERRIDE_ADNSBOOT 
-    return SV_MOTORS;
-  #endif
-
-  // check ADNS validity (ADNS squal over threshold)
-  for(i=0;i<3;i++)
-    adnsval[i] = (adns->squals[i] > SETTING_POSITION_ADNS_SQUAL_LOW );
- 
-  if(adnsval[0] && adnsval[1] && adnsval[2])
-    return SV_ADNS_123;
-
-  if(adnsval[0] && adnsval[1])
-    return SV_ADNS_12;
-   
-  if(adnsval[0] && adnsval[2])
-    return SV_ADNS_13;
-
-  if(adnsval[1] && adnsval[2])
-    return SV_ADNS_23;
-  
-  return SV_ADNS_23;
-  //return SV_MOTORS;
 }
 
