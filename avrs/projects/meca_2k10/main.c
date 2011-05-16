@@ -18,12 +18,8 @@
 #include "logging.h"
 #include "cli.h"
 #include "settings.h"
-<<<<<<< HEAD
-=======
 #include "stratcomm.h"
 #include "ground_detector.h"
-
->>>>>>> 09f46c5146aaf06342c5266dcdb0bbbe48d2b38a
 
 #define MAIN_ERROR 0x30
 
@@ -52,10 +48,7 @@ void apds9700_init(void);
 void paddock_setAX12EEPROMs(void);
 void paddock_AX12manual(void);
 void paddock_actuatorsManual(void);
-<<<<<<< HEAD
-=======
 void paddock_groundDetector(void);
->>>>>>> 09f46c5146aaf06342c5266dcdb0bbbe48d2b38a
 void paddock_sandbox(void);
 
 int main(void)
@@ -295,11 +288,6 @@ void paddock_sandbox(void)
   int16_t d;
   while(1)
   {
-<<<<<<< HEAD
-    d = scanner_get_distance(0);
-    NOTICE(0,"scanner_get_distance()=%d",d);
-  }
-=======
     for(pos=0x240;pos<=0x330;pos+=5)
     {
       // set AX12 to pos
@@ -459,7 +447,6 @@ void paddock_groundDetector(void)
     }
   }
 */
->>>>>>> 09f46c5146aaf06342c5266dcdb0bbbe48d2b38a
 }
 
 void safe_key_pressed(void* dummy)
