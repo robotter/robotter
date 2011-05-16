@@ -18,7 +18,6 @@
 #include "logging.h"
 #include "cli.h"
 #include "settings.h"
-#include "stratcomm.h"
 #include "ground_detector.h"
 
 #define MAIN_ERROR 0x30
@@ -285,21 +284,6 @@ void paddock_AX12manual(void)
 
 void paddock_sandbox(void)
 {
-  int16_t d;
-  while(1)
-  {
-    for(pos=0x240;pos<=0x330;pos+=5)
-    {
-      // set AX12 to pos
-      actuators_ax12_setPosition(&actuators, 2, pos);
-      while( actuators_ax12_checkPosition(&actuators, 2, pos) == 0 )
-        wait_ms(1);
-
-      wait_ms(50);
-      adcv = adc_get_value( MUX_ADC1 | ADC_REF_AVCC);
-      printf("%d %d\n",pos,adcv);
-    }
-  }
 }
 
 void apds9700_init(void)
