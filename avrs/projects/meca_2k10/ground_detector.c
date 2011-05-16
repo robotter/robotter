@@ -11,10 +11,6 @@ static void gd_deselect_sensor(ground_detector_t* gd);
 static void gd_send_one_pulse(ground_detector_t* gd);
 static uint8_t gd_get_sensor_state(ground_detector_t* gd);
 
-
-
-
-
 void ground_detector_set_pwm_port(ground_detector_t* gd, volatile uint8_t *port,  uint8_t pin_nb)
 {
     gd->pwm_port = port;
@@ -76,7 +72,7 @@ void gd_select_sensor(ground_detector_t* gd)
 {
   if (gd->enable_port != NULL)
   {
-  *(gd->enable_port) &= ~gd->enable_pin_mask;
+    *(gd->enable_port) &= ~(gd->enable_pin_mask);
   }
 }
 
@@ -84,7 +80,7 @@ void gd_deselect_sensor(ground_detector_t* gd)
 {
   if (gd->enable_port != NULL)
   {
-   *(gd->enable_port) |= gd->enable_pin_mask;
+    *(gd->enable_port) |= gd->enable_pin_mask;
   }
 }
 
@@ -94,7 +90,7 @@ void gd_send_one_pulse(ground_detector_t* gd)
   {
     *(gd->pwm_port) |= gd->pwm_pin_mask;
     _delay_us(1);
-    *(gd->pwm_port) &= ~gd->pwm_pin_mask;
+    *(gd->pwm_port) &= ~(gd->pwm_pin_mask);
     _delay_us(1);
   }
 }
@@ -105,14 +101,21 @@ uint8_t gd_get_sensor_state(ground_detector_t* gd)
   {
     switch(gd->sensor_number)
     {
-      case 0 : *(gd->sensor_output_select_mux_port) &= ~gd->sensor_output_mux_select_pin_mask; 
+      case 0 : 
+        *(gd->sensor_output_select_mux_port) &= ~(gd->sensor_output_mux_select_pin_mask); 
         break;
-      case 1 : *(gd->sensor_output_select_mux_port) |= gd->sensor_output_mux_select_pin_mask; 
+
+      case 1 : 
+        *(gd->sensor_output_select_mux_port) |= gd->sensor_output_mux_select_pin_mask; 
         break;
-      default: ERROR(ERROR_SEVERITY_ERROR,"sensor_number not supported, see ground_detector.c"); break;
+
+      default:
+        ERROR(ERROR_SEVERITY_ERROR,"sensor_number not supported, see ground_detector.c"); 
+        break;
     }
   }
-  return (*(gd->object_present_pin) &gd->object_present_pin_mask)==0;
+  _delay_us(1);
+  return ( (*(gd->object_present_pin) & (gd->object_present_pin_mask)) == 0 );
 }
 
 void ground_detector_init(ground_detector_t* gd)
@@ -125,7 +128,7 @@ void ground_detector_init(ground_detector_t* gd)
   }
   if (gd->pwm_port != NULL)
   {
-    *(gd->pwm_port) &= ~gd->pwm_pin_mask; // set port at low level
+    *(gd->pwm_port) &= ~(gd->pwm_pin_mask); // set port at low level
   }
   if (gd->enable_port != NULL)
   {
@@ -135,7 +138,7 @@ void ground_detector_init(ground_detector_t* gd)
   
   if (gd->object_present_pin!=NULL)
   {
-    *(gd->object_present_pin+1) &= ~gd->object_present_pin_mask; // set port as input
+    *(gd->object_present_pin+1) &= ~(gd->object_present_pin_mask); // set port as input
   }
 
   if (gd->sensor_output_select_mux_port !=NULL)
@@ -148,13 +151,13 @@ uint16_t ground_detector_get_object_presence_pwm_count(ground_detector_t* gd)
 {
   uint16_t dist = 1;
   gd_select_sensor(gd);
-  for(dist = 1; dist <= 500 && gd_get_sensor_state(gd) == 0; dist ++)
+  for(dist = 1; (dist <= 500) && (gd_get_sensor_state(gd) == 0); dist ++)
   {
     gd_send_one_pulse(gd);
   }
   if(dist >= 500)
   {
-    dist = -1;
+    dist = 500;
   }
   gd_deselect_sensor(gd);
   return dist;

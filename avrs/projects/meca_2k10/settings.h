@@ -69,7 +69,7 @@
 // -- AX12/arms --
 
 // AX12 position window
-#define SETTING_AX12_WINDOW (0x10)
+#define SETTING_AX12_WINDOW (16)
 // AX12 clamping torque
 #define SETTING_AX12_CLAMPING_TORQUE (0x200)
 
@@ -77,7 +77,7 @@
 #define SETTING_AX12_ARM_SPEED (100)
 
 // LEFT ARM low position
-#define SETTING_AX12_POS_LARM_LOWERED (0x244)
+#define SETTING_AX12_POS_LARM_LOWERED (0x250)
 // RIGHT ARM low position
 #define SETTING_AX12_POS_RARM_LOWERED (0x250)
 
@@ -100,5 +100,9 @@
 
 #define SETTING_SCANNER_Y_THRESHOLD 20.0
 #define SETTING_SCANNER_MIN_STEP 10
+
+// -- Ground detectors
+#define SETTING_GD_RIGHT_THRESHOLD 30
+#define SETTING_GD_LEFT_THRESHOLD 30
 
 #endif/*SETTINGS_H*/

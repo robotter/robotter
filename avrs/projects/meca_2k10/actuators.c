@@ -57,6 +57,19 @@ void actuators_arm_raise(actuators_t* m, armPos_t p)
   return;
 }
 
+void actuators_arm_mid(actuators_t* m, armPos_t p)
+{
+  if( p == ARM_LEFT )
+    actuators_ax12_setPositionSpeed(m, SETTING_AX12_ID_LEFT_ARM,
+                             SETTING_AX12_POS_LARM_MID,
+                             SETTING_AX12_ARM_SPEED);
+  else
+    actuators_ax12_setPositionSpeed(m, SETTING_AX12_ID_RIGHT_ARM,
+                             SETTING_AX12_POS_RARM_MID,
+                             SETTING_AX12_ARM_SPEED);
+  return;
+}
+
 void actuators_arm_lower(actuators_t* m, armPos_t p)
 {
   if( p == ARM_LEFT )
@@ -77,6 +90,17 @@ uint8_t actuators_arm_is_raised(actuators_t* m, armPos_t p)
   else
     return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_RIGHT_ARM,
                                         SETTING_AX12_POS_RARM_RAISED);
+}
+
+
+uint8_t actuators_arm_is_mided(actuators_t* m, armPos_t p)
+{
+  if( p == ARM_LEFT )
+    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_LEFT_ARM,
+                                        SETTING_AX12_POS_LARM_MID);
+  else
+    return 0 != actuators_ax12_checkPosition(m, SETTING_AX12_ID_RIGHT_ARM,
+                                        SETTING_AX12_POS_RARM_MID);
 }
 
 uint8_t actuators_arm_is_lowered(actuators_t* m, armPos_t p)

@@ -30,6 +30,7 @@
 #include "led.h"
 #include "ax12_user.h"
 #include "scanner.h"
+#include "ground_detector.h"
 #include "actuators.h"
 #include "settings.h"
 
@@ -39,6 +40,9 @@ AX12 ax12;
 actuators_t actuators;
 // scanner
 scanner_t scanner;
+// ground detectors
+ground_detector_t gd_left;
+ground_detector_t gd_right;
 
 // SYS cpu usage in percents
 uint8_t sys_cpuUsage;
@@ -50,6 +54,25 @@ void sys_init(void)
 
   NOTICE(0,"Initializing actuators");
   actuators_init(&actuators);
+
+  NOTICE(0,"Initializing ground detectors");
+  ground_detector_set_pwm_port(&gd_right, &PORTG, 3);
+  ground_detector_set_enable_port(&gd_right, &PORTC, 4);
+  ground_detector_set_object_present_pin(&gd_right, &PINE, 7);
+  ground_detector_set_sensor_output_mux_select_port(&gd_right, &PORTC, 3);
+  ground_detector_set_sensor_number(&gd_right, 0);
+  ground_detector_init (&gd_right);
+
+  ground_detector_set_pwm_port(&gd_left, &PORTG, 4);
+  ground_detector_set_enable_port(&gd_left, &PORTC, 4);
+  ground_detector_set_object_present_pin(&gd_left, &PINE, 7);
+  ground_detector_set_sensor_output_mux_select_port(&gd_left, &PORTC, 3);
+  ground_detector_set_sensor_number(&gd_left, 1);
+  ground_detector_init (&gd_left);
+
+  ground_detector_set_object_present_threshold(&gd_right, SETTING_GD_RIGHT_THRESHOLD);
+  ground_detector_set_object_present_threshold(&gd_left, SETTING_GD_LEFT_THRESHOLD);
+ 
 }
 
 void sys_update(void* dummy)

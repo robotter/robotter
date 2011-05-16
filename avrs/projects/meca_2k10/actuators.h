@@ -55,9 +55,11 @@ void actuators_loadDefaults(actuators_t* m);
 // -- arms --
 
 void actuators_arm_raise(actuators_t*, armPos_t);
+void actuators_arm_mid(actuators_t*, armPos_t);
 void actuators_arm_lower(actuators_t*, armPos_t);
 
 uint8_t actuators_arm_is_raised(actuators_t*, armPos_t);
+uint8_t actuators_arm_is_mided(actuators_t*, armPos_t);
 uint8_t actuators_arm_is_lowered(actuators_t*, armPos_t);
 
 // -- ax12 --
