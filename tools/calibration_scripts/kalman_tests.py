@@ -22,7 +22,7 @@ def main():
 
   # matplotlib
   plt.ion()
-  fig = plt.figure(figsize=(12,10))
+  fig = plt.figure(figsize=(10,10))
   ax = fig.add_subplot(111)
   plt.draw()
   # 
@@ -41,25 +41,32 @@ def main():
   s1_m = 50
   s3_m = 50
 
+  # 
+  squal = scipy.zeros((100,100))
+
   # Kalmann
 
-  xn,yn,an = 150.0,0.0,0.0
-  X = array([[150.0,0.0,0.0]]).T
+  xn,yn,an = -200.0,-200.0,0.0
+  X = array([[xn,yn,an]]).T
 
   P = eye(3,3)
-  P[2][2] = 0.001
-
+  P[2][2] = 1
 
   # sensors noise
-  R = array([10,10])
+  R = array([400,400])
 
   # state noise
-  Q = scipy.diag(array([ 1e-3, 1e-3, 1e-5]))
+  Q = scipy.diag(array([ 1e-3, 1e-3, 1e-4]))
 
   S1_pos = array([    4, 118])
   S3_pos = array([ -104, -55])
-  Rline = 0
-  Lline = -100
+  VRline = 0
+  VLline = +50
+
+  HRline = 0
+  HLline = +50
+
+  
 
   while 1:
 
@@ -90,7 +97,7 @@ def main():
         s1_trig,s3_trig = False,False
         
         if s1_state:
-          if s1_m < 60:
+          if s1_m < 70:
             s1_state = False
             s1_trig = True
         else:
@@ -99,14 +106,13 @@ def main():
             s1_trig = True
 
         if s3_state:
-          if s3_m < 60:
+          if s3_m < 70:
             s3_state = False
             s3_trig = True
         else:
           if s3_m > 80:
             s3_state = True
             s3_trig = True
-
         # ------------------
         # compute position w/out kalman
         
@@ -121,7 +127,7 @@ def main():
         # ------------------
         # propagate
         
-        x,y,a = X
+        (x,),(y,),(a,) = X
         
         dv = dot(pM,v.T)
         
@@ -134,61 +140,84 @@ def main():
                      dv[2]]]).T
 
         F = eye(3,3)
-        F[0][2] =  -dx*sin(a) -dy*cos(a)
+        F[0][2] = -dx*sin(a) -dy*cos(a)
         F[1][2] = dx*cos(a) - dy*sin(a)
         
         B = array([[ cos(a), -sin(a), 0],
                    [ sin(a),  cos(a), 0],
-                   [ 0,       0,       1]])
+                   [ 0,       0,      1]])
 
         P = dot(F,dot(P,F.T))
         if norm(dv) > 0.01:
-          P += dot(dot(B,Q),B.T)
+          #P += dot(dot(B,Q),B.T)
+          P += Q
         
         # -------------------
         # update
 
-        if s1_trig:
+        if s1_trig or s3_trig:
           # determine closest line to S1 
           if s1_trig:
             sensor_pos = S1_pos
-#          if s3_trig:
- #           sensor_pos = S3_pos
+          if s3_trig:
+            sensor_pos = S3_pos
 
           sx,sy = sensor_pos
           S1 = array([ X[0][0] + sx*cos(a) - sy*sin(a),
                        X[1][0] + sx*sin(a) + sy*cos(a) ])
 
-          dL = abs(Lline - S1[0])
-          dR = abs(Rline - S1[0])
+          dXL = abs(VLline - S1[0])
+          dXR = abs(VRline - S1[0])
           
+          dYL = abs(HLline - S1[1])
+          dYR = abs(HRline - S1[1])
+
           Lx = None
-          if dR < dL:
-            # right line crossed
-            Lx = Rline
+          dX = min(dXR,dXL)
+          if dXR < dXL:
+            Lx = VRline
           else:
-            # left line crossed
-            Lx = Lline
+            Lx = VLline
           
+          Ly = None
+          dY = min(dYR,dYL)
+          if dYR < dYL:
+            Ly = HRline
+          else:
+            Ly = HLline
+
 
           # ----------------
           # update kalman
 
-          y = Lx - S1[0]
-          print "UPDATE",Lx,y
+          delta = abs(dX-dY)
+          print "dX=",dX," dY=",dY," delta=",delta
 
-          H = array([[1, 0, -sx*sin(a) - sy*cos(a)]])
+          if delta < 20:
+            # too close do nothing
+            pass
 
-          S = dot(H,dot(P,H.T)) + R[0]
+          else:
+            if dX < dY:
+              y = Lx - S1[0]
+              print ">> X UPDATE ",Lx,y
+              H = array([[1, 0, -sx*sin(a) - sy*cos(a)]])
+              S = dot(H,dot(P,H.T)) + R[0]
 
-          # gain
-          K = dot(P,(H.T)/S)
-          
-          # update state
-          X += dot(K,y)
-          
-          P = dot((eye(3,3) - dot(K,H)),P)
-          #P = P - dot(K,dot(S,K.T))
+            else:
+              y = Ly - S1[1]
+              print ">> Y UPDATE",Ly,y
+              H = array([[0, 1, sx*cos(a) - sy*sin(a)]])
+              S = dot(H,dot(P,H.T)) + R[1]
+              
+            # gain
+            K = dot(P,(H.T)/S)
+            
+            # update state
+            X += dot(K,y)
+            
+            P = dot((eye(3,3) - dot(K,H)),P)
+            #P = P - dot(K,dot(S,K.T))
 
         if True:
           print "--"
@@ -196,6 +225,27 @@ def main():
           print math.sqrt(math.fabs(P[1][1]))
           print math.sqrt(math.fabs(P[2][2]))
           print P
+
+
+        # ---- 
+        # plot squal
+
+        def _set_squal(y,x,s):
+          if (0 < x < 100) and (0 < y < 100):
+            squal[y][x] = s
+
+        (x,),(y,),(a,) = X
+
+        sx,sy = S1_pos
+        _x = X[0][0] + sx*cos(a) - sy*sin(a) 
+        _y = X[1][0] + sx*sin(a) + sy*cos(a)
+        _set_squal(int(-_y/10+50),int(_x/10+50),s1_m)
+
+        sx,sy = S3_pos
+        _x = X[0][0] + sx*cos(a) - sy*sin(a)
+        _y = X[1][0] + sx*sin(a) + sy*cos(a)
+        _set_squal(int(-_y/10+50),int(_x/10+50),s3_m)
+
         # --------------------
         # show robot position
 
@@ -205,17 +255,23 @@ def main():
           yp.append(X[1][0] + sx*sin(a) + sy*cos(a) )
           xnp.append(xn + sx*cos(an) - sy*sin(an) )
           ynp.append(yn + sx*sin(an) + sy*cos(an) )
+          
+          xp = xp[-20:]
+          yp = yp[-20:]
+          xnp = xnp[-20:]
+          ynp = ynp[-20:]
 
-        #if s3_trig:
-        #  sx,sy = S3_pos
-        #  xp.append(X[0][0] + sx*cos(a) - sy*sin(a) )
-        #  yp.append(X[1][0] + sx*sin(a) + sy*cos(a) )
-        #  xnp.append(xn + sx*cos(an) - sy*sin(an) )
-        #  ynp.append(yn + sx*sin(an) + sy*cos(an) )
+
+        if s3_trig:
+          sx,sy = S3_pos
+          xp.append(X[0][0] + sx*cos(a) - sy*sin(a) )
+          yp.append(X[1][0] + sx*sin(a) + sy*cos(a) )
+          xnp.append(xn + sx*cos(an) - sy*sin(an) )
+          ynp.append(yn + sx*sin(an) + sy*cos(an) )
 
 
         t = time.time()
-        if t - lt > 0.5:
+        if t - lt > 0.2:
           lt = t
           ax.clear()
 
@@ -225,17 +281,47 @@ def main():
           xs.append(X[0][0])
           ys.append(X[1][0])
 
-          plt.axvline(x=Rline,color='r')
-          plt.axvline(x=Lline,color='r')
+          xns = xns[-200:]
+          yns = yns[-200:]
+
+          xs = xs[-200:]
+          ys = ys[-200:]
+
+          xr,yr,ar = X[0][0],X[1][0],X[2][0]
+
+          plt.axvline(x=VRline,color='r')
+          plt.axvline(x=VLline,color='r')
+          plt.axhline(y=HRline,color='r')
+          plt.axhline(y=HLline,color='r')
 
           ax.plot(xns,yns,color='b')
           ax.plot(xnp,ynp,'o',color='b')
 
+          ax.plot([xn+cos(an+0.5*pi)*200.0,
+                   xn+cos(an+1.1666*pi)*200.0,
+                   xn+cos(an+1.8333*pi)*200.0,
+                   xn+cos(an+0.5*pi)*200.0],
+                  [yn+sin(an+0.5*pi)*200.0,
+                   yn+sin(an+1.1666*pi)*200.0,
+                   yn+sin(an+1.8333*pi)*200.0,
+                   yn+sin(an+0.5*pi)*200.0],color='b',linewidth=3)
+
           ax.plot(xs,ys,color='g')
           ax.plot(xp,yp,'o',color='g')
+          #ax.plot([xr, xr+cos(ar+0.5*pi)*10.0],[yr, yr+sin(ar+0.5*pi)*10.0],color='r',linewidth=2)
+          ax.plot([xr+cos(an+0.5*pi)*200.0,
+                   xr+cos(an+1.1666*pi)*200.0,
+                   xr+cos(an+1.8333*pi)*200.0,
+                   xr+cos(an+0.5*pi)*200.0],
+                  [yr+sin(an+0.5*pi)*200.0,
+                   yr+sin(an+1.1666*pi)*200.0,
+                   yr+sin(an+1.8333*pi)*200.0,
+                   yr+sin(an+0.5*pi)*200.0],color='g',linewidth=3)
 
-          #bx.imshow(P,cmap=cm.gray, interpolation='nearest')
-
+          ax.imshow(squal,cmap=cm.gist_yarg, interpolation='nearest', extent=(-500,+500,-500,+500))
+          
+          plt.axis([-500,+500,-500,+500])
+    
           plt.draw()
 
       except ValueError:
