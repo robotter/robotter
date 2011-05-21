@@ -32,10 +32,9 @@
 #include "cs.h"
 #include "robot_cs.h"
 #include "htrajectory.h"
-#include "acfilter.h"
-#include "compass.h"
 #include "time.h"
 #include "avoidance.h"
+#include "color_detection.h"
 
 #include "settings.h"
 
@@ -51,11 +50,10 @@ robot_cs_t robot_cs;
 // Trajectory management
 htrajectory_t trajectory;
 
-// Compass 
-compass_t compass;
-
-// ADNS/Compass filter
-acfilter_t acfilter;
+// color detectors
+color_detector_t color0;
+color_detector_t color120;
+color_detector_t color240;
 
 // robot_cs quadramps
 extern struct quadramp_filter qramp_angle;
@@ -75,15 +73,10 @@ extern uint8_t motor_overpwm_count[3];
 
 void cs_initialize(void)
 {
-  // Initialize compass
-  NOTICE(0,"Initializing compass");
-  compass_init(&compass, 0x1700);
-  compass_set_heading_rad(&compass, 0.0);
-
-   // Initializing ADNS/Compass filter
-  NOTICE(0,"Initializing ADNS / Compass filter");
-  acfilter_init(&acfilter, 0.01);
-  
+  NOTICE(0,"Initializing color detectors");
+  color_detection_init(&color0, SETTING_COLOR_DETECTOR_0);
+  color_detection_init(&color120, SETTING_COLOR_DETECTOR_120);
+  color_detection_init(&color240, SETTING_COLOR_DETECTOR_240);
   
   // Initialize robot manager
   NOTICE(0,"Initializing robot manager");

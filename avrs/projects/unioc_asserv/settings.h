@@ -180,4 +180,9 @@
 #define SETTING_CORD_N    (1)
 #define SETTING_CORD_THRESHOLD (20)
 
+// -- color detection --
+#define SETTING_COLOR_DETECTOR_0 (1900)
+#define SETTING_COLOR_DETECTOR_120 (1900)
+#define SETTING_COLOR_DETECTOR_240 (1900)
+
 #endif/*SETTINGS_H*/

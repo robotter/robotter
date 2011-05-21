@@ -41,6 +41,7 @@
 #include "cord.h"
 #include "pwm.h"
 #include "motor_encoders.h"
+#include "color_detection.h"
 
 #include "settings.h"
 
@@ -57,6 +58,7 @@ void paddock_positionTest(void);
 void paddock_testCode(void);
 void paddock_pwmTest(void);
 void paddock_calibration(void);
+void paddock_colors(void);
 //-----
 
 // log level
@@ -75,6 +77,11 @@ extern hrobot_position_t position;
 
 // XXX
 extern hrobot_system_t system;
+
+// 
+extern color_detector_t color0;
+extern color_detector_t color120;
+extern color_detector_t color240;
 
 // CSs cpu usage in percent (0-100)
 extern uint8_t cs_cpuUsage;
@@ -206,7 +213,7 @@ int main(void)
 
   //----------------------------------------------------------------------
 
-  NOTICE(0,"'x' to reboot / 'c' manual control / 'a' ADNS test / 'z' position test / 'p' PWM test / 'l' calibration / 't' test code / (key/cord) to go ");
+  NOTICE(0,"'x' to reboot / 'c' manual control / 'a' ADNS test / 'z' position test / 'p' PWM test / 'l' calibration / 'o' color / 't' test code / (key/cord) to go ");
  
   int c;
   uint8_t cord_status, lock;
@@ -254,6 +261,9 @@ int main(void)
 
     if(c == 'l')
       paddock_calibration();
+
+    if(c == 'o')
+      paddock_colors();
 
     if(c != 0xFF)
       break;
@@ -538,6 +548,46 @@ void paddock_calibration(void)
 #endif
 
   while(1) nop();
+}
+
+void paddock_colors(void)
+{
+  color_t color;
+  char c0,c1,c2;
+  NOTICE(0,"Entering color test");
+
+  // kill CSs
+  scheduler_del_event(event_cs);
+
+  while(1)
+  {
+    color = color_detection_get_color(&color0);
+    if(color == CO_RED)
+      c0 = 'R';
+    else if(color == CO_BLUE)
+      c0 = 'B';
+    else
+      c0 = '-';
+      
+    color = color_detection_get_color(&color120);
+    if(color == CO_RED)
+      c1 = 'R';
+    else if(color == CO_BLUE)
+      c1 = 'B';
+    else
+      c1 = '-';
+
+    color = color_detection_get_color(&color240);
+    if(color == CO_RED)
+      c2 = 'R';
+    else if(color == CO_BLUE)
+      c2 = 'B';
+    else
+      c2 = '-';
+
+    NOTICE(0,"0: %c 120: %c 240: %c",c0,c1,c2);
+    wait_ms(100);
+  }
 }
 
 void safe_key_pressed(void* dummy)
