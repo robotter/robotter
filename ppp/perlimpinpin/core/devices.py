@@ -9,7 +9,6 @@ class Robot:
   Attributes:
     devices -- a tuple of devices (Device instances)
     messages -- a tuple of messages
-    wrappers -- a tuple of message wrappers
 
   """
 
