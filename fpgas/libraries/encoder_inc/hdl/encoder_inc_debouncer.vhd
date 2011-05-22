@@ -31,7 +31,9 @@ entity encoder_inc_debouncer is
 
   generic (
     --! Number of required identical values
-    reg_size_c   : natural range 2 to natural'high := 10
+    reg_size_c   : natural range 2 to natural'high := 10;
+    --! Default value, used at reset.
+    reset_data_c : std_logic := 'Z'
   );
   port (
     clk_i   : in  std_logic;
@@ -57,7 +59,7 @@ begin
   begin
 
     if reset_i = '1' then
-      reg_s <= (others => '0');
+      reg_s <= (others => reset_data_c);
 
     elsif rising_edge(clk_i) then
       -- new input data
@@ -73,7 +75,7 @@ begin
   begin
 
     if reset_i = '1' then
-      cur_s <= '0';
+      cur_s <= reset_data_c;
 
     elsif rising_edge(clk_i) then
       if reg_s = reg_0_c then

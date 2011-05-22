@@ -35,7 +35,7 @@ Entity atmega_nodir_wb8_wrapper is
       wbm_cycle : out std_logic ;
 
       -- clock 50MHz and reset
-      clk     : in std_logic ;
+      clk 	  : in std_logic ;
       reset : in std_logic 
 
       );
@@ -77,7 +77,7 @@ begin
       strobe <=  not(RD and WR);
       cycle <= not(RD and WR);
       write <= (not WR);
-    end if;  
+    end if;	
   end process synchro;
 
   wbm_write <= write;

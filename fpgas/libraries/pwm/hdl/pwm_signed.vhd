@@ -73,7 +73,12 @@ begin  -- pwm_signed_1
       if previous_update_param_v = '0' and update_param_i = '1' and period_i /= "0000000000000" then
         period_s            <= to_integer(unsigned(period_i(12 downto 0)));
         pwm_sign_s          <= pulse_duration_i(13);
-        pulse_duration_s    <= to_integer(unsigned(pulse_duration_i(12 downto 0)));
+        if pulse_duration_i(13) = '0' then
+          pulse_duration_s    <= to_integer(unsigned(pulse_duration_i(12 downto 0)));
+          else
+          pulse_duration_s    <= to_integer(unsigned(not(pulse_duration_i(12 downto 0))));
+        end if;
+        
         update_param_done_o <= '1';
         period_o <= period_i;
         pulse_duration_o <= pulse_duration_i;

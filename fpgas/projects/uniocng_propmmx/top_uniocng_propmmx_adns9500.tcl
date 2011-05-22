@@ -70,16 +70,26 @@ if {$make_assignments} {
 	set_global_assignment -name VHDL_FILE ../../libraries/adns9500/hdl/adns9500_spi.vhd
 	set_global_assignment -name VHDL_FILE ../../libraries/adns9500/hdl/adns9500_wishbone_interface.vhd
 	set_global_assignment -name VHDL_FILE ../../libraries/adns9500/hdl/top_adns9500.vhd
+	set_global_assignment -name VHDL_FILE ../../libraries/pwm/hdl/pwm_watchdog.vhd
+	set_global_assignment -name VHDL_FILE ../../libraries/pwm/hdl/pwm_signed.vhd
+	set_global_assignment -name VHDL_FILE ../../libraries/pwm/hdl/pwm_wishbone_interface.vhd
+	set_global_assignment -name VHDL_FILE ../../libraries/pwm/hdl/top_pwm.vhd
+	set_global_assignment -name VHDL_FILE ../../libraries/color_sensor/hdl/color_sensor_controlunit.vhd
+	set_global_assignment -name VHDL_FILE ../../libraries/color_sensor/hdl/color_sensor_interface.vhd
+	set_global_assignment -name VHDL_FILE ../../libraries/color_sensor/hdl/color_sensor_unit.vhd
+	set_global_assignment -name VHDL_FILE ../../libraries/color_sensor/hdl/color_sensor_top.vhd
 	set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 	set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 	set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
 	set_global_assignment -name LL_MEMBER_STATE LOCKED -section_id "Root Region"
 	set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-	set_location_assignment PIN_3 -to encoder_inc02_ch_a_i
-	set_location_assignment PIN_4 -to encoder_inc00_ch_a_i
-	set_location_assignment PIN_7 -to encoder_inc01_ch_b_i
-	set_location_assignment PIN_8 -to encoder_inc00_ch_b_i
-	set_location_assignment PIN_9 -to encoder_inc01_ch_a_i
+	set_location_assignment PIN_7 -to encoder_inc02_ch_a_i
+	set_location_assignment PIN_144 -to encoder_inc00_ch_a_i
+	set_location_assignment PIN_9 -to encoder_inc01_ch_b_i
+	set_location_assignment PIN_4 -to encoder_inc00_ch_b_i
+	set_location_assignment PIN_8 -to encoder_inc01_ch_a_i
+   set_location_assignment PIN_3 -to encoder_inc02_ch_b_i
+	set_location_assignment PIN_143 -to compass00_pwm_i
 	set_location_assignment PIN_28 -to rstext_syscon00_ext_rst_n
 	set_location_assignment PIN_42 -to atmega_nodir_wb8_wrapper00_DA[0]
 	set_location_assignment PIN_43 -to atmega_nodir_wb8_wrapper00_DA[1]
@@ -107,9 +117,7 @@ if {$make_assignments} {
 	set_location_assignment PIN_92 -to adns950000_miso_i
 	set_location_assignment PIN_94 -to adns950000_cs2_no
 	set_location_assignment PIN_97 -to adns950000_cs1_no
-	set_location_assignment PIN_143 -to encoder_inc02_ch_b_i
-	set_location_assignment PIN_144 -to compass00_pwm_i
-	set_location_assignment PIN_72 -to led00_led
+   set_location_assignment PIN_72 -to led00_led
 	set_location_assignment PIN_71 -to clk_mega_i
 
 	# Commit assignments

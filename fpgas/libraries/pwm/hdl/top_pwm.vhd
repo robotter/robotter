@@ -5,7 +5,7 @@
 -- File       : top_pwm.vhd
 -- Author     :   lamygalle
 -- Company    : 
--- Last update: 2011/04/19
+-- Last update: 2011-04-23
 -- Platform   : 
 -------------------------------------------------------------------------------
 -- Description: top of the pwm module for galiper robot 
@@ -25,9 +25,7 @@ entity top_pwm is
     wb_size_c            : natural                 := 8;  -- data port size
     default_period_c     : natural range 0 to 8191 := 8191;  -- pwm period after reset
     fpga_frequency_khz_c : natural                 := 50000
-
     );
-
   port (
     -- wishbone interface
     wbs_rst_i : IN std_logic;           -- asynchronous reset, active high
@@ -211,7 +209,7 @@ begin  -- top_pwm_1
       wbs_we_i  => wbs_we_i,
       wbs_stb_i => wbs_stb_i,
       wbs_ack_o => wbs_ack_o,
-      wbs_cyc_i => wbs_clk_i,
+      wbs_cyc_i => wbs_cyc_i,
 
       watchdog_timeout_i             => watchdog_timeout_is,
       watchdog_timeout_o             => watchdog_timeout_os,

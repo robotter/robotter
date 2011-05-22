@@ -23,28 +23,28 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-USE ieee.numeric_std.ALL;
+use ieee.numeric_std.all;
 
 entity pwm_wishbone_interface is
 
   generic (
-    id_c      :    natural := 10;       --! module ID
-    wb_size_c :    natural := 8         -- data port size
+    id_c      : natural := 10;          --! module ID
+    wb_size_c : natural := 8            -- data port size
     );
   port (
     --! Wishbone interface
     -- wishbone interface
-    wbs_rst_i : IN std_logic;           -- asynchronous reset, active high
-    wbs_clk_i : IN std_logic;           -- clock
+    wbs_rst_i : in std_logic;           -- asynchronous reset, active high
+    wbs_clk_i : in std_logic;           -- clock
 
-    wbs_adr_i : IN  std_logic_vector(5 DOWNTO 0);  -- address BUS
-    wbs_dat_o : OUT std_logic_vector(wb_size_c-1 DOWNTO 0);  -- data readden
-                                        -- from bus
-    wbs_dat_i : IN  std_logic_vector(wb_size_c-1 DOWNTO 0);  -- data write from BUS
-    wbs_we_i  : IN  std_logic;          -- read/write
-    wbs_stb_i : IN  std_logic;          -- validate read/write operation
-    wbs_ack_o : OUT std_logic;          -- operation succesful
-    wbs_cyc_i : IN  std_logic;
+    wbs_adr_i : in  std_logic_vector(5 downto 0);            -- address BUS
+    wbs_dat_o : out std_logic_vector(wb_size_c-1 downto 0);  -- data readden
+                                                             -- from bus
+    wbs_dat_i : in  std_logic_vector(wb_size_c-1 downto 0);  -- data write from BUS
+    wbs_we_i  : in  std_logic;          -- read/write
+    wbs_stb_i : in  std_logic;          -- validate read/write operation
+    wbs_ack_o : out std_logic;          -- operation succesful
+    wbs_cyc_i : in  std_logic;
 
     -- pwm watchdog
     watchdog_timeout_o             : out std_logic_vector(7 downto 0);  --watchdog timout value (in ms)
@@ -80,47 +80,47 @@ entity pwm_wishbone_interface is
     pwm_3_pulse_duration_i    : in  std_logic_vector(13 downto 0);  -- pulse duration of the pwm currently applied
     pwm_3_update_param_o      : out std_logic;  -- update values of period and pulse duration signal
     pwm_3_update_param_done_i : in  std_logic;  -- update values of period and pulse duration signa
-    pwm_3_ce_pwm_o            : out std_logic  -- enable emission of pwm
+    pwm_3_ce_pwm_o            : out std_logic   -- enable emission of pwm
     );
 
 end entity pwm_wishbone_interface;
 
 architecture pwm_wishbone_interface_1 of pwm_wishbone_interface is
   signal enable_pwm_1_s, enable_pwm_2_s, enable_pwm_3_s, watchdog_enable_s : std_logic;
-  SIGNAL ack_read_s                                                        : std_logic;
-  SIGNAL ack_write_s                                                       : std_logic;
+  signal ack_read_s                                                        : std_logic;
+  signal ack_write_s                                                       : std_logic;
 
 begin
 
-  wbs_ack_o <= ack_write_s OR ack_read_s;
+  wbs_ack_o <= ack_write_s or ack_read_s;
 
   pwm_1_ce_pwm_o    <= enable_pwm_1_s;
   pwm_2_ce_pwm_o    <= enable_pwm_2_s;
   pwm_3_ce_pwm_o    <= enable_pwm_3_s;
   watchdog_enable_o <= watchdog_enable_s;
 
-  write_bloc_p                                                                : PROCESS(wbs_clk_i, wbs_rst_i)
+  write_bloc_p : process(wbs_clk_i, wbs_rst_i)
     variable v_pwm_1_update_param, v_pwm_2_update_param, v_pwm_3_update_param : std_logic;
     variable v_watchdog_timeout_update                                        : std_logic;
-  BEGIN
-    IF wbs_rst_i = '1' THEN
-      ack_write_s       <= '0';
+  begin
+    if wbs_rst_i = '1' then
+      ack_write_s               <= '0';
       v_pwm_1_update_param      := '0';
       v_pwm_2_update_param      := '0';
       v_pwm_3_update_param      := '0';
       v_watchdog_timeout_update := '0';
-      enable_pwm_1_s    <= '0';
-      enable_pwm_2_s    <= '0';
-      enable_pwm_3_s    <= '0';
-      watchdog_enable_s <= '0';
+      enable_pwm_1_s            <= '0';
+      enable_pwm_2_s            <= '0';
+      enable_pwm_3_s            <= '0';
+      watchdog_enable_s         <= '0';
 
-    ELSIF rising_edge(wbs_clk_i) THEN
-      IF ((wbs_stb_i AND wbs_we_i AND wbs_cyc_i) = '1') THEN
-        ack_write_s                    <= '1';
-        CASE to_integer(unsigned(wbs_adr_i))IS
+    elsif rising_edge(wbs_clk_i) then
+      if ((wbs_stb_i and wbs_we_i and wbs_cyc_i) = '1') then
+        ack_write_s <= '1';
+        case to_integer(unsigned(wbs_adr_i))is
           -- pwm config
-          WHEN 1 => watchdog_enable_s  <= wbs_dat_i(1);
-          WHEN 2 => watchdog_timeout_o <= wbs_dat_i;
+          when 1 => watchdog_enable_s  <= wbs_dat_i(1);
+          when 2 => watchdog_timeout_o <= wbs_dat_i;
                     v_watchdog_timeout_update := '1';
 
                     -- pwm config
@@ -130,37 +130,37 @@ begin
 
 
                     -- pwm 1 parameters
-          when 4 => pwm_1_period_o(7 downto 0)          <= wbs_dat_i;
-          when 5 => pwm_1_period_o(12 downto 8)         <= wbs_dat_i(4 downto 0);
-          when 6 => pwm_1_pulse_duration_o(7 downto 0)  <= wbs_dat_i;
+          when 4 => pwm_1_period_o(7 downto 0)         <= wbs_dat_i;
+          when 5 => pwm_1_period_o(12 downto 8)        <= wbs_dat_i(4 downto 0);
+          when 6 => pwm_1_pulse_duration_o(7 downto 0) <= wbs_dat_i;
                     v_pwm_1_update_param := '1';
           when 7 => pwm_1_pulse_duration_o(12 downto 8) <= wbs_dat_i(4 downto 0);
-                    pwm_1_pulse_duration_o(13)          <= wbs_dat_i(7);  -- recopy sign
+                    pwm_1_pulse_duration_o(13) <= wbs_dat_i(7);  -- recopy sign
 
                     -- pwm 2 parameters
-          when 8  => pwm_2_period_o(7 downto 0)          <= wbs_dat_i;
-          when 9  => pwm_2_period_o(12 downto 8)         <= wbs_dat_i(4 downto 0);
-          when 10 => pwm_2_pulse_duration_o(7 downto 0)  <= wbs_dat_i;
+          when 8  => pwm_2_period_o(7 downto 0)         <= wbs_dat_i;
+          when 9  => pwm_2_period_o(12 downto 8)        <= wbs_dat_i(4 downto 0);
+          when 10 => pwm_2_pulse_duration_o(7 downto 0) <= wbs_dat_i;
                      v_pwm_2_update_param := '1';
           when 11 => pwm_2_pulse_duration_o(12 downto 8) <= wbs_dat_i(4 downto 0);
-                     pwm_2_pulse_duration_o(13)          <= wbs_dat_i(7);  -- recopy sign
+                     pwm_2_pulse_duration_o(13) <= wbs_dat_i(7);  -- recopy sign
 
                      -- pwm 2 parameters
-          when 12     => pwm_3_period_o(7 downto 0)          <= wbs_dat_i;
-          when 13     => pwm_3_period_o(12 downto 8)         <= wbs_dat_i(4 downto 0);
-          when 14     => pwm_3_pulse_duration_o(7 downto 0)  <= wbs_dat_i;
-                     v_pwm_3_update_param := '1';
-          when 15     => pwm_3_pulse_duration_o(12 downto 8) <= wbs_dat_i(4 downto 0);
-                     pwm_3_pulse_duration_o(13)              <= wbs_dat_i(7);  -- recopy sign
-          WHEN OTHERS => NULL;
-        END CASE;
-      ELSE
-        ack_write_s                                          <= '0';
-        pwm_1_update_param_o                                 <= v_pwm_1_update_param;
-        pwm_2_update_param_o                                 <= v_pwm_2_update_param;
-        pwm_3_update_param_o                                 <= v_pwm_3_update_param;
-        watchdog_timeout_update_o                            <= v_watchdog_timeout_update;
-      END IF;
+          when 12 => pwm_3_period_o(7 downto 0)         <= wbs_dat_i;
+          when 13 => pwm_3_period_o(12 downto 8)        <= wbs_dat_i(4 downto 0);
+          when 14 => pwm_3_pulse_duration_o(7 downto 0) <= wbs_dat_i;
+                         v_pwm_3_update_param := '1';
+          when 15 => pwm_3_pulse_duration_o(12 downto 8) <= wbs_dat_i(4 downto 0);
+                         pwm_3_pulse_duration_o(13) <= wbs_dat_i(7);  -- recopy sign
+          when others => null;
+        end case;
+      else
+        ack_write_s               <= '0';
+        pwm_1_update_param_o      <= v_pwm_1_update_param;
+        pwm_2_update_param_o      <= v_pwm_2_update_param;
+        pwm_3_update_param_o      <= v_pwm_3_update_param;
+        watchdog_timeout_update_o <= v_watchdog_timeout_update;
+      end if;
 
       if pwm_1_update_param_done_i = '1' then
         v_pwm_1_update_param := '0';
@@ -178,26 +178,26 @@ begin
         v_watchdog_timeout_update := '0';
       end if;
 
-    END IF;
+    end if;
 
-  END PROCESS write_bloc_p;
+  end process write_bloc_p;
 
 
-  read_bloc_p : PROCESS(wbs_clk_i, wbs_rst_i)
-  BEGIN
-    IF wbs_rst_i = '1' THEN
-      wbs_dat_o  <= (OTHERS => '0');
+  read_bloc_p : process(wbs_clk_i, wbs_rst_i)
+  begin
+    if wbs_rst_i = '1' then
+      wbs_dat_o  <= (others => '0');
       ack_read_s <= '0';
 
-    ELSIF rising_edge(wbs_clk_i) THEN
-      IF (wbs_stb_i = '1' AND wbs_we_i = '0' AND wbs_cyc_i = '1') THEN
-        ack_read_s            <= '1';
-        CASE to_integer(unsigned(wbs_adr_i)) IS
-          WHEN 0 => wbs_dat_o <= std_logic_vector(to_unsigned(id_c, wb_size_c));
+    elsif rising_edge(wbs_clk_i) then
+      if (wbs_stb_i = '1' and wbs_we_i = '0' and wbs_cyc_i = '1') then
+        ack_read_s <= '1';
+        case to_integer(unsigned(wbs_adr_i)) is
+          when 0 => wbs_dat_o <= std_logic_vector(to_unsigned(id_c, wb_size_c));
                     -- lock adns latchs
-          WHEN 1 => wbs_dat_o <= (0 => watchdog_timout_reached_i, 1 => watchdog_enable_i, others => '0');
+          when 1 => wbs_dat_o <= (0 => watchdog_timout_reached_i, 1 => watchdog_enable_i, others => '0');
                     -- pwm period
-          WHEN 2 => wbs_dat_o <= watchdog_timeout_i;
+          when 2 => wbs_dat_o <= watchdog_timeout_i;
           when 3 => wbs_dat_o <= (0 => enable_pwm_1_s, 1 => enable_pwm_2_s, 2 => enable_pwm_3_s, others => '0');
 
                     -- pwm 1
@@ -212,20 +212,20 @@ begin
           when 10 => wbs_dat_o <= pwm_2_pulse_duration_i(7 downto 0);
           when 11 => wbs_dat_o <= pwm_2_pulse_duration_i(13) & "00" & pwm_2_pulse_duration_i(12 downto 8);
 
-                    -- pwm 3
+                     -- pwm 3
           when 12     => wbs_dat_o <= pwm_3_period_i(7 downto 0);
           when 13     => wbs_dat_o <= "000" & pwm_3_period_i(12 downto 8);
           when 14     => wbs_dat_o <= pwm_3_pulse_duration_i(7 downto 0);
           when 15     => wbs_dat_o <= pwm_3_pulse_duration_i(13) & "00" & pwm_3_pulse_duration_i(12 downto 8);
-          WHEN OTHERS => NULL;
-        END CASE;
+          when others => null;
+        end case;
 
-      ELSE
-        wbs_dat_o  <= (OTHERS => '0');
+      else
+        wbs_dat_o  <= (others => '0');
         ack_read_s <= '0';
-      END IF;
-    END IF;
-  END PROCESS read_bloc_p;
+      end if;
+    end if;
+  end process read_bloc_p;
 
 
 end architecture pwm_wishbone_interface_1;

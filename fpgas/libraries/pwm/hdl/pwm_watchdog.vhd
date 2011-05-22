@@ -53,10 +53,10 @@ is
   signal s_clk_1ms : std_logic;
 
   signal s_watchdog_timeout        : natural range 0 to 255;
-  signal s_watchdog_timout_reached : std_logic;
+  signal s_watchdog_timeout_reached : std_logic;
 begin  -- pwm_signed_1
 
-  watchdog_timout_reached_o <= s_watchdog_timout_reached when watchdog_enable_i = '1'
+  watchdog_timout_reached_o <= s_watchdog_timeout_reached when watchdog_enable_i = '1'
                                else '0';
   
   watchdog_enable_o <= watchdog_enable_i;  -- update enable status
@@ -75,7 +75,7 @@ begin  -- pwm_signed_1
         v_watchdog_timeout               := watchdog_timeout_i;
       end if;
 
-      -- only update timout when data isn't used
+      -- only update timeout when data isn't used
       if v_previous_reset_watchdog = '0' and reset_watchdog_i = '1' then
         s_watchdog_timeout <= to_integer(unsigned(v_watchdog_timeout(7 downto 0)));
         watchdog_timeout_o <= v_watchdog_timeout;
@@ -112,23 +112,24 @@ begin  -- pwm_signed_1
     variable v_previous_reset_watchdog : std_logic;
   begin  -- process watchdog_p
     if reset_i = '0' then
-      s_watchdog_timout_reached <= '0';
+      s_watchdog_timeout_reached <= '0';
       v_previous_clk_1ms        := '1';
       v_counter                 := 0;
       v_previous_reset_watchdog := '1';
 
     elsif rising_edge(clk_i) then
-      if v_previous_clk_1ms = '0' and s_clk_1ms = '1' and s_watchdog_timout_reached = '0' then
+      if v_previous_clk_1ms = '0' and s_clk_1ms = '1' and s_watchdog_timeout_reached = '0' then
         v_counter := v_counter +1;
         if v_counter = s_watchdog_timeout then
-          s_watchdog_timout_reached <= '1';
+          s_watchdog_timeout_reached <= '1';
         end if;
       end if;
 
       if v_previous_reset_watchdog = '0' and reset_watchdog_i = '1' then
-        s_watchdog_timout_reached <= '0';
+        s_watchdog_timeout_reached <= '0';
+        v_counter := 0;
       end if;
-
+      
       v_previous_reset_watchdog := reset_watchdog_i;
       v_previous_clk_1ms        := s_clk_1ms;
 
