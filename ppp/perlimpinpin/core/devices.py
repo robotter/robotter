@@ -7,25 +7,24 @@ class Robot:
   Describe a robot.
 
   Attributes:
-    devices -- a tuple of devices (Device instances)
-    messages -- a tuple of messages
+    devices -- a list of devices (Device instances)
+    messages -- a list of messages
 
   """
 
-  def __init__(self, devices, wrappers):
-    """Create a new robot description.
-    Check device and message consistency.
-    Auto-attribute IDs to message without ID.
-    """
-    # assign robot to devices
-    for dev in devices:
-      if dev.robot is not None:
-        raise AttributeError("device %r already assigned to a robot" % dev.name)
-      dev.robot = self
-    self.devices = tuple(devices)
+  def __init__(self, objs):
+    """Create a new robot description."""
+    self.devices = []
+    self.messages = []
+    self.wrappers = []
+    self.update(objs)
+
+
+  def add_devices(self, devices):
+    """Add devices to the robot."""
 
     # check for duplicate names (case insensitive)
-    dev_names = set()  # device names, lowercase
+    dev_names = set( dev.name.lower() for dev in self.devices )
     for dev in devices:
       name = dev.name.lower()
       if name in dev_names:
@@ -34,7 +33,7 @@ class Robot:
         dev_names.add(name)
 
     # check for duplicate ROIDs
-    dev_roids = {}  # devices, indexed by ROID
+    dev_roids = dict( (dev.roid, dev) for dev in self.devices )
     for dev in devices:
       roid = dev.roid
       if roid in dev_roids:
@@ -43,13 +42,26 @@ class Robot:
       else:
         dev_roids[roid] = dev
 
-    self.messages = tuple( msg for w in wrappers for msg in w.messages() )
+    # assign robot to devices
+    for dev in devices:
+      if dev.robot is not None:
+        raise AttributeError("device %r already assigned to a robot" % dev.name)
+      dev.robot = self
+
+    self.devices += devices
+
+
+  def add_messages(self, wrappers):
+    """Add messages to the robot, from wrappers.
+    Auto-attribute IDs to messages without an ID.
+    """
+    messages = [ msg for w in wrappers for msg in w.messages() ]
 
     # check for duplicate message IDs or names (case insensitive)
-    msgs_map = {}  # messages, indexed by ID
+    msgs_map = dict( (msg.mid, msg) for msg in self.messages )
+    msgs_names = set( msg.name for msg in self.messages )
     msgs_noid = []  # messages without ID
-    msgs_names = set()
-    for msg in self.messages:
+    for msg in messages:
       mid = msg.mid
       if mid is None:
         msgs_noid.append(msg)
@@ -75,6 +87,25 @@ class Robot:
           raise OverflowError("too many messages")
       msg.mid = mid
       msgs_map[mid] = msg
+
+    self.messages += messages
+
+
+  def merge(self, robot):
+    """Merge content from another robot."""
+    self.add_devices(robot.devices)
+    self.add_messages(robot.messages)
+
+  def update(self, objs):
+    """Add/merge random objects (devices, messages, robots...)."""
+    for obj in objs:
+      if isinstance(obj, Robot):
+        self.merge(obj)
+      elif isinstance(obj, Device):
+        self.add_devices([obj])
+      elif isinstance(obj, MessageWrapper):
+        self.add_messages([obj])
+
 
 
 class Device(object):
