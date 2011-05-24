@@ -89,6 +89,7 @@ extern uint8_t cs_cpuUsage;
 // scheduler events
 uint8_t event_position;
 uint8_t event_cs;
+uint8_t event_key;
 
 // time in seconds at startup
 seconds time_startup;
@@ -204,7 +205,8 @@ int main(void)
                                               SETTING_SCHED_CS_PRIORITY);
 
   // Safe key event
-  scheduler_add_periodical_event_priority(&safe_key_pressed, NULL,
+  event_key =
+    scheduler_add_periodical_event_priority(&safe_key_pressed, NULL,
                                               SETTING_SCHED_SAFEKEY_PERIOD,
                                               SETTING_SCHED_SAFEKEY_PRIORITY);
 
@@ -550,43 +552,73 @@ void paddock_calibration(void)
   while(1) nop();
 }
 
+char convert_color_from_cd(color_t color)
+{
+  switch(color)
+  {
+    case CO_BOTH: return '*';
+    case CO_RED: return 'R';
+    case CO_BLUE: return 'B';
+    case CO_NONE: return '-';
+    default: return '?';
+  }
+}
+
 void paddock_colors(void)
 {
   color_t color;
   char c0,c1,c2;
+  uint16_t tr0 = SETTING_COLOR_DETECTOR_0_RED_THRESHOLD;
+  uint16_t tb0 = SETTING_COLOR_DETECTOR_0_BLUE_THRESHOLD;
+  uint16_t tr1 = SETTING_COLOR_DETECTOR_120_RED_THRESHOLD;
+  uint16_t tb1 = SETTING_COLOR_DETECTOR_120_BLUE_THRESHOLD;
+  uint16_t tr2 = SETTING_COLOR_DETECTOR_240_RED_THRESHOLD;
+  uint16_t tb2 = SETTING_COLOR_DETECTOR_240_BLUE_THRESHOLD;
+  int c;
   NOTICE(0,"Entering color test");
 
   // kill CSs
   scheduler_del_event(event_cs);
+  scheduler_del_event(event_key);
 
   while(1)
   {
+    c = cli_getkey_nowait();
+
+    switch(c)
+    {
+      case 't': color_detection_set_threshold(&color0, CO_RED, tr0++); break;
+      case 'g': color_detection_set_threshold(&color0, CO_RED, tr0--); break;
+      case 'y': color_detection_set_threshold(&color0, CO_BLUE, tb0++); break;
+      case 'h': color_detection_set_threshold(&color0, CO_BLUE, tb0--); break;
+
+      case 'u': color_detection_set_threshold(&color120, CO_RED, tr1++); break;
+      case 'j': color_detection_set_threshold(&color120, CO_RED, tr1--); break;
+      case 'i': color_detection_set_threshold(&color120, CO_BLUE, tb1++); break;
+      case 'k': color_detection_set_threshold(&color120, CO_BLUE, tb1--); break;
+
+      case 'o': color_detection_set_threshold(&color240, CO_RED, tr2++); break;
+      case 'l': color_detection_set_threshold(&color240, CO_RED, tr2--); break;
+      case 'p': color_detection_set_threshold(&color240, CO_BLUE, tb2++); break;
+      case 'm': color_detection_set_threshold(&color240, CO_BLUE, tb2--); break;
+      default: break;
+    }
+
     color = color_detection_get_color(&color0);
-    if(color == CO_RED)
-      c0 = 'R';
-    else if(color == CO_BLUE)
-      c0 = 'B';
-    else
-      c0 = '-';
+    c0 = convert_color_from_cd(color);
       
     color = color_detection_get_color(&color120);
-    if(color == CO_RED)
-      c1 = 'R';
-    else if(color == CO_BLUE)
-      c1 = 'B';
-    else
-      c1 = '-';
+    c1= convert_color_from_cd(color);
 
     color = color_detection_get_color(&color240);
-    if(color == CO_RED)
-      c2 = 'R';
-    else if(color == CO_BLUE)
-      c2 = 'B';
-    else
-      c2 = '-';
+    c2= convert_color_from_cd(color);
 
-    NOTICE(0,"0: %c 120: %c 240: %c",c0,c1,c2);
-    wait_ms(100);
+    NOTICE(0,"0: RT=%d BT=%d %c | 120: RT=%d BT=%d %c | 240: RT=%d BT=%d %c ",
+              tr0,tb0,c0,
+              tr1,tb1,c1,
+              tr2,tb2,c2);
+
+    wait_ms(10);
   }
 }
 

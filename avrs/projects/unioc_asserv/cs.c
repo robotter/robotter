@@ -75,8 +75,16 @@ void cs_initialize(void)
 {
   NOTICE(0,"Initializing color detectors");
   color_detection_init(&color0, SETTING_COLOR_DETECTOR_0);
+  color_detection_set_threshold(&color0, CO_RED, SETTING_COLOR_DETECTOR_0_RED_THRESHOLD);
+  color_detection_set_threshold(&color0, CO_BLUE, SETTING_COLOR_DETECTOR_0_BLUE_THRESHOLD);
+
   color_detection_init(&color120, SETTING_COLOR_DETECTOR_120);
+  color_detection_set_threshold(&color120, CO_RED, SETTING_COLOR_DETECTOR_120_RED_THRESHOLD);
+  color_detection_set_threshold(&color120, CO_BLUE, SETTING_COLOR_DETECTOR_120_BLUE_THRESHOLD);
+
   color_detection_init(&color240, SETTING_COLOR_DETECTOR_240);
+  color_detection_set_threshold(&color240, CO_RED, SETTING_COLOR_DETECTOR_240_RED_THRESHOLD);
+  color_detection_set_threshold(&color240, CO_BLUE, SETTING_COLOR_DETECTOR_240_BLUE_THRESHOLD);
   
   // Initialize robot manager
   NOTICE(0,"Initializing robot manager");
@@ -123,7 +131,6 @@ void cs_initialize(void)
   // Initialize avoidance system
   NOTICE(0,"Initializing avoidance system");
   avoidance_init(&avoidance);
-
 }
 
 uint16_t dbg_timer;

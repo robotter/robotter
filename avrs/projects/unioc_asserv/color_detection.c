@@ -47,6 +47,9 @@ color_t color_detection_get_color(color_detector_t* cd)
 {
   uint8_t status = FPGA_COLOR(cd->base_addr);
 
+  if((status & FPGA_REGISTER_COLOR_RED)  && (status & FPGA_REGISTER_COLOR_BLUE))
+    return CO_BOTH;
+
   if(status & FPGA_REGISTER_COLOR_RED)
     return CO_RED;
 

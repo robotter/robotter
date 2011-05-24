@@ -31,12 +31,14 @@
 
 #define FPGA_REGISTER_COLOR_RED 0x01
 #define FPGA_REGISTER_COLOR_BLUE 0x02
+#define FPGA_REGISTER_COLOR_BOTH 0x03
 
 typedef enum
 {
-  CO_RED = 0,
+  CO_NONE = 0,
+  CO_RED,
   CO_BLUE,
-  CO_NONE
+  CO_BOTH
 
 } color_t;
 
