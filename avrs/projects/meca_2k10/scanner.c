@@ -33,61 +33,187 @@
 
 extern actuators_t actuators;
 
-int16_t scanner_get_distance(scanner_t n)
+#define SIN_60 (0.86602540378443871)
+#define COS_60 (0.49999999999999994)
+
+static void _rotate(armPos_t n, double *x, double *y)
 {
-  uint16_t adcv;
+  double xn,yn;
+  *y += SETTING_SCANNER_R0;
+  switch(n)
+  {
+    case ARM_LEFT:
+      xn = (*x)*COS_60 - (*y)*SIN_60;
+      yn = (*x)*SIN_60 + (*y)*COS_60;
+      break;
+    case ARM_RIGHT:
+      xn = (*x)*COS_60 + (*y)*SIN_60;
+      yn = -(*x)*SIN_60 + (*y)*COS_60;
+      break;
+    default: break;
+  }
+  *x = xn; *y = yn;
+}
+
+int16_t scanner_get_distance(armPos_t n, double *px, double *py)
+{
+  int16_t yr = 0,yl = 0;
+  int16_t xr,xl;
+  int32_t bmin, bmax;
+  double vx,vy,vnorm,a,k;
+
+  switch(n)
+  {
+    case ARM_LEFT:
+      yr = scanner_do_scan(MUX_ADC2, MUX_ADC3, SETTING_AX12_ID_LEFT_SCANNER,
+                  SETTING_SCANNER_START, SETTING_SCANNER_STOP,
+                  SETTING_SCANNER_STEP,
+                  &bmin, &bmax);
+  
+      yl = scanner_do_scan(MUX_ADC3, 0, SETTING_AX12_ID_LEFT_SCANNER,
+                        bmin, bmax,
+                        (bmax - bmin)/2,
+                        NULL, NULL);
+      xr = SETTING_SCANNER_LEFT_DXR;
+      xl = SETTING_SCANNER_LEFT_DXL;
+      break;
+    case ARM_RIGHT:
+      yr = scanner_do_scan(MUX_ADC1, MUX_ADC0, SETTING_AX12_ID_RIGHT_SCANNER,
+                  SETTING_SCANNER_START, SETTING_SCANNER_STOP,
+                  SETTING_SCANNER_STEP,
+                  &bmin, &bmax);
+  
+      yl = scanner_do_scan(MUX_ADC0, 0, SETTING_AX12_ID_RIGHT_SCANNER, 
+                        bmin, bmax,
+                        (bmax - bmin)/2,
+                        NULL, NULL);
+      xr = SETTING_SCANNER_RIGHT_DXR;
+      xl = SETTING_SCANNER_RIGHT_DXL;
+      break;
+    default:
+      ERROR(0,"Wrong side");
+  }
+
+  // both scanners found pawn
+  if( (yr > 0) && (yl > 0))
+  {
+    vx = 0.5*(xr-xl);
+    vy = 0.5*(yr-yl);
+      
+    vnorm = vx*vx + vy*vy;
+    a = sqrt(SETTING_PLAYGROUND_PAWN_R*SETTING_PLAYGROUND_PAWN_R-vnorm);
+    k = a/sqrt(vnorm);
+
+    *px = xl + vx - k*vy;
+    *py = yl + vy + k*vx;
+    DEBUG(0,"UNROT %1.1f %1.1f",*px,*py);
+    _rotate(n,px,py);
+    DEBUG(0,"PAWN FOUND (CERTAIN) C( %1.1f, %1.1f )",*px,*py);
+    return SCC_GOOD;
+  }
+  // right scanner got pawn
+  else if (yr > 0)
+  {
+    *px = xr + 0.5*M_SQRT2*SETTING_PLAYGROUND_PAWN_R;
+    *py = yr + 0.5*M_SQRT2*SETTING_PLAYGROUND_PAWN_R;
+    _rotate(n,px,py);
+    DEBUG(0,"PAWN FOUND (UNCERTAIN) C( %1.1f, %1.1f )",*px,*py);
+    return SCC_BAD;
+  }
+  else if (yl > 0)
+  {
+    *px = xl - 0.5*M_SQRT2*SETTING_PLAYGROUND_PAWN_R;
+    *py = yl + 0.5*M_SQRT2*SETTING_PLAYGROUND_PAWN_R;
+    _rotate(n,px,py);
+    DEBUG(0,"PAWN FOUND (UNCERTAIN) C( %1.1f, %1.1f )",*px,*py);
+    return SCC_BAD;
+  }
+  else
+  {
+    DEBUG(0,"PAWN NOT FOUND");
+    return SCC_NONE;
+  }
+
+  wait_ms(2000);
+
+  return 0;
+}
+
+/** @brief Convert GP2 ADC value to position */
+static void _gp2_convert(uint16_t adcv, int32_t pos, double *y, double *z)
+{
+  double a,g;
+  // servo angle
+  a = ((512-pos)*300)/1024.0;
+  // distance to g
+  g = -2.976E-6*pow(adcv,3) + 0.006303*pow(adcv,2) -4.936*adcv + 1664 + 30;
+  // x,y
+  a = (a*M_PI)/180.0;
+  *y = g*cos(a);
+  *z = 205-g*sin(a);
+}
+
+int16_t scanner_do_scan(uint8_t muxa, uint8_t muxb, uint8_t ax12id,
+                        uint16_t start, uint16_t stop, uint16_t step,
+                        int32_t *bmin, int32_t *bmax)
+{
+  uint16_t adcv = 0,adcvb = 0;
   int32_t pos;
-  double a,g,x,y;
+  double y,z,yb,zb;
 
-  uint16_t start = SETTING_SCANNER_START;
-  uint16_t stop = SETTING_SCANNER_STOP;
-  uint8_t step = SETTING_SCANNER_STEP;
-
-  uint8_t failed = 1;
+  if(muxb)
+  {
+    *bmin = start;
+    *bmax = stop;
+  }
+  uint8_t failed;
   while(1)
   {
+    failed = 1;
     for(pos=start;pos<=stop;pos+=step)
     {
       // set AX12 to pos
-      actuators_ax12_setPosition(&actuators, 4, pos);
-      while( actuators_ax12_checkPosition(&actuators, 4, pos) == 0 )
+      actuators_ax12_setPosition(&actuators, ax12id, pos);
+      while( actuators_ax12_checkPosition(&actuators, ax12id, pos) == 0 )
         wait_ms(1);
 
       // wait for GP2D* signal stabilisation
       wait_ms(100);
-      adcv = adc_get_value( MUX_ADC2 | ADC_REF_AVCC);
+      adcv = adc_get_value( muxa | ADC_REF_AVCC);
+      if(muxb)
+        adcvb = adc_get_value( muxb | ADC_REF_AVCC);
 
       // -- compute x,y from adcv,pos
-      // servo angle
-      a = ((512-pos)*300)/1024.0;
-      // distance to g
-      g = -2.976E-6*pow(adcv,3) + 0.006303*pow(adcv,2) -4.936*adcv + 1664 + 30;
-      // x,y
-      a = (a*M_PI)/180.0;
-      x = g*cos(a);
-      y = 205-g*sin(a);
+      _gp2_convert(adcv,pos,&y,&z);
+      if(muxb)
+        _gp2_convert(adcvb,pos,&yb,&zb);
 
-      // pion vu
-      if(y > SETTING_SCANNER_Y_THRESHOLD)
+      // pawn saw by A detector
+      if(z > SETTING_SCANNER_Z_THRESHOLD)
       {
         start = pos - step;
         stop = pos + step;
         step /= 2;
         if(step < SETTING_SCANNER_MIN_STEP)
-        {
-          DEBUG(0,"PALET FOUND @ x=%f",x);
-          return (int16_t)x;
-        }
+          return (int16_t)y;
         failed = 0;
         break;
+      }
+
+      // pawn saw by B detector
+      if(muxb)
+      {
+       if(zb > SETTING_SCANNER_Z_THRESHOLD)
+       {
+         if(*bmax != stop) *bmax = pos;
+       }
+       else
+         *bmin = pos;
       }
     } //for(pos=start;pos<=stop;pos+=step)
 
     if(failed)
-    {
-      DEBUG(0,"PALET NOT FOUND");
       return -1;
-    }
   }
 }
 

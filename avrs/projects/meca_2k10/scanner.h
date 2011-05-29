@@ -26,17 +26,22 @@
 #include <aversive.h>
 #include <aversive/error.h>
 
+#include "actuators.h"
+
 typedef enum
 {
-  SCANNER_LL = 0,
-  SCANNER_LR,
-  SCANNER_RL,
-  SCANNER_RR
-} scanner_t;
+  SCC_NONE = 0,
+  SCC_BAD,
+  SCC_GOOD
+} scan_certainty_t;
 
-/** Detect pawn on scanner number n 
+/** Detect pawn on side n
  * @return Pawn distance to robot in mm, -1 on no pawn found
  * */
-float scanner_detect(scanner_t n);
+int16_t scanner_get_distance(armPos_t n, double *px, double *py);
+
+int16_t scanner_do_scan(uint8_t muxa, uint8_t muxb, uint8_t ax12id,
+                        uint16_t start, uint16_t stop, uint16_t step,
+                        int32_t *bmin, int32_t *bmax);
 
 #endif/*SCANNER_H*/

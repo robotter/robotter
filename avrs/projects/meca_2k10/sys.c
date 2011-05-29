@@ -29,7 +29,6 @@
 #include "sys.h"
 #include "led.h"
 #include "ax12_user.h"
-#include "scanner.h"
 #include "ground_detector.h"
 #include "actuators.h"
 #include "settings.h"
@@ -38,8 +37,6 @@
 AX12 ax12;
 // actuators
 actuators_t actuators;
-// scanner
-scanner_t scanner;
 // ground detectors
 ground_detector_t gd_left;
 ground_detector_t gd_right;

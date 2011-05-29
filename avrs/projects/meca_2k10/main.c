@@ -13,6 +13,7 @@
 #include "ax12_user.h"
 
 #include "sys.h"
+#include "scanner.h"
 #include "actuators.h"
 #include "ground_detector.h"
 #include "led.h"
@@ -46,6 +47,7 @@ void paddock_AX12manual(void);
 void paddock_actuatorsManual(void);
 void paddock_groundDetector(void);
 void paddock_sandbox(void);
+void paddock_GP2(void);
 
 int main(void)
 {
@@ -123,7 +125,7 @@ int main(void)
 
   uint8_t c;
 
-  NOTICE(0,"Strike 'x' to reboot / 'e' AX12 EEPROM load / 'm' AX12 manual control / 'a' actuators manual control / 'g' ground detector sensor");
+  NOTICE(0,"Strike 'x' to reboot / 'e' AX12 EEPROM load / 'm' AX12 / 'a' actuators / 'g' ground / 'p' GP2* / 's' sandbox ");
 
   led_off(1);
 
@@ -148,9 +150,28 @@ int main(void)
 
     if(c == 's')
       paddock_sandbox();
+
+    if(c == 'p')
+      paddock_GP2();
   }
 
   while(1) nop();
+}
+
+void paddock_GP2(void)
+{
+  int16_t m1,m2,m3,m4;
+
+  NOTICE(0,"GP2 DEBUG");
+
+  while(1)
+  {
+    m1 = adc_get_value( MUX_ADC0 | ADC_REF_AVCC );
+    m2 = adc_get_value( MUX_ADC1 | ADC_REF_AVCC );
+    m3 = adc_get_value( MUX_ADC2 | ADC_REF_AVCC );
+    m4 = adc_get_value( MUX_ADC3 | ADC_REF_AVCC );
+    NOTICE(0,"0: %d | 1: %d | 2: %d | 3: %d",m1,m2,m3,m4);
+  }
 }
 
 void paddock_setAX12EEPROMs(void)
@@ -278,7 +299,15 @@ void paddock_AX12manual(void)
 void paddock_sandbox(void)
 {
   ground_detector_t* gd = &gd_left;
+  double x,y;
+  uint8_t rv;
 
+  while(1)
+  {
+    rv = scanner_get_distance(0,&x,&y);
+    NOTICE(0,"rv=%d x=%f y=%f",rv,x,y);
+  } 
+  
   while(1)
   {
     
@@ -289,7 +318,7 @@ void paddock_sandbox(void)
     NOTICE(0,"OBJECT ?");
     while(!ground_detector_is_object_present(gd));
 
-    wait_ms(1000);
+    wait_ms(0);
 
     NOTICE(0,"LOW");
     actuators_arm_lower(&actuators, ARM_LEFT);
@@ -301,6 +330,15 @@ void paddock_sandbox(void)
     actuators_arm_raise(&actuators, ARM_LEFT);
     while(!actuators_arm_is_raised(&actuators, ARM_LEFT));
 
+
+    wait_ms(1000);
+    NOTICE(0,"DROP");
+    actuators_arm_mid(&actuators, ARM_LEFT);
+    while(!actuators_arm_is_mided(&actuators, ARM_LEFT));
+
+    actuators_ax12_setPositionSpeed(&actuators, SETTING_AX12_ID_LEFT_ARM,
+                                      SETTING_AX12_POS_LARM_RAISED,
+                                      200);
     
     EMERG(0,"KILL ME");
   }
