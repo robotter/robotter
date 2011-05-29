@@ -136,8 +136,8 @@ void time_set(seconds s, microseconds us)
 
 void time_wait_ms(uint16_t ms)
 {
-	microseconds old = time_get_us2();
-	while(time_get_us2() - old < ((uint32_t)ms*1000));
+	microseconds target = time_get_us2() + (uint32_t)ms*1000;
+	while(time_get_us2() < target);
 }
 
 /**********************************************************/
