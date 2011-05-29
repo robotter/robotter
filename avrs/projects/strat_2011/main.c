@@ -1,6 +1,6 @@
 #include <avr/wdt.h>
 #include <aversive.h>
-#include <perlimpinpin.h>
+#include <perlimpinpin_common.h>
 #include <uart.h>
 #include <matchuart.h>
 #include "logging.h"
@@ -15,15 +15,11 @@ static void do_reset(void)
 
 static void ppp_msg_callback(PPPMsgFrame *msg)
 {
+  if( ppp_common_callback(msg) ) {
+    return;
+  }
   switch( msg->mid ) {
-    case PPP_MID_NONE:
-      break;
-    case PPP_MID_FORTYTWO:
-      PPP_SEND_FORTYTWO_R(msg->src, 42);
-      break;
-
-    case PPP_MID_ARM_IS_POS_R:
-    case PPP_MID_GROUND_DETECT_R:
+    case PPP_MID_KILL:
     default:
       return;
   }
@@ -40,7 +36,9 @@ int main(void)
   sei();
 
   NOTICE(0, "STRAT START");
-  for(;;) ;
+  for(;;) {
+    ppp_update();
+  }
 
   return 0;
 }
