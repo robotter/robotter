@@ -38,6 +38,7 @@
 //@}
 
 
+#include <stdint.h>
 #include "perlimpinpin_config.h"
 
 
