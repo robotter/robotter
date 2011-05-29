@@ -21,16 +21,20 @@
  *  - a NACK is sent after sending the last byte to send;
  *  - 0xFF bytes are sent after sending the last byte of \c i2cs_send_buf.
  *
+ * @note <tt>i2cs_*_size</tt> are volatile globals, which imply "costly"
+ * accesses. Their values should be stored in temporary local variables,
+ * especially when iterating through \c i2c_recv_buf buffer with e \c for.
+ *
  * @note Maximum buffer sizes are 127 and not 255 because master methods return
  * sent and received sizes as \e int8_t (which are signed).
  */
 
 
-extern uint8_t i2cs_recv_buf[I2CS_RECV_BUF_SIZE];
-extern uint8_t i2cs_recv_size;
+extern volatile uint8_t i2cs_recv_buf[I2CS_RECV_BUF_SIZE];
+extern volatile uint8_t i2cs_recv_size;
 
 extern uint8_t i2cs_send_buf[I2CS_SEND_BUF_SIZE];
-extern uint8_t i2cs_send_size;
+extern volatile uint8_t i2cs_send_size;
 
 
 /** @brief Initialize I2C, slave side.

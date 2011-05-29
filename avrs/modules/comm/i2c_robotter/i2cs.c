@@ -20,10 +20,10 @@
 #define I2C_STOP()  (TWCR=(1<<TWIE)|(1<<TWEN)|(1<<TWINT)|(1<<TWSTO))
 
 
-uint8_t i2cs_recv_buf[I2CS_RECV_BUF_SIZE];
-uint8_t i2cs_recv_size;
+volatile uint8_t i2cs_recv_buf[I2CS_RECV_BUF_SIZE];
+volatile uint8_t i2cs_recv_size;
 uint8_t i2cs_send_buf[I2CS_SEND_BUF_SIZE];
-uint8_t i2cs_send_size;
+volatile uint8_t i2cs_send_size;
 
 
 void i2cs_init(uint8_t slave_addr)
@@ -43,7 +43,7 @@ void i2cs_init(uint8_t slave_addr)
 
 SIGNAL(SIG_2WIRE_SERIAL)
 {
-  static uint8_t *ptr;
+  static volatile uint8_t *ptr;
 
   switch(TW_STATUS)
   {
