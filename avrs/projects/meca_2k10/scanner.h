@@ -38,10 +38,10 @@ typedef enum
 /** Detect pawn on side n
  * @return Pawn distance to robot in mm, -1 on no pawn found
  * */
-int16_t scanner_get_distance(armPos_t n, double *px, double *py);
+int16_t scanner_detect(armPos_t n, double *px, double *py, double *ph);
 
 int16_t scanner_do_scan(uint8_t muxa, uint8_t muxb, uint8_t ax12id,
                         uint16_t start, uint16_t stop, uint16_t step,
-                        int32_t *bmin, int32_t *bmax);
+                        int32_t *bmin, int32_t *bmax, double *height);
 
 #endif/*SCANNER_H*/

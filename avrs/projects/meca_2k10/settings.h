@@ -110,6 +110,7 @@
 #define SETTING_SCANNER_RIGHT_DXL -45
 
 #define SETTING_SCANNER_R0 70
+#define SETTING_SCANNER_HEIGHT 205
 
 // -- ground detectors
 

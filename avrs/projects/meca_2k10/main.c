@@ -298,51 +298,6 @@ void paddock_AX12manual(void)
 
 void paddock_sandbox(void)
 {
-  ground_detector_t* gd = &gd_left;
-  double x,y;
-  uint8_t rv;
-
-  while(1)
-  {
-    rv = scanner_get_distance(0,&x,&y);
-    NOTICE(0,"rv=%d x=%f y=%f",rv,x,y);
-  } 
-  
-  while(1)
-  {
-    
-    NOTICE(0,"MID");
-    actuators_arm_mid(&actuators, ARM_LEFT);
-    while(!actuators_arm_is_mided(&actuators, ARM_LEFT));
-
-    NOTICE(0,"OBJECT ?");
-    while(!ground_detector_is_object_present(gd));
-
-    wait_ms(0);
-
-    NOTICE(0,"LOW");
-    actuators_arm_lower(&actuators, ARM_LEFT);
-    while(!actuators_arm_is_lowered(&actuators, ARM_LEFT));
-
-    wait_ms(300);
-
-    NOTICE(0,"HI");
-    actuators_arm_raise(&actuators, ARM_LEFT);
-    while(!actuators_arm_is_raised(&actuators, ARM_LEFT));
-
-
-    wait_ms(1000);
-    NOTICE(0,"DROP");
-    actuators_arm_mid(&actuators, ARM_LEFT);
-    while(!actuators_arm_is_mided(&actuators, ARM_LEFT));
-
-    actuators_ax12_setPositionSpeed(&actuators, SETTING_AX12_ID_LEFT_ARM,
-                                      SETTING_AX12_POS_LARM_RAISED,
-                                      200);
-    
-    EMERG(0,"KILL ME");
-  }
-
   while(1)
     nop();
 }

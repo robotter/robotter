@@ -55,12 +55,12 @@ static void _rotate(armPos_t n, double *x, double *y)
   *x = xn; *y = yn;
 }
 
-int16_t scanner_get_distance(armPos_t n, double *px, double *py)
+int16_t scanner_detect(armPos_t n, double *px, double *py, double *ph)
 {
   int16_t yr = 0,yl = 0;
   int16_t xr,xl;
   int32_t bmin, bmax;
-  double vx,vy,vnorm,a,k;
+  double vx,vy,vnorm,a,k,hl,hr;
 
   switch(n)
   {
@@ -68,12 +68,12 @@ int16_t scanner_get_distance(armPos_t n, double *px, double *py)
       yr = scanner_do_scan(MUX_ADC2, MUX_ADC3, SETTING_AX12_ID_LEFT_SCANNER,
                   SETTING_SCANNER_START, SETTING_SCANNER_STOP,
                   SETTING_SCANNER_STEP,
-                  &bmin, &bmax);
+                  &bmin, &bmax, &hr);
   
       yl = scanner_do_scan(MUX_ADC3, 0, SETTING_AX12_ID_LEFT_SCANNER,
                         bmin, bmax,
                         (bmax - bmin)/2,
-                        NULL, NULL);
+                        NULL, NULL, &hl);
       xr = SETTING_SCANNER_LEFT_DXR;
       xl = SETTING_SCANNER_LEFT_DXL;
       break;
@@ -81,12 +81,12 @@ int16_t scanner_get_distance(armPos_t n, double *px, double *py)
       yr = scanner_do_scan(MUX_ADC1, MUX_ADC0, SETTING_AX12_ID_RIGHT_SCANNER,
                   SETTING_SCANNER_START, SETTING_SCANNER_STOP,
                   SETTING_SCANNER_STEP,
-                  &bmin, &bmax);
+                  &bmin, &bmax, &hr);
   
       yl = scanner_do_scan(MUX_ADC0, 0, SETTING_AX12_ID_RIGHT_SCANNER, 
                         bmin, bmax,
                         (bmax - bmin)/2,
-                        NULL, NULL);
+                        NULL, NULL, &hl);
       xr = SETTING_SCANNER_RIGHT_DXR;
       xl = SETTING_SCANNER_RIGHT_DXL;
       break;
@@ -106,9 +106,9 @@ int16_t scanner_get_distance(armPos_t n, double *px, double *py)
 
     *px = xl + vx - k*vy;
     *py = yl + vy + k*vx;
-    DEBUG(0,"UNROT %1.1f %1.1f",*px,*py);
+    *ph = 0.5*(hl + hr);
     _rotate(n,px,py);
-    DEBUG(0,"PAWN FOUND (CERTAIN) C( %1.1f, %1.1f )",*px,*py);
+    DEBUG(0,"PAWN FOUND (CERTAIN) C( %1.1f, %1.1f, %1.1f )",*px,*py,*ph);
     return SCC_GOOD;
   }
   // right scanner got pawn
@@ -116,20 +116,25 @@ int16_t scanner_get_distance(armPos_t n, double *px, double *py)
   {
     *px = xr + 0.5*M_SQRT2*SETTING_PLAYGROUND_PAWN_R;
     *py = yr + 0.5*M_SQRT2*SETTING_PLAYGROUND_PAWN_R;
+    *ph = hr;
     _rotate(n,px,py);
-    DEBUG(0,"PAWN FOUND (UNCERTAIN) C( %1.1f, %1.1f )",*px,*py);
+    DEBUG(0,"PAWN FOUND (UNCERTAIN) C( %1.1f, %1.1f, %1.1f )",*px,*py,*ph);
     return SCC_BAD;
   }
   else if (yl > 0)
   {
     *px = xl - 0.5*M_SQRT2*SETTING_PLAYGROUND_PAWN_R;
     *py = yl + 0.5*M_SQRT2*SETTING_PLAYGROUND_PAWN_R;
+    *ph = hl;
     _rotate(n,px,py);
-    DEBUG(0,"PAWN FOUND (UNCERTAIN) C( %1.1f, %1.1f )",*px,*py);
+    DEBUG(0,"PAWN FOUND (UNCERTAIN) C( %1.1f, %1.1f, %1.1f )",*px,*py,*ph);
     return SCC_BAD;
   }
   else
   {
+    *px = 0.0;
+    *py = 0.0;
+    *ph = 0.0;
     DEBUG(0,"PAWN NOT FOUND");
     return SCC_NONE;
   }
@@ -150,22 +155,35 @@ static void _gp2_convert(uint16_t adcv, int32_t pos, double *y, double *z)
   // x,y
   a = (a*M_PI)/180.0;
   *y = g*cos(a);
-  *z = 205-g*sin(a);
+  *z = SETTING_SCANNER_HEIGHT-g*sin(a);
+}
+
+/** @brief Get scanner position to distance y */
+static int32_t _gp2_lookat(double y, double z)
+{
+  double a;
+  a = atan2(SETTING_SCANNER_HEIGHT-z,y);
+  a = (a*180.0)/M_PI;
+  a = (a*1024)/300;
+  return (512-a);
 }
 
 int16_t scanner_do_scan(uint8_t muxa, uint8_t muxb, uint8_t ax12id,
                         uint16_t start, uint16_t stop, uint16_t step,
-                        int32_t *bmin, int32_t *bmax)
+                        int32_t *bmin, int32_t *bmax, double *height)
 {
   uint16_t adcv = 0,adcvb = 0;
   int32_t pos;
   double y,z,yb,zb;
+
+  *height = -1;
 
   if(muxb)
   {
     *bmin = start;
     *bmax = stop;
   }
+
   uint8_t failed;
   while(1)
   {
@@ -195,7 +213,19 @@ int16_t scanner_do_scan(uint8_t muxa, uint8_t muxb, uint8_t ax12id,
         stop = pos + step;
         step /= 2;
         if(step < SETTING_SCANNER_MIN_STEP)
+        {
+          // before returning measure pawn height
+          pos = _gp2_lookat(y+30,60);
+
+          actuators_ax12_setPosition(&actuators, ax12id, pos);
+          while( actuators_ax12_checkPosition(&actuators, ax12id, pos) == 0 )
+            wait_ms(1);         
+          wait_ms(100);
+          adcv = adc_get_value( muxa | ADC_REF_AVCC);
+          _gp2_convert(adcv,pos,&y,height);
+
           return (int16_t)y;
+        }
         failed = 0;
         break;
       }

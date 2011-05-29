@@ -32,14 +32,23 @@
 #include "ground_detector.h"
 #include "actuators.h"
 #include "settings.h"
+#include "scanner.h"
 
 // ax12s
 AX12 ax12;
+
 // actuators
 actuators_t actuators;
+
 // ground detectors
 ground_detector_t gd_left;
 ground_detector_t gd_right;
+
+uint8_t gd_left_last = 0;
+uint8_t gd_right_last = 0;
+
+// scanner
+scanner_state_t scanner_state;
 
 // SYS cpu usage in percents
 uint8_t sys_cpuUsage;
@@ -69,6 +78,8 @@ void sys_init(void)
 
   ground_detector_set_object_present_threshold(&gd_right, SETTING_GD_RIGHT_THRESHOLD);
   ground_detector_set_object_present_threshold(&gd_left, SETTING_GD_LEFT_THRESHOLD);
+
+  scanner_state = ST_NONE;
  
 }
 
@@ -82,6 +93,42 @@ void sys_update(void* dummy)
     led_on(0);
   else
     led_off(0);
+
+  // update communication
+  // XXX
+
+  // manage scanner
+  uint8_t scertainty;
+  double sx,sy,sh;
+  switch(scanner_state)
+  {
+    case ST_SCHEDULED_LEFT:
+      scertainty = scanner_detect(ARM_LEFT, &sx, &sy, &sh);
+      scanner_state = ST_NONE;
+
+    case ST_SCHEDULED_RIGHT:
+      scertainty = scanner_detect(ARM_RIGHT, &sx, &sy, &sh);
+      scanner_state = ST_NONE;
+
+    case ST_NONE:
+    default: 
+      break;
+  }
+
+  // poll ground detectors
+  uint8_t l,r;
+  l = ground_detector_is_object_present(&gd_left);
+  r = ground_detector_is_object_present(&gd_right);
+  
+  if( l && !gd_left_last )
+    nop(); // XXX send r_e on gd
+  if( !l && gd_left_last )
+    nop(); // XXX send f_e on gd
+
+  if( r && !gd_right_last )
+    nop(); // XXX send r_e on gd
+  if( !r && gd_right_last )
+    nop(); // XXX send f_e on gd
 
   // reset TIMER3
   timer3_set(0);

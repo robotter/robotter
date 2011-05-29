@@ -28,6 +28,13 @@
 #include <aversive.h>
 #include <aversive/error.h>
 
+typedef enum 
+{
+  ST_NONE = 0,
+  ST_SCHEDULED_LEFT,
+  ST_SCHEDULED_RIGHT
+}scanner_state_t;
+
 void sys_init(void);
 
 void sys_update(void*);
