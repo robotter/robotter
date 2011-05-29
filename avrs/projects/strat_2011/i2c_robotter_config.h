@@ -7,9 +7,9 @@
 #ifdef I2C_SLAVE
 
 /// Receive buffer size.
-#define I2CS_RECV_BUF_SIZE    8
+#define I2CS_RECV_BUF_SIZE    16
 /// Send buffer size.
-#define I2CS_SEND_BUF_SIZE    8
+#define I2CS_SEND_BUF_SIZE    16
 
 #endif
 //@}

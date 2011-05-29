@@ -24,6 +24,6 @@
 #define ERROR_DUMP_TEXTLOG 
 
 /** enable the dump of filename and line number */
-#define ERROR_DUMP_FILE_LINE
+//#define ERROR_DUMP_FILE_LINE
 
 #endif
