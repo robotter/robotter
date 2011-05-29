@@ -13,13 +13,13 @@ robot = Robot([
   ##  Arms
   # arm : 0 = left, 1 = right
   # pos : 0 = mid, 1 = high, -1 = low
-  Message('arm_set_pos', [('arm', 'uint8'), ('pos', 'int8')],
+  Order('arm_set_pos', [('arm', 'uint8'), ('pos', 'int8')],
     desc="Move arm at given position"),
-  Message('arm_release', [('arm', 'uint8')],
+  Order('arm_release', [('arm', 'uint8')],
     desc="Release pawn grabbed by the arm"),
-  Message('arm_at_pos', [('arm', 'uint8'), ('pos', 'int8')],
+  Event('arm_at_pos', [('arm', 'uint8'), ('pos', 'int8')],
     desc="Arm has moved to given postion."),
-  Message('arm_pawn_present', [('arm', 'uint8'), ('b', 'bool')],
+  Event('arm_pawn_present', [('arm', 'uint8'), ('b', 'bool')],
     desc="Arm pawn detector state changed"),
   # certainty: cf. enum
   # x, y: position relative to robot's coordinates

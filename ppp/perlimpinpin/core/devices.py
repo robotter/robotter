@@ -212,3 +212,7 @@ class Command(MessageWrapper):
   def messages(self):
     return [self.request, self.response]
 
+
+class Order(Message): pass
+class Event(Message): pass
+
