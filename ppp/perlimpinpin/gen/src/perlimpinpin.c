@@ -133,8 +133,13 @@ void ppp_debug_trace(const char *way, const PPPMsgFrame *frame)
 #endif
 
 
-void ppp_init(void)
+/// User-defined message callback.
+static PPPMsgCallback *_ppp_msg_callback = NULL;
+
+
+void ppp_init(PPPMsgCallback *cb)
 {
+  _ppp_msg_callback = cb;
 #ifdef PPP_I2C
   i2cx_init(PPP_DEVICE_ROID, 1);
 #endif
@@ -293,7 +298,7 @@ void ppp_process_input_frame(PPPMsgFrame *frame)
 #ifdef PPP_DEBUG_TRACE
       ppp_debug_trace("RECV", frame);
 #endif
-      ppp_msg_callback(frame);
+      _ppp_msg_callback(frame);
     }
 
 #ifdef PPP_UART

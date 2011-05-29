@@ -60,15 +60,12 @@ typedef struct {
   };
 } __attribute__((__packed__)) PPPMsgFrame;
 
-/** @brief Callback for received messages.
- *
- * This function must be defined by the user.
- */
-void ppp_msg_callback(PPPMsgFrame *);
+/// Callback for received messages.
+typedef void PPPMsgCallback(PPPMsgFrame *);
 
 
 /// Initialize perlimpinpin communications.
-void ppp_init(void);
+void ppp_init(PPPMsgCallback *cb);
 
 /** @brief Handle all pending events.
  *
