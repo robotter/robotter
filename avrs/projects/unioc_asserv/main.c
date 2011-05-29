@@ -27,8 +27,8 @@
 #include <scheduler.h>
 #include <adc.h>
 #include <time.h>
-#include <i2cs.h>
 #include <timer.h>
+#include <perlimpinpin.h>
 
 #include <adns9500.h>
 
@@ -180,8 +180,8 @@ int main(void)
   NOTICE(0,"Initializing ADCs");
   adc_init();
  
-  NOTICE(0,"Initializing I2C slave");
-  i2cs_init(SETTING_I2C_ADDRESS);
+  NOTICE(0,"Initializing PPP");
+  ppp_init(ppp_msg_callback);
  
   NOTICE(0,"Initializing startup cord");
   cord_init();

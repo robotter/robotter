@@ -1,6 +1,3 @@
-#ifndef PERLIMPINPIN_CONFIG_H
-#define PERLIMPINPIN_CONFIG_H
-
 
 /** @brief ROID of the device.
  *
@@ -11,18 +8,23 @@
  */
 #define PPP_DEVICE_ROID   ROID_PROP
 
-/// Enable UART transmissions using given UART number.
-#define PPP_UART_NUM  1
+/// Enable UART transmissions (implied by PPP_UART_NUM).
+//#define PPP_UART
+/// Use given UART number (defaults to UART_NUM).
+//#define PPP_UART_NUM  0
 
-/// Enable I2C master mode.
-//#define PPP_I2C_MASTER
+/// Enable I2C transmissions.
+#define PPP_I2C
 
-/// Enable I2C slave mode.
-#define PPP_I2C_SLAVE
+/// Number of tries for sending I2C frames (infinite if undefined).
+//#define PPP_I2C_RETRY_COUNT  1000
 
-/// Number I2C master attempts to receive reply.
-#define PPP_I2CM_RECV_MAX_TRIES  10
-/// Delay between each I2C master receive attempt.
-#define PPP_I2CM_RECV_WAIT_MS    20
+/// Delay between retries in microseconds (no delay if undefined).
+//#define PPP_I2C_RETRY_DELAY  100
 
-#endif
+/// Enable trace logs of sent/received/forwarded messages.
+//#define PPP_DEBUG_TRACE
+
+/// Use Aversive's error module for debug and warning messages.
+//#define PPP_AVERSIVE_ERROR
+
