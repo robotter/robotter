@@ -30,10 +30,6 @@
 
 //#define SETTING_OVERRIDE_CPUUSAGE
 
-// -- I2C --
-
-#define SETTING_I2C_ADDRESS (0x21)
-
 // -- playground
 #define SETTING_PLAYGROUND_PAWN_R (100)
 

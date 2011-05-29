@@ -6,8 +6,8 @@
 #include <timer.h>
 #include <scheduler.h>
 #include <math.h>
-#include <i2cs.h>
 #include <adc.h>
+#include <perlimpinpin.h>
 
 #include <ax12.h>
 #include "ax12_user.h"
@@ -48,6 +48,8 @@ void paddock_actuatorsManual(void);
 void paddock_groundDetector(void);
 void paddock_sandbox(void);
 void paddock_GP2(void);
+
+extern void ppp_msg_callback(PPPMsgFrame *);
 
 int main(void)
 {
@@ -106,8 +108,8 @@ int main(void)
 
   //--------------------------------------------------------
   // I2CS
-  NOTICE(0,"Initializing i2c slave");
-  i2cs_init(SETTING_I2C_ADDRESS);
+  NOTICE(0,"Initializing PPP");
+  ppp_init(ppp_msg_callback);
 
   //--------------------------------------------------------
   // Safe key event
