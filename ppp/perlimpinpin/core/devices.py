@@ -128,7 +128,21 @@ class Device(object):
     self.robot = None
 
 
-class Message:
+class MessageWrapper:
+  """
+  High-level object representing one or several messages.
+
+  Attributes:
+    desc -- message description, or None
+
+  """
+  desc = None  # provide default value for instances
+  def messages(self):
+    """Return messages implemented by the wrapper."""
+    raise NotImplementedError()
+
+
+class Message(MessageWrapper):
   """
   Single transmitted message.
 
@@ -136,14 +150,16 @@ class Message:
     name -- message name (lowercase, with underscores)
     params -- payload parameters, as a list of (name, type) pairs
     mid -- message ID (automatically assigned if None)
+    desc -- message description, or None
 
   """
 
-  def __init__(self, name, params, mid=None):
+  def __init__(self, name, params, mid=None, desc=None):
     if not re.match('^[a-z][a-z0-9_]*$', name):
       raise ValueError("invalid message name: %r" % name)
     self.name = name
     self.mid = mid
+    self.desc = desc
 
     names = set()  # defined parameter names
     self.params = []
@@ -170,31 +186,8 @@ class Message:
       raise ValueError("invalid parameter name: %r" % name)
 
   def messages(self):
-    """For compatibility with MessageWrapper."""
+    """For MessageWrapper interface."""
     return [self]
-
-
-class MessageWrapper:
-  """
-  High-level object representing one or several messages.
-
-  Attributes:
-    desc -- message description, or None
-
-  """
-  desc = None  # provide default value for instances
-  def messages(self):
-    """Return messages implemented by the wrapper."""
-    raise NotImplementedError()
-
-
-class Telemetry(Message, MessageWrapper):
-  """
-  Telemetry message, from device to exterior.
-  """
-  def __init__(self, name, params, desc=None, mid=None):
-    Message.__init__(self, name, params, mid)
-    self.desc = desc
 
 
 class Command(MessageWrapper):
