@@ -85,7 +85,7 @@ int main(void)
   printf("%c[0;0H",0x1B);
 
   // Some advertisment :p
-  NOTICE(0,"Robotter 2011 - Galipeur - MECA-2011");
+  NOTICE(0,"Robotter 2k11 - Galipeur - MECA-2011");
   NOTICE(0,"Compiled "__DATE__" at "__TIME__".");
 
   //--------------------------------------------------------

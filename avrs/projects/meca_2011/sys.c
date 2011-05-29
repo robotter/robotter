@@ -25,6 +25,7 @@
 #include <ax12.h>
 #include <timer.h>
 #include <scheduler.h>
+#include <perlimpinpin.h>
 
 #include "sys.h"
 #include "led.h"
@@ -48,6 +49,7 @@ uint8_t gd_left_last = 0;
 uint8_t gd_right_last = 0;
 
 // scanner
+uint8_t scanner_source_address;
 scanner_state_t scanner_state;
 
 // SYS cpu usage in percents
@@ -95,7 +97,7 @@ void sys_update(void* dummy)
     led_off(0);
 
   // update communication
-  // XXX
+  ppp_update();
 
   // manage scanner
   uint8_t scertainty;
@@ -104,11 +106,15 @@ void sys_update(void* dummy)
   {
     case ST_SCHEDULED_LEFT:
       scertainty = scanner_detect(ARM_LEFT, &sx, &sy, &sh);
+      PPP_SEND_ARM_SCAN_R(scanner_source_address, scertainty, sx, sy, sh);
       scanner_state = ST_NONE;
+      break;
 
     case ST_SCHEDULED_RIGHT:
       scertainty = scanner_detect(ARM_RIGHT, &sx, &sy, &sh);
+      PPP_SEND_ARM_SCAN_R(scanner_source_address, scertainty, sx, sy, sh);
       scanner_state = ST_NONE;
+      break;
 
     case ST_NONE:
     default: 
@@ -121,15 +127,18 @@ void sys_update(void* dummy)
   r = ground_detector_is_object_present(&gd_right);
   
   if( l && !gd_left_last )
-    nop(); // XXX send r_e on gd
+    PPP_SEND_ARM_PAWN_PRESENT(ROID_STRAT|PPP_UART_ROID, ARM_LEFT, 1);
   if( !l && gd_left_last )
-    nop(); // XXX send f_e on gd
+    PPP_SEND_ARM_PAWN_PRESENT(ROID_STRAT|PPP_UART_ROID, ARM_LEFT, 0);
 
   if( r && !gd_right_last )
-    nop(); // XXX send r_e on gd
+    PPP_SEND_ARM_PAWN_PRESENT(ROID_STRAT|PPP_UART_ROID, ARM_RIGHT, 1);
   if( !r && gd_right_last )
-    nop(); // XXX send f_e on gd
+    PPP_SEND_ARM_PAWN_PRESENT(ROID_STRAT|PPP_UART_ROID, ARM_RIGHT, 0);
 
+  gd_right_last = r;
+  gd_left_last = l;
+  
   // reset TIMER3
   timer3_set(0);
 
