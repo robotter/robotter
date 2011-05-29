@@ -52,13 +52,13 @@
 #ifndef PPP_UART_NUM
 #define PPP_UART_F(s)  uart_ ## s
 #elif PPP_UART_NUM == 0
-#define PPP_UART_F(s)  uart ## 0 _ ## s
+#define PPP_UART_F(s)  uart ## 0_ ## s
 #elif PPP_UART_NUM == 1
-#define PPP_UART_F(s)  uart ## 1 _ ## s
+#define PPP_UART_F(s)  uart ## 1_ ## s
 #elif PPP_UART_NUM == 2
-#define PPP_UART_F(s)  uart ## 2 _ ## s
+#define PPP_UART_F(s)  uart ## 2_ ## s
 #elif PPP_UART_NUM == 3
-#define PPP_UART_F(s)  uart ## 3 _ ## s
+#define PPP_UART_F(s)  uart ## 3_ ## s
 #else
 #error "Invalid PPP_UART_NUM"
 #endif
