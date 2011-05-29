@@ -62,6 +62,8 @@ class CodeGenerator:
   @classmethod
   def avr_typename(cls, typ):
     """Return C typename of a PPP type."""
+    if typ == ppp_types.ppp_bool:
+      return 'uint8_t'
     if issubclass(typ, ppp_types.ppp_int):
       return '%s_t' % typ.name
     else:
