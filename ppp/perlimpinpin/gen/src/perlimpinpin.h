@@ -57,7 +57,7 @@
 
 /// Message IDs.
 typedef enum {
-  PPP_MID_INTERNAL = 0,
+  PPP_MID_PROTOCOL = 0,
 #pragma perlimpinpin_tpl self.msgid_enum_fields()
 
 } PPPMsgID;
@@ -71,7 +71,7 @@ typedef struct {
     uint8_t _data[$$ppp:self.max_payload_size()$$+1]; // +1 for checksum
 #pragma perlimpinpin_tpl self.msgdata_union_fields()
 
-    // internal PPP messages (used with mid 0)
+    // protocol PPP messages (used with mid 0)
     struct {
       uint8_t cmd;
       uint8_t subscriber;

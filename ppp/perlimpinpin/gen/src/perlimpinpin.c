@@ -65,13 +65,13 @@
 
 #endif
 
-/// Internal PPP sub-commands, used with mid 0.
+/// Protocol PPP sub-commands, used with mid 0.
 typedef enum {
   PPP_SUBCMD_NONE = 0,
   PPP_SUBCMD_UART_DISCOVER,
   PPP_SUBCMD_SUBSCRIBE,
 
-} PPPSubCmdID;
+} PPPProtoCmdID;
 
 /// Default destination, used with ROID_SUBSCRIBER
 static uint8_t ppp_subscriber = ROID_UART_BROADCAST;
