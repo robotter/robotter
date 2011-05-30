@@ -903,7 +903,7 @@ if __name__ == '__main__':
       help="string to send at connection (eg. to reset the device)")
   parser.add_option('-P', '--port', dest='port',
       help="device port to used (default: %s)"%port_default)
-  parser.add_option('-s', '--baudrate', dest='baudrate',
+  parser.add_option('-s', '--baudrate', dest='baudrate', type='int',
       help="baudrate (default: 38400)")
   parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
       help="print transferred data on stderr")

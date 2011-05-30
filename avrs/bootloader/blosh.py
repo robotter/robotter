@@ -1213,7 +1213,7 @@ def main():
       )
   parser.add_option('-P', '--port', dest='port',
       help="device port to use (default: %s)"%port_default)
-  parser.add_option('-s', '--baudrate', dest='baudrate',
+  parser.add_option('-s', '--baudrate', dest='baudrate', type='int',
       help="baudrate (default: 38400)")
   parser.add_option('-c', '--command', dest='command',
       help="command to execute")
