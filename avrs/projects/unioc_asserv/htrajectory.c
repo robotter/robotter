@@ -24,11 +24,12 @@
  *
  */
 
+#include <math.h>
 #include "htrajectory.h"
 
+#include "perlimpinpin.h"
 #include "avoidance.h"
 #include "logging.h"
-#include <math.h>
 
 // avoidance system
 extern avoidance_t avoidance;
@@ -178,6 +179,8 @@ void htrajectory_init( htrajectory_t *htj,
   htj->carrotA = 0.0;
   htj->carrotSpeed = 0.0;
 
+  htj->carrotA_reached = 0;
+
   htj->pathIndex = 0;
   htj->state = STATE_STOP;
   htj->blocked = 0;
@@ -222,6 +225,7 @@ void htrajectory_gotoA( htrajectory_t *htj, double a )
   
   // update consign
   htj->carrotA = robot_a + da;
+  htj->carrotA_reached = 0;
 
   // set robot carrot
   setCarrotAPosition(htj, htj->carrotA );
@@ -342,6 +346,14 @@ void htrajectory_update( htrajectory_t *htj )
   double a;
   double dv;
 
+  // manage angular orders / position
+  if( !(htj->carrotA_reached) && htrajectory_doneA(htj) )
+  {
+    htj->carrotA_reached = 1;
+    PPP_SEND_ASSERV_ANGLE_REACHED(ROID_SUBSCRIBER);
+  }
+
+  // trajectory states
   if( htj->state == STATE_STOP )
     /* nothing to do */
     return;
@@ -475,6 +487,8 @@ void htrajectory_update( htrajectory_t *htj )
       // set htj->carrot to last position
       setCarrotXYPosition( htj, htj->path[htj->pathSize - 1] );
 
+      PPP_SEND_ASSERV_TRAJECTORY_REACHED(ROID_SUBSCRIBER, htj->pathIndex, 1);
+
       return;
     }
 
@@ -482,6 +496,8 @@ void htrajectory_update( htrajectory_t *htj )
         htj->pathIndex,
         htj->path[htj->pathIndex].x,
         htj->path[htj->pathIndex].y);
+
+    PPP_SEND_ASSERV_TRAJECTORY_REACHED(ROID_SUBSCRIBER, htj->pathIndex, 0);
 
     // switch to next point 
     htj->pathIndex++;

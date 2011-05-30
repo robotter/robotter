@@ -38,7 +38,6 @@
 #include "htrajectory.h"
 #include "logging.h"
 #include "cli.h"
-#include "cord.h"
 #include "pwm.h"
 #include "motor_encoders.h"
 #include "color_detection.h"
@@ -61,12 +60,14 @@ void paddock_calibration(void);
 void paddock_colors(void);
 //-----
 
+extern void ppp_msg_callback(PPPMsgFrame *msg);
+
 // log level
 extern uint8_t log_level;
 
 // trajectory management 
 // XXX TBMoved to a strat dedicated source file
-extern volatile htrajectory_t trajectory;
+extern htrajectory_t trajectory;
 
 // manual control
 // XXX TBMoved to a manual control dedicated source file
@@ -183,9 +184,6 @@ int main(void)
   NOTICE(0,"Initializing PPP");
   ppp_init(ppp_msg_callback);
  
-  NOTICE(0,"Initializing startup cord");
-  cord_init();
-
   NOTICE(0,"Initializing communications");
   //ppp_init();
 
@@ -215,27 +213,15 @@ int main(void)
 
   //----------------------------------------------------------------------
 
-  NOTICE(0,"'x' to reboot / 'c' manual control / 'a' ADNS test / 'z' position test / 'p' PWM test / 'l' calibration / 'o' color / 't' test code / (key/cord) to go ");
+  NOTICE(0,"'x' to reboot / 'c' manual control / 'a' ADNS test / 'z' position test / 'p' PWM test / 'l' calibration / 'o' color / 't' test code");
  
   int c;
-  uint8_t cord_status, lock;
-  lock = 0;
   while(1)
   {
     // get input key
     c = cli_getkey_nowait();
     if(c == -1)
       continue;
-
-    // get cord status
-    cord_status = cord_isPlugged();
-
-    if(cord_status == 1)
-      lock = 1;
-
-    // if cord not plugged
-    if( (cord_status == 0) && lock )
-      break;
 
     // ------------------
 
@@ -247,7 +233,6 @@ int main(void)
   
     if(c == 'c')
       paddock_manualControl();
-
     
     if(c == 'a')
       paddock_adnsFeedback();
@@ -271,40 +256,7 @@ int main(void)
       break;
   }
 
-  //----------------------------------------------------------------------
-  //----------------------------------------------------------------------
-  NOTICE(0,"Starting *homologuation*");
-  
-  // get time at startup
-  time_startup_ok = 1;
-  time_startup = time_get_s();
-
-  vect_xy_t path[2];
-
-  double color = -1.0; // 1.0 = jaune | -1.0 = bleu
-
-  path[0] = (vect_xy_t){color*(1500 + 18 - 1125), 1050 + 12 - 453.0};
-  if(color == 1.0) // jaune
-    path[1] = (vect_xy_t){color*(1500 + 18 + 1075), 1050 + 12 + 797.0};
-  else // bleu
-    path[1] = (vect_xy_t){color*(1500 + 18 + 1185), 1050 + 12 + 797.0};
-
-  htrajectory_run(&trajectory, path, 2);
-  while(!htrajectory_doneXY(&trajectory)) nop();
-
-  if(color == 1.0) // jaune
-    htrajectory_gotoXY_R(&trajectory, color*120, 70);
-  else
-    htrajectory_gotoXY_R(&trajectory, color*150, 70);
-
-  while(!htrajectory_doneXY(&trajectory)) nop();
-
-  htrajectory_gotoA_R(&trajectory, color*M_PI/3);
-
-  NOTICE(0,"Done");
-
-  while(1);
-
+  while(1) nop();
   return 0;
 }
 

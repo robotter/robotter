@@ -91,6 +91,8 @@ typedef struct
 
   double carrotA;
 
+  uint8_t carrotA_reached;
+
   // trajectory
   vect_xy_t path[HTRAJECTORY_MAX_POINTS];
   uint8_t pathSize;

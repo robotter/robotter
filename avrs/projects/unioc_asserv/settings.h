@@ -136,12 +136,7 @@
 
 #define SETTING_POSITION_INIT_X (0.0)
 #define SETTING_POSITION_INIT_Y (0.0)
-// -- bleu --
 #define SETTING_POSITION_INIT_A (0.0)
-// -- jaune --
-//#define SETTING_POSITION_INIT_A (0.0)
-
-#define SETTING_POSITION_ADNS_SQUAL_LOW (55)
 
 // -- paddock/pwm test --
 
