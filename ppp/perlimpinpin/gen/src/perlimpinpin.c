@@ -327,7 +327,7 @@ void ppp_send_msg(PPPMsgFrame *frame)
     frame->dst = ppp_subscriber;
   }
   frame->_data[frame->plsize-3] = ppp_checksum((void *)frame, frame->plsize+2);
-  if( frame->dst == PPP_UART_ROID ) {
+  if( frame->dst == PPP_UART_ROID || frame->dst == ROID_UART_BROADCAST ) {
 #ifdef PPP_UART
     ppp_uart_send_frame(frame);
 #endif
