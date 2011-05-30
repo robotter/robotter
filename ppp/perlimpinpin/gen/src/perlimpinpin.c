@@ -286,7 +286,7 @@ void ppp_process_input_frame(PPPMsgFrame *frame)
 #ifdef PPP_UART
     if( dst == 0 ? frame->src == (PPP_DEVICE_ROID | PPP_UART_ROID) : dst != PPP_DEVICE_ROID ) {
 #else
-    if( dst != PPP_DEVICE_ROID ) {
+    if( dst != 0 && dst != PPP_DEVICE_ROID ) {
 #endif
 #ifdef PPP_DEBUG_TRACE
       ppp_debug_trace("FRWD", frame);
