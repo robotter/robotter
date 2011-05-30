@@ -92,6 +92,8 @@ static void ppp_process_input_frame(PPPMsgFrame *frame);
 #ifdef PPP_DEBUG_TRACE
 /// Print a trace of a message.
 static void ppp_debug_trace(const char *way, const PPPMsgFrame *frame);
+#else
+#define ppp_debug_trace(w,f)
 #endif
 
 #ifdef PPP_I2C
@@ -275,9 +277,7 @@ void ppp_process_input_frame(PPPMsgFrame *frame)
   uint8_t dst = frame->dst;
 #ifdef PPP_UART
   if( dst & PPP_UART_ROID ) {
-#ifdef PPP_DEBUG_TRACE
     ppp_debug_trace("FRWD", frame);
-#endif
     ppp_uart_send_frame(frame);
   } else {
 #endif
@@ -288,16 +288,12 @@ void ppp_process_input_frame(PPPMsgFrame *frame)
 #else
     if( dst != 0 && dst != PPP_DEVICE_ROID ) {
 #endif
-#ifdef PPP_DEBUG_TRACE
       ppp_debug_trace("FRWD", frame);
-#endif
       ppp_i2c_send_frame(frame);
     }
 #endif
     if( dst == PPP_DEVICE_ROID || dst == 0 ) {
-#ifdef PPP_DEBUG_TRACE
       ppp_debug_trace("RECV", frame);
-#endif
       _ppp_msg_callback(frame);
     }
 
@@ -310,9 +306,7 @@ void ppp_process_input_frame(PPPMsgFrame *frame)
 
 void ppp_send_msg(PPPMsgFrame *frame)
 {
-#ifdef PPP_DEBUG_TRACE
   ppp_debug_trace("SEND", frame);
-#endif
 
   frame->_data[frame->plsize-3] = ppp_checksum((void *)frame, frame->plsize+2);
   if( frame->dst == (PPP_DEVICE_ROID|PPP_UART_ROID) ) {
