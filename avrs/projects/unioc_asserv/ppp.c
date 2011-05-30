@@ -1,5 +1,5 @@
 #include <aversive/error.h>
-#include <perlimpinpin.h>
+#include <perlimpinpin_common.h>
 
 #include "htrajectory.h"
 
@@ -14,13 +14,13 @@ vect_xy_t points[HTRAJECTORY_MAX_POINTS];
 
 void ppp_msg_callback(PPPMsgFrame *msg)
 {
+  if( ppp_common_callback(msg) ) {
+    return;
+  }
+
   uint8_t n,status;
   double x,y,a,s;
   switch( msg->mid ) {
-    case PPP_MID_PING:
-      PPP_SEND_PING_R(msg->src, msg->ping.v);
-      break;
-
     case PPP_MID_ASSERV_GOTO_A:
       a = RAD_CONVERT(msg->asserv_goto_a.a);
       htrajectory_gotoA(&trajectory,a);

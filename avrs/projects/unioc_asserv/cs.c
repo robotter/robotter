@@ -28,6 +28,7 @@
 #include <math.h>
 #include <timer.h>
 #include <scheduler.h>
+#include <perlimpinpin.h>
 
 #include "cs.h"
 #include "robot_cs.h"
@@ -159,7 +160,7 @@ void cs_update(void* dummy)
   timer3_set(0);
 
   // update communications with perlimpinpin
-  //ppp_update();
+  ppp_update();
 
   // update avoidance system
   avoidance_update(&avoidance);
