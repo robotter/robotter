@@ -296,7 +296,7 @@ void ppp_process_input_frame(PPPMsgFrame *frame)
   uint8_t src = frame->src;
   uint8_t dst = frame->dst;
 #ifdef PPP_UART
-  if( src != PPP_UART_ROID && dst != PPP_UART_ROID ) {
+  if( dst == PPP_UART_ROID || (ROID_DEVICE(dst) == 0 && src != PPP_UART_ROID) ) {
     ppp_debug_trace("FWDu", frame);
     ppp_uart_send_frame(frame);
   }
