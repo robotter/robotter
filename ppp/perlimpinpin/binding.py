@@ -1,7 +1,7 @@
 import os
 import threading
 import types
-from .core import Device, Message
+from .core import protocol, Device, Message
 from .core.types import ppp_uint8
 from .core.protocol import Frame, UARTFrame
 
@@ -35,6 +35,8 @@ class Binding(object):
     self._feed_data = ''
     self._listen_th = None
     self._listen_pw = None
+    if self.roid is None:
+      self.discover()
 
   def on_rawdata(self, data):
     """Called on received non-frame data."""
@@ -72,6 +74,8 @@ class Binding(object):
         break
       try:
         mid = frame.unpack(ppp_uint8)
+        if mid == 0:
+          raise ValueError("unexpected protocol command")
         try:
           msg = self._messages[mid]
         except KeyError:
@@ -158,6 +162,43 @@ class Binding(object):
     self._listen_th = None
     self._listen_pw = None
 
+  def discover(self):
+    if self._listen_th is not None:
+      raise Exception("listening is runing, cannot discover")
+    self.send(UARTFrame.build_uart_discover())
+    print "discovering..."
+
+    data = ''
+    while True:
+      data += self.conn.read(1)
+      frame, pre, data = UARTFrame.extract(data)
+      if frame is None:
+        continue
+      try:
+        mid = frame.unpack(ppp_uint8)
+        if mid != 0:
+          continue
+        subcmd = frame.unpack(ppp_uint8)
+        if len(frame.unparsed) != 0:
+          raise ValueError("extra frame data")
+        if subcmd == protocol.SUBCMD_UART_DISCOVER:
+          self.roid = frame.dst
+          dev = self.roid_to_data(self.roid & 0x7f)
+          if isinstance(dev, Device):
+            s = dev.name
+          else:
+            s = '0x%02X' % self.roid
+          print "connected to %s" % s
+          return
+      except Exception, e:
+        self.on_error(frame, str(e))
+
+  def subscribe(self, dst, subscriber=None):
+    if subscriber is not None:
+      subscriber = self.roid_from_data(subscriber)
+    dst = self.roid_from_data(dst)
+    self.send(UARTFrame.build_subscribe(self.roid, dst, subscriber))
+
 
 class ClientDevice(Device):
   """
@@ -186,6 +227,10 @@ class ClientDevice(Device):
 
   def __dir__(self):
     return self.__dict__.keys() + self._cl._msg_wrp.keys()
+
+  def subscriber(self, subscriber=None):
+    self._cl.b.subscribe(self, subscriber)
+
 
 
 class Client(object):
@@ -222,4 +267,7 @@ class Client(object):
 
   def __dir__(self):
     return self.__dict__.keys() + self._dev_wrp.keys() + self._msg_wrp.keys()
+
+  def subscriber(self, dst, subscriber=None):
+    self.b.subscribe(self, dst, subscriber)
 
