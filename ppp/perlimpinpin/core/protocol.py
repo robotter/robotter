@@ -1,9 +1,14 @@
 import struct
+from .core.types import ppp_uint8
 
 
 def checksum(data):
   """Compute the PPP checksum of a data string."""
   return sum( ord(c) for c in data ) % 256
+
+
+SUBCMD_UART_DISCOVER = 1
+SUBCMD_SUBSCRIBE = 2
 
 
 class Frame(object):
@@ -138,6 +143,24 @@ class Frame(object):
       except ValueError:
         pass
       pos += 1
+
+
+  # Build frames for protocol commands
+
+  @classmethod
+  def build_uart_discover(cls):
+    frame = cls(0, 0)
+    frame.pack(ppp_uint8, SUBCMD_UART_DISCOVER)
+    return frame
+
+  @classmethod
+  def build_subscribe(cls, src, dst, subscriber=None):
+    if subscriber is None:
+      subscriber = src
+    frame = cls(src, dst)
+    frame.pack(ppp_uint8, SUBCMD_SUBSCRIBE)
+    frame.pack(ppp_uint8, subscriber)
+    return frame
 
 
 class UARTFrame(Frame):
