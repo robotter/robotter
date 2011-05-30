@@ -27,13 +27,24 @@
 #ifndef PERLIMPINPIN_H
 #define PERLIMPINPIN_H
 
-/** @name Map device names to their ROID.
+/** @name Device an special ROIDs.
  */
 //@{
 #pragma perlimpinpin_tpl self.device_roid_macros()
 
+/// Convenient alias.
+#define PPP_UART_ROID  ROID_UART(PPP_DEVICE_ROID)
+
 /// Bitmask value for an ROID associated to UART interface.
-#define PPP_UART_ROID  0x80
+#define ROID_UART_MASK       0x80
+/// Get UART interface ROID from a device ROID.
+#define ROID_UART(roid)    ((roid)|ROID_UART_MASK)
+/// Get device ROID from UART interface ROID.
+#define ROID_DEVICE(roid)  ((roid)&~ROID_UART_MASK)
+/// Broadcast ROID.
+#define ROID_BROADCAST       0x00
+/// UART broadcast ROID.
+#define ROID_UART_BROADCAST  0x80
 
 //@}
 

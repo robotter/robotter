@@ -274,32 +274,24 @@ void ppp_process_input_frame(PPPMsgFrame *frame)
     return;
   }
 
+  uint8_t src = frame->src;
   uint8_t dst = frame->dst;
 #ifdef PPP_UART
-  if( dst & PPP_UART_ROID ) {
-    ppp_debug_trace("FRWD", frame);
+  if( src != PPP_UART_ROID && dst != PPP_UART_ROID ) {
+    ppp_debug_trace("FWDu", frame);
     ppp_uart_send_frame(frame);
-  } else {
-#endif
-
-#ifdef PPP_I2C
-#ifdef PPP_UART
-    if( dst == 0 ? frame->src == (PPP_DEVICE_ROID | PPP_UART_ROID) : dst != PPP_DEVICE_ROID ) {
-#else
-    if( dst != 0 && dst != PPP_DEVICE_ROID ) {
-#endif
-      ppp_debug_trace("FRWD", frame);
-      ppp_i2c_send_frame(frame);
-    }
-#endif
-    if( dst == PPP_DEVICE_ROID || dst == 0 ) {
-      ppp_debug_trace("RECV", frame);
-      _ppp_msg_callback(frame);
-    }
-
-#ifdef PPP_UART
   }
 #endif
+#ifdef PPP_I2C
+  if( src == PPP_UART_ROID && dst != PPP_DEVICE_ROID ) {
+    ppp_debug_trace("FWDi", frame);
+    ppp_i2c_send_frame(frame);
+  }
+#endif
+  if( dst == 0 || dst == PPP_DEVICE_ROID ) {
+    ppp_debug_trace("RECV", frame);
+    _ppp_msg_callback(frame);
+  }
 }
 #endif
 
@@ -309,7 +301,7 @@ void ppp_send_msg(PPPMsgFrame *frame)
   ppp_debug_trace("SEND", frame);
 
   frame->_data[frame->plsize-3] = ppp_checksum((void *)frame, frame->plsize+2);
-  if( frame->dst == (PPP_DEVICE_ROID|PPP_UART_ROID) ) {
+  if( frame->dst == PPP_UART_ROID ) {
 #ifdef PPP_UART
     ppp_uart_send_frame(frame);
 #endif
@@ -332,7 +324,7 @@ void ppp_i2c_send_frame(const PPPMsgFrame *frame)
 #else
   for(;;) {
 #endif
-    ret = i2cx_send(frame->dst & ~PPP_UART_ROID, (const void *)frame, send_size);
+    ret = i2cx_send(ROID_DEVICE(frame->dst), (const void *)frame, send_size);
     if( ret > 0 || (ret == 0 && frame->dst == 0) ) {
       break;
     }
