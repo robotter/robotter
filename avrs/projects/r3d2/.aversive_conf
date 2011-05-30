@@ -11,14 +11,9 @@ PROGRAMMER = avarice
 AVARICE_PROGRAMMER = mkI
 AVARICE_PORT = "/dev/ttyUSB1"
 AVARICE_DEBUG_PORT = 1234
-MODULES = base/scheduler comm/uart hardware/pwm_ng hardware/timer base/cirbuf debug/error base/math/fixed_point
+MODULES = base/scheduler comm/uart hardware/pwm_ng hardware/timer base/cirbuf debug/error
 
-ROBOTTER_MODULES =
-MODULES := $(ROBOTTER_MODULES) $(MODULES)
-
-ROBOTTER_MODULES =
-MODULES := $(ROBOTTER_MODULES) $(MODULES)
-
-ROBOTTER_MODULES =
-MODULES := $(ROBOTTER_MODULES) $(MODULES)
+ROBOTTER_MODULES :=
+AVERSIVE_MODULES := $(MODULES)
+MODULES := $(addprefix ../../modules/,$(ROBOTTER_MODULES)) $(MODULES)
 
