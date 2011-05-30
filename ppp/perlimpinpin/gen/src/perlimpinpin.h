@@ -45,6 +45,8 @@
 #define ROID_BROADCAST       0x00
 /// UART broadcast ROID.
 #define ROID_UART_BROADCAST  0x80
+/// Subscriber ROID.
+#define ROID_SUBSCRIBER      0x01
 
 //@}
 
@@ -55,6 +57,7 @@
 
 /// Message IDs.
 typedef enum {
+  PPP_MID_INTERNAL = 0,
 #pragma perlimpinpin_tpl self.msgid_enum_fields()
 
 } PPPMsgID;
@@ -68,6 +71,11 @@ typedef struct {
     uint8_t _data[$$ppp:self.max_payload_size()$$+1]; // +1 for checksum
 #pragma perlimpinpin_tpl self.msgdata_union_fields()
 
+    // internal PPP messages (used with mid 0)
+    struct {
+      uint8_t cmd;
+      uint8_t subscriber;
+    } _ppp;
   };
 } __attribute__((__packed__)) PPPMsgFrame;
 

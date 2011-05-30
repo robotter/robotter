@@ -65,6 +65,17 @@
 
 #endif
 
+/// Internal PPP sub-commands, used with mid 0.
+typedef enum {
+  PPP_SUBCMD_NONE = 0,
+  PPP_SUBCMD_UART_DISCOVER,
+  PPP_SUBCMD_SUBSCRIBE,
+
+} PPPSubCmdID;
+
+/// Default destination, used with ROID_SUBSCRIBER
+static uint8_t ppp_subscriber = ROID_UART_BROADCAST;
+
 
 #ifdef PPP_UART
 /// Handle pending UART events.
@@ -274,6 +285,14 @@ void ppp_process_input_frame(PPPMsgFrame *frame)
     return;
   }
 
+  // processing for protocol commands
+  if( frame->mid == 0 && frame->_ppp.cmd == PPP_SUBCMD_UART_DISCOVER ) {
+    frame->src = PPP_DEVICE_ROID;
+    frame->dst = PPP_UART_ROID;
+    ppp_send_msg(frame);
+    return;
+  }
+
   uint8_t src = frame->src;
   uint8_t dst = frame->dst;
 #ifdef PPP_UART
@@ -289,6 +308,10 @@ void ppp_process_input_frame(PPPMsgFrame *frame)
   }
 #endif
   if( dst == 0 || dst == PPP_DEVICE_ROID ) {
+    if( frame->mid == 0 && frame->_ppp.cmd == PPP_SUBCMD_SUBSCRIBE ) {
+      ppp_subscriber = frame->_ppp.subscriber;
+      return;
+    }
     ppp_debug_trace("RECV", frame);
     _ppp_msg_callback(frame);
   }
@@ -300,6 +323,9 @@ void ppp_send_msg(PPPMsgFrame *frame)
 {
   ppp_debug_trace("SEND", frame);
 
+  if( frame->dst == ROID_SUBSCRIBER ) {
+    frame->dst = ppp_subscriber;
+  }
   frame->_data[frame->plsize-3] = ppp_checksum((void *)frame, frame->plsize+2);
   if( frame->dst == PPP_UART_ROID ) {
 #ifdef PPP_UART
