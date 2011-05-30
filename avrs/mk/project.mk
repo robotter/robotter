@@ -75,7 +75,7 @@ endif
 LDFLAGS += $(MATH_LIB)
 
 ifeq ($(HOST),avr)
-LDFLAGS += -mmcu=$(MCU) -Wl,--relax
+LDFLAGS += -mmcu=$(MCU)
 LDFLAGS += $(PRINTF_LDFLAGS)
 else
 LDFLAGS += 
