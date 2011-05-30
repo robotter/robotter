@@ -198,11 +198,11 @@ class CodeGenerator:
           '    ppp_send_msg(&_frame); \\\n'
           '  } while(0);\n\n') % (
               msg.name.upper(),
-              ''.join( ', _%s'%v for v,t in msg.params ),
+              ''.join( ', _a_%s'%v for v,t in msg.params ),
               3+sum( t.packsize for v,t in msg.params ),
               self.msgid_enum_name(msg),
               ''.join(
-                '    (_frame).%s.%s = (_%s); \\\n' % (msg.name, v, v)
+                '    (_frame).%s.%s = (_a_%s); \\\n' % (msg.name, v, v)
                 for v,t in msg.params
                 ),
               )
