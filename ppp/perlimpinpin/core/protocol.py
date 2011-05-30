@@ -1,5 +1,5 @@
 import struct
-from .core.types import ppp_uint8
+from .types import ppp_uint8
 
 
 def checksum(data):
@@ -150,6 +150,7 @@ class Frame(object):
   @classmethod
   def build_uart_discover(cls):
     frame = cls(0, 0)
+    frame.pack(ppp_uint8, 0)
     frame.pack(ppp_uint8, SUBCMD_UART_DISCOVER)
     return frame
 
@@ -158,6 +159,7 @@ class Frame(object):
     if subscriber is None:
       subscriber = src
     frame = cls(src, dst)
+    frame.pack(ppp_uint8, 0)
     frame.pack(ppp_uint8, SUBCMD_SUBSCRIBE)
     frame.pack(ppp_uint8, subscriber)
     return frame
