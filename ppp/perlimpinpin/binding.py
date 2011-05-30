@@ -228,7 +228,7 @@ class ClientDevice(Device):
   def __dir__(self):
     return self.__dict__.keys() + self._cl._msg_wrp.keys()
 
-  def subscriber(self, subscriber=None):
+  def subscribe(self, subscriber=None):
     self._cl.b.subscribe(self, subscriber)
 
 
@@ -268,6 +268,6 @@ class Client(object):
   def __dir__(self):
     return self.__dict__.keys() + self._dev_wrp.keys() + self._msg_wrp.keys()
 
-  def subscriber(self, dst, subscriber=None):
-    self.b.subscribe(self, dst, subscriber)
+  def subscribe(self, dst, subscriber=None):
+    self.b.subscribe(dst, subscriber)
 
