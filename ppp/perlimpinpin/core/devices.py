@@ -216,3 +216,25 @@ class Command(MessageWrapper):
 class Order(Message): pass
 class Event(Message): pass
 
+
+class MsgGroupWrapper(MessageWrapper):
+  """
+  Message group with successive message IDs.
+
+  Attributes:
+    mid -- starting mid
+    grpmsgs -- messages of the group
+
+  """
+  def __init__(self, mid, wrappers):
+    self.mid = mid
+    self.grpmsgs = [ msg for w in wrappers for msg in w.messages() ]
+    for msg in self.grpmsgs:
+      if msg.mid is not None:
+        raise ValueError("mid already set on %s" % msg.name)
+      msg.mid = mid
+      mid += 1
+
+  def messages(self):
+    return self.grpmsgs
+
