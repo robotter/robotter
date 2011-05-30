@@ -127,14 +127,14 @@ void sys_update(void* dummy)
   r = ground_detector_is_object_present(&gd_right);
   
   if( l && !gd_left_last )
-    PPP_SEND_ARM_PAWN_PRESENT(ROID_STRAT|PPP_UART_ROID, ARM_LEFT, 1);
+    PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_LEFT, 1);
   if( !l && gd_left_last )
-    PPP_SEND_ARM_PAWN_PRESENT(ROID_STRAT|PPP_UART_ROID, ARM_LEFT, 0);
+    PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_LEFT, 0);
 
   if( r && !gd_right_last )
-    PPP_SEND_ARM_PAWN_PRESENT(ROID_STRAT|PPP_UART_ROID, ARM_RIGHT, 1);
+    PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_RIGHT, 1);
   if( !r && gd_right_last )
-    PPP_SEND_ARM_PAWN_PRESENT(ROID_STRAT|PPP_UART_ROID, ARM_RIGHT, 0);
+    PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_RIGHT, 0);
 
   gd_right_last = r;
   gd_left_last = l;

@@ -1,4 +1,4 @@
-#include <perlimpinpin.h>
+#include <perlimpinpin_common.h>
 
 #include "actuators.h"
 #include "scanner.h"
@@ -11,12 +11,11 @@ extern scanner_state_t scanner_state;
 
 void ppp_msg_callback(PPPMsgFrame *msg)
 {
+  if( ppp_common_callback(msg) ) {
+    return;
+  }
   uint8_t armid;
   switch( msg->mid ) {
-    case PPP_MID_PING:
-      PPP_SEND_PING_R(msg->src, msg->ping.v);
-      break;
-
     case PPP_MID_ARM_SET_POS:
       armid = msg->arm_set_pos.arm;
       switch(msg->arm_set_pos.pos)
