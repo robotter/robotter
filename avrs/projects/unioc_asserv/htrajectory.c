@@ -480,6 +480,8 @@ void htrajectory_update( htrajectory_t *htj )
         htj->path[htj->pathIndex].x,
         htj->path[htj->pathIndex].y);
 
+      PPP_SEND_ASSERV_TRAJECTORY_REACHED(ROID_SUBSCRIBER, htj->pathIndex, 1);
+
       // put trajectory management to full stop
       htj->pathIndex = 0;
       htj->state = STATE_STOP;
@@ -487,7 +489,6 @@ void htrajectory_update( htrajectory_t *htj )
       // set htj->carrot to last position
       setCarrotXYPosition( htj, htj->path[htj->pathSize - 1] );
 
-      PPP_SEND_ASSERV_TRAJECTORY_REACHED(ROID_SUBSCRIBER, htj->pathIndex, 1);
 
       return;
     }
