@@ -76,7 +76,7 @@
 // -- pid (x,y,a) --
 
 #define SETTING_PID_X_GAIN_P (1200)
-#define SETTING_PID_X_GAIN_I (10)
+#define SETTING_PID_X_GAIN_I (20)
 #define SETTING_PID_X_GAIN_D (0)
 
 #define SETTING_PID_X_MAX_IN  (50000)
@@ -88,7 +88,7 @@
 // --
 
 #define SETTING_PID_Y_GAIN_P (1200)
-#define SETTING_PID_Y_GAIN_I (10)
+#define SETTING_PID_Y_GAIN_I (20)
 #define SETTING_PID_Y_GAIN_D (0)
 
 #define SETTING_PID_Y_MAX_IN  (50000)

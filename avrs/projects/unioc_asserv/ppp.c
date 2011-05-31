@@ -26,26 +26,33 @@ void ppp_msg_callback(PPPMsgFrame *msg)
   uint8_t n,status;
   double x,y,a,s;
   int16_t ix,iy,ia;
+
+  DEBUG(0,"msg_callback %d %d",msg->src, msg->mid);
+
   switch( msg->mid ) {
     case PPP_MID_ASSERV_GOTO_A:
       a = TO_RAD(msg->asserv_goto_a.a);
+      DEBUG(0,"GOTO_A %1.1f",a);
       htrajectory_gotoA(&trajectory,a);
       break;
 
     case PPP_MID_ASSERV_GOTO_AR:
       a = TO_RAD(msg->asserv_goto_ar.a);
+      DEBUG(0,"GOTO_AR %1.1f",a);
       htrajectory_gotoA_R(&trajectory,a);
       break;
 
     case PPP_MID_ASSERV_GOTO_XY:
       x = TO_MM(msg->asserv_goto_xy.x);
       y = TO_MM(msg->asserv_goto_xy.y);
+      DEBUG(0,"GOTO_XY %1.1f %1.1f",x,y);
       htrajectory_gotoXY(&trajectory, x, y);
       break;
 
     case PPP_MID_ASSERV_GOTO_XYR:
       x = TO_MM(msg->asserv_goto_xyr.x);
       y = TO_MM(msg->asserv_goto_xyr.y);
+      DEBUG(0,"GOTO_XYR %1.1f %1.1f",x,y);
       htrajectory_gotoXY_R(&trajectory, x, y);
       break;
 
