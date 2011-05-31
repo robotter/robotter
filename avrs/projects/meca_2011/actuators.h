@@ -38,9 +38,9 @@ typedef enum
 
 typedef enum
 {
-  POS_HI = -1,
+  POS_LOW = -1,
   POS_MID,
-  POS_LOW
+  POS_HI
 }pos_t;
 
 typedef struct

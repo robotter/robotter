@@ -239,23 +239,23 @@ void actuators_arm_send_status(actuators_t* m, armPos_t arm)
 
   if(pos < 0)
   {
-    PPP_SEND_ARM_OVERTORQUE(ROID_SUBSCRIBER, armid);
+    PPP_SEND_ARM_OVERTORQUE(ROID_SUBSCRIBER, arm);
   }
   else
   {
     if( (abs(pos-lpos) < SETTING_AX12_WINDOW) && m->arms_pos[armid] != POS_LOW )
     {
-      PPP_SEND_ARM_AT_POS(ROID_SUBSCRIBER, armid, POS_LOW);
+      PPP_SEND_ARM_AT_POS(ROID_SUBSCRIBER, arm, POS_LOW);
       m->arms_pos[armid] = POS_LOW;
     }
     else if( (abs(pos-mpos) < SETTING_AX12_WINDOW) && m->arms_pos[armid] != POS_MID )
     {
-      PPP_SEND_ARM_AT_POS(ROID_SUBSCRIBER, armid, POS_MID);
+      PPP_SEND_ARM_AT_POS(ROID_SUBSCRIBER, arm, POS_MID);
       m->arms_pos[armid] = POS_MID;
     }
     else if( (abs(pos-hpos) < SETTING_AX12_WINDOW) && m->arms_pos[armid] != POS_HI )
     {
-      PPP_SEND_ARM_AT_POS(ROID_SUBSCRIBER, armid, POS_HI);
+      PPP_SEND_ARM_AT_POS(ROID_SUBSCRIBER, arm, POS_HI);
       m->arms_pos[armid] = POS_HI;
     }
   }
