@@ -88,11 +88,15 @@ void sys_init(void)
 void sys_update(void* dummy)
 {
   uint16_t dt;
-  static uint8_t led = 0;
-
+  static uint8_t t = 0;
+  static double ll = 0.0, lr = 0.0;
   // some LED feedback
-  if( (led+=40)>50 )
+  t++;
+  if( t > 5 )
+  {
+    t = 0;
     led_on(0);
+  }
   else
     led_off(0);
 
@@ -122,23 +126,44 @@ void sys_update(void* dummy)
   }
 
   // poll ground detectors
-  uint8_t l,r;
-  l = ground_detector_is_object_present(&gd_left);
-  r = ground_detector_is_object_present(&gd_right);
-  
-  if( l && !gd_left_last )
-    PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_LEFT, 1);
-  if( !l && gd_left_last )
-    PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_LEFT, 0);
+  if( t == 0)
+  {
+    double l,r;
+    l = ground_detector_is_object_present(&gd_left);
+    r = ground_detector_is_object_present(&gd_right);
+    
+    l = l*0.4 + ll*0.6;
+    r = r*0.4 + lr*0.6;
 
-  if( r && !gd_right_last )
-    PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_RIGHT, 1);
-  if( !r && gd_right_last )
-    PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_RIGHT, 0);
+    ll = l;
+    lr = r;
 
-  gd_right_last = r;
-  gd_left_last = l;
-  
+    if( (l>0.9) && !gd_left_last )
+      PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_LEFT, 1);
+    if( !(l>0.9) && gd_left_last )
+      PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_LEFT, 0);
+
+    if( (r>0.9) && !gd_right_last )
+      PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_RIGHT, 1);
+    if( !(r>0.9) && gd_right_last )
+      PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_RIGHT, 0);
+
+    gd_right_last = (r>0.9);
+    gd_left_last = (l>0.9);
+      
+    led_toggle(1);
+  }
+  // poll arms position
+  else if( t==1 )
+  {
+    actuators_arm_send_status(&actuators, ARM_LEFT);
+    led_toggle(2);
+  }
+  else if( t==2 )
+  {
+    actuators_arm_send_status(&actuators, ARM_RIGHT);
+    led_toggle(3);
+  }
   // reset TIMER3
   timer3_set(0);
 

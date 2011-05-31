@@ -24,6 +24,8 @@ robot = Robot([
       desc="Move arm at given position"),
     Order('arm_release', [('arm', 'uint8')],
       desc="Release pawn grabbed by the arm"),
+    Event('arm_overtorque', [('arm', 'uint8')],
+      desc="Arm overtorque"),
     Event('arm_at_pos', [('arm', 'uint8'), ('pos', 'int8')],
       desc="Arm has moved to given postion."),
     Event('arm_pawn_present', [('arm', 'uint8'), ('b', 'bool')],

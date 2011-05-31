@@ -30,19 +30,28 @@
 
 #define ACTUATORS_ERROR 0x70
 
+typedef enum
+{
+  ARM_LEFT = 0,
+  ARM_RIGHT
+}armPos_t;
+
+typedef enum
+{
+  POS_HI = -1,
+  POS_MID,
+  POS_LOW
+}pos_t;
+
 typedef struct
 {
   uint16_t ax12Speed;
   uint16_t ax12Torque;
   uint16_t ax12Punch; // high value = danger
 
-}actuators_t;
+  pos_t arms_pos[2];
 
-typedef enum
-{
-  ARM_LEFT = 0,
-  ARM_RIGHT
-}armPos_t;
+}actuators_t;
 
 // -- --
 

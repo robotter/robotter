@@ -24,6 +24,8 @@
 #include <aversive/error.h>
 #include <ax12.h>
 
+#include <perlimpinpin.h>
+
 #include "cli.h"
 #include "logging.h"
 #include "settings.h"
@@ -37,6 +39,9 @@ void actuators_init(actuators_t* m)
   m->ax12Speed = SETTING_AX12_DEFAULT_SPEED;
   m->ax12Torque = SETTING_AX12_DEFAULT_TORQUE;
   m->ax12Punch = SETTING_AX12_DEFAULT_PUNCH;
+
+  m->arms_pos[ARM_LEFT] = POS_HI;
+  m->arms_pos[ARM_RIGHT] = POS_HI;
 
   NOTICE(ACTUATORS_ERROR,"Initializing AX12s");
   actuators_ax12_init(m);
@@ -177,6 +182,16 @@ uint8_t actuators_ax12_setPositionSpeed(actuators_t* m, uint8_t id, uint16_t pos
   return 1;
 }
 
+int16_t actuators_ax12_getPosition(actuators_t* m, uint8_t id)
+{
+  uint16_t read_pos,trq;
+  ax12_user_read_int(&ax12, id, AA_PRESENT_POSITION_L, &read_pos);
+  ax12_user_read_int(&ax12, id, AA_PRESENT_LOAD_L, &trq);
+  trq &= 0x3FF; // load value (remove sign)
+  if( trq > SETTING_AX12_CLAMPING_TORQUE )
+    return -1;
+  return read_pos;
+}
 
 uint8_t actuators_ax12_checkPosition(actuators_t* m, uint8_t id, uint16_t pos)
 {
@@ -195,3 +210,55 @@ uint8_t actuators_ax12_checkPosition(actuators_t* m, uint8_t id, uint16_t pos)
 
   return 0;
 }
+
+void actuators_arm_send_status(actuators_t* m, armPos_t arm)
+{
+  int16_t pos;
+  uint16_t lpos=0,mpos=0,hpos=0;
+  uint8_t armid=ARM_LEFT;
+
+  switch(arm)
+  {
+    case ARM_LEFT: 
+      armid = SETTING_AX12_ID_LEFT_ARM;
+      lpos = SETTING_AX12_POS_LARM_LOWERED;
+      mpos = SETTING_AX12_POS_LARM_MID;
+      hpos = SETTING_AX12_POS_LARM_RAISED;
+      break;
+    case ARM_RIGHT: 
+      armid = SETTING_AX12_ID_RIGHT_ARM;
+      lpos = SETTING_AX12_POS_RARM_LOWERED;
+      mpos = SETTING_AX12_POS_RARM_MID;
+      hpos = SETTING_AX12_POS_RARM_RAISED;
+      break;
+    default:
+      ERROR(0,"Wrong ARMID %d",arm);
+  }
+  
+  pos = actuators_ax12_getPosition(m, armid);
+
+  if(pos < 0)
+  {
+    PPP_SEND_ARM_OVERTORQUE(ROID_SUBSCRIBER, armid);
+  }
+  else
+  {
+    if( (abs(pos-lpos) < SETTING_AX12_WINDOW) && m->arms_pos[armid] != POS_LOW )
+    {
+      PPP_SEND_ARM_AT_POS(ROID_SUBSCRIBER, armid, POS_LOW);
+      m->arms_pos[armid] = POS_LOW;
+    }
+    else if( (abs(pos-mpos) < SETTING_AX12_WINDOW) && m->arms_pos[armid] != POS_MID )
+    {
+      PPP_SEND_ARM_AT_POS(ROID_SUBSCRIBER, armid, POS_MID);
+      m->arms_pos[armid] = POS_MID;
+    }
+    else if( (abs(pos-hpos) < SETTING_AX12_WINDOW) && m->arms_pos[armid] != POS_HI )
+    {
+      PPP_SEND_ARM_AT_POS(ROID_SUBSCRIBER, armid, POS_HI);
+      m->arms_pos[armid] = POS_HI;
+    }
+  }
+
+}
+
