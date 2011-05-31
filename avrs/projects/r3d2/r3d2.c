@@ -40,19 +40,14 @@ static volatile uint16_t object_beginnig_detection, object_end_detection, motor_
 /// 1 if a robot has been detected, 0 otherwise.
 static volatile uint8_t position_updated_value;
 
-// store the last position of the robot (warning, may be obsolete if robot is out of detecting range)
-static double detected_robot_angle, detected_robot_distance;
+double r3d2_detected_robot_angle;
+double r3d2_detected_robot_distance;
 
-// timout that indicates if robot is present on detecting range
-static uint8_t robot_detected_timout_treshold, robot_detected_timout_value;
-EEMEM uint8_t eep_robot_detected_timout_treshold = (uint8_t)DEFAULT_ROBOT_DETECTED_TIMOUT_TRESHOLD;
+static uint8_t robot_detected_timout_value;
+uint8_t r3d2_robot_detected_timeout_threshold;
+EEMEM uint8_t eep_robot_detected_timeout_threshold = (uint8_t)DEFAULT_ROBOT_DETECTED_TIMEOUT_THRESHOLD;
 
-/** @brief Detection of the other robot near the sensor.
- *
- * Based on robot_detected_timout_* variables.
- * 1 if detected, 0 otherwise.
- */
-static uint8_t robot_detected_value;
+uint8_t r3d2_is_robot_detected;
 
 // pwm structure used to drive the motor
 static struct pwm_ng pwm;
@@ -61,20 +56,16 @@ static struct pwm_ng pwm;
 EEMEM uint16_t eep_motor_speed = (uint16_t)DEFAULT_MOTOR_SPEED;
 
 // ratio used to determine the correct distance of the robot
-static double surface_reflection_ratio;
-EEMEM double eep_surface_reflection_ratio = DEFAULT_SURFACE_REFLECTION_RATIO;
+double r3d2_surface_reflection_ratio;
+EEMEM float eep_surface_reflection_ratio = DEFAULT_SURFACE_REFLECTION_RATIO;
 
 // timout that indicates if robot is present on detecting range
-static volatile uint8_t motor_rotating_timout_value;
-static uint8_t motor_rotating_timout_treshold;
-EEMEM uint8_t eep_motor_rotating_timout_treshold = (uint8_t)DEFAULT_MOTOR_ROTATING_TIMOUT_TRESHOLD;
+static volatile uint8_t r3d2_motor_rotating_timeout_value;
+uint8_t r3d2_motor_rotating_timeout_threshold;
+EEMEM uint8_t eep_motor_rotating_timeout_threshold = (uint8_t)DEFAULT_MOTOR_ROTATING_TIMEOUT_THRESHOLD;
 
-// angle offset added to the position computed
-static double robot_detected_angle_offset;
-EEMEM double eep_robot_detected_angle_offset = DEFAULT_ROBOT_DETECTED_ANGLE_OFFSET;
-
-// store detection of motor error unsolved by the system
-static uint8_t motor_error_value;
+double r3d2_robot_detected_angle_offset;
+EEMEM float eep_robot_detected_angle_offset = DEFAULT_ROBOT_DETECTED_ANGLE_OFFSET;
 
 // some function prototype
 static void init_sensor(void);
@@ -101,15 +92,14 @@ void r3d2_init(void)
   motor_init();
 
   // first there is no robot detected, neither motor error
-  robot_detected_value = 1;
-  motor_error_value = 0;
+  r3d2_is_robot_detected = 1;
 
-  robot_detected_timout_treshold = eeprom_read_byte(&eep_robot_detected_timout_treshold);
-  surface_reflection_ratio = eeprom_read_float((float*)&eep_surface_reflection_ratio);
-  robot_detected_angle_offset = eeprom_read_float((float*)&eep_robot_detected_angle_offset);
-  motor_rotating_timout_treshold = eeprom_read_byte(&eep_motor_rotating_timout_treshold);
+  r3d2_robot_detected_timeout_threshold = eeprom_read_byte(&eep_robot_detected_timeout_threshold);
+  r3d2_surface_reflection_ratio = eeprom_read_float(&eep_surface_reflection_ratio);
+  r3d2_robot_detected_angle_offset = eeprom_read_float(&eep_robot_detected_angle_offset);
+  r3d2_motor_rotating_timeout_threshold = eeprom_read_byte(&eep_motor_rotating_timeout_threshold);
 
-  motor_rotating_timout_value = motor_rotating_timout_treshold;
+  r3d2_motor_rotating_timeout_value = r3d2_motor_rotating_timeout_threshold;
   robot_detected_timout_value = 0;
 }
 
@@ -131,9 +121,9 @@ ISR(INT0_vect)
   motor_period  = motor_period_irq;
 
   // used to detect if motor is stopped (
-  if (motor_rotating_timout_value <= 6)
+  if (r3d2_motor_rotating_timeout_value <= 6)
   {
-    motor_rotating_timout_value+=motor_rotating_timout_treshold;
+    r3d2_motor_rotating_timeout_value += r3d2_motor_rotating_timeout_threshold;
   }
 
   // initialise data to know when it has been updated
@@ -175,13 +165,13 @@ ISR(INT1_vect)
   }
 }
 
-void enable_sensor(void)
+void r3d2_enable_sensor(void)
 {
   sbi(DDRB, 1);
   sbi(PORTB, 1);
 }
 
-void disable_sensor(void)
+void r3d2_disable_sensor(void)
 {
   cbi(PORTB,1);
 }
@@ -189,8 +179,7 @@ void disable_sensor(void)
 void init_sensor(void)
 {
   int1_init();
-
-  enable_sensor();
+  r3d2_enable_sensor();
 }
 
 
@@ -212,19 +201,19 @@ void motor_init(void)
                           TIMER1_PRESCALER_DIV_256);
 
   PWM_NG_INIT8(&pwm, 2, 12, PWM_NG_MODE_NORMAL, NULL, 0);
-  start_motor();
+  r3d2_start_motor();
 }
 
-void start_motor(void)
+void r3d2_start_motor(void)
 {
   sbi(PORTD, 5);
   // hack to start mirror even if pwn value is too low to start rotation
   pwm_ng_set(&pwm, 5000);
   wait_ms(500);
-  pwm_ng_set(&pwm, get_motor_speed());
+  pwm_ng_set(&pwm, r3d2_get_motor_speed());
 }
 
-void stop_motor(void)
+void r3d2_stop_motor(void)
 {
   cbi(PORTD, 5);
 }
@@ -237,75 +226,42 @@ uint8_t is_motor_powered(void)
     return 0;
 }
 
-void start_r3d2(void)
+void r3d2_start(void)
 {
   if (!is_motor_powered())
   {
-    start_motor();
+    r3d2_start_motor();
   }
-  enable_sensor();
+  r3d2_enable_sensor();
 }
 
-void stop_r3d2(void)
+void r3d2_stop(void)
 {
-  stop_motor();
-  disable_sensor();
+  r3d2_stop_motor();
+  r3d2_disable_sensor();
 }
 
 
-void set_motor_speed(uint16_t speed)
+void r3d2_set_motor_speed(uint16_t speed)
 {
   pwm_ng_set(&pwm, speed);
   eeprom_update_word(&eep_motor_speed, speed);
 }
 
-uint16_t get_motor_speed(void)
+uint16_t r3d2_get_motor_speed(void)
 {
   return eeprom_read_word(&eep_motor_speed);
 }
 
-uint8_t get_robot_detected_timout_treshold(void)
-{
-  return robot_detected_timout_treshold;
-}
-
-void set_robot_detected_timout_treshold(uint8_t treshold)
-{
-  robot_detected_timout_treshold = treshold;
-  eeprom_update_byte(&eep_robot_detected_timout_treshold, robot_detected_timout_treshold);
-}
-
-
-void set_motor_rotating_timout_treshold(uint8_t value)
-{
-  motor_rotating_timout_treshold = value;
-  eeprom_update_byte(&eep_motor_rotating_timout_treshold, motor_rotating_timout_treshold);
-}
-
-uint8_t get_motor_rotating_timout_treshold(void)
-{
-  return motor_rotating_timout_treshold;
-}
-
-void set_robot_detected_angle_offset(double offset)
-{
-  robot_detected_angle_offset = offset;
-  eeprom_update_float((float*)&eep_robot_detected_angle_offset, robot_detected_angle_offset);
-}
-
-double get_robot_detected_angle_offset(void)
-{
-  return robot_detected_angle_offset;
-}
 
 // automatic calculation of ratio with object detection and relative distance form object
 // given_angle must be between 0 and 360 (°)
-void update_angle_offset_from_object_angle(double given_angle)
+void r3d2_update_angle_offset_from_object_angle(double given_angle)
 {
   double new_offset;
 
   // compute value without offset
-  new_offset = detected_robot_angle - robot_detected_angle_offset;
+  new_offset = r3d2_detected_robot_angle - r3d2_robot_detected_angle_offset;
 
 
   // angle is modulo360
@@ -316,32 +272,21 @@ void update_angle_offset_from_object_angle(double given_angle)
   new_offset = given_angle - new_offset;
 
   // update offset
-  set_robot_detected_angle_offset(new_offset);
+  r3d2_robot_detected_angle_offset = new_offset;
 }
 
-
-void set_surface_reflection_ratio(double ratio)
-{
-  surface_reflection_ratio = ratio;
-  eeprom_update_float((float*)&eep_surface_reflection_ratio, surface_reflection_ratio);
-}
 
 // automatic calculation of ratio with object detection and relative distance form object
 // given_distance must be in cm
-void update_surface_ratio_from_object_distance(double given_distance)
+void r3d2_update_surface_ratio_from_object_distance(double given_distance)
 {
-  double new_ratio = get_detected_robot_distance();
+  double new_ratio = r3d2_detected_robot_distance;
   // compute value without ratio
-  new_ratio = new_ratio/surface_reflection_ratio;
+  new_ratio = new_ratio/r3d2_surface_reflection_ratio;
 
   // then compute radio that is a ratio between distance (here new_ratio) and real distance
   new_ratio = given_distance/new_ratio;
-  set_surface_reflection_ratio(new_ratio);
-}
-
-double get_surface_reflection_ratio(void)
-{
-  return surface_reflection_ratio;
+  r3d2_surface_reflection_ratio = new_ratio;
 }
 
 double convert_timer_ticks_to_rpm(uint16_t timer_ticks)
@@ -357,19 +302,8 @@ double convert_timers_ticks_to_angle(uint16_t angle, uint16_t motor_period)
 /// robot detection accessor (detected, and position )
 uint8_t is_robot_detected(void)
 {
-  return robot_detected_value;
+  return r3d2_is_robot_detected;
 }
-
-double get_detected_robot_angle(void)
-{
-  return detected_robot_angle;
-}
-
-double get_detected_robot_distance(void)
-{
-  return detected_robot_distance;
-}
-
 
 
 void r3d2_monitor(void *dummy)
@@ -393,23 +327,23 @@ void r3d2_monitor(void *dummy)
     object_duty_cycle = object_end_detection_local - object_beginnig_detection_local;
     object_angle = object_beginnig_detection_local + object_duty_cycle/2;
 
-    detected_robot_angle = (((float)object_angle)*360)/motor_period_local;
-    detected_robot_angle = (detected_robot_angle + robot_detected_angle_offset);
+    r3d2_detected_robot_angle = (((float)object_angle)*360)/motor_period_local;
+    r3d2_detected_robot_angle = (r3d2_detected_robot_angle + r3d2_robot_detected_angle_offset);
 
-    if (detected_robot_angle > 360)
+    if (r3d2_detected_robot_angle > 360)
     {
-      detected_robot_angle -= 360;
+      r3d2_detected_robot_angle -= 360;
     }
-    else if(detected_robot_angle <0)
+    else if(r3d2_detected_robot_angle <0)
     {
-      detected_robot_angle += 360;
+      r3d2_detected_robot_angle += 360;
     }
 
     float_duty_cycle = (((float)object_duty_cycle)*360)/motor_period_local;
-    detected_robot_distance = surface_reflection_ratio/(2 * tan(float_duty_cycle*M_PI_2/180));
+    r3d2_detected_robot_distance = r3d2_surface_reflection_ratio/(2 * tan(float_duty_cycle*M_PI_2/180));
 
     // update flags
-    robot_detected_value = 0;
+    r3d2_is_robot_detected = 0;
     position_updated_value = 0;
 
     // reset robot detection timout
@@ -419,9 +353,9 @@ void r3d2_monitor(void *dummy)
   else
   {
     // robot decetion timout reached
-    if (robot_detected_timout_value >= robot_detected_timout_treshold)
+    if (robot_detected_timout_value >= r3d2_robot_detected_timeout_threshold)
     {
-      robot_detected_value = 1;
+      r3d2_is_robot_detected = 1;
     }
     else
     {
@@ -430,17 +364,25 @@ void r3d2_monitor(void *dummy)
   }
 
   // value not protected from irq
-  if(motor_rotating_timout_value == 0 && is_motor_powered())
+  if(r3d2_motor_rotating_timeout_value == 0 && is_motor_powered())
   {
     WARNING(0,"motor stopped, restarting");
-    start_motor();
-    motor_rotating_timout_value = motor_rotating_timout_treshold;
-    motor_error_value = 1;
+    r3d2_start_motor();
+    r3d2_motor_rotating_timeout_value = r3d2_motor_rotating_timeout_threshold;
   }
   else
   {
-    motor_error_value = 1; /// XXX modify this flag that will toogle in case of motor error detection
-    motor_rotating_timout_value --;
+    r3d2_motor_rotating_timeout_value --;
   }
 
 }
+
+
+void r3d2_write_to_eeprom(void)
+{
+  eeprom_update_byte(&eep_motor_rotating_timeout_threshold, r3d2_motor_rotating_timeout_threshold);
+  eeprom_update_byte(&eep_robot_detected_timeout_threshold, r3d2_robot_detected_timeout_threshold);
+  eeprom_update_float(&eep_robot_detected_angle_offset, r3d2_robot_detected_angle_offset);
+  eeprom_update_float(&eep_surface_reflection_ratio, r3d2_surface_reflection_ratio);
+}
+

@@ -36,9 +36,9 @@ void enable_periodic_position_msg(void)
 
 void send_periodic_position_msg(void* dummy)
 {
-  if (is_robot_detected() && (periodic_position_msg_status!=0))
+  if (r3d2_is_robot_detected && (periodic_position_msg_status!=0))
   {
-    printf("angle %4.2f | dist %3.2f\n", get_detected_robot_angle(), get_detected_robot_distance());
+    printf("angle %4.2f | dist %3.2f\n", r3d2_detected_robot_angle, r3d2_detected_robot_distance);
   }
   PORTA =~ PORTA;
 }
@@ -55,7 +55,7 @@ void uart_com_monitor(void)
     {
       case 'x' :
       case 'X' :  // just to get caps lock kill signal too
-        stop_r3d2();
+        r3d2_stop();
         printf("r3d2 stopped\n");
         break;
 
@@ -66,30 +66,31 @@ void uart_com_monitor(void)
         NOTICE(0,"\ts/S => stop/START sensor");
         NOTICE(0,"\tm/M => stop/START motor");
         NOTICE(0,"\tp/P => stop/START send of position message");
+        NOTICE(0,"\to   => write changes to EEPROM");
         break;
 
       case 'w' :
-        start_r3d2();
+        r3d2_start();
         NOTICE(0,"r3d2 started");
         break;
 
       case 'm' :
-        stop_motor();
+        r3d2_stop_motor();
         NOTICE(0,"motor off");
         break;
 
       case 'M' :
-        start_motor();
+        r3d2_start_motor();
         NOTICE(0,"motor on");
         break;
 
       case 's' :
-        disable_sensor();
+        r3d2_disable_sensor();
         NOTICE(0,"sensor off");
         break;
 
       case 'S' :
-        enable_sensor();
+        r3d2_enable_sensor();
         NOTICE(0,"sensor on");
         break;
 
@@ -106,25 +107,25 @@ void uart_com_monitor(void)
       case 'a':
         if (get_uint16_t_from_uart(&u16_tmp) != -1)
         {
-          set_motor_speed(u16_tmp);
+          r3d2_set_motor_speed(u16_tmp);
         }
-        printf("motor speed %u\n",get_motor_speed() );
+        printf("motor speed %u\n",r3d2_get_motor_speed() );
         break;
 
       case 'b':
         if (get_uint16_t_from_uart(&u16_tmp) != -1)
         {
-          set_motor_rotating_timout_treshold(u16_tmp);
+          r3d2_motor_rotating_timeout_threshold = u16_tmp;
         }
-        printf("motor rot treshold %u\n", get_motor_rotating_timout_treshold());
+        printf("motor rot treshold %u\n", r3d2_motor_rotating_timeout_threshold);
         break;
 
       case 'c':
         if ( get_uint16_t_from_uart(&u16_tmp) != -1)
         {
-          set_robot_detected_timout_treshold(u16_tmp);
+          r3d2_robot_detected_timeout_threshold = u16_tmp;
         }
-        printf("robot detect treshold %u\n", get_robot_detected_timout_treshold());
+        printf("robot detect treshold %u\n", r3d2_robot_detected_timeout_threshold);
         break;
 
       case 'e': // update angle offset from known object angle (must be in degree between 0 and 360)
@@ -132,18 +133,22 @@ void uart_com_monitor(void)
         {
           if (d_tmp >= 0 && d_tmp<= 360)
           {
-            update_angle_offset_from_object_angle(d_tmp);
+            r3d2_update_angle_offset_from_object_angle(d_tmp);
           }
         }
-        printf("angle offset %f\n", get_robot_detected_angle_offset());
+        printf("angle offset %f\n", r3d2_robot_detected_angle_offset);
         break;
 
       case 'f':
         if (get_double_from_uart(&d_tmp) != -1 )
         {
-          update_surface_ratio_from_object_distance(d_tmp);
+          r3d2_update_surface_ratio_from_object_distance(d_tmp);
         }
-        printf("surface ratio %f\n", get_surface_reflection_ratio());
+        printf("surface ratio %f\n", r3d2_surface_reflection_ratio);
+        break;
+
+      case 'o':
+        r3d2_write_to_eeprom();
         break;
 
       default: break;

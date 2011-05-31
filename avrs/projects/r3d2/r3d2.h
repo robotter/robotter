@@ -26,39 +26,51 @@
 #include <stdint.h>
 
 void r3d2_init(void);
+void r3d2_start(void);
+void r3d2_stop(void);
 
-void start_r3d2(void);
-void stop_r3d2(void);
+/** @brief Detection of the other robot near the sensor.
+ *
+ * Based on robot_detected_timout_* variables.
+ * 1 if detected, 0 otherwise.
+ */
+extern uint8_t r3d2_is_robot_detected;
 
-uint8_t is_robot_detected(void);
-
-double get_detected_robot_angle(void);
-double get_detected_robot_distance(void);
+/** @brief Last position of the robot
+ *
+ * May be obsolete if the robot is out of the detection range.
+ */
+extern double r3d2_detected_robot_angle;
+extern double r3d2_detected_robot_distance;
 
 void r3d2_monitor(void *dummy);
 
-void enable_sensor(void);
-void disable_sensor(void);
+void r3d2_enable_sensor(void);
+void r3d2_disable_sensor(void);
 
-void start_motor(void);
-void stop_motor(void);
+void r3d2_start_motor(void);
+void r3d2_stop_motor(void);
 
-void set_motor_speed(uint16_t speed);
-uint16_t get_motor_speed(void);
+void r3d2_set_motor_speed(uint16_t speed);
+uint16_t r3d2_get_motor_speed(void);
 
-void set_motor_rotating_timout_treshold(uint8_t value);
-uint8_t get_motor_rotating_timout_treshold(void);
+/// Timeout indicating if the robot is in the detection range
+extern uint8_t r3d2_motor_rotating_timeout_threshold;
 
-uint8_t get_robot_detected_timout_treshold(void);
-void set_robot_detected_timout_treshold(uint8_t treshold);
+/// Timeout indicating if the robot is in the detection range
+extern uint8_t r3d2_robot_detected_timeout_threshold;
 
-void set_robot_detected_angle_offset(double offset);
-double get_robot_detected_angle_offset(void);
-void update_angle_offset_from_object_angle(double given_angle);
+/// Angle offset added to the computed position
+extern double r3d2_robot_detected_angle_offset;
+void r3d2_update_angle_offset_from_object_angle(double given_angle);
 
-double get_surface_reflection_ratio(void);
-void set_surface_reflection_ratio(double ratio);
-void update_surface_ratio_from_object_distance(double distance);
+/// Ratio to determine the correct distance of the robot
+extern double r3d2_surface_reflection_ratio;
+void r3d2_update_surface_ratio_from_object_distance(double distance);
+
+
+/// Write all current memory values to EEPROM
+void r3d2_write_to_eeprom(void);
 
 
 #endif // R3D2_H
