@@ -126,7 +126,7 @@ void sys_update(void* dummy)
   }
 
   // poll ground detectors
-  if( t == 0)
+  if( t == 0 )
   {
     double l,r;
     l = ground_detector_is_object_present(&gd_left);
@@ -172,6 +172,7 @@ void sys_update(void* dummy)
   {
     actuators_arm_send_status(&actuators, ARM_RIGHT);
   }
+
   // reset TIMER3
   timer3_set(0);
 

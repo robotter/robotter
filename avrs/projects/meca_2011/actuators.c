@@ -216,6 +216,7 @@ void actuators_arm_send_status(actuators_t* m, armPos_t arm)
   int16_t pos;
   uint16_t lpos=0,mpos=0,hpos=0;
   uint8_t armid=ARM_LEFT;
+  pos_t armp = POS_NONE;
 
   switch(arm)
   {
@@ -243,22 +244,17 @@ void actuators_arm_send_status(actuators_t* m, armPos_t arm)
   }
   else
   {
-    if( (abs(pos-lpos) < SETTING_AX12_WINDOW) && m->arms_pos[armid] != POS_LOW )
-    {
-      PPP_SEND_ARM_AT_POS(ROID_SUBSCRIBER, arm, POS_LOW);
-      m->arms_pos[armid] = POS_LOW;
-    }
-    else if( (abs(pos-mpos) < SETTING_AX12_WINDOW) && m->arms_pos[armid] != POS_MID )
-    {
-      PPP_SEND_ARM_AT_POS(ROID_SUBSCRIBER, arm, POS_MID);
-      m->arms_pos[armid] = POS_MID;
-    }
-    else if( (abs(pos-hpos) < SETTING_AX12_WINDOW) && m->arms_pos[armid] != POS_HI )
-    {
-      PPP_SEND_ARM_AT_POS(ROID_SUBSCRIBER, arm, POS_HI);
-      m->arms_pos[armid] = POS_HI;
-    }
-  }
+    if(abs(pos-lpos) < SETTING_AX12_WINDOW)
+      armp = POS_LOW;
+    else if(abs(pos-mpos) < SETTING_AX12_WINDOW)
+      armp = POS_MID;
+    else if(abs(pos-hpos) < SETTING_AX12_WINDOW)
+      armp = POS_HI;
 
+    if((armp != POS_NONE) && (m->arms_pos[arm] != armp))
+      PPP_SEND_ARM_AT_POS(ROID_SUBSCRIBER, arm, armp);
+
+    m->arms_pos[arm] = armp;
+  }
 }
 

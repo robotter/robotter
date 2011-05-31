@@ -40,7 +40,8 @@ typedef enum
 {
   POS_LOW = -1,
   POS_MID,
-  POS_HI
+  POS_HI,
+  POS_NONE
 }pos_t;
 
 typedef struct
@@ -89,6 +90,8 @@ uint8_t actuators_ax12_check(actuators_t*, uint8_t id);
 uint8_t actuators_ax12_setPosition(actuators_t*, uint8_t id, uint16_t pos);
 uint8_t actuators_ax12_setPositionSpeed(actuators_t*, uint8_t id, uint16_t pos, uint16_t speed);
 
+int16_t actuators_ax12_getPosition(actuators_t* m, uint8_t id);
+
 /** @brief Check AX12 angle
  *
  * @retval 1  AX12 is in position
@@ -96,5 +99,7 @@ uint8_t actuators_ax12_setPositionSpeed(actuators_t*, uint8_t id, uint16_t pos, 
  * @retval 0  not in position, no overtorque
  */
 uint8_t actuators_ax12_checkPosition(actuators_t*, uint8_t id, uint16_t pos);
+
+void actuators_arm_send_status(actuators_t* m, armPos_t arm);
 
 #endif/*_ACTUATORS_H_*/
