@@ -5,10 +5,13 @@
 
 extern htrajectory_t trajectory;
 
-#define RAD_CONVERT(v) ((double)(v)/1000)
-#define MM_CONVERT(v) ((double)(v))
-#define AS_CONVERT(v) ((double)(v)/100)
-#define XYS_CONVERT(v) ((double)(v)/1000)
+#define FROM_RAD(v) ((int16_t)(v*1000))
+#define FROM_MM(v) ((int16_t)(v))
+
+#define TO_RAD(v) ((double)(v)/1000)
+#define TO_MM(v) ((double)(v))
+#define TO_AS(v) ((double)(v)/100)
+#define TO_XYS(v) ((double)(v)/1000)
 
 vect_xy_t points[HTRAJECTORY_MAX_POINTS];
 
@@ -18,28 +21,30 @@ void ppp_msg_callback(PPPMsgFrame *msg)
     return;
   }
 
+  hrobot_vector_t hvec;
   uint8_t n,status;
   double x,y,a,s;
+  int16_t ix,iy,ia;
   switch( msg->mid ) {
     case PPP_MID_ASSERV_GOTO_A:
-      a = RAD_CONVERT(msg->asserv_goto_a.a);
+      a = TO_RAD(msg->asserv_goto_a.a);
       htrajectory_gotoA(&trajectory,a);
       break;
 
     case PPP_MID_ASSERV_GOTO_AR:
-      a = RAD_CONVERT(msg->asserv_goto_ar.a);
+      a = TO_RAD(msg->asserv_goto_ar.a);
       htrajectory_gotoA_R(&trajectory,a);
       break;
 
     case PPP_MID_ASSERV_GOTO_XY:
-      x = MM_CONVERT(msg->asserv_goto_xy.x);
-      y = MM_CONVERT(msg->asserv_goto_xy.y);
+      x = TO_MM(msg->asserv_goto_xy.x);
+      y = TO_MM(msg->asserv_goto_xy.y);
       htrajectory_gotoXY(&trajectory, x, y);
       break;
 
     case PPP_MID_ASSERV_GOTO_XYR:
-      x = MM_CONVERT(msg->asserv_goto_xyr.x);
-      y = MM_CONVERT(msg->asserv_goto_xyr.y);
+      x = TO_MM(msg->asserv_goto_xyr.x);
+      y = TO_MM(msg->asserv_goto_xyr.y);
       htrajectory_gotoXY_R(&trajectory, x, y);
       break;
 
@@ -54,8 +59,8 @@ void ppp_msg_callback(PPPMsgFrame *msg)
 
     case PPP_MID_ASSERV_LOAD:
       n = msg->asserv_load.idx;
-      x = MM_CONVERT(msg->asserv_load.x);
-      y = MM_CONVERT(msg->asserv_load.y);
+      x = TO_MM(msg->asserv_load.x);
+      y = TO_MM(msg->asserv_load.y);
       if(n > HTRAJECTORY_MAX_POINTS)
         WARNING(0,"Command ASSERV_LOAD failed, index not in range: %d>%d",
                     n, HTRAJECTORY_MAX_POINTS);
@@ -70,37 +75,37 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       break;
 
     case PPP_MID_ASSERV_SET_A_SPEED:
-      s = AS_CONVERT(msg->asserv_set_a_speed.speed);
-      a = AS_CONVERT(msg->asserv_set_a_speed.acc);
+      s = TO_AS(msg->asserv_set_a_speed.speed);
+      a = TO_AS(msg->asserv_set_a_speed.acc);
       htrajectory_setASpeed(&trajectory, s, a);
       break;
 
     case PPP_MID_ASSERV_SET_XY_CRUISE_SPEED:
-      s = XYS_CONVERT(msg->asserv_set_xy_cruise_speed.speed);
-      a = XYS_CONVERT(msg->asserv_set_xy_cruise_speed.acc);
+      s = TO_XYS(msg->asserv_set_xy_cruise_speed.speed);
+      a = TO_XYS(msg->asserv_set_xy_cruise_speed.acc);
       htrajectory_setXYCruiseSpeed(&trajectory, s, a);
       break;
 
     case PPP_MID_ASSERV_SET_XY_STEERING_SPEED:
-      s = XYS_CONVERT(msg->asserv_set_xy_steering_speed.speed);
-      a = XYS_CONVERT(msg->asserv_set_xy_steering_speed.acc);
+      s = TO_XYS(msg->asserv_set_xy_steering_speed.speed);
+      a = TO_XYS(msg->asserv_set_xy_steering_speed.acc);
       htrajectory_setXYCruiseSpeed(&trajectory, s, a);
       break;
 
     case PPP_MID_ASSERV_SET_XY_STOP_SPEED:
-      s = XYS_CONVERT(msg->asserv_set_xy_stop_speed.speed);
-      a = XYS_CONVERT(msg->asserv_set_xy_stop_speed.acc);
+      s = TO_XYS(msg->asserv_set_xy_stop_speed.speed);
+      a = TO_XYS(msg->asserv_set_xy_stop_speed.acc);
       htrajectory_setXYCruiseSpeed(&trajectory, s, a);
       break;
 
     case PPP_MID_ASSERV_SET_STEERING_WINDOW:
-      x = MM_CONVERT(msg->asserv_set_steering_window.xywin);
+      x = TO_MM(msg->asserv_set_steering_window.xywin);
       htrajectory_setSteeringWindow(&trajectory, x);
       break;
 
     case PPP_MID_ASSERV_SET_STOP_WINDOWS:
-      x = MM_CONVERT(msg->asserv_set_stop_windows.xywin);
-      a = RAD_CONVERT(msg->asserv_set_stop_windows.awin);
+      x = TO_MM(msg->asserv_set_stop_windows.xywin);
+      a = TO_RAD(msg->asserv_set_stop_windows.awin);
       htrajectory_setStopWindows(&trajectory, x, a);
       break;
 
@@ -119,12 +124,18 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       break;
 
     case PPP_MID_ASSERV_SET_POSITION:
-      x = MM_CONVERT(msg->asserv_set_position.x);
-      y = MM_CONVERT(msg->asserv_set_position.x);
-      a = RAD_CONVERT(msg->asserv_set_position.a);
+      x = TO_MM(msg->asserv_set_position.x);
+      y = TO_MM(msg->asserv_set_position.x);
+      a = TO_RAD(msg->asserv_set_position.a);
       hposition_set(trajectory.hrp, x, y, a);
       break;
 
+    case PPP_MID_ASSERV_GET_POSITION:
+      hposition_get(trajectory.hrp, &hvec);
+      ix = FROM_MM(hvec.x);
+      iy = FROM_MM(hvec.y);
+      ia = FROM_MM(hvec.alpha);
+      PPP_SEND_ASSERV_GET_POSITION_R(msg->src, ix, iy, ia);
     default:
       return;
   }

@@ -92,6 +92,9 @@ robot = Robot([
 
     Command('asserv_status',[],[('status','uint8')],
       desc='Get asserv status |A|XY|blocked|autoset|...|'),
+
+    Command('asserv_get_position',[],[('x','int16'),('y','int16'),('a','int16')],
+      desc='Get robot position'),
     ]),
   ])
 
