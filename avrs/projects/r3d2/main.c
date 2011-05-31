@@ -99,6 +99,7 @@ int main(void)
   PORTA = ~(0x55);
 
   NOTICE(0,"Strike '?' for help");
+  PPP_SEND_START(ROID_SUBSCRIBER);
 
   while (1)
   {

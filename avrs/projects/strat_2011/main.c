@@ -35,6 +35,7 @@ int main(void)
   matchuart_init("__", do_reset);
   sei();
 
+  PPP_SEND_START(ROID_SUBSCRIBER);
   NOTICE(0, "STRAT START");
   for(;;) {
     ppp_update();
