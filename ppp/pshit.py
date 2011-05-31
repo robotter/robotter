@@ -84,10 +84,8 @@ def main():
       help="UART device port to use (default: %s)"%port_default)
   parser.add_option('--baudrate', dest='baudrate', type='int',
       help="UART baudrate (default: 38400)")
-  parser.add_option('--remote', dest='remote',
+  parser.add_option('-r', '--remote', dest='remote',
       help="ROID or name of the remote UART device (defaul: discovered)")
-  parser.add_option('-t', '--terminal', dest='terminal', action='store_true',
-      help="start in terminal mode")
   parser.set_defaults(
       port=port_default,
       baudrate=38400,
