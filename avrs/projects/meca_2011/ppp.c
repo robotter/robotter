@@ -1,6 +1,7 @@
 #include <perlimpinpin_common.h>
 #include <aversive/error.h>
 
+#include "led.h"
 #include "actuators.h"
 #include "scanner.h"
 #include "sys.h"
@@ -17,6 +18,9 @@ void ppp_msg_callback(PPPMsgFrame *msg)
     return;
   }
   uint8_t armid;
+
+  led_toggle(3);
+
   switch( msg->mid ) {
     case PPP_MID_ARM_SET_POS:
     {

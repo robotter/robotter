@@ -28,6 +28,7 @@
 
 // --
 
+//#define SETTING_NO_UART
 //#define SETTING_OVERRIDE_CPUUSAGE
 
 // -- playground

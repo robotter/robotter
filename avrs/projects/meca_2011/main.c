@@ -126,11 +126,13 @@ int main(void)
 
 
   uint8_t c;
-
-  NOTICE(0,"Strike 'x' to reboot / 'e' AX12 EEPROM load / 'm' AX12 / 'a' actuators / 'g' ground / 'p' GP2* / 's' sandbox ");
-
   led_off(1);
 
+#ifdef SETTING_NO_UART
+  NOTICE(0,"NO INPUT UART");
+  scheduler_del_event(event_safe_key);
+#else
+  NOTICE(0,"Strike 'x' to reboot / 'e' AX12 EEPROM load / 'm' AX12 / 'a' actuators / 'g' ground / 'p' GP2* / 's' sandbox ");
   while(1)
   {
     c = cli_getkey();
@@ -156,6 +158,7 @@ int main(void)
     if(c == 'p')
       paddock_GP2();
   }
+#endif
 
   while(1) nop();
 }

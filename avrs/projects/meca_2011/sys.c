@@ -139,30 +139,38 @@ void sys_update(void* dummy)
     lr = r;
 
     if( (l>0.9) && !gd_left_last )
+    {
       PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_LEFT, 1);
-    if( !(l>0.9) && gd_left_last )
+      led_on(1);
+    }
+    else if( !(l>0.9) && gd_left_last )
+    {
       PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_LEFT, 0);
+      led_off(1);
+    }
 
     if( (r>0.9) && !gd_right_last )
+    {
       PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_RIGHT, 1);
-    if( !(r>0.9) && gd_right_last )
+      led_on(2);
+    }
+    else if( !(r>0.9) && gd_right_last )
+    {
       PPP_SEND_ARM_PAWN_PRESENT(ROID_SUBSCRIBER, ARM_RIGHT, 0);
+      led_off(2);
+    }
 
     gd_right_last = (r>0.9);
     gd_left_last = (l>0.9);
-      
-    led_toggle(1);
   }
   // poll arms position
   else if( t==1 )
   {
     actuators_arm_send_status(&actuators, ARM_LEFT);
-    led_toggle(2);
   }
   else if( t==2 )
   {
     actuators_arm_send_status(&actuators, ARM_RIGHT);
-    led_toggle(3);
   }
   // reset TIMER3
   timer3_set(0);
