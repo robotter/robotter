@@ -34,6 +34,12 @@ robot = Robot([
       desc="Scan for a pawn"),
     ]),
 
+  # R3D2
+  MsgGroupWrapper(0x38, [
+    Event('r3d2_detected', [('r', 'uint16'), ('a', 'int16')],
+      desc="Robot detected at given polar coordinates"),
+    ]),
+
   ## Robot movement
   # angle in milliradians, x&y in mlllimeters
   MsgGroupWrapper(0x40, [

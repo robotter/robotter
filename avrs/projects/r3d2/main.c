@@ -46,6 +46,9 @@ static void ppp_msg_callback(PPPMsgFrame *msg)
   }
   switch( msg->mid ) {
     case PPP_MID_KILL:
+      r3d2_stop();
+      NOTICE(0,"killed");
+      break;
     default:
       return;
   }
