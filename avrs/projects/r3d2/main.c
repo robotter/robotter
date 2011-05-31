@@ -41,7 +41,7 @@ int main(void)
 {
   uart_init();
   uart_com_init();
-  fdevopen(uart0_dev_send, uart0_dev_recv);
+  fdevopen(uart_dev_send, uart_dev_recv);
 
   //--------------------------------------------------------
   // Error configuration

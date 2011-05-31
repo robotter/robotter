@@ -48,8 +48,8 @@ void uart_com_monitor(void)
   uint16_t u16_tmp;
   double d_tmp;
 
-  int8_t c = uart_recv_nowait(0);
-  if (c!= -1)
+  int c = uart_recv_nowait();
+  if(c!= -1)
   {
     switch(c)
     {
@@ -160,12 +160,12 @@ void uart_com_monitor(void)
 int8_t get_uint16_t_from_uart(uint16_t *d)
 {
   uint8_t it;
-  int8_t c = uart_recv(0);
+  uint8_t c = uart_recv();
   *d = 0;
   for(it =0; it <= 4 && isdigit(c); it ++)
   {
     *d = ((*d) *10) + (c -'0');
-    c = uart_recv(0);
+    c = uart_recv();
   }
   if (it != 0)
     return 1;
@@ -178,7 +178,7 @@ int8_t get_double_from_uart(double *d)
 {
   uint8_t it, decimal_nb;
   double data = 0;
-  int8_t c = uart_recv(0);
+  uint8_t c = uart_recv();
   decimal_nb = 0;
   data = 0;
 
@@ -201,7 +201,7 @@ int8_t get_double_from_uart(double *d)
 
       data = (data *10) + (float)(c -'0');
     }
-    c = uart_recv(0);
+    c = uart_recv();
   }
   /// transform into decimal number
   for(; decimal_nb >1; decimal_nb --)
