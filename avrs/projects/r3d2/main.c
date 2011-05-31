@@ -24,6 +24,7 @@
 #include <aversive/error.h>
 #include <uart.h>
 #include <scheduler.h>
+#include <perlimpinpin_common.h>
 #include "r3d2.h"
 #include "logging.h"
 #include "uart_communication.h"
@@ -36,6 +37,20 @@ static void init_led(void)
 {
   DDRA = 0xFF;
 }
+
+
+static void ppp_msg_callback(PPPMsgFrame *msg)
+{
+  if( ppp_common_callback(msg) ) {
+    return;
+  }
+  switch( msg->mid ) {
+    case PPP_MID_KILL:
+    default:
+      return;
+  }
+}
+
 
 int main(void)
 {
@@ -53,6 +68,8 @@ int main(void)
 
   log_level = ERROR_SEVERITY_NOTICE;
   log_level = ERROR_SEVERITY_DEBUG;
+
+  ppp_init(ppp_msg_callback);
 
   sei();
   printf("\033[2J\033[0;0H"
@@ -83,5 +100,6 @@ int main(void)
   while (1)
   {
     uart_com_monitor();
+    ppp_update();
   }
 }

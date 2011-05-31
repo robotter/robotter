@@ -7,6 +7,7 @@ robot = Robot([
   Device('prop', 0x20),
   Device('strat', 0x24),
   Device('meca', 0x28),
+  Device('r3d2', 0x2C),
 
   # Common messages
   MsgGroupWrapper(1, [
