@@ -77,15 +77,28 @@ void error_register_notice(void (*f)(struct error *, ...));
 void error_register_debug(void (*f)(struct error *, ...));
 
 
+#ifdef ERROR_DUMP_TEXTLOG
+#define ERROR_ARG_TEXTLOG(t)  PSTR(t)
+#else
+#define ERROR_ARG_TEXTLOG(t)  0
+#endif
+
+#ifdef ERROR_DUMP_FILE_LINE
+#define ERROR_ARG_FILE  PSTR(__FILE__)
+#define ERROR_ARG_LINE  __LINE__
+#else
+#define ERROR_ARG_FILE  0
+#define ERROR_ARG_LINE  0
+#endif
 
 
 /** Call this macro to log EMERG events */
 #define EMERG(num, text, ...)  do {                                            \
 	if(g_error_fct.emerg) {                                                \
 		struct error e = error_generate(num, ERROR_SEVERITY_EMERG,     \
-								PSTR(text),    \
-								PSTR(__FILE__),\
-								__LINE__);     \
+								ERROR_ARG_TEXTLOG(text),\
+								ERROR_ARG_FILE,         \
+								ERROR_ARG_LINE);        \
 		g_error_fct.emerg(&e, ##__VA_ARGS__);                          \
 	}                                                                      \
 } while(0)
@@ -94,9 +107,9 @@ void error_register_debug(void (*f)(struct error *, ...));
 #define ERROR(num, text, ...)  do {                                            \
 	if(g_error_fct.error) {                                                \
 		struct error e = error_generate(num, ERROR_SEVERITY_ERROR,     \
-								PSTR(text),    \
-								PSTR(__FILE__),\
-								__LINE__);     \
+								ERROR_ARG_TEXTLOG(text),\
+								ERROR_ARG_FILE,         \
+								ERROR_ARG_LINE);        \
 		g_error_fct.error(&e, ##__VA_ARGS__);                          \
 	}                                                                      \
 } while(0)
@@ -105,9 +118,9 @@ void error_register_debug(void (*f)(struct error *, ...));
 #define WARNING(num, text, ...)  do {                                          \
 	if(g_error_fct.warning) {                                              \
 		struct error e = error_generate(num, ERROR_SEVERITY_WARNING,   \
-								PSTR(text),    \
-								PSTR(__FILE__),\
-								__LINE__);     \
+								ERROR_ARG_TEXTLOG(text),\
+								ERROR_ARG_FILE,         \
+								ERROR_ARG_LINE);        \
 		g_error_fct.warning(&e, ##__VA_ARGS__);                        \
 	}                                                                      \
 } while(0)
@@ -116,9 +129,9 @@ void error_register_debug(void (*f)(struct error *, ...));
 #define NOTICE(num, text, ...)  do {                                           \
 	if(g_error_fct.notice) {                                               \
 		struct error e = error_generate(num, ERROR_SEVERITY_NOTICE,    \
-								PSTR(text),    \
-								PSTR(__FILE__),\
-								__LINE__);     \
+								ERROR_ARG_TEXTLOG(text),\
+								ERROR_ARG_FILE,         \
+								ERROR_ARG_LINE);        \
 		g_error_fct.notice(&e, ##__VA_ARGS__);                         \
 	}                                                                      \
 } while(0)
@@ -127,14 +140,12 @@ void error_register_debug(void (*f)(struct error *, ...));
 #define DEBUG(num, text, ...)  do {                                            \
 	if(g_error_fct.debug) {                                                \
 		struct error e = error_generate(num, ERROR_SEVERITY_DEBUG,     \
-								PSTR(text),    \
-								PSTR(__FILE__),\
-								__LINE__);     \
+								ERROR_ARG_TEXTLOG(text),\
+								ERROR_ARG_FILE,         \
+								ERROR_ARG_LINE);        \
 		g_error_fct.debug(&e, ##__VA_ARGS__);                          \
 	}                                                                      \
 } while(0)
-
-
 
 
 #endif /* _ERROR_H_ */
