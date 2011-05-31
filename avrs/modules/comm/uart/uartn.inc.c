@@ -15,6 +15,25 @@
 #define SIG_UARTN(s)  SIG_USART_##s
 #endif
 
+#ifndef UBRR0H
+#define UBRR0H UBRRH
+#define UBRR0L UBRRL
+#define UCSR0A UCSRA
+#define UCSR0B UCSRB
+#define UCSR0C UCSRC
+#define UCSR0C UCSRC
+#define U2X0   U2X
+#define UCSZ00 UCSZ0
+#define RXEN0  RXEN
+#define TXEN0  TXEN
+#define UDRE0  UDRE
+#define RXCIE0 RXCIE
+#define TXCIE0 TXCIE
+#define UDRIE0 UDRIE
+#define UDR0 UDR
+#endif
+
+
 
 typedef struct {
   uint8_t *head;
