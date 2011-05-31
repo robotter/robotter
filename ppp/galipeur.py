@@ -14,6 +14,7 @@ robot = Robot([
     Order('reset', [], desc="Reset the device"),
     Order('kill', [], desc="Stop the device and all its actuators"),
     Command('ping', [('v', 'uint8')], [('r', 'uint8')], desc="Ping/pong, for tests"),
+    Event('start', [], desc="Device is up and running"),
     ]),
 
   # Arms
