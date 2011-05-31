@@ -117,12 +117,6 @@ void cs_initialize(void)
   htrajectory_setStopWindows(&trajectory, SETTING_TRAJECTORY_STOP_XYWIN,
                                           SETTING_TRAJECTORY_STOP_AWIN);
 
-  // Set position manager
-  NOTICE(0,"Set robot position to (%2.2f,%2.2f,%2.2f)",
-            SETTING_POSITION_INIT_X,
-            SETTING_POSITION_INIT_Y,
-            SETTING_POSITION_INIT_A);
-
   hposition_set( &position, SETTING_POSITION_INIT_X,
                             SETTING_POSITION_INIT_Y,
                             SETTING_POSITION_INIT_A);
@@ -173,7 +167,6 @@ void cs_update(void* dummy)
 
 	// update control systems
 	robot_cs_update(&robot_cs);
-
 
   // compute CPU usage
   dt = timer3_get();

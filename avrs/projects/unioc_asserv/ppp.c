@@ -3,6 +3,7 @@
 
 #include "htrajectory.h"
 
+extern robot_cs_t robot_cs;
 extern htrajectory_t trajectory;
 
 #define FROM_RAD(v) ((int16_t)(v*1000))
@@ -125,9 +126,10 @@ void ppp_msg_callback(PPPMsgFrame *msg)
 
     case PPP_MID_ASSERV_SET_POSITION:
       x = TO_MM(msg->asserv_set_position.x);
-      y = TO_MM(msg->asserv_set_position.x);
+      y = TO_MM(msg->asserv_set_position.y);
       a = TO_RAD(msg->asserv_set_position.a);
       hposition_set(trajectory.hrp, x, y, a);
+      htrajectory_reset_carrot(&trajectory);
       break;
 
     case PPP_MID_ASSERV_GET_POSITION:

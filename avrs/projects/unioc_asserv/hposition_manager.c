@@ -75,6 +75,8 @@ void hposition_init( hrobot_position_t* hpos )
 void hposition_set( hrobot_position_t* hpos, double x, double y, double alpha)
 {
   uint8_t flags;
+  
+  DEBUG(0,"position reset (%1.1f,%1.1f,%1.1f)",x,y,alpha);
 
   IRQ_LOCK(flags);
   hpos->position.x = x;
@@ -96,7 +98,6 @@ void hposition_set( hrobot_position_t* hpos, double x, double y, double alpha)
   qramp_angle.previous_var = 0;
   qramp_angle.previous_out = consign;
   qramp_angle.previous_in = consign;
-
   IRQ_UNLOCK(flags);
 
   return;

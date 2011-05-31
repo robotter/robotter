@@ -629,4 +629,10 @@ void htrajectory_autoset( htrajectory_t *htj, robotSide_t side)
   htj->autosetSide = side;
 }
 
+void htrajectory_reset_carrot( htrajectory_t *htj )
+{
+  vect_xy_t robot;
+  hposition_get_xy(htj->hrp, &robot);
+  htj->carrot = robot;
+}
 

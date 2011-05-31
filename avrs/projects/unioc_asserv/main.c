@@ -213,8 +213,12 @@ int main(void)
 
   //----------------------------------------------------------------------
 
+#ifdef SETTING_NO_UART
+  scheduler_del_event(event_key);
+  NOTICE(0, "NO INPUT UART");
+#else
   NOTICE(0,"'x' to reboot / 'c' manual control / 'a' ADNS test / 'z' position test / 'p' PWM test / 'l' calibration / 'o' color / 't' test code");
- 
+
   int c;
   while(1)
   {
@@ -255,6 +259,7 @@ int main(void)
     if(c != 0xFF)
       break;
   }
+#endif
 
   while(1) nop();
   return 0;
