@@ -28,6 +28,11 @@ robot = Robot([
       desc="Arm has moved to given postion."),
     Event('arm_pawn_present', [('arm', 'uint8'), ('b', 'bool')],
       desc="Arm pawn detector state changed"),
+    Order('scanner_set_distance', [('distance','uint16')],
+      desc="Set scanner distance"),
+    Event('scanner_threshold',[('state','uint8')],
+      desc="Object seen by scanner state: 1 - over, 0 - under"),
+
     # certainty: cf. enum
     # x, y: position relative to robot's coordinates
     Command('arm_scan', [('arm', 'uint8')], [('certainty', 'uint8'), ('x', 'int16'), ('y', 'int16'), ('h', 'uint8')],
@@ -88,7 +93,6 @@ robot = Robot([
     Command('asserv_status',[],[('status','uint8')],
       desc='Get asserv status |A|XY|blocked|autoset|...|'),
     ]),
-
   ])
 
 
