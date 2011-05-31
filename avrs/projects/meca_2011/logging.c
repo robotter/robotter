@@ -84,7 +84,7 @@ void log_event(struct error * e, ...)
     // TODO Add shutdown procedures here TODO
     
     // wait for key
-    uint8_t key;
+    int key;
     while(1)
     {
       key = cli_getkey();
