@@ -66,6 +66,8 @@ typedef enum {
 
 /// 1 if pawn has been detected
 static uint8_t arm_pawn_present[ARM_NB] = { 0, 0 };
+/// 1 if a pawn is grabbed
+static uint8_t arm_pawn_grabbed[ARM_NB] = { 0, 0 };
 static int8_t arm_pos[ARM_NB] = { 0, 0 };
 /// Set to 1 on overtorque.
 static uint8_t arm_overtorque[ARM_NB] = { 0, 0 };
@@ -98,6 +100,13 @@ static void goto_traj(const VecXY *xy, uint8_t n);
 static void arm_set_pos(Arm arm, ArmPos pos);
 static void arm_release(Arm arm);
 //@}
+
+/** @brief Grab a pawn (lower, detect, raise).
+ *
+ * The arm is assumed to be in middle position.
+ * The arm is left in high position.
+ */
+static void arm_grab(Arm arm);
 
 /// Wait for a given asserv status mask.
 static void wait_asserv_status(uint8_t status);
@@ -178,7 +187,20 @@ void arm_set_pos(Arm arm, ArmPos pos)
 void arm_release(Arm arm)
 {
   PPP_MECA(ARM_RELEASE, arm);
-  arm_pawn_present[arm] = 0;
+  arm_pawn_grabbed[arm] = 0;
+}
+
+void arm_grab(Arm arm)
+{
+  //XXX assert( ! arm_grabbed[arm] );
+  arm_set_pos(arm, ARM_LOW);
+  arm_overtorque[arm] = 0;
+  while( arm_pos[arm] != ARM_LOW && !arm_overtorque[arm] ) {
+    ppp_update();
+  }
+  arm_set_pos(arm, ARM_HIGH);
+  wait_arm_pos(arm, ARM_HIGH);
+  arm_pawn_grabbed[arm] = arm_pawn_present[arm];
 }
 
 
@@ -246,6 +268,7 @@ int8_t ppp_strat_callback(PPPMsgFrame *msg)
   switch( msg->mid ) {
     case PPP_MID_ARM_AT_POS:
       arm_pos[msg->arm_at_pos.arm] = msg->arm_at_pos.pos;
+      //TODO update arm_pawn_grabbed when pos is high
       break;
     case PPP_MID_ARM_PAWN_PRESENT:
       arm_pawn_present[msg->arm_pawn_present.arm] = msg->arm_pawn_present.b;

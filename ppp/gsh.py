@@ -20,6 +20,7 @@ class DO:
 
 vv = DO()
 vv.arm_pawn_present = [False, False]
+vv.arm_pawn_grabbed = [False, False]
 vv.arm_pos = [0, 0]
 vv.arm_overtorque = [False, False]
 vv.scanner_detected = [None, None]
@@ -111,7 +112,18 @@ def arm_set_pos(arm, pos):
   meca.arm_set_pos(arm, pos)
 def arm_release(arm):
   meca.arm_release(arm)
-  vv.arm_pawn_present[arm] = False
+  vv.arm_pawn_grabbed[arm] = False
+
+def arm_grab(arm):
+  assert not vv.arm_pawn_grabbed[arm], "arm %u has already grabbed a pawn"%arm
+  arm_set_pos(arm, -1)
+  arm_overtorque[arm] = False
+  while arm_pos[arm] != -1 and not arm_overtorque[arm]:
+    time.sleep(TWAIT)
+  arm_set_pos(arm, 1)
+  wait_arm_pos(arm, 1)
+  arm_pawn_grabbed[arm] = arm_pawn_present[arm]
+
 
 def wait_asserv_status(xy, a):
   if xy:
