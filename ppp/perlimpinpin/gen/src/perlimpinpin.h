@@ -62,6 +62,15 @@ typedef enum {
 
 } PPPMsgID;
 
+/// Protocol PPP sub-commands, used with mid 0.
+typedef enum {
+  PPP_SUBCMD_NONE = 0,
+  PPP_SUBCMD_UART_DISCOVER,
+  PPP_SUBCMD_SUBSCRIBE,
+
+} PPPProtoCmdID;
+
+
 /// Type storing message frame.
 typedef struct {
   uint16_t plsize;   ///< payload size, with src, dst, mid
@@ -109,6 +118,18 @@ void ppp_send_msg(PPPMsgFrame *frame);
  * These macros fill a PPPMsgFrame structure then call ppp_send_msg().
  */
 //@{
+
+#define PPP_SEND_SUBSCRIBE(_d, _subscriber) do { \
+    PPPMsgFrame _frame = { \
+      .plsize = 5, \
+      .src = PPP_DEVICE_ROID, .dst = (_d), \
+      .mid = 0 \
+    }; \
+    (_frame)._ppp.cmd = PPP_SUBCMD_SUBSCRIBE; \
+    (_frame)._ppp.subscriber = (_subscriber); \
+    ppp_send_msg(&_frame); \
+  } while(0);
+
 
 #pragma perlimpinpin_tpl  self.send_helpers()
 //@}
