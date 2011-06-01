@@ -273,16 +273,9 @@ void paddock_testCode(void)
   int16_t squal;
 
   while(1)
-  {
-    adns9500_encoders_get_value(&adns);
-    squal = adns.squals[1];
-
-    if(squal > 80)
-    {
-      NOTICE(0,"SQUAL !");
-    }
-
-    wait_ms(10);
+  { 
+    htrajectory_autoset(&trajectory, TS_DOWN, 0, 0);
+    while(1) nop();
   }
   
   while(1) nop();

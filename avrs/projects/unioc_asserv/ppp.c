@@ -79,7 +79,9 @@ void ppp_msg_callback(PPPMsgFrame *msg)
 
     case PPP_MID_ASSERV_AUTOSET:
       n = msg->asserv_autoset.side;
-      htrajectory_autoset(&trajectory, n);
+      x = TO_MM(msg->asserv_autoset.x);
+      y = TO_MM(msg->asserv_autoset.y);
+      htrajectory_autoset(&trajectory, n, x, y);
       break;
 
     case PPP_MID_ASSERV_SET_A_SPEED:

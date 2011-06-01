@@ -29,6 +29,7 @@
 
 #include <aversive.h>
 #include <quadramp.h>
+#include <adns9500.h>
 #include "robot_cs.h"
 #include "hposition_manager.h"
 #include "vector.h"
@@ -51,11 +52,13 @@ typedef enum
 
 typedef enum
 {
-  RS_0 = 0,
-  RS_120,
-  RS_240
+  TS_NONE = 0,
+  TS_LEFT,
+  TS_RIGHT,
+  TS_UP,
+  TS_DOWN
 
-}robotSide_t;
+}tableSide_t;
 
 typedef struct
 {
@@ -105,11 +108,16 @@ typedef struct
   uint8_t blocked;
 
   // autoset
-  uint8_t autosetSide;
+  tableSide_t autosetSide;
   uint8_t autosetCount;
+  double autosetTargetX;
+  double autosetTargetY;
+  hrobot_vector_t autosetInitPos;
 
   vect_xy_t lpos;
   double la;
+
+  adns9500_encoders_t ladns;
 
 } htrajectory_t;
 
@@ -159,7 +167,8 @@ void htrajectory_gotoA_R( htrajectory_t *htj, double a);
 void htrajectory_gotoXY_R( htrajectory_t *htj, double x, double y);
 
 /**\brief Perform robot autoset */
-void htrajectory_autoset( htrajectory_t *htj, robotSide_t side);
+void htrajectory_autoset( htrajectory_t *htj, tableSide_t side,
+                            double x, double y);
 
 /* -- status -- */
 

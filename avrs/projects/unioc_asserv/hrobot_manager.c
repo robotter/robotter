@@ -69,13 +69,10 @@ void hrobot_set_motors( hrobot_system_t* hrs,
     dp[k] = 0.0;
 
   // compute consign in motors coordinates
-  // XXX uhhhh 
-  // XXX
   for(i=0;i<3;i++)
     for(k=0;k<3;k++)
       dp[k] += hrobot_motors_matrix[i+k*3]*v[i];
-  // XXX
-  // XXX
+
   //
   pwm_set_A((int32_t)dp[0]);
   pwm_set_B((int32_t)dp[1]);

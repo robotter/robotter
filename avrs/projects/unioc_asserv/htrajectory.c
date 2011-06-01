@@ -376,6 +376,11 @@ void htrajectory_update( htrajectory_t *htj )
       
       DEBUG(0,"AUTOSET MOTORS (dx=%2.2f dy=%2.2f)",dx,dy);
 
+      // store current adns position
+      adns9500_encoders_get_value(&(htj->ladns));
+      // store current robot position
+      hposition_get(htj->hrp, &(htj->autosetInitPos));
+
       // set course
       hrobot_set_motors(&system, dx, dy, 0.0);
 
@@ -388,28 +393,60 @@ void htrajectory_update( htrajectory_t *htj )
 
   if( htj->state == STATE_AUTOSET_MOVE )
   {
-    // get robot position
-    hposition_get_xy(htj->hrp,&robot);
-    hposition_get_a(htj->hrp,&a);
-    
-    // compute speed in configuration space
-    dx = robot.x - htj->lpos.x;
-    dy = robot.y - htj->lpos.y;
-    da = a - htj->la;
-    dv = dx*dx + dy*dy + da*da;
-    
+    adns9500_encoders_t adns;
+    adns9500_encoders_get_value(&adns);
+
+    int32_t adv = 0;
+    int32_t v;
+    uint8_t i;
+    for(i=0;i<4;i++)
+    {
+      v = adns.vectors[i] - htj->ladns.vectors[i];
+      adv += v*v;
+    }
+    htj->ladns = adns;
+
     //
-    if( dv < SETTING_AUTOSET_ZEROSPEED )
+    if( adv < SETTING_AUTOSET_ZEROSPEED )
     {
       htj->autosetCount++;
 
       if( htj->autosetCount > SETTING_AUTOSET_ZEROCOUNT )
       {
         // autoset done
-        
+        switch(htj->autosetSide)
+        {
+          case TS_LEFT:
+            htj->autosetInitPos.alpha = -M_PI_2;
+            htj->autosetInitPos.x = htj->autosetTargetX;
+            break;
+
+          case TS_RIGHT:
+            htj->autosetInitPos.alpha = +M_PI_2;
+            htj->autosetInitPos.x = htj->autosetTargetX;
+            break;
+
+          case TS_UP:
+            htj->autosetInitPos.alpha = +M_PI;
+            htj->autosetInitPos.y = htj->autosetTargetY;
+            break;
+
+          case TS_DOWN:
+            htj->autosetInitPos.alpha = 0;
+            htj->autosetInitPos.y = htj->autosetTargetY;
+            break;
+
+          default:
+            ERROR(HTRAJECTORY_ERROR,
+              "AUTOSET with invalid side (side=%d)", htj->autosetTargetY);
+        }
+
+        hposition_set(htj->hrp, htj->autosetInitPos.x,
+                                htj->autosetInitPos.y,
+                                htj->autosetInitPos.alpha);
+        DEBUG(0,"AUTOSET DONE");
         // reactivate robot CSs damn it !
         robot_cs_activate(htj->rcs, 1);
-
         // set trajectory status to stop
         htj->state = STATE_STOP;
       }
@@ -417,9 +454,7 @@ void htrajectory_update( htrajectory_t *htj )
     else
       htj->autosetCount = 0;
 
-    // remember last position
-    htj->lpos = robot;
-    htj->la = a;
+    return;
   }
 
   // is robot blocked by something ?
@@ -590,7 +625,8 @@ void htrajectory_update( htrajectory_t *htj )
 
 // --- AUTOSET ---
 
-void htrajectory_autoset( htrajectory_t *htj, robotSide_t side)
+void htrajectory_autoset( htrajectory_t *htj, tableSide_t side,
+                            double x, double y)
 {
   vect_xy_t robot;
 
@@ -606,25 +642,31 @@ void htrajectory_autoset( htrajectory_t *htj, robotSide_t side)
 
   DEBUG(0,"Robot AUTOSET initiated");
 
-  // set carrot heading
   switch(side)
   {
-    case RS_0:
+    case TS_LEFT:
+      htj->carrotA = -M_PI_2;
+      break;
+
+    case TS_RIGHT:
+      htj->carrotA = M_PI_2;
+      break;
+
+    case TS_UP:
+      htj->carrotA = M_PI;
+      break;
+
+    case TS_DOWN:
       htj->carrotA = 0;
-      break;
-
-    case RS_120:
-      htj->carrotA = 2.0*M_PI/3;
-      break;
-
-    case RS_240:
-      htj->carrotA = 4.0*M_PI/3;
       break;
 
     default:
       ERROR(HTRAJECTORY_ERROR,
         "AUTOSET launched with invalid side (side=%d)", side);
   }
+
+  htj->autosetTargetX = x;
+  htj->autosetTargetY = y;
 
   htj->autosetSide = side;
 }
