@@ -31,9 +31,9 @@ robot = Robot([
       desc="Arm has moved to given postion."),
     Event('arm_pawn_present', [('arm', 'uint8'), ('b', 'bool')],
       desc="Arm pawn detector state changed"),
-    Order('scanner_set_distance', [('distance','uint16')],
+    Order('scanner_set_distance', [('arm', 'uint8'), ('distance','uint16')],
       desc="Set scanner distance"),
-    Event('scanner_threshold',[('state','uint8')],
+    Event('scanner_threshold', [('arm', 'uint8'), ('state','uint8')],
       desc="Object seen by scanner state: 1 - over, 0 - under"),
 
     # certainty: cf. enum
