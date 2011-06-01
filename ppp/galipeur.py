@@ -64,8 +64,8 @@ robot = Robot([
     Order('asserv_load', [('idx','uint8'),('x','int16'),('y','int16')],
       desc='Set checkpoint idx in trajectory'),
 
-    Order('asserv_autoset', [('side','uint8')],
-      desc='Perform autoset on side #'),
+    Command('asserv_autoset', [('side','uint8'),('x','int16'),('y','int16')], [],
+      desc='Perform autoset on side #, send answer when autoset is done.'),
 
     Event('asserv_angle_reached',[],
       desc="Robot reach is angular target"),
