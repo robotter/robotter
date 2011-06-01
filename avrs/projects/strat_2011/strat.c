@@ -67,6 +67,8 @@ typedef enum {
 /// 1 if pawn has been detected
 static uint8_t arm_pawn_present[ARM_NB] = { 0, 0 };
 static int8_t arm_pos[ARM_NB] = { 0, 0 };
+/// Set to 1 on overtorque.
+static uint8_t arm_overtorque[ARM_NB] = { 0, 0 };
 /// 1 if the scanner detected something
 static uint8_t scanner_detected[ARM_NB] = { 0, 0 };
 static AsservStatus asserv_status = { .status = 0 };
@@ -251,6 +253,9 @@ int8_t ppp_strat_callback(PPPMsgFrame *msg)
     case PPP_MID_SCANNER_THRESHOLD:
       scanner_detected[msg->scanner_threshold.arm] = msg->scanner_threshold.state == 0;
       break;
+    case PPP_MID_ARM_OVERTORQUE:
+      arm_overtorque[msg->arm_overtorque.arm] = 1;
+      break;
 
     case PPP_MID_R3D2_DETECTED:
       r3d2_detection.r = msg->r3d2_detected.r;
@@ -290,8 +295,6 @@ int8_t ppp_strat_callback(PPPMsgFrame *msg)
       asserv_autoset_done = 1;
       break;
 
-    case PPP_MID_ARM_OVERTORQUE:
-      //TODO
     default: // not handled
       return 0;
   }

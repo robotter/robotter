@@ -21,6 +21,7 @@ class DO:
 vv = DO()
 vv.arm_pawn_present = [False, False]
 vv.arm_pos = [0, 0]
+vv.arm_overtorque = [False, False]
 vv.scanner_detected = [None, None]
 vv.asserv_status = DO(
     a = False,
@@ -42,6 +43,8 @@ class GBinding(pshit.ShellBinding):
       vv.arm_pos[args['arm']] = args['pos']
     elif name == 'arm_pawn_present':
       vv.arm_pawn_present[args['arm']] = args['b']
+    elif name == 'arm_overtorque':
+      vv.arm_overtorque[args['arm']] = True
     elif name == 'scanner_threshold':
       vv.scanner_detected[args['arm']] = args['status'] == 0
     elif name == 'r3d2_detected':
