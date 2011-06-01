@@ -69,7 +69,11 @@ static void uartN(_init)(void)
 #undef UART_UBRR_VAL
   N_(UCSR,A) = (UARTN(_DOUBLE_SPEED)) ? (1<<N_(U2X,)) : 0;
   N_(UCSR,B) = (1<<N_(RXEN,)) | (1<<N_(TXEN,)) | (1<<N_(RXCIE,));
+#ifdef URSEL
+  N_(UCSR,C) = (3<<N_(UCSZ,0)) | (1<<URSEL);
+#else
   N_(UCSR,C) = (3<<N_(UCSZ,0));
+#endif
 }
 
 
