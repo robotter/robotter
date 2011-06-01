@@ -170,6 +170,9 @@ void htrajectory_gotoXY_R( htrajectory_t *htj, double x, double y);
 void htrajectory_autoset( htrajectory_t *htj, tableSide_t side,
                             double x, double y);
 
+/**\brief Reset carrot position to current robot position */
+void htrajectory_reset_carrot( htrajectory_t *htj );
+
 /* -- status -- */
 
 /**\brief Return 1 if robot is turned to it consign, 0 otherwise */
