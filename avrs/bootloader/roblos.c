@@ -90,6 +90,26 @@ typedef uint16_t addr_type;
 #error "invalid UART number"
 #endif
 
+#ifndef UBRR0H
+#define UBRR0H UBRRH
+#define UBRR0L UBRRL
+#define UCSR0A UCSRA
+#define UCSR0B UCSRB
+#define UCSR0C UCSRC
+#define UCSR0C UCSRC
+#define U2X0   U2X
+#define UCSZ00 UCSZ0
+#define RXEN0  RXEN
+#define TXEN0  TXEN
+#define UDRE0  UDRE
+#define RXCIE0 RXCIE
+#define TXCIE0 TXCIE
+#define UDRIE0 UDRIE
+#define RXC0   RXC
+#define TXC0   TXC
+#define UDR0   UDR
+#endif
+
 #define UCSRxA  UART_NCAT(UCSR,A)
 #define UCSRxB  UART_NCAT(UCSR,B)
 #define UCSRxC  UART_NCAT(UCSR,C)
@@ -852,7 +872,11 @@ void main(void)
 {
   // On some devices (e.g. at88), WDE is not correctly cleared, being overriden
   // by WDRF, and has to be cleared manually.
+#ifdef MCUSR
   MCUSR &= ~(1<<WDRF);
+#else
+  MCUCSR &= ~(1<<WDRF);
+#endif
   wdt_disable();
 
 #ifdef INIT_CODE
