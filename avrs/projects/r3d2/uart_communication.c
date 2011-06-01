@@ -64,12 +64,17 @@ void uart_com_monitor(void)
 
       case '?' : // help
         NOTICE(0,"help :");
-        NOTICE(0,"\tx/X => stop system");
-        NOTICE(0,"\tw   => start system");
-        NOTICE(0,"\ts/S => stop/START sensor");
-        NOTICE(0,"\tm/M => stop/START motor");
-        NOTICE(0,"\tp/P => stop/START send of position message");
-        NOTICE(0,"\to   => write changes to EEPROM");
+        printf("\tx/X => stop system\n");
+        printf("\tw   => start system\n");
+        printf("\ts/S => stop/START sensor\n");
+        printf("\tm/M => stop/START motor\n");
+        printf("\tp/P => stop/START send of periodic message\n");
+        printf("\ta   => set motor speed\n");
+        printf("\tb   => set motor rot threshold\n");
+        printf("\tc   => set robot detect threshold\n");
+        printf("\te   => update angle offset from object angle\n");
+        printf("\tf   => update surface ratio from object distance\n");
+        printf("\to   => write changes to EEPROM\n");
         break;
 
       case 'w' :
@@ -120,7 +125,7 @@ void uart_com_monitor(void)
         {
           r3d2_motor_rotating_timeout_threshold = u16_tmp;
         }
-        printf("motor rot treshold %u\n", r3d2_motor_rotating_timeout_threshold);
+        printf("motor rot threshold %u\n", r3d2_motor_rotating_timeout_threshold);
         break;
 
       case 'c':
@@ -128,7 +133,7 @@ void uart_com_monitor(void)
         {
           r3d2_robot_detected_timeout_threshold = u16_tmp;
         }
-        printf("robot detect treshold %u\n", r3d2_robot_detected_timeout_threshold);
+        printf("robot detect threshold %u\n", r3d2_robot_detected_timeout_threshold);
         break;
 
       case 'e': // update angle offset from known object angle (must be in degree between 0 and 360)
