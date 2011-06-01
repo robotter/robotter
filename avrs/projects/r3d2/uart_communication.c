@@ -1,3 +1,4 @@
+#include <math.h>
 #include "uart_communication.h"
 #include "r3d2.h"
 #include <aversive/error.h>
@@ -39,7 +40,7 @@ void send_periodic_position_msg(void* dummy)
 {
   if (r3d2_is_robot_detected && (periodic_position_msg_status!=0))
   {
-    PPP_SEND_R3D2_DETECTED(ROID_SUBSCRIBER, r3d2_detected_robot_distance, r3d2_detected_robot_angle);
+    PPP_SEND_R3D2_DETECTED(ROID_SUBSCRIBER, r3d2_detected_robot_distance*10, 1000*r3d2_detected_robot_angle*M_PI/180.);
     printf("angle %4.2f | dist %3.2f\n", r3d2_detected_robot_angle, r3d2_detected_robot_distance);
   }
   PORTA =~ PORTA;
