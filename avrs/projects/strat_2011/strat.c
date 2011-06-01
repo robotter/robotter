@@ -43,6 +43,11 @@ typedef union {
   };
 } __attribute__((__packed__)) AsservStatus;
 
+enum {
+  ASTATUS_A  = 1,
+  ASTATUS_XY = 2,
+};
+
 typedef enum {
   SCAN_NONE = 0,
   SCAN_BAD,
@@ -345,6 +350,33 @@ void strat_start(RobotColor color)
 
   NOTICE(0, "init done, color is %s", kx==ROBOT_COLOR_RED?"RED":"BLUE");
 
-  //TODO
+  /**  homologation  **/
+
+  uint8_t karm = 0;
+
+  goto_xyr(0, 50);
+  wait_asserv_status(ASTATUS_XY);
+
+  goto_xy( 2.5*SQSIZE*kx, 2.5*SQSIZE );
+  arm_set_pos(karm, ARM_MID);
+  wait_asserv_status(ASTATUS_XY);
+  wait_arm_pos(karm, ARM_MID);
+
+  // first pawn
+  goto_xyr( -0.4*SQSIZE*kx, 0.4*SQSIZE );
+  wait_asserv_status(ASTATUS_XY);
+  if( arm_pawn_present[karm] ) {
+    DEBUG(0, "pawn 1: PRESENT");
+    arm_grab(karm);
+    if( ! arm_pawn_grabbed[karm] ) {
+      WARNING(0, "pawn 1: grab FAILED");
+    }
+  } else {
+    DEBUG(0, "pawn 1: NO");
+  }
+
+  // end: kill all
+  PPP_SEND_KILL(0);
+  for(;;) ;
 }
 
