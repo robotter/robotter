@@ -423,12 +423,11 @@ void strat_start(RobotColor color)
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 1 release");
   arm_release(karm);
-  wait_ms(1000); //XXX
+  wait_ms(500); //XXX
 
   // pawn 2
   DEBUG(0, "pawn 2");
   karm = karms[1];
-  //XXX not needed goto_xy( 2.0*SQSIZE*kx, -2.0*SQSIZE );
   goto_a( DEG2RAD(60)*kx );
   wait_asserv_status(ASTATUS_A);
   arm_set_pos(karm, ARM_MID);
@@ -442,12 +441,11 @@ void strat_start(RobotColor color)
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 2 release");
   arm_release(karm);
-  wait_ms(1000); //XXX
+  wait_ms(500); //XXX
 
   // pawn 3
   DEBUG(0, "pawn 3");
   karm = karms[0];
-  //XXX not needed goto_xy( 2.0*SQSIZE*kx, -1.0*SQSIZE );
   goto_a( DEG2RAD(-60)*kx );
   wait_asserv_status(ASTATUS_A);
   arm_set_pos(karm, ARM_MID);
@@ -462,12 +460,11 @@ void strat_start(RobotColor color)
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 3 release");
   arm_release(karm);
-  wait_ms(1000); //XXX
+  wait_ms(500); //XXX
 
   // pawn 4
   DEBUG(0, "pawn 4");
   karm = karms[1];
-  //XXX not needed goto_xy( 2.0*SQSIZE*kx, 0.0*SQSIZE );
   goto_a( DEG2RAD(60)*kx );
   wait_asserv_status(ASTATUS_A);
   arm_set_pos(karm, ARM_MID);
@@ -481,12 +478,11 @@ void strat_start(RobotColor color)
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 4 release");
   arm_release(karm);
-  wait_ms(1000); //XXX
+  wait_ms(500); //XXX
 
   // pawn 5
   DEBUG(0, "pawn 5");
   karm = karms[0];
-  //XXX not needed goto_xy( 2.0*SQSIZE*kx, 1.0*SQSIZE );
   goto_a( DEG2RAD(-60)*kx );
   wait_asserv_status(ASTATUS_A);
   arm_set_pos(karm, ARM_MID);
@@ -500,7 +496,7 @@ void strat_start(RobotColor color)
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 5 release");
   arm_release(karm);
-  wait_ms(1000); //XXX
+  wait_ms(500); //XXX
 
   // end: kill all
   PPP_SEND_KILL(0);
