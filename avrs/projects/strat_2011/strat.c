@@ -260,14 +260,16 @@ void avoidance_cb(void)
   if( called ) {
     return;
   }
+  DEBUG(0, "r3d2 detected at r=%.3f a=%.3f", r3d2_detection.r, r3d2_detection.a);
   called = 1;
-  NOTICE(0,"entered avoidance routine");
+  NOTICE(0,"avoidance STOP");
 
   // block while the opponent is near us
-  while( r3d2_detection.r < 50 ) {
+  while( r3d2_detection.r < 450 ) {
     ppp_update();
   }
 
+  NOTICE(0,"avoidance END");
   called = 0;
 }
 
@@ -358,6 +360,7 @@ void strat_start(RobotColor color)
   wait_asserv_status(ASTATUS_XY);
 
   goto_xy( 2.5*SQSIZE*kx, 2100./2-70 );
+  goto_a( -M_PI_4*kx );
   arm_set_pos(karm, ARM_MID);
   wait_asserv_status(ASTATUS_XY);
   wait_arm_pos(karm, ARM_MID);
@@ -369,7 +372,7 @@ void strat_start(RobotColor color)
   arm_grab(karm);
   DEBUG(0, "pawn 1 grabbed");
   goto_xy( 2.0*SQSIZE*kx, 2.0*SQSIZE );
-  goto_ar( -M_PI_2*kx );
+  goto_ar( -M_PI_4*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 1 release");
   arm_release(karm);
@@ -378,14 +381,14 @@ void strat_start(RobotColor color)
   // pawn 2
   DEBUG(0, "pawn 2");
   goto_xy( 2.0*SQSIZE*kx, 2.0*SQSIZE );
-  goto_ar( 3*M_PI_2*kx );
+  goto_ar( 3*M_PI_4*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   goto_xyr( 0, SQSIZE-50 );
   wait_asserv_status(ASTATUS_XY);
   arm_grab(karm);
   DEBUG(0, "pawn 2 grabbed");
   goto_xy( 2.0*SQSIZE*kx, 1.0*SQSIZE );
-  goto_ar( 3*M_PI_2*kx );
+  goto_ar( 3*M_PI_4*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 2 release");
   arm_release(karm);
@@ -394,14 +397,14 @@ void strat_start(RobotColor color)
   // pawn 3
   DEBUG(0, "pawn 3");
   goto_xy( 2.0*SQSIZE*kx, 1.0*SQSIZE );
-  goto_ar( -3*M_PI_2*kx );
+  goto_ar( -3*M_PI_4*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   goto_xyr( 0, SQSIZE-50 );
   wait_asserv_status(ASTATUS_XY);
   arm_grab(karm);
   DEBUG(0, "pawn 3 grabbed");
   goto_xy( 2.0*SQSIZE*kx, 0.0*SQSIZE );
-  goto_a( -3*M_PI_2*kx );
+  goto_a( -3*M_PI_4*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 3 release");
   arm_release(karm);
@@ -410,14 +413,14 @@ void strat_start(RobotColor color)
   // pawn 4
   DEBUG(0, "pawn 4");
   goto_xy( 2.0*SQSIZE*kx, -1.0*SQSIZE );
-  goto_ar( 3*M_PI_2*kx );
+  goto_ar( 3*M_PI_4*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   goto_xyr( +0.4*SQSIZE*kx, +0.4*SQSIZE );
   wait_asserv_status(ASTATUS_XY);
   arm_grab(karm);
   DEBUG(0, "pawn 4 grabbed");
   goto_xy( 2.0*SQSIZE*kx, -1.0*SQSIZE );
-  goto_ar( 3*M_PI_2*kx );
+  goto_ar( 3*M_PI_4*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 4 release");
   arm_release(karm);
