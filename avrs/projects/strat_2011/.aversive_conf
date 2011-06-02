@@ -11,7 +11,7 @@ AVRDUDE_PORT = "/dev/parport0"
 AVARICE_PROGRAMMER = mkI
 AVARICE_PORT = "/dev/ttyS0"
 AVARICE_DEBUG_PORT = 1234
-MODULES = base/time base/scheduler hardware/timer debug/error
+MODULES = base/time base/scheduler debug/error
 
 ROBOTTER_MODULES := comm/perlimpinpin comm/i2c_robotter comm/matchuart comm/uart
 AVERSIVE_MODULES := $(MODULES)

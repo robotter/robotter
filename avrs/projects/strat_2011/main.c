@@ -86,10 +86,10 @@ int main(void)
   fdevopen(uart_dev_send, uart_dev_recv);
   logging_init(ERROR_SEVERITY_DEBUG);
   //matchuart_init("__", do_reset);
+  scheduler_init();
   time_init(160);
   sei();
 
-  scheduler_init();
 
   NOTICE(0, "STRAT READY");
   PPP_SEND_START(ROID_SUBSCRIBER);
