@@ -1,17 +1,16 @@
 #!/usr/bin/env python
 
+import os, sys
+try:
+  this_dir = os.path.dirname(__file__)
+except:
+  this_dir = os.getcwd()
+sys.path.append( this_dir )
 import pshit
 from galipeur import robot
 import math
 import time
 from math import pi
-
-conn = pshit.Serial('/dev/ttyUSB0', 38400)
-b = GBinding(conn, robot, 'strat')
-cl = pshit.Client(b)
-
-prop = cl.prop
-meca = cl.meca
 
 class DO:
   def __init__(self, **kw):
@@ -47,7 +46,7 @@ class GBinding(pshit.ShellBinding):
     elif name == 'arm_overtorque':
       vv.arm_overtorque[args['arm']] = True
     elif name == 'scanner_threshold':
-      vv.scanner_detected[args['arm']] = args['status'] == 0
+      vv.scanner_detected[args['arm']] = args['state'] == 0
     elif name == 'r3d2_detected':
       vv.r3d2_detection = DO(
           r = args['r'],
@@ -80,20 +79,27 @@ class GBinding(pshit.ShellBinding):
 
     pshit.ShellBinding.on_message(self, msg, src, args)
 
-def ppp2rad(cls, v):
+def ppp2rad(v):
   return v/1000.
-def rad2ppp(cls, v):
+def rad2ppp(v):
   return v*1000.
 
 # waiting time for wait methods
 TWAIT = 0.1
 
+conn = pshit.Serial('/dev/ttyUSB0', 38400)
+b = GBinding(conn, robot, 'strat')
+cl = pshit.Client(b)
+
+prop = cl.prop
+meca = cl.meca
+
 
 def goto_a(a):
-  prop.asserv_goto_a(rad2pp(a))
+  prop.asserv_goto_a(rad2ppp(a))
   vv.asserv_status.a = False
 def goto_ar(a):
-  prop.asserv_goto_ar(rad2pp(a))
+  prop.asserv_goto_ar(rad2ppp(a))
   vv.asserv_status.a = False
 def goto_xy(x, y):
   prop.asserv_goto_xy(x, y)
@@ -167,19 +173,29 @@ def avoidance_cb():
     return
   try:
     vv.avoidance_cb_called = True
-    while r3d2_detection.r < 50:
+    while vv.r3d2_detection.r < 50:
       time.sleep(TWAIT)
   finally:
     vv.avoidance_cb_called = False
 
 
 def av_set_position(x,y,a):
-  prop.asserv_set_position(x,y, rad2pp(a))
+  prop.asserv_set_position(x,y, rad2ppp(a))
 
-def subscribe():
-  cl.subscribe(0)
+def subscribe(subscriber=None):
+  cl.subscribe(0, subscriber)
 def reset_all():
   cl.reset(0)
+
+def set_color(color):
+  if isinstance(color, basestring):
+    if color.lower() in ('r', 'red'):
+      color = 1
+    elif color.lower() in ('b', 'blue'):
+      color = 2
+  cl.strat.strat_set_color(color)
+def strat_run():
+  cl.strat.strat_run()
 
 
 def homo():
