@@ -92,10 +92,6 @@ uint8_t event_position;
 uint8_t event_cs;
 uint8_t event_key;
 
-// time in seconds at startup
-seconds time_startup;
-uint8_t time_startup_ok = 0;
-
 int main(void)
 {
   //--------------------------------------------------------------------------
@@ -268,10 +264,6 @@ int main(void)
 
 void paddock_testCode(void)
 {
-  vect_xy_t path[3];
-  adns9500_encoders_t adns;
-  int16_t squal;
-
   while(1)
   { 
     htrajectory_autoset(&trajectory, TS_DOWN, 0, 0);
@@ -470,8 +462,6 @@ void paddock_pwmTest(void)
 
 void paddock_calibration(void)
 {
-  uint8_t key;
-  
   NOTICE(0,"Entering calibration");
 
   // kill CSs

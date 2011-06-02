@@ -340,11 +340,9 @@ void htrajectory_update( htrajectory_t *htj )
 {
   double sqErrorLength;
   vect_xy_t *point;
-  double dx,dy,da;
+  double dx,dy;
   direction_t dir;
   vect_xy_t robot;
-  double a;
-  double dv;
 
   // manage angular orders / position
   if( !(htj->carrotA_reached) && htrajectory_doneA(htj) )

@@ -62,10 +62,6 @@ extern struct quadramp_filter qramp_angle;
 // Avoidance system
 avoidance_t avoidance;
 
-// time in secs at startup
-extern seconds time_startup;
-extern uint8_t time_startup_ok;
-
 // CSs cpu usage in percents
 uint8_t cs_cpuUsage;
 
@@ -132,7 +128,6 @@ uint16_t dbg_timer;
 
 void cs_update(void* dummy)
 {
-  uint8_t i;
   uint16_t dt;
   static uint8_t led = 0;
 
@@ -140,16 +135,12 @@ void cs_update(void* dummy)
   // (quite strange code for a great flashing effect :p)
   _SFR_MEM8(0x1800) = (led+=10)>50;
 
-  // match over
-  if( time_startup_ok 
-      && ((time_get_s() - time_startup) > SETTING_MATCH_DURATION_SECS ) )
-    EMERG(0,"Match over");
-
   // overpwm
   // XXX PUT ME BACK PLEASE XXX
   //for(i=0;i<3;i++)
   //  if( motor_overpwm_count[i] >= 255 )
   //    EMERG(0,"Over PWM detected (i=%d)",i);
+
   // reset TIMER3
   timer3_set(0);
 
