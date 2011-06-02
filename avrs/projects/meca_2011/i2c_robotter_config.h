@@ -19,10 +19,10 @@
  *
  * Refers to TWBR in specs for details.
  */
-#define I2C_BITRATE   1
+#define I2C_BITRATE   2
 /** @brief Prescaler configuration
  *
  * Rate is 2^(n*2)
  */
-#define I2C_PRESCALER 3
+#define I2C_PRESCALER 1
 

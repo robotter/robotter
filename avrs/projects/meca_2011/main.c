@@ -134,7 +134,6 @@ int main(void)
 #else
   NOTICE(0,"Strike 'x' to reboot / 'e' AX12 EEPROM load / 'm' AX12 / 'a' actuators / 'g' ground / 'p' GP2* / 's' sandbox ");
 
-  PPP_SEND_START(ROID_SUBSCRIBER);
   while(1)
   {
     c = cli_getkey();

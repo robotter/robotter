@@ -23,9 +23,9 @@
 #ifdef I2C_MASTER
 
 /// Divider for I2C baudrate (TWBR).
-#define I2C_BITRATE   1
+#define I2C_BITRATE   2
 /// Prescaler configuration (TWPS1:0).
-#define I2C_PRESCALER 3
+#define I2C_PRESCALER 1
 
 #endif
 //@}

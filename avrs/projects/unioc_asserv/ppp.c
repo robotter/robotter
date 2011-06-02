@@ -147,8 +147,10 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       iy = FROM_MM(hvec.y);
       ia = FROM_MM(hvec.alpha);
       PPP_SEND_ASSERV_GET_POSITION_R(msg->src, ix, iy, ia);
+      break;
+
     default:
-      return;
+      break;
   }
 }
 
