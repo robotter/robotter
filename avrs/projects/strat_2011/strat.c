@@ -280,11 +280,14 @@ void asserv_autoset(AutosetSide side, float x, float y)
 
 void avoidance_cb(void)
 {
-  static uint8_t called = 0;  // to avoid recursive calls
+  static volatile uint8_t called = 0;  // to avoid recursive calls
+  uint8_t flags;
+  IRQ_LOCK(flags);
   if( called ) {
     return;
   }
   called = 1;
+  IRQ_UNLOCK(flags);
   NOTICE(0,"avoidance START");
 
   // block while the opponent is near us
