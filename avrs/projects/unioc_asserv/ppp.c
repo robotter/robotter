@@ -145,7 +145,7 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       hposition_get(trajectory.hrp, &hvec);
       ix = FROM_MM(hvec.x);
       iy = FROM_MM(hvec.y);
-      ia = FROM_MM(hvec.alpha);
+      ia = FROM_RAD(hvec.alpha);
       PPP_SEND_ASSERV_GET_POSITION_R(msg->src, ix, iy, ia);
       break;
 
