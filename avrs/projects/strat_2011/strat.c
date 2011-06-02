@@ -390,13 +390,22 @@ void strat_start(RobotColor color)
 
   /**  homologation  **/
 
-  uint8_t karm = color == ROBOT_COLOR_RED ? ARM_LEFT : ARM_RIGHT;
+  uint8_t karms[2];
+  if( color == ROBOT_COLOR_RED ) {
+    karms[0] = ARM_LEFT;
+    karms[1] = ARM_RIGHT;
+  } else {
+    karms[0] = ARM_RIGHT;
+    karms[1] = ARM_LEFT;
+  }
+  uint8_t karm = karms[0];
 
   goto_xyr(0, 60);
   wait_asserv_status(ASTATUS_XY);
 
   // pawn 1
   DEBUG(0, "pawn 1");
+  karm = karms[0];
   goto_xy( 2.5*SQSIZE*kx, -2.5*SQSIZE );
   goto_a( DEG2RAD(-15)*kx );
   arm_set_pos(karm, ARM_MID);
@@ -415,8 +424,9 @@ void strat_start(RobotColor color)
 
   // pawn 2
   DEBUG(0, "pawn 2");
+  karm = karms[1];
   //XXX not needed goto_xy( 2.0*SQSIZE*kx, -2.0*SQSIZE );
-  goto_a( DEG2RAD(-60)*kx );
+  goto_a( DEG2RAD(60)*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   arm_set_pos(karm, ARM_MID);
   wait_asserv_status(ASTATUS_XY);
@@ -426,7 +436,7 @@ void strat_start(RobotColor color)
   arm_grab(karm);
   DEBUG(0, "pawn 2 grabbed");
   goto_xy( 2.0*SQSIZE*kx, -1.0*SQSIZE );
-  goto_a( DEG2RAD(-15-180)*kx );
+  goto_a( DEG2RAD(15-90)*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 2 release");
   arm_release(karm);
@@ -434,6 +444,7 @@ void strat_start(RobotColor color)
 
   // pawn 3
   DEBUG(0, "pawn 3");
+  karm = karms[0];
   //XXX not needed goto_xy( 2.0*SQSIZE*kx, -1.0*SQSIZE );
   goto_a( DEG2RAD(-60)*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
@@ -453,8 +464,9 @@ void strat_start(RobotColor color)
 
   // pawn 4
   DEBUG(0, "pawn 4");
+  karm = karms[1];
   //XXX not needed goto_xy( 2.0*SQSIZE*kx, 0.0*SQSIZE );
-  goto_a( DEG2RAD(-60)*kx );
+  goto_a( DEG2RAD(60)*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   arm_set_pos(karm, ARM_MID);
   wait_asserv_status(ASTATUS_XY);
@@ -464,7 +476,7 @@ void strat_start(RobotColor color)
   arm_grab(karm);
   DEBUG(0, "pawn 4 grabbed");
   goto_xy( 2.0*SQSIZE*kx, 1.0*SQSIZE );
-  goto_a( DEG2RAD(-15-180)*kx );
+  goto_a( DEG2RAD(15-90)*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 4 release");
   arm_release(karm);
@@ -472,6 +484,7 @@ void strat_start(RobotColor color)
 
   // pawn 5
   DEBUG(0, "pawn 5");
+  karm = karms[0];
   //XXX not needed goto_xy( 2.0*SQSIZE*kx, 1.0*SQSIZE );
   goto_a( DEG2RAD(-60)*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
