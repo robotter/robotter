@@ -11,13 +11,6 @@
 #include "strat.h"
 
 
-static void do_reset(void)
-{
-  wdt_enable(WDTO_30MS);
-  for(;;) ;
-}
-
-
 static RobotColor choosed_color = ROBOT_COLOR_NONE;
 static uint8_t strat_run_now = 0;
 
@@ -92,7 +85,7 @@ int main(void)
   ppp_init(ppp_msg_callback);
   fdevopen(uart_dev_send, uart_dev_recv);
   logging_init(ERROR_SEVERITY_DEBUG);
-  matchuart_init("__", do_reset);
+  //matchuart_init("__", do_reset);
   time_init(160);
   sei();
 
