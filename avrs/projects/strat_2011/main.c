@@ -81,6 +81,12 @@ void match_end_cb(void *dummy)
 
 int main(void)
 {
+  // color selector
+  DDRD |= _BV(4);
+  DDRD &= ~_BV(6);
+  PORTD &= ~_BV(4);
+  PORTD |= _BV(6);
+
   tirette_init();
   ppp_init(ppp_msg_callback);
   fdevopen(uart_dev_send, uart_dev_recv);
@@ -97,11 +103,22 @@ int main(void)
   PPP_SEND_ARM_SET_POS(ROID_MECA, 1, 1);
 
   NOTICE(0, "waiting for tirette or manual run order");
+  uint8_t colorsel_last = (PIND & _BV(6)) != 0;
   while( tirette_plugged() && !strat_run_now ) {
     ppp_update();
+    uint8_t colorsel = (PIND & _BV(6)) != 0;
+    if( colorsel != colorsel_last ) {
+      choosed_color = colorsel ? ROBOT_COLOR_RED : ROBOT_COLOR_BLUE;
+      NOTICE(0, "color set to %s", choosed_color==ROBOT_COLOR_RED ? "RED" : "BLUE");
+      colorsel_last = colorsel;
+    }
   }
   DEBUG(0, "strat go");
 
+  if( choosed_color == ROBOT_COLOR_NONE ) {
+    uint8_t colorsel = (PIND & _BV(6)) != 0;
+    choosed_color = colorsel ? ROBOT_COLOR_RED : ROBOT_COLOR_BLUE;
+  }
   match_end_ev = scheduler_add_periodical_event(match_end_cb, NULL, MATCH_END_EV_PERIOD/SCHEDULER_UNIT);
   strat_start(choosed_color);
   for(;;) ;
