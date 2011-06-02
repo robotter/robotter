@@ -2,7 +2,7 @@
 
 void tirette_init(void)
 {
-  DDRF  &= _BV(3);
+  DDRF  &= ~_BV(3);
   PORTF |= _BV(3);
 }
 
