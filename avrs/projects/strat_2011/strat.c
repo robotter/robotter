@@ -155,7 +155,7 @@ void goto_a(double a)
 
 void goto_ar(double a)
 {
-  PPP_PROP(ASSERV_GOTO_A, RAD2PPP(a));
+  PPP_PROP(ASSERV_GOTO_AR, RAD2PPP(a));
   asserv_status.a = 0;
   PPP_SEND_ASSERV_STATUS(ROID_PROP);
 }
@@ -363,51 +363,63 @@ void strat_start(RobotColor color)
   wait_arm_pos(karm, ARM_MID);
 
   // pawn 1
+  DEBUG(0, "pawn 1");
   goto_xyr( -0.4*SQSIZE*kx, -0.4*SQSIZE );
   wait_asserv_status(ASTATUS_XY);
   arm_grab(karm);
+  DEBUG(0, "pawn 1 grabbed");
   goto_xy( 2.0*SQSIZE*kx, 2.0*SQSIZE );
-  goto_a( M_PI-M_PI_2*kx );
+  goto_ar( -M_PI_2*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  DEBUG(0, "pawn 1 release");
   arm_release(karm);
   wait_ms(1000); //XXX
 
   // pawn 2
-  goto_xy( 1.5*SQSIZE*kx, 1.5*SQSIZE );
-  goto_a(M_PI);
+  DEBUG(0, "pawn 2");
+  goto_xy( 2.0*SQSIZE*kx, 2.0*SQSIZE );
+  goto_ar( 3*M_PI_2*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
-  goto_xyr( +0.4*SQSIZE*kx, +0.4*SQSIZE );
+  goto_xyr( 0, SQSIZE-50 );
   wait_asserv_status(ASTATUS_XY);
   arm_grab(karm);
+  DEBUG(0, "pawn 2 grabbed");
   goto_xy( 2.0*SQSIZE*kx, 1.0*SQSIZE );
-  goto_a( 0 );
+  goto_ar( 3*M_PI_2*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  DEBUG(0, "pawn 2 release");
   arm_release(karm);
   wait_ms(1000); //XXX
 
   // pawn 3
-  goto_xy( 1.5*SQSIZE*kx, 0.5*SQSIZE );
-  goto_a(M_PI);
+  DEBUG(0, "pawn 3");
+  goto_xy( 2.0*SQSIZE*kx, 1.0*SQSIZE );
+  goto_ar( -3*M_PI_2*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
-  goto_xyr( +0.4*SQSIZE*kx, +0.4*SQSIZE );
+  goto_xyr( 0, SQSIZE-50 );
   wait_asserv_status(ASTATUS_XY);
   arm_grab(karm);
+  DEBUG(0, "pawn 3 grabbed");
   goto_xy( 2.0*SQSIZE*kx, 0.0*SQSIZE );
-  goto_a( 0 );
+  goto_a( -3*M_PI_2*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  DEBUG(0, "pawn 3 release");
   arm_release(karm);
   wait_ms(1000); //XXX
 
   // pawn 4
-  goto_xy( 1.5*SQSIZE*kx, -0.5*SQSIZE );
-  goto_a(M_PI);
+  DEBUG(0, "pawn 4");
+  goto_xy( 2.0*SQSIZE*kx, -1.0*SQSIZE );
+  goto_ar( 3*M_PI_2*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   goto_xyr( +0.4*SQSIZE*kx, +0.4*SQSIZE );
   wait_asserv_status(ASTATUS_XY);
   arm_grab(karm);
+  DEBUG(0, "pawn 4 grabbed");
   goto_xy( 2.0*SQSIZE*kx, -1.0*SQSIZE );
-  goto_a( 0 );
+  goto_ar( 3*M_PI_2*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  DEBUG(0, "pawn 4 release");
   arm_release(karm);
   wait_ms(1000); //XXX
 

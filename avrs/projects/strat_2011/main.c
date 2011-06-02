@@ -5,6 +5,7 @@
 #include <matchuart.h>
 #include <scheduler.h>
 #include <aversive/wait.h>
+#include <time.h>
 #include "logging.h"
 #include "tirette.h"
 #include "strat.h"
@@ -92,6 +93,7 @@ int main(void)
   fdevopen(uart_dev_send, uart_dev_recv);
   logging_init(ERROR_SEVERITY_DEBUG);
   matchuart_init("__", do_reset);
+  time_init(160);
   sei();
 
   scheduler_init();
