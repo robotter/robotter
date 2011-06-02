@@ -17,6 +17,13 @@ robot = Robot([
     Event('start', [], desc="Device is up and running"),
     ]),
 
+  # Strat
+  MsgGroupWrapper(0x10, [
+    Order('strat_run', [], desc="Run the strat routine"),
+    # color: 1 = red, 2 = blue
+    Order('strat_set_color', [('color', 'uint8')]),
+    ]),
+
   # Arms
   MsgGroupWrapper(0x20, [
     # arm: 0 = left, 1 = right
