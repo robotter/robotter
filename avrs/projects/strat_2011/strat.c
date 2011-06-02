@@ -239,7 +239,13 @@ void wait_asserv_status(uint8_t status)
 void wait_arm_pos(Arm arm, ArmPos pos)
 {
   DEBUG(0, "waiting arm %u at %d", arm, pos);
+  arm_overtorque[arm] = 0;
   while( arm_pos[arm] != pos ) {
+    if( pos != ARM_HIGH && arm_overtorque[arm] ) {
+      DEBUG(0, "overtorque on arm %u", arm);
+      PPP_MECA(ARM_RELEASE, arm);
+      break;
+    }
     ppp_update();
   }
 }
