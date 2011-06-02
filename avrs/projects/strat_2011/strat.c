@@ -1,5 +1,6 @@
 #include <math.h>
 #include <perlimpinpin.h>
+#include <aversive/wait.h>
 #include "logging.h"
 #include "strat.h"
 #include "tirette.h"
@@ -260,6 +261,7 @@ void avoidance_cb(void)
     return;
   }
   called = 1;
+  NOTICE(0,"entered avoidance routine");
 
   // block while the opponent is near us
   while( r3d2_detection.r < 50 ) {
@@ -360,18 +362,54 @@ void strat_start(RobotColor color)
   wait_asserv_status(ASTATUS_XY);
   wait_arm_pos(karm, ARM_MID);
 
-  // first pawn
+  // pawn 1
   goto_xyr( -0.4*SQSIZE*kx, -0.4*SQSIZE );
   wait_asserv_status(ASTATUS_XY);
-  if( arm_pawn_present[karm] ) {
-    DEBUG(0, "pawn 1: PRESENT");
-    arm_grab(karm);
-    if( ! arm_pawn_grabbed[karm] ) {
-      WARNING(0, "pawn 1: grab FAILED");
-    }
-  } else {
-    DEBUG(0, "pawn 1: NO");
-  }
+  arm_grab(karm);
+  goto_xy( 2.0*SQSIZE*kx, 2.0*SQSIZE );
+  goto_a( M_PI-M_PI_2*kx );
+  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  arm_release(karm);
+  wait_ms(1000); //XXX
+
+  // pawn 2
+  goto_xy( 1.5*SQSIZE*kx, 1.5*SQSIZE );
+  goto_a(M_PI);
+  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  goto_xyr( +0.4*SQSIZE*kx, +0.4*SQSIZE );
+  wait_asserv_status(ASTATUS_XY);
+  arm_grab(karm);
+  goto_xy( 2.0*SQSIZE*kx, 1.0*SQSIZE );
+  goto_a( 0 );
+  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  arm_release(karm);
+  wait_ms(1000); //XXX
+
+  // pawn 3
+  goto_xy( 1.5*SQSIZE*kx, 0.5*SQSIZE );
+  goto_a(M_PI);
+  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  goto_xyr( +0.4*SQSIZE*kx, +0.4*SQSIZE );
+  wait_asserv_status(ASTATUS_XY);
+  arm_grab(karm);
+  goto_xy( 2.0*SQSIZE*kx, 0.0*SQSIZE );
+  goto_a( 0 );
+  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  arm_release(karm);
+  wait_ms(1000); //XXX
+
+  // pawn 4
+  goto_xy( 1.5*SQSIZE*kx, -0.5*SQSIZE );
+  goto_a(M_PI);
+  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  goto_xyr( +0.4*SQSIZE*kx, +0.4*SQSIZE );
+  wait_asserv_status(ASTATUS_XY);
+  arm_grab(karm);
+  goto_xy( 2.0*SQSIZE*kx, -1.0*SQSIZE );
+  goto_a( 0 );
+  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  arm_release(karm);
+  wait_ms(1000); //XXX
 
   // end: kill all
   PPP_SEND_KILL(0);
