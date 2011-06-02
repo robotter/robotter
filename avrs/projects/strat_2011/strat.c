@@ -211,6 +211,7 @@ void arm_grab(Arm arm)
 
 void wait_asserv_status(uint8_t status)
 {
+  DEBUG(0, "waiting status %x", status);
   while( (asserv_status.status & status) != status ) {
     ppp_update();
   }
@@ -218,6 +219,7 @@ void wait_asserv_status(uint8_t status)
 
 void wait_arm_pos(Arm arm, ArmPos pos)
 {
+  DEBUG(0, "waiting arm %u at %d", arm, pos);
   while( arm_pos[arm] != pos ) {
     ppp_update();
   }
@@ -338,13 +340,9 @@ void strat_start(RobotColor color)
   }
   int8_t kx = color == ROBOT_COLOR_RED ? -1 : 1;
 
-  // waiting for tirette
-  NOTICE(0, "waiting for tirette");
-  while( tirette_plugged() ) ;
-
   // init
   PPP_SEND_SUBSCRIBE(0, PPP_DEVICE_ROID);
-  PPP_PROP(ASSERV_SET_POSITION, 1300.*kx, 2100./2-15, M_PI);
+  PPP_PROP(ASSERV_SET_POSITION, 1300.*kx, 2100./2-15, RAD2PPP(M_PI));
   arm_set_pos(ARM_LEFT, ARM_HIGH);
   arm_set_pos(ARM_RIGHT, ARM_HIGH);
 
@@ -352,18 +350,18 @@ void strat_start(RobotColor color)
 
   /**  homologation  **/
 
-  uint8_t karm = 0;
+  uint8_t karm = color == ROBOT_COLOR_RED ? ARM_LEFT : ARM_RIGHT;
 
-  goto_xyr(0, 50);
+  goto_xyr(0, -50);
   wait_asserv_status(ASTATUS_XY);
 
-  goto_xy( 2.5*SQSIZE*kx, 2.5*SQSIZE );
+  goto_xy( 2.5*SQSIZE*kx, 2100./2-70 );
   arm_set_pos(karm, ARM_MID);
   wait_asserv_status(ASTATUS_XY);
   wait_arm_pos(karm, ARM_MID);
 
   // first pawn
-  goto_xyr( -0.4*SQSIZE*kx, 0.4*SQSIZE );
+  goto_xyr( -0.4*SQSIZE*kx, -0.4*SQSIZE );
   wait_asserv_status(ASTATUS_XY);
   if( arm_pawn_present[karm] ) {
     DEBUG(0, "pawn 1: PRESENT");
