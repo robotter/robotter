@@ -170,7 +170,7 @@ void goto_xy(double x, double y)
 {
   PPP_PROP(ASSERV_GOTO_XY, x, y);
   asserv_status.xy = 0;
-  PPP_SEND_ASSERV_STATUS(ROID_PROP);
+  //PPP_SEND_ASSERV_STATUS(ROID_PROP);
   //XXX:hack
   last_xy_order.x = x;
   last_xy_order.y = y;
@@ -181,7 +181,7 @@ void goto_xyr(double x, double y)
 {
   PPP_PROP(ASSERV_GOTO_XYR, x, y);
   asserv_status.xy = 0;
-  PPP_SEND_ASSERV_STATUS(ROID_PROP);
+  //PPP_SEND_ASSERV_STATUS(ROID_PROP);
   //XXX:hack
   last_xy_order.x = x;
   last_xy_order.y = y;
@@ -231,6 +231,7 @@ void arm_grab(Arm arm)
 void wait_asserv_status(uint8_t status)
 {
   DEBUG(0, "waiting status %x", status);
+  PPP_SEND_ASSERV_STATUS(ROID_PROP);
   while( (asserv_status.status & status) != status ) {
     ppp_update();
   }
@@ -429,9 +430,8 @@ void strat_start(RobotColor color)
   karm = karms[1];
   //XXX not needed goto_xy( 2.0*SQSIZE*kx, -2.0*SQSIZE );
   goto_a( DEG2RAD(60)*kx );
-  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  wait_asserv_status(ASTATUS_A);
   arm_set_pos(karm, ARM_MID);
-  wait_asserv_status(ASTATUS_XY);
   wait_arm_pos(karm, ARM_MID);
   goto_xyr( 0, SQSIZE-50 );
   wait_asserv_status(ASTATUS_XY);
@@ -449,7 +449,7 @@ void strat_start(RobotColor color)
   karm = karms[0];
   //XXX not needed goto_xy( 2.0*SQSIZE*kx, -1.0*SQSIZE );
   goto_a( DEG2RAD(-60)*kx );
-  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  wait_asserv_status(ASTATUS_A);
   arm_set_pos(karm, ARM_MID);
   wait_asserv_status(ASTATUS_XY);
   wait_arm_pos(karm, ARM_MID);
@@ -469,9 +469,8 @@ void strat_start(RobotColor color)
   karm = karms[1];
   //XXX not needed goto_xy( 2.0*SQSIZE*kx, 0.0*SQSIZE );
   goto_a( DEG2RAD(60)*kx );
-  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  wait_asserv_status(ASTATUS_A);
   arm_set_pos(karm, ARM_MID);
-  wait_asserv_status(ASTATUS_XY);
   wait_arm_pos(karm, ARM_MID);
   goto_xyr( 0, SQSIZE-50 );
   wait_asserv_status(ASTATUS_XY);
@@ -489,9 +488,8 @@ void strat_start(RobotColor color)
   karm = karms[0];
   //XXX not needed goto_xy( 2.0*SQSIZE*kx, 1.0*SQSIZE );
   goto_a( DEG2RAD(-60)*kx );
-  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  wait_asserv_status(ASTATUS_A);
   arm_set_pos(karm, ARM_MID);
-  wait_asserv_status(ASTATUS_XY);
   wait_arm_pos(karm, ARM_MID);
   goto_xyr( 0, SQSIZE-50 );
   wait_asserv_status(ASTATUS_XY);
