@@ -385,7 +385,7 @@ void strat_start(RobotColor color)
 
   // init
   PPP_SEND_SUBSCRIBE(0, PPP_DEVICE_ROID);
-  PPP_PROP(ASSERV_SET_POSITION, (3000./2-175)*kx, -2100./2+130, 0);
+  PPP_PROP(ASSERV_SET_POSITION, (3000./2-175)*kx, -2100./2+120, 0);
   arm_set_pos(ARM_LEFT, ARM_HIGH);
   arm_set_pos(ARM_RIGHT, ARM_HIGH);
 
@@ -403,17 +403,17 @@ void strat_start(RobotColor color)
   }
   uint8_t karm = karms[0];
 
-  goto_xyr(0, 60);
+  goto_xyr(-20*kx, 60);
   wait_asserv_status(ASTATUS_XY);
 
   // pawn 1
   DEBUG(0, "pawn 1");
   karm = karms[0];
+  wait_arm_pos(karm, ARM_MID);
   goto_xy( 2.5*SQSIZE*kx, -2.5*SQSIZE );
   goto_a( DEG2RAD(-15)*kx );
   arm_set_pos(karm, ARM_MID);
   wait_asserv_status(ASTATUS_XY);
-  wait_arm_pos(karm, ARM_MID);
   goto_xyr( -0.4*SQSIZE*kx, 0.4*SQSIZE );
   wait_asserv_status(ASTATUS_XY);
   arm_grab(karm);
