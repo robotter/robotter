@@ -141,6 +141,7 @@ static void avoidance_cb(void);
 
 #define PPP2RAD(v)   ((v)/1000.)
 #define RAD2PPP(v)   ((v)*1000)
+#define DEG2RAD(v)   ((v)*M_PI/180.)
 
 /// Size of chessboard squares.
 #define SQSIZE       350.
@@ -160,11 +161,20 @@ void goto_ar(double a)
   PPP_SEND_ASSERV_STATUS(ROID_PROP);
 }
 
+//XXX:hack
+VecXY last_xy_order = { 0, 0 };
+uint8_t last_xy_order_r = 0;
+
+
 void goto_xy(double x, double y)
 {
   PPP_PROP(ASSERV_GOTO_XY, x, y);
   asserv_status.xy = 0;
   PPP_SEND_ASSERV_STATUS(ROID_PROP);
+  //XXX:hack
+  last_xy_order.x = x;
+  last_xy_order.y = y;
+  last_xy_order_r = 0;
 }
 
 void goto_xyr(double x, double y)
@@ -172,6 +182,10 @@ void goto_xyr(double x, double y)
   PPP_PROP(ASSERV_GOTO_XYR, x, y);
   asserv_status.xy = 0;
   PPP_SEND_ASSERV_STATUS(ROID_PROP);
+  //XXX:hack
+  last_xy_order.x = x;
+  last_xy_order.y = y;
+  last_xy_order_r = 1;
 }
 
 void goto_traj(const VecXY *xy, uint8_t n)
@@ -262,11 +276,23 @@ void avoidance_cb(void)
   }
   DEBUG(0, "r3d2 detected at r=%.3f a=%.3f", r3d2_detection.r, r3d2_detection.a);
   called = 1;
-  NOTICE(0,"avoidance STOP");
+  NOTICE(0,"avoidance START");
 
   // block while the opponent is near us
-  while( r3d2_detection.r < 450 ) {
-    ppp_update();
+  while( r3d2_detection.r < 20000 ) {
+    PPP_PROP(ASSERV_GOTO_XYR, 0, 0);
+    asserv_status.xy = 0;
+    int i;
+    r3d2_detection.r = 60000;
+    for( i=0; i<1000; i++ ) {
+      ppp_update();
+      wait_ms(1);
+    }
+    if( last_xy_order_r ) {
+      //goto_xyr(last_xy_order.x, last_xy_order.y);
+    } else {
+      goto_xy(last_xy_order.x, last_xy_order.y);
+    }
   }
 
   NOTICE(0,"avoidance END");
@@ -346,7 +372,7 @@ void strat_start(RobotColor color)
 
   // init
   PPP_SEND_SUBSCRIBE(0, PPP_DEVICE_ROID);
-  PPP_PROP(ASSERV_SET_POSITION, 1300.*kx, 2100./2-15, RAD2PPP(M_PI));
+  PPP_PROP(ASSERV_SET_POSITION, 1300.*kx, 2100./2-130, RAD2PPP(M_PI));
   arm_set_pos(ARM_LEFT, ARM_HIGH);
   arm_set_pos(ARM_RIGHT, ARM_HIGH);
 
@@ -356,23 +382,25 @@ void strat_start(RobotColor color)
 
   uint8_t karm = color == ROBOT_COLOR_RED ? ARM_LEFT : ARM_RIGHT;
 
-  goto_xyr(0, -50);
+  goto_xyr(0, -60);
   wait_asserv_status(ASTATUS_XY);
+  goto_a( DEG2RAD(195)*kx );
+  for(;;) ;
 
-  goto_xy( 2.5*SQSIZE*kx, 2100./2-70 );
-  goto_a( -M_PI_4*kx );
-  arm_set_pos(karm, ARM_MID);
-  wait_asserv_status(ASTATUS_XY);
-  wait_arm_pos(karm, ARM_MID);
 
   // pawn 1
   DEBUG(0, "pawn 1");
+  goto_xy( 2.5*SQSIZE*kx, 2.5*SQSIZE );
+  goto_a( DEG2RAD(195)*kx );
+  arm_set_pos(karm, ARM_MID);
+  wait_asserv_status(ASTATUS_XY);
+  wait_arm_pos(karm, ARM_MID);
   goto_xyr( -0.4*SQSIZE*kx, -0.4*SQSIZE );
   wait_asserv_status(ASTATUS_XY);
   arm_grab(karm);
   DEBUG(0, "pawn 1 grabbed");
   goto_xy( 2.0*SQSIZE*kx, 2.0*SQSIZE );
-  goto_ar( -M_PI_4*kx );
+  goto_a( DEG2RAD(195-90)*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 1 release");
   arm_release(karm);
@@ -380,15 +408,18 @@ void strat_start(RobotColor color)
 
   // pawn 2
   DEBUG(0, "pawn 2");
-  goto_xy( 2.0*SQSIZE*kx, 2.0*SQSIZE );
-  goto_ar( 3*M_PI_4*kx );
+  //XXX not needed goto_xy( 2.0*SQSIZE*kx, 2.0*SQSIZE );
+  goto_a( DEG2RAD(195+45)*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
-  goto_xyr( 0, SQSIZE-50 );
+  arm_set_pos(karm, ARM_MID);
+  wait_asserv_status(ASTATUS_XY);
+  wait_arm_pos(karm, ARM_MID);
+  goto_xyr( 0, -SQSIZE+50 );
   wait_asserv_status(ASTATUS_XY);
   arm_grab(karm);
   DEBUG(0, "pawn 2 grabbed");
   goto_xy( 2.0*SQSIZE*kx, 1.0*SQSIZE );
-  goto_ar( 3*M_PI_4*kx );
+  goto_a( DEG2RAD(195+180)*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 2 release");
   arm_release(karm);
@@ -396,15 +427,18 @@ void strat_start(RobotColor color)
 
   // pawn 3
   DEBUG(0, "pawn 3");
-  goto_xy( 2.0*SQSIZE*kx, 1.0*SQSIZE );
-  goto_ar( -3*M_PI_4*kx );
+  //XXX not needed goto_xy( 2.0*SQSIZE*kx, 1.0*SQSIZE );
+  goto_a( DEG2RAD(195+45)*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
-  goto_xyr( 0, SQSIZE-50 );
+  arm_set_pos(karm, ARM_MID);
+  wait_asserv_status(ASTATUS_XY);
+  wait_arm_pos(karm, ARM_MID);
+  goto_xyr( 0, -SQSIZE+50 );
   wait_asserv_status(ASTATUS_XY);
   arm_grab(karm);
   DEBUG(0, "pawn 3 grabbed");
   goto_xy( 2.0*SQSIZE*kx, 0.0*SQSIZE );
-  goto_a( -3*M_PI_4*kx );
+  goto_a( DEG2RAD(195-90)*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 3 release");
   arm_release(karm);
@@ -412,17 +446,39 @@ void strat_start(RobotColor color)
 
   // pawn 4
   DEBUG(0, "pawn 4");
-  goto_xy( 2.0*SQSIZE*kx, -1.0*SQSIZE );
-  goto_ar( 3*M_PI_4*kx );
+  //XXX not needed goto_xy( 2.0*SQSIZE*kx, -1.0*SQSIZE );
+  goto_a( DEG2RAD(195+45)*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
-  goto_xyr( +0.4*SQSIZE*kx, +0.4*SQSIZE );
+  arm_set_pos(karm, ARM_MID);
+  wait_asserv_status(ASTATUS_XY);
+  wait_arm_pos(karm, ARM_MID);
+  goto_xyr( 0, -SQSIZE+50 );
   wait_asserv_status(ASTATUS_XY);
   arm_grab(karm);
   DEBUG(0, "pawn 4 grabbed");
   goto_xy( 2.0*SQSIZE*kx, -1.0*SQSIZE );
-  goto_ar( 3*M_PI_4*kx );
+  goto_a( DEG2RAD(195+180)*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 4 release");
+  arm_release(karm);
+  wait_ms(1000); //XXX
+
+  // pawn 5
+  DEBUG(0, "pawn 5");
+  //XXX not needed goto_xy( 2.0*SQSIZE*kx, -1.0*SQSIZE );
+  goto_a( DEG2RAD(195+45)*kx );
+  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  arm_set_pos(karm, ARM_MID);
+  wait_asserv_status(ASTATUS_XY);
+  wait_arm_pos(karm, ARM_MID);
+  goto_xyr( 0, -SQSIZE+50 );
+  wait_asserv_status(ASTATUS_XY);
+  arm_grab(karm);
+  DEBUG(0, "pawn 5 grabbed");
+  goto_xy( 2.0*SQSIZE*kx, -2.0*SQSIZE );
+  goto_a( DEG2RAD(195-90)*kx );
+  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  DEBUG(0, "pawn 5 release");
   arm_release(karm);
   wait_ms(1000); //XXX
 
