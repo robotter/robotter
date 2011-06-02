@@ -52,6 +52,12 @@ uint8_t gd_right_last = 0;
 uint8_t scanner_source_address;
 scanner_state_t scanner_state;
 
+uint16_t scanner_left_threshold = SETTING_SCANNER_Z_THRESHOLD;
+uint16_t scanner_right_threshold = SETTING_SCANNER_Z_THRESHOLD;
+
+uint8_t scanner_left_pstate = 0;
+uint8_t scanner_right_pstate = 0;
+
 // SYS cpu usage in percents
 uint8_t sys_cpuUsage;
 
@@ -171,6 +177,11 @@ void sys_update(void* dummy)
   else if( t==2 )
   {
     actuators_arm_send_status(&actuators, ARM_RIGHT);
+  }
+  // poll scanner values
+  else if( t == 3)
+  {
+    
   }
 
   // reset TIMER3

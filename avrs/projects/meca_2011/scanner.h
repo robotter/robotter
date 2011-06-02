@@ -40,8 +40,14 @@ typedef enum
  * */
 int16_t scanner_detect(armPos_t n, double *px, double *py, double *ph);
 
-int16_t scanner_do_scan(uint8_t muxa, uint8_t muxb, uint8_t ax12id,
+uint16_t scanner_get_z(armPos_t n);
+
+int16_t scanner_do_scan(uint8_t muxa, uint8_t muxb,
+                        armPos_t arm, uint8_t ax12id,
                         uint16_t start, uint16_t stop, uint16_t step,
                         int32_t *bmin, int32_t *bmax, double *height);
+
+/** Set scanner to look at specified distance */
+void scanner_look_at(armPos_t n, double y);
 
 #endif/*SCANNER_H*/

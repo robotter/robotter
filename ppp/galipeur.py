@@ -33,6 +33,8 @@ robot = Robot([
       desc="Arm pawn detector state changed"),
     Order('scanner_set_distance', [('arm', 'uint8'), ('distance','uint16')],
       desc="Set scanner distance"),
+    Order('scanner_set_threshold', [('arm', 'uint8'), ('threshold','uint16')],
+      desc="Set scanner z threshold in mm"),
     Event('scanner_threshold', [('arm', 'uint8'), ('state','uint8')],
       desc="Object seen by scanner state: 1 - over, 0 - under"),
 

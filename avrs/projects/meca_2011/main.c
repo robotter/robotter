@@ -305,8 +305,14 @@ void paddock_AX12manual(void)
 
 void paddock_sandbox(void)
 {
+  scanner_look_at(ARM_LEFT, 250);
+  scanner_look_at(ARM_RIGHT, 250);
+
   while(1)
-    nop();
+  {
+    NOTICE(0,"%d",scanner_get_z(ARM_LEFT));
+    wait_ms(100);
+  }
 }
 
 void paddock_groundDetector(void)

@@ -55,6 +55,7 @@ static void _rotate(armPos_t n, double *x, double *y)
   *x = xn; *y = yn;
 }
 
+
 int16_t scanner_detect(armPos_t n, double *px, double *py, double *ph)
 {
   int16_t yr = 0,yl = 0;
@@ -65,12 +66,14 @@ int16_t scanner_detect(armPos_t n, double *px, double *py, double *ph)
   switch(n)
   {
     case ARM_LEFT:
-      yr = scanner_do_scan(MUX_ADC2, MUX_ADC3, SETTING_AX12_ID_LEFT_SCANNER,
+      yr = scanner_do_scan(MUX_ADC2, MUX_ADC3,
+                  ARM_LEFT, SETTING_AX12_ID_LEFT_SCANNER,
                   SETTING_SCANNER_START, SETTING_SCANNER_STOP,
                   SETTING_SCANNER_STEP,
                   &bmin, &bmax, &hr);
   
-      yl = scanner_do_scan(MUX_ADC3, 0, SETTING_AX12_ID_LEFT_SCANNER,
+      yl = scanner_do_scan(MUX_ADC3, 0, 
+                        ARM_LEFT, SETTING_AX12_ID_LEFT_SCANNER,
                         bmin, bmax,
                         (bmax - bmin)/2,
                         NULL, NULL, &hl);
@@ -78,12 +81,14 @@ int16_t scanner_detect(armPos_t n, double *px, double *py, double *ph)
       xl = SETTING_SCANNER_LEFT_DXL;
       break;
     case ARM_RIGHT:
-      yr = scanner_do_scan(MUX_ADC1, MUX_ADC0, SETTING_AX12_ID_RIGHT_SCANNER,
+      yr = scanner_do_scan(MUX_ADC1, MUX_ADC0,
+                  ARM_RIGHT, SETTING_AX12_ID_RIGHT_SCANNER,
                   SETTING_SCANNER_START, SETTING_SCANNER_STOP,
                   SETTING_SCANNER_STEP,
                   &bmin, &bmax, &hr);
   
-      yl = scanner_do_scan(MUX_ADC0, 0, SETTING_AX12_ID_RIGHT_SCANNER, 
+      yl = scanner_do_scan(MUX_ADC0, 0, 
+                        ARM_RIGHT, SETTING_AX12_ID_RIGHT_SCANNER, 
                         bmin, bmax,
                         (bmax - bmin)/2,
                         NULL, NULL, &hl);
@@ -145,11 +150,18 @@ int16_t scanner_detect(armPos_t n, double *px, double *py, double *ph)
 }
 
 /** @brief Convert GP2 ADC value to position */
-static void _gp2_convert(uint16_t adcv, int32_t pos, double *y, double *z)
+static void _gp2_convert(armPos_t p, uint16_t adcv, int32_t pos, double *y, double *z)
 {
   double a,g;
+  uint16_t zp;
+  switch(p)
+  {
+    case ARM_LEFT: zp =  SETTING_SCANNER_LEFT_DELTA; break;
+    case ARM_RIGHT: zp = SETTING_SCANNER_RIGHT_DELTA; break;
+    default: zp=0; break;
+  }
   // servo angle
-  a = ((512-pos)*300)/1024.0;
+  a = ((512+zp-pos)*300)/1024.0;
   // distance to g
   g = -2.976E-6*pow(adcv,3) + 0.006303*pow(adcv,2) -4.936*adcv + 1664 + 30;
   // x,y
@@ -159,16 +171,49 @@ static void _gp2_convert(uint16_t adcv, int32_t pos, double *y, double *z)
 }
 
 /** @brief Get scanner position to distance y */
-static int32_t _gp2_lookat(double y, double z)
+static int32_t _gp2_lookat(armPos_t p, double y, double z)
 {
+  uint16_t zp;
+  switch(p)
+  {
+    case ARM_LEFT: zp =  SETTING_SCANNER_LEFT_DELTA; break;
+    case ARM_RIGHT: zp = SETTING_SCANNER_RIGHT_DELTA; break;
+    default: zp = 0; break;
+  }
   double a;
   a = atan2(SETTING_SCANNER_HEIGHT-z,y);
   a = (a*180.0)/M_PI;
   a = (a*1024)/300;
-  return (512-a);
+  return (512+zp-a);
 }
 
-int16_t scanner_do_scan(uint8_t muxa, uint8_t muxb, uint8_t ax12id,
+uint16_t scanner_get_z(armPos_t n)
+{
+  double y,z;
+  uint16_t pos;
+  uint16_t adcv;
+
+  switch(n)
+  {
+    case ARM_LEFT:
+      pos = actuators_ax12_getPosition(&actuators, SETTING_AX12_ID_LEFT_SCANNER);
+      adcv = adc_get_value( MUX_ADC1 | ADC_REF_AVCC );
+      _gp2_convert(ARM_LEFT, adcv, pos, &y, &z);
+      break;
+
+    case ARM_RIGHT:
+      pos = actuators_ax12_getPosition(&actuators, SETTING_AX12_ID_RIGHT_SCANNER);
+      _gp2_convert(ARM_RIGHT, adcv, pos, &y, &z);
+      break;
+
+    default:break;
+  }
+  
+  return z;
+}
+
+int16_t scanner_do_scan(uint8_t muxa, uint8_t muxb,
+                        armPos_t arm, uint8_t ax12id,
                         uint16_t start, uint16_t stop, uint16_t step,
                         int32_t *bmin, int32_t *bmax, double *height)
 {
@@ -202,9 +247,9 @@ int16_t scanner_do_scan(uint8_t muxa, uint8_t muxb, uint8_t ax12id,
         adcvb = adc_get_value( muxb | ADC_REF_AVCC);
 
       // -- compute x,y from adcv,pos
-      _gp2_convert(adcv,pos,&y,&z);
+      _gp2_convert(arm,adcv,pos,&y,&z);
       if(muxb)
-        _gp2_convert(adcvb,pos,&yb,&zb);
+        _gp2_convert(arm,adcvb,pos,&yb,&zb);
 
       // pawn saw by A detector
       if(z > SETTING_SCANNER_Z_THRESHOLD)
@@ -215,14 +260,14 @@ int16_t scanner_do_scan(uint8_t muxa, uint8_t muxb, uint8_t ax12id,
         if(step < SETTING_SCANNER_MIN_STEP)
         {
           // before returning measure pawn height
-          pos = _gp2_lookat(y+30,60);
+          pos = _gp2_lookat(arm,y+30,60);
 
           actuators_ax12_setPosition(&actuators, ax12id, pos);
           while( actuators_ax12_checkPosition(&actuators, ax12id, pos) == 0 )
             wait_ms(1);         
           wait_ms(100);
           adcv = adc_get_value( muxa | ADC_REF_AVCC);
-          _gp2_convert(adcv,pos,&y,height);
+          _gp2_convert(arm,adcv,pos,&y,height);
 
           return (int16_t)y;
         }
@@ -246,4 +291,27 @@ int16_t scanner_do_scan(uint8_t muxa, uint8_t muxb, uint8_t ax12id,
       return -1;
   }
 }
+
+void scanner_look_at(armPos_t arm, double y)
+{
+  uint16_t pos;
+  
+  pos = _gp2_lookat(arm, y, 0.0);
+
+  switch(arm)
+  {
+    case ARM_LEFT:
+      actuators_ax12_setPosition(&actuators, 
+                                  SETTING_AX12_ID_LEFT_SCANNER, pos);
+      break;
+
+    case ARM_RIGHT:
+      actuators_ax12_setPosition(&actuators,
+                                  SETTING_AX12_ID_RIGHT_SCANNER, pos);
+      break;
+
+    default: break;
+  }
+}
+
 
