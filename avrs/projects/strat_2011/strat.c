@@ -291,7 +291,7 @@ void avoidance_cb(void)
   NOTICE(0,"avoidance START");
 
   // block while the opponent is near us
-  while( r3d2_detection.r < 700 ) {
+  while( r3d2_detection.r < 500 ) {
     PPP_PROP(ASSERV_GOTO_XYR, 0, 0);
     asserv_status.xy = 0;
     int i;
