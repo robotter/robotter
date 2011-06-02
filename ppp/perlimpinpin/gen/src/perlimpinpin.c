@@ -348,7 +348,7 @@ void ppp_i2c_send_frame(const PPPMsgFrame *frame)
     }
     ppp_i2c_update(); // process input frames, avoid dead-lock
 #ifdef PPP_I2C_RETRY_DELAY
-    _delay_us(PPP_I2C_RETRY_DELAY);
+    _delay_us(PPP_I2C_RETRY_DELAY * PPP_DEVICE_ROID);
 #endif
   }
 
