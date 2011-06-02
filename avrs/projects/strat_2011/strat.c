@@ -284,25 +284,24 @@ void avoidance_cb(void)
   if( called ) {
     return;
   }
-  DEBUG(0, "r3d2 detected at r=%.3f a=%.3f", r3d2_detection.r, r3d2_detection.a);
   called = 1;
   NOTICE(0,"avoidance START");
 
   // block while the opponent is near us
-  while( r3d2_detection.r < 20000 ) {
+  while( r3d2_detection.r < 700 ) {
     PPP_PROP(ASSERV_GOTO_XYR, 0, 0);
     asserv_status.xy = 0;
     int i;
     r3d2_detection.r = 60000;
-    for( i=0; i<1000; i++ ) {
+    for( i=0; i<200; i++ ) {
       ppp_update();
       wait_ms(1);
     }
-    if( last_xy_order_r ) {
-      //goto_xyr(last_xy_order.x, last_xy_order.y);
-    } else {
-      goto_xy(last_xy_order.x, last_xy_order.y);
-    }
+  }
+  if( last_xy_order_r ) {
+    //goto_xyr(last_xy_order.x, last_xy_order.y);
+  } else {
+    goto_xy(last_xy_order.x, last_xy_order.y);
   }
 
   NOTICE(0,"avoidance END");
@@ -329,7 +328,7 @@ int8_t ppp_strat_callback(PPPMsgFrame *msg)
 
     case PPP_MID_R3D2_DETECTED:
       r3d2_detection.r = msg->r3d2_detected.r;
-      r3d2_detection.a = PPP2RAD(msg->r3d2_detected.a);
+      r3d2_detection.a = M_PI - PPP2RAD(msg->r3d2_detected.a);
       avoidance_cb();
       break;
 

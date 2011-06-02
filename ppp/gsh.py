@@ -50,8 +50,9 @@ class GBinding(pshit.ShellBinding):
     elif name == 'r3d2_detected':
       vv.r3d2_detection = DO(
           r = args['r'],
-          a = ppp2rad(args['a']),
+          a = pi - ppp2rad(args['a']),
           )
+      print "A: %.3f / D: %.3f" % (math.degrees(vv.r3d2_detection.a), vv.r3d2_detection.r)
       avoidance_cb()
     elif name == 'asserv_angle_reached':
       vv.asserv_status.a = True
