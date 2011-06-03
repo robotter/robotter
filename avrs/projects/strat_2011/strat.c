@@ -418,9 +418,9 @@ void strat_start(RobotColor color)
   uint8_t nb_grabbed = 0;
 
   // pawn 1
-  off_x = 10;
-  off_y = -30;
-  off_a = 0;
+  //off_x = 10;
+  //off_y = -30;
+  //off_a = 0;
   DEBUG(0, "pawn 1");
   karm = karms[0];
   wait_arm_pos(karm, ARM_MID);
@@ -445,7 +445,7 @@ void strat_start(RobotColor color)
   }
 
   // pawn 2
-  off_a = 3;
+  //off_a = 3;
   DEBUG(0, "pawn 2");
   karm = karms[1];
   goto_xy( (2.0*SQSIZE-off_x)*kx, -2.0*SQSIZE-off_y );
@@ -471,7 +471,7 @@ void strat_start(RobotColor color)
 
   // pawn 3
   if( nb_grabbed < 2 ) {
-    off_a = 6;
+    //off_a = 6;
     DEBUG(0, "pawn 3");
     //karm = karms[0];
     goto_xy( (2.0*SQSIZE-off_x)*kx, -1.0*SQSIZE-off_y );
