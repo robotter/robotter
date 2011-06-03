@@ -578,6 +578,11 @@ void strat_start(RobotColor color)
   goto_xy( 0.0*SQSIZE*kx, 1.5*SQSIZE );
   goto_a( DEG2RAD(90+45)*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  // a small turn, for the fun
+  goto_a( DEG2RAD(45-90)*kx );
+  wait_asserv_status(ASTATUS_A);
+  goto_a( DEG2RAD(45+90)*kx );
+  wait_asserv_status(ASTATUS_A);
   // go along the diagonal
   goto_xy( -1.5*SQSIZE*kx, -0.5*SQSIZE );
   wait_asserv_status(ASTATUS_XY);
