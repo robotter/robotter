@@ -436,6 +436,12 @@ void strat_start(RobotColor color)
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 1 release");
   arm_set_pos(karms[1], ARM_MID); //XXX
+  //XXX
+  uint16_t i;
+  for(i=0;i<10;i++) {
+    ppp_update();
+    wait_ms(1);
+  }
   arm_release(karm);
 
   // pawn 2
