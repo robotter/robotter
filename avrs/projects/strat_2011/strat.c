@@ -566,6 +566,22 @@ void strat_start(RobotColor color)
     }
   }
 
+  // no more pawns on this column
+
+  // try to push a pawn in our zone, if it is here
+  arm_set_pos(ARM_LEFT, ARM_HIGH);
+  arm_set_pos(ARM_RIGHT, ARM_HIGH);
+  goto_xy( 2.0*SQSIZE*kx, 1.5*SQSIZE );
+  goto_a( DEG2RAD(90)*kx );
+  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  // move to an opponent's column diagonal
+  goto_xy( 0.0*SQSIZE*kx, 1.5*SQSIZE );
+  goto_a( DEG2RAD(90+45)*kx );
+  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+  // go along the diagonal
+  goto_xy( -1.5*SQSIZE*kx, -0.5*SQSIZE );
+  wait_asserv_status(ASTATUS_XY);
+
   // end: kill all
   PPP_SEND_KILL(0);
   for(;;) ;
