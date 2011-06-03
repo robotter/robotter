@@ -89,7 +89,7 @@
 // LEFT ARM high position
 #define SETTING_AX12_POS_LARM_RAISED (0x110)
 // RIGHT ARM high position
-#define SETTING_AX12_POS_RARM_RAISED (0x100)
+#define SETTING_AX12_POS_RARM_RAISED (0x11F)
 
 
 // -- scanner
@@ -115,6 +115,6 @@
 // -- ground detectors
 
 #define SETTING_GD_RIGHT_THRESHOLD 30
-#define SETTING_GD_LEFT_THRESHOLD 30
+#define SETTING_GD_LEFT_THRESHOLD 40
 
 #endif/*SETTINGS_H*/

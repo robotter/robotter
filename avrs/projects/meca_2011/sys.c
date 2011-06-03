@@ -94,6 +94,8 @@ void sys_init(void)
 void sys_update(void* dummy)
 {
   uint16_t dt;
+  uint16_t z;
+  uint8_t state;
   static uint8_t t = 0;
   static double ll = 0.0, lr = 0.0;
   // some LED feedback
@@ -181,7 +183,18 @@ void sys_update(void* dummy)
   // poll scanner values
   else if( t == 3)
   {
-    
+    z = scanner_get_z(ARM_LEFT);
+    state = z > scanner_left_threshold;
+    if( state != scanner_left_pstate )
+      PPP_SEND_SCANNER_THRESHOLD(ROID_SUBSCRIBER, ARM_LEFT, state);
+    scanner_left_pstate = state;
+
+    z = scanner_get_z(ARM_RIGHT);
+    state = z > scanner_right_threshold;
+    if( state != scanner_right_pstate )
+      PPP_SEND_SCANNER_THRESHOLD(ROID_SUBSCRIBER, ARM_RIGHT, state);
+    scanner_right_pstate = state;
+
   }
 
   // reset TIMER3

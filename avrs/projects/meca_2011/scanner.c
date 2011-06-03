@@ -197,19 +197,23 @@ uint16_t scanner_get_z(armPos_t n)
   {
     case ARM_LEFT:
       pos = actuators_ax12_getPosition(&actuators, SETTING_AX12_ID_LEFT_SCANNER);
-      adcv = adc_get_value( MUX_ADC1 | ADC_REF_AVCC );
+      adcv = adc_get_value( MUX_ADC2 | ADC_REF_AVCC );
       _gp2_convert(ARM_LEFT, adcv, pos, &y, &z);
       break;
 
     case ARM_RIGHT:
       pos = actuators_ax12_getPosition(&actuators, SETTING_AX12_ID_RIGHT_SCANNER);
+      adcv = adc_get_value( MUX_ADC1 | ADC_REF_AVCC );
       _gp2_convert(ARM_RIGHT, adcv, pos, &y, &z);
       break;
 
     default:break;
   }
   
-  return z;
+  if(z > 0)
+    return z;
+  else
+    return 0;
 }
 
 int16_t scanner_do_scan(uint8_t muxa, uint8_t muxb,
