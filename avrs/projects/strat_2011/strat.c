@@ -147,11 +147,20 @@ static void avoidance_cb(void);
 #define SQSIZE       350.
 
 
+//XXX:hack
+VecXY last_xy_order = { 0, 0 };
+uint8_t last_xy_order_r = 0;
+double last_a_order = 0;
+uint8_t last_a_order_r = 0;
+
 void goto_a(double a)
 {
   PPP_PROP(ASSERV_GOTO_A, RAD2PPP(a));
   asserv_status.a = 0;
   //PPP_PROP(ASSERV_STATUS);
+  //XXX:hack
+  last_a_order = a;
+  last_a_order_r = 0;
 }
 
 void goto_ar(double a)
@@ -159,12 +168,10 @@ void goto_ar(double a)
   PPP_PROP(ASSERV_GOTO_AR, RAD2PPP(a));
   asserv_status.a = 0;
   //PPP_PROP(ASSERV_STATUS);
+  //XXX:hack
+  last_a_order = a;
+  last_a_order_r = 1;
 }
-
-//XXX:hack
-VecXY last_xy_order = { 0, 0 };
-uint8_t last_xy_order_r = 0;
-
 
 void goto_xy(double x, double y)
 {
@@ -298,12 +305,13 @@ void avoidance_cb(void)
   NOTICE(0,"avoidance START");
 
   // block while the opponent is near us
-  while( r3d2_detection.r < 500 ) {
+  while( r3d2_detection.r < 700 ) {
     PPP_PROP(ASSERV_GOTO_XYR, 0, 0);
+    //PPP_PROP(ASSERV_GOTO_AR, 0, 0);
     asserv_status.xy = 0;
     int i;
     r3d2_detection.r = 60000;
-    for( i=0; i<200; i++ ) {
+    for( i=0; i<500; i++ ) {
       ppp_update();
       wait_ms(1);
     }
@@ -312,6 +320,11 @@ void avoidance_cb(void)
     //goto_xyr(last_xy_order.x, last_xy_order.y);
   } else {
     goto_xy(last_xy_order.x, last_xy_order.y);
+  }
+  if( last_a_order_r ) {
+    //goto_ar(last_a_order);
+  } else {
+    goto_a(last_a_order);
   }
 
   NOTICE(0,"avoidance END");
