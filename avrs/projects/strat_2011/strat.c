@@ -417,6 +417,7 @@ void strat_start(RobotColor color)
 
   float off_x = 0, off_y = 0, off_a = 0;
   uint8_t nb_grabbed = 0;
+  off_x = 40;
 
   // pawn 1
   //off_x = 10;
@@ -454,7 +455,7 @@ void strat_start(RobotColor color)
   arm_set_pos(karm, ARM_MID);
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   wait_arm_pos(karm, ARM_MID);
-  goto_xyr( 0, SQSIZE-50+off_y );
+  goto_xyr( 0, SQSIZE-60+off_y );
   wait_asserv_status(ASTATUS_XY);
   arm_grab(karm);
   if( arm_pawn_grabbed[karm] ) {
@@ -485,7 +486,7 @@ void strat_start(RobotColor color)
     arm_set_pos(karm, ARM_MID);
     wait_asserv_status(ASTATUS_XY);
     wait_arm_pos(karm, ARM_MID);
-    goto_xyr( 0, SQSIZE-50+off_y );
+    goto_xyr( 0, SQSIZE-60+off_y );
     wait_asserv_status(ASTATUS_XY);
     arm_grab(karm);
     if( arm_pawn_grabbed[karm] ) {
@@ -519,7 +520,7 @@ void strat_start(RobotColor color)
     arm_set_pos(karm, ARM_MID);
     wait_asserv_status(ASTATUS_XY|ASTATUS_A);
     wait_arm_pos(karm, ARM_MID);
-    goto_xyr( 0, SQSIZE-50+off_y );
+    goto_xyr( 0, SQSIZE-60+off_y );
     wait_asserv_status(ASTATUS_XY);
     arm_grab(karm);
     if( arm_pawn_grabbed[karm] ) {
@@ -553,7 +554,7 @@ void strat_start(RobotColor color)
     arm_set_pos(karm, ARM_MID);
     wait_asserv_status(ASTATUS_XY|ASTATUS_A);
     wait_arm_pos(karm, ARM_MID);
-    goto_xyr( 0, SQSIZE-50+off_y );
+    goto_xyr( 0, SQSIZE-60+off_y );
     wait_asserv_status(ASTATUS_XY);
     arm_grab(karm);
     if( arm_pawn_grabbed[karm] ) {
@@ -578,11 +579,11 @@ void strat_start(RobotColor color)
   // try to push a pawn in our zone, if it is here
   arm_set_pos(ARM_LEFT, ARM_HIGH);
   arm_set_pos(ARM_RIGHT, ARM_HIGH);
-  goto_xy( 2.0*SQSIZE*kx, 1.5*SQSIZE );
+  goto_xy( (2.0*SQSIZE-off_x)*kx, 1.5*SQSIZE );
   goto_a( DEG2RAD(90)*ka );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   // move to an opponent's column diagonal
-  goto_xy( 0.0*SQSIZE*kx, 1.5*SQSIZE );
+  goto_xy( (0.0*SQSIZE-off_x)*kx, 1.5*SQSIZE );
   goto_a( DEG2RAD(90+45)*ka );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   // a small turn, for the fun
@@ -591,26 +592,26 @@ void strat_start(RobotColor color)
   goto_a( DEG2RAD(45+90)*ka );
   wait_asserv_status(ASTATUS_A);
   // go along the diagonal
-  goto_xy( -1.5*SQSIZE*kx, -0.5*SQSIZE );
+  goto_xy( (-1.5*SQSIZE-off_x)*kx, -0.5*SQSIZE );
   wait_asserv_status(ASTATUS_XY);
 
   // spiral!
-  goto_xy( 0.0*SQSIZE*kx, -2.0*SQSIZE );
+  goto_xy( (0.0*SQSIZE-off_x)*kx, -2.0*SQSIZE );
   goto_a( 0.0*M_PI );
   wait_asserv_status(ASTATUS_XY);
-  goto_xy( 0.5*SQSIZE*kx, -0.5*SQSIZE );
+  goto_xy( (0.5*SQSIZE-off_x)*kx, -0.5*SQSIZE );
   goto_a( 0.5*M_PI );
   wait_asserv_status(ASTATUS_XY);
-  goto_xy( -0.5*SQSIZE*kx, 0.5*SQSIZE );
+  goto_xy( (-0.5*SQSIZE-off_x)*kx, 0.5*SQSIZE );
   goto_a( 1.5*M_PI );
   wait_asserv_status(ASTATUS_XY);
-  goto_xy( -1.5*SQSIZE*kx, -0.5*SQSIZE );
+  goto_xy( (-1.5*SQSIZE-off_x)*kx, -0.5*SQSIZE );
   goto_a( 2.0*M_PI );
   wait_asserv_status(ASTATUS_XY);
-  goto_xy( 0.5*SQSIZE*kx, -0.5*SQSIZE );
+  goto_xy( (0.5*SQSIZE-off_x)*kx, -0.5*SQSIZE );
   goto_a( 2.5*M_PI );
   wait_asserv_status(ASTATUS_XY);
-  goto_xy( 0.0*SQSIZE*kx, 0.0*SQSIZE );
+  goto_xy( (0.0*SQSIZE-off_x)*kx, 0.0*SQSIZE );
   goto_a( 3.0*M_PI );
   wait_asserv_status(ASTATUS_XY);
 
