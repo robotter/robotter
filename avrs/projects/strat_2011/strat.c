@@ -587,6 +587,26 @@ void strat_start(RobotColor color)
   goto_xy( -1.5*SQSIZE*kx, -0.5*SQSIZE );
   wait_asserv_status(ASTATUS_XY);
 
+  // spiral!
+  goto_xy( 0.0*SQSIZE*kx, -2.0*SQSIZE );
+  goto_a( 0.0*M_PI );
+  wait_asserv_status(ASTATUS_XY);
+  goto_xy( 0.5*SQSIZE*kx, -0.5*SQSIZE );
+  goto_a( 0.5*M_PI );
+  wait_asserv_status(ASTATUS_XY);
+  goto_xy( -0.5*SQSIZE*kx, 0.5*SQSIZE );
+  goto_a( 1.5*M_PI );
+  wait_asserv_status(ASTATUS_XY);
+  goto_xy( -1.5*SQSIZE*kx, -0.5*SQSIZE );
+  goto_a( 2.0*M_PI );
+  wait_asserv_status(ASTATUS_XY);
+  goto_xy( 0.5*SQSIZE*kx, -0.5*SQSIZE );
+  goto_a( 2.5*M_PI );
+  wait_asserv_status(ASTATUS_XY);
+  goto_xy( 0.0*SQSIZE*kx, 0.0*SQSIZE );
+  goto_a( 3.0*M_PI );
+  wait_asserv_status(ASTATUS_XY);
+
   // end: kill all
   goto_xy(0,0);
   PPP_SEND_KILL(0);
