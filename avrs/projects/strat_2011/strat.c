@@ -158,7 +158,7 @@ void goto_ar(double a)
 {
   PPP_PROP(ASSERV_GOTO_AR, RAD2PPP(a));
   asserv_status.a = 0;
-  PPP_PROP(ASSERV_STATUS);
+  //PPP_PROP(ASSERV_STATUS);
 }
 
 //XXX:hack
