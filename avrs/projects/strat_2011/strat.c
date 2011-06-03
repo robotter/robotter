@@ -608,7 +608,8 @@ void strat_start(RobotColor color)
   wait_asserv_status(ASTATUS_XY);
 
   // end: kill all
-  goto_xy(0,0);
+  goto_xyr(0,0);
+  goto_ar(0);
   PPP_SEND_KILL(0);
   for(;;) ;
 }

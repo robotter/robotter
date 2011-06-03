@@ -70,7 +70,8 @@ void match_end_cb(void *dummy)
   }
   scheduler_del_event(match_end_ev);
   for(;;) {
-    PPP_SEND_ASSERV_GOTO_XY(ROID_PROP, 0, 0);
+    PPP_SEND_ASSERV_GOTO_XYR(ROID_PROP, 0, 0);
+    PPP_SEND_ASSERV_GOTO_AR(ROID_PROP, 0);
     PPP_SEND_KILL(0);
     int i;
     for( i=0; i<1000; i++ ) {
