@@ -555,7 +555,7 @@ void strat_start(RobotColor color)
   }
 
   // pawn 5
-  if( nb_grabbed < 2 ) {
+  if( nb_grabbed != 1 ) {
     DEBUG(0, "pawn 5");
     karm = karms[0];
     goto_xy( (2.0*SQSIZE-off_x)*kx, 1.0*SQSIZE-off_y );
@@ -592,7 +592,11 @@ void strat_start(RobotColor color)
   // try to push a pawn in our zone, if it is here
   arm_set_pos(ARM_LEFT, ARM_HIGH);
   arm_set_pos(ARM_RIGHT, ARM_HIGH);
-  goto_xy( (2.0*SQSIZE-off_x)*kx, 1.5*SQSIZE );
+  if( nb_grabbed == 0 ) {
+    goto_xy( (1.6*SQSIZE-off_x)*kx, 1.6*SQSIZE-off_y );
+  } else {
+    goto_xy( (2.0*SQSIZE-off_x)*kx, 1.5*SQSIZE );
+  }
   goto_a( DEG2RAD(90)*ka );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   // move to an opponent's column diagonal
