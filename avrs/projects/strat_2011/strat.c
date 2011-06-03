@@ -377,6 +377,7 @@ int8_t ppp_strat_callback(PPPMsgFrame *msg)
 
 void strat_start(RobotColor color)
 {
+  int i;
   if( color == ROBOT_COLOR_NONE ) {
     ERROR(0, "no color");
     return;
@@ -423,7 +424,10 @@ void strat_start(RobotColor color)
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 1 release");
   arm_release(karm);
-  wait_ms(500); //XXX
+  for( i=0; i<500; i++ ) {
+    ppp_update();
+    wait_ms(1);
+  }
 
   // pawn 2
   DEBUG(0, "pawn 2");
@@ -441,7 +445,10 @@ void strat_start(RobotColor color)
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 2 release");
   arm_release(karm);
-  wait_ms(500); //XXX
+  for( i=0; i<500; i++ ) {
+    ppp_update();
+    wait_ms(1);
+  }
 
   // pawn 3
   DEBUG(0, "pawn 3");
@@ -460,7 +467,10 @@ void strat_start(RobotColor color)
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 3 release");
   arm_release(karm);
-  wait_ms(500); //XXX
+  for( i=0; i<500; i++ ) {
+    ppp_update();
+    wait_ms(1);
+  }
 
   // pawn 4
   DEBUG(0, "pawn 4");
@@ -478,7 +488,10 @@ void strat_start(RobotColor color)
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 4 release");
   arm_release(karm);
-  wait_ms(500); //XXX
+  for( i=0; i<500; i++ ) {
+    ppp_update();
+    wait_ms(1);
+  }
 
   // pawn 5
   DEBUG(0, "pawn 5");
@@ -496,7 +509,10 @@ void strat_start(RobotColor color)
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 5 release");
   arm_release(karm);
-  wait_ms(500); //XXX
+  for( i=0; i<500; i++ ) {
+    ppp_update();
+    wait_ms(1);
+  }
 
   // end: kill all
   PPP_SEND_KILL(0);
