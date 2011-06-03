@@ -435,6 +435,7 @@ void strat_start(RobotColor color)
   goto_a( DEG2RAD(-15+90+off_a)*kx );
   wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   DEBUG(0, "pawn 1 release");
+  arm_set_pos(karms[1], ARM_MID); //XXX
   arm_release(karm);
 
   // pawn 2
@@ -456,6 +457,7 @@ void strat_start(RobotColor color)
   arm_release(karm);
 
   // pawn 3
+  off_a = 6;
   DEBUG(0, "pawn 3");
   karm = karms[0];
   goto_a( DEG2RAD(-60+off_a)*kx );
@@ -474,6 +476,7 @@ void strat_start(RobotColor color)
   arm_release(karm);
 
   // pawn 4
+  off_a = 9;
   DEBUG(0, "pawn 4");
   karm = karms[1];
   goto_a( DEG2RAD(60+off_a)*kx );
