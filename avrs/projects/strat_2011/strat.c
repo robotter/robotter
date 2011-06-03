@@ -151,7 +151,7 @@ void goto_a(double a)
 {
   PPP_PROP(ASSERV_GOTO_A, RAD2PPP(a));
   asserv_status.a = 0;
-  PPP_PROP(ASSERV_STATUS);
+  //PPP_PROP(ASSERV_STATUS);
 }
 
 void goto_ar(double a)
@@ -415,6 +415,7 @@ void strat_start(RobotColor color)
   wait_asserv_status(ASTATUS_XY);
 
   float off_x = 0, off_y = 0, off_a = 0;
+  uint8_t nb_grabbed = 0;
 
   // pawn 1
   off_x = 10;
@@ -430,91 +431,140 @@ void strat_start(RobotColor color)
   goto_xyr( -0.4*SQSIZE*kx, 0.4*SQSIZE );
   wait_asserv_status(ASTATUS_XY);
   arm_grab(karm);
-  DEBUG(0, "pawn 1 grabbed");
-  goto_xy( (2.0*SQSIZE-off_x)*kx, -2.0*SQSIZE-off_y );
-  goto_a( DEG2RAD(-15+90+off_a)*kx );
-  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
-  DEBUG(0, "pawn 1 release");
-  arm_set_pos(karms[1], ARM_MID); //XXX
-  //XXX
-  uint16_t i;
-  for(i=0;i<10;i++) {
-    ppp_update();
-    wait_ms(1);
+  if( arm_pawn_grabbed[karm] ) {
+    DEBUG(0, "pawn 1 grabbed");
+    nb_grabbed++;
+    goto_xy( (2.0*SQSIZE-off_x)*kx, -2.0*SQSIZE-off_y );
+    goto_a( DEG2RAD(-15+90+off_a)*kx );
+    wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+    DEBUG(0, "pawn 1 release");
+    arm_set_pos(karms[1], ARM_MID); //XXX
+    arm_release(karm);
+  } else {
+    DEBUG(0, "pawn 1 NOT FOUND");
   }
-  arm_release(karm);
 
   // pawn 2
   off_a = 3;
   DEBUG(0, "pawn 2");
   karm = karms[1];
+  goto_xy( (2.0*SQSIZE-off_x)*kx, -2.0*SQSIZE-off_y );
   goto_a( DEG2RAD(60+off_a)*kx );
   arm_set_pos(karm, ARM_MID);
-  wait_asserv_status(ASTATUS_A);
+  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
   wait_arm_pos(karm, ARM_MID);
   goto_xyr( 0, SQSIZE-50+off_y );
   wait_asserv_status(ASTATUS_XY);
   arm_grab(karm);
-  DEBUG(0, "pawn 2 grabbed");
-  goto_xy( (2.0*SQSIZE-off_x)*kx, -1.0*SQSIZE-off_y );
-  goto_a( DEG2RAD(15-90+off_a)*kx );
-  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
-  DEBUG(0, "pawn 2 release");
-  arm_release(karm);
+  if( arm_pawn_grabbed[karm] ) {
+    DEBUG(0, "pawn 2 grabbed");
+    nb_grabbed++;
+    goto_xy( (2.0*SQSIZE-off_x)*kx, -1.0*SQSIZE-off_y );
+    goto_a( DEG2RAD(15-90+off_a)*kx );
+    wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+    DEBUG(0, "pawn 2 release");
+    arm_release(karm);
+    karm = (karm == karms[0] ? karms[1] : karms[0]);
+  } else {
+    DEBUG(0, "pawn 2 NOT FOUND");
+  }
 
   // pawn 3
-  off_a = 6;
-  DEBUG(0, "pawn 3");
-  karm = karms[0];
-  goto_a( DEG2RAD(-60+off_a)*kx );
-  wait_asserv_status(ASTATUS_A);
-  arm_set_pos(karm, ARM_MID);
-  wait_asserv_status(ASTATUS_XY);
-  wait_arm_pos(karm, ARM_MID);
-  goto_xyr( 0, SQSIZE-50+off_y );
-  wait_asserv_status(ASTATUS_XY);
-  arm_grab(karm);
-  DEBUG(0, "pawn 3 grabbed");
-  goto_xy( (2.0*SQSIZE-off_x)*kx, 0.0*SQSIZE-off_y );
-  goto_a( DEG2RAD(-15+90+off_a)*kx );
-  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
-  DEBUG(0, "pawn 3 release");
-  arm_release(karm);
+  if( nb_grabbed < 2 ) {
+    off_a = 6;
+    DEBUG(0, "pawn 3");
+    //karm = karms[0];
+    goto_xy( (2.0*SQSIZE-off_x)*kx, -1.0*SQSIZE-off_y );
+    if( karm == karms[1] ) {
+      goto_a( DEG2RAD(60+off_a)*kx );
+    } else {
+      goto_a( DEG2RAD(-60+off_a)*kx );
+    }
+    wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+    arm_set_pos(karm, ARM_MID);
+    wait_asserv_status(ASTATUS_XY);
+    wait_arm_pos(karm, ARM_MID);
+    goto_xyr( 0, SQSIZE-50+off_y );
+    wait_asserv_status(ASTATUS_XY);
+    arm_grab(karm);
+    if( arm_pawn_grabbed[karm] ) {
+      DEBUG(0, "pawn 3 grabbed");
+      goto_xy( (2.0*SQSIZE-off_x)*kx, 0.0*SQSIZE-off_y );
+      if( karm == karms[0] ) {
+        goto_a( DEG2RAD(-15+90+off_a)*kx );
+      } else {
+        goto_a( DEG2RAD(15-90+off_a)*kx );
+      }
+      wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+      DEBUG(0, "pawn 3 release");
+      arm_release(karm);
+      karm = (karm == karms[0] ? karms[1] : karms[0]);
+    } else {
+      DEBUG(0, "pawn 3 NOT FOUND");
+    }
+  }
 
   // pawn 4
-  off_a = 9;
-  DEBUG(0, "pawn 4");
-  karm = karms[1];
-  goto_a( DEG2RAD(60+off_a)*kx );
-  arm_set_pos(karm, ARM_MID);
-  wait_asserv_status(ASTATUS_A);
-  wait_arm_pos(karm, ARM_MID);
-  goto_xyr( 0, SQSIZE-50+off_y );
-  wait_asserv_status(ASTATUS_XY);
-  arm_grab(karm);
-  DEBUG(0, "pawn 4 grabbed");
-  goto_xy( (2.0*SQSIZE-off_x)*kx, 1.0*SQSIZE-off_y );
-  goto_a( DEG2RAD(15-90+off_a)*kx );
-  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
-  DEBUG(0, "pawn 4 release");
-  arm_release(karm);
+  if( nb_grabbed < 2 ) {
+    DEBUG(0, "pawn 4");
+    //karm = karms[1];
+    goto_xy( (2.0*SQSIZE-off_x)*kx, 0.0*SQSIZE-off_y );
+    if( karm == karms[1] ) {
+      goto_a( DEG2RAD(60+off_a)*kx );
+    } else {
+      goto_a( DEG2RAD(-60+off_a)*kx );
+    }
+    arm_set_pos(karm, ARM_MID);
+    wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+    wait_arm_pos(karm, ARM_MID);
+    goto_xyr( 0, SQSIZE-50+off_y );
+    wait_asserv_status(ASTATUS_XY);
+    arm_grab(karm);
+    DEBUG(0, "pawn 4 grabbed");
+    goto_xy( (2.0*SQSIZE-off_x)*kx, 1.0*SQSIZE-off_y );
+    if( karm == karms[0] ) {
+      goto_a( DEG2RAD(-15+90+off_a)*kx );
+    } else {
+      goto_a( DEG2RAD(15-90+off_a)*kx );
+    }
+    wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+    DEBUG(0, "pawn 4 release");
+    arm_release(karm);
+    karm = (karm == karms[0] ? karms[1] : karms[0]);
+  }
 
   // pawn 5
-  DEBUG(0, "pawn 5");
-  karm = karms[0];
-  goto_a( DEG2RAD(-60+off_a)*kx );
-  arm_set_pos(karm, ARM_MID);
-  wait_asserv_status(ASTATUS_A);
-  wait_arm_pos(karm, ARM_MID);
-  goto_xyr( 0, SQSIZE-50+off_y );
-  wait_asserv_status(ASTATUS_XY);
-  arm_grab(karm);
-  DEBUG(0, "pawn 5 grabbed");
-  goto_xy( (2.0*SQSIZE-off_x)*kx, 2.0*SQSIZE-off_y );
-  goto_a( DEG2RAD(-15+90+off_a)*kx );
-  wait_asserv_status(ASTATUS_XY|ASTATUS_A);
-  DEBUG(0, "pawn 5 release");
-  arm_release(karm);
+  if( nb_grabbed < 2 ) {
+    DEBUG(0, "pawn 5");
+    karm = karms[0];
+    goto_xy( (2.0*SQSIZE-off_x)*kx, 1.0*SQSIZE-off_y );
+    if( karm == karms[1] ) {
+      goto_a( DEG2RAD(60+off_a)*kx );
+    } else {
+      goto_a( DEG2RAD(-60+off_a)*kx );
+    }
+    arm_set_pos(karm, ARM_MID);
+    wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+    wait_arm_pos(karm, ARM_MID);
+    goto_xyr( 0, SQSIZE-50+off_y );
+    wait_asserv_status(ASTATUS_XY);
+    arm_grab(karm);
+    if( arm_pawn_grabbed[karm] ) {
+      DEBUG(0, "pawn 5 grabbed");
+      // last pawn: drop it in the safe zone
+      goto_xy( (2.0*SQSIZE-off_x)*kx, 1.8*SQSIZE-off_y );
+      if( karm == karms[0] ) {
+        goto_a( DEG2RAD(-15-90+off_a)*kx );
+      } else {
+        goto_a( DEG2RAD(15+90+off_a)*kx );
+      }
+      wait_asserv_status(ASTATUS_XY|ASTATUS_A);
+      DEBUG(0, "pawn 5 release");
+      arm_release(karm);
+    } else {
+      DEBUG(0, "pawn 5 NOT FOUND");
+    }
+  }
 
   // end: kill all
   PPP_SEND_KILL(0);
