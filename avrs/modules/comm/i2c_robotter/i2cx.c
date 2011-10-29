@@ -87,7 +87,7 @@ SIGNAL(SIG_2WIRE_SERIAL)
 
     // unexpected states, errors
     default:
-      // as a state: recover from an error condition
+      // as a slave: recover from an error condition
       // as a master: should end the current frame
       I2C_IDLE(1<<TWSTO);
       break;
