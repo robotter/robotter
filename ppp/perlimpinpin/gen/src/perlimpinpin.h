@@ -32,19 +32,8 @@
 //@{
 #pragma perlimpinpin_tpl self.device_roid_macros()
 
-/// Convenient alias.
-#define PPP_UART_ROID  ROID_UART(PPP_DEVICE_ROID)
-
-/// Bitmask value for an ROID associated to UART interface.
-#define ROID_UART_MASK       0x80
-/// Get UART interface ROID from a device ROID.
-#define ROID_UART(roid)    ((roid)|ROID_UART_MASK)
-/// Get device ROID from UART interface ROID.
-#define ROID_DEVICE(roid)  ((roid)&~ROID_UART_MASK)
 /// Broadcast ROID.
 #define ROID_BROADCAST       0x00
-/// UART broadcast ROID.
-#define ROID_UART_BROADCAST  0x80
 /// Subscriber ROID.
 #define ROID_SUBSCRIBER      0x01
 
@@ -65,7 +54,7 @@ typedef enum {
 /// Protocol PPP sub-commands, used with mid 0.
 typedef enum {
   PPP_SUBCMD_NONE = 0,
-  PPP_SUBCMD_UART_DISCOVER,
+  PPP_SUBCMD_DISCOVER,
   PPP_SUBCMD_SUBSCRIBE,
 
 } PPPProtoCmdID;
@@ -110,7 +99,7 @@ void ppp_send_msg(PPPMsgFrame *frame);
 #define PPP_SEND_SUBSCRIBE(_d, _subscriber) do { \
     PPPMsgFrame _frame = { \
       .plsize = 5, \
-      .src = PPP_DEVICE_ROID, .dst = (_d), \
+      .src = PPP_ROID, .dst = (_d), \
       .mid = 0 \
     }; \
     (_frame)._ppp.cmd = PPP_SUBCMD_SUBSCRIBE; \

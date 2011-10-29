@@ -6,7 +6,7 @@
  *
  * @note This value should always be defined.
  */
-#define PPP_DEVICE_ROID   ROID_DEVICE_NAME
+#define PPP_ROID   ROID_DEVICE_NAME
 
 /// Use given UART number (defaults to UART_NUM).
 //#define PPP_UART_NUM  0

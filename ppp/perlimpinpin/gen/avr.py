@@ -191,7 +191,7 @@ class CodeGenerator:
           '#define PPP_SEND_%s(_d%s) do { \\\n'
           '    PPPMsgFrame _frame = { \\\n'
           '      .plsize = %u, \\\n'
-          '      .src = PPP_DEVICE_ROID, .dst = (_d), \\\n'
+          '      .src = PPP_ROID, .dst = (_d), \\\n'
           '      .mid = %s \\\n'
           '    }; \\\n'
           '%s'

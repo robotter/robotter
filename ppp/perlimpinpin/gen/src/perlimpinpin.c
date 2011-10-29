@@ -40,7 +40,7 @@
 #endif
 
 /// Default destination, used with ROID_SUBSCRIBER
-static uint8_t ppp_subscriber = ROID_UART_BROADCAST;
+static uint8_t ppp_subscriber = ROID_BROADCAST;
 
 
 /// Compute a packet checksum.
@@ -187,25 +187,20 @@ void ppp_process_input_frame(PPPMsgFrame *frame)
     return;
   }
 
-  // processing for protocol commands
-  if( frame->mid == 0 && frame->_ppp.cmd == PPP_SUBCMD_UART_DISCOVER ) {
-    frame->src = PPP_DEVICE_ROID;
-    frame->dst = PPP_UART_ROID;
-    ppp_send_msg(frame);
+  if( frame->dst != PPP_ROID && frame->dst != ROID_BROADCAST ) {
     return;
   }
 
-  uint8_t src = frame->src;
-  uint8_t dst = frame->dst;
-  if( dst == PPP_UART_ROID || (ROID_DEVICE(dst) == 0 && src != PPP_UART_ROID) ) {
-    ppp_debug_trace("FWDu", frame);
-    ppp_uart_send_frame(frame);
-  }
-  if( dst == 0 || dst == PPP_DEVICE_ROID ) {
-    if( frame->mid == 0 && frame->_ppp.cmd == PPP_SUBCMD_SUBSCRIBE ) {
+  // processing for protocol commands
+  if( frame->mid == 0 ) {
+    if( frame->_ppp.cmd == PPP_SUBCMD_DISCOVER ) {
+      frame->dst = frame->src;
+      frame->src = PPP_ROID;
+      ppp_send_msg(frame);
+    } else if( frame->_ppp.cmd == PPP_SUBCMD_SUBSCRIBE ) {
       ppp_subscriber = frame->_ppp.subscriber;
-      return;
     }
+  } else {
     ppp_debug_trace("RECV", frame);
     _ppp_msg_callback(frame);
   }
@@ -220,9 +215,7 @@ void ppp_send_msg(PPPMsgFrame *frame)
     frame->dst = ppp_subscriber;
   }
   frame->_data[frame->plsize-3] = ppp_checksum((void *)frame, frame->plsize+2);
-  if( frame->dst == PPP_UART_ROID || frame->dst == ROID_UART_BROADCAST ) {
-    ppp_uart_send_frame(frame);
-  }
+  ppp_uart_send_frame(frame);
 }
 
 
