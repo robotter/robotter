@@ -53,8 +53,6 @@ DISABLE_STRICT_CHECKS =
 
 ### UART configuration.
 
-ENABLE_UART = y
-
 UART_NUM = 0
 UART_BAUDRATE = 38400
 UART_USE_DOUBLE_SPEED = 0  # 1
@@ -62,17 +60,4 @@ UART_NBITS = 8  # 5 6 7
 UART_PARITY = UART_PARITY_NONE  # UART_PARITY_ODD UART_PARITY_EVEN
 UART_STOP_BIT = 1  # 2
 
-
-### I2C configuration
-
-ENABLE_I2C_SLAVE = 
-ENABLE_I2C_MASTER = 
-
-# slave address
-I2C_ADDR = $(ROID)  # slave address
-
-# bus frequency (only required for master)
-# f_i2c = f_cpu / ( 16 + 2 * bitrate * 4^prescaler )
-I2C_BITRATE = 1
-I2C_PRESCALER = 2
 

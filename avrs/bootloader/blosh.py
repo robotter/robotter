@@ -282,7 +282,7 @@ class Blosh(cmd.Cmd):
 
 
   class Context:
-    """Device environment, for master or slave.
+    """Device environment.
 
     Attributes:
       id -- context's ID

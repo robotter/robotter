@@ -76,8 +76,6 @@ typedef uint16_t addr_type;
  */
 //@{
 
-#ifdef ENABLE_UART
-
 #if UART_NUM == 0
 #define UART_NCAT(p,s)  p ## 0 ## s
 #elif UART_NUM == 1
@@ -175,87 +173,15 @@ static char uart_recv(void)
   return UDRx;
 }
 
-#endif
-
-//@}
-
-
-/** @name I2C functions and configuration.
- */
-//@{
-
-static void I2C_WAIT(void) { while( !( TWCR & _BV(TWINT) ) ) ; }
-static void I2C_ACK(void)  { TWCR=_BV(TWEN)|_BV(TWINT)|_BV(TWEA); I2C_WAIT(); }
-static void I2C_NACK(void) { TWCR=_BV(TWEN)|_BV(TWINT); I2C_WAIT(); }
-static void I2CM_START(void) { TWCR=_BV(TWEN)|_BV(TWINT)|_BV(TWSTA); I2C_WAIT(); }
-static void I2CM_STOP(void)  { TWCR=_BV(TWEN)|_BV(TWINT)|_BV(TWSTO); while( TWCR & _BV(TWSTO) ) ; }
-static void I2C_SEND(uint8_t d)      { TWDR = (d); I2C_ACK();  }
-static void I2C_SEND_LAST(uint8_t d) { TWDR = (d); I2C_NACK(); }
-
-
-#ifdef ENABLE_I2C_SLAVE
-
-#ifndef I2C_ADDR
-#error "undefined i2c slave address"
-#endif
-#if (I2C_ADDR < 0x08 || I2C_ADDR > 0x77)
-#error "invalid i2c slave address"
-#endif
-
-
-static void i2cs_send(char c)
-{
-  I2C_WAIT();
-  while( TW_STATUS != TW_ST_SLA_ACK && TW_STATUS != TW_ST_DATA_ACK ) {
-    I2C_ACK();
-  }
-  I2C_SEND(c);
-}
-
-static char i2cs_recv(void)
-{
-  I2C_WAIT();
-  while( TW_STATUS != TW_SR_DATA_ACK ) {
-    I2C_ACK();
-  }
-  char c = TWDR;
-  I2C_ACK();
-  return c;
-}
-
-#endif
-
 //@}
 
 
 /** @name Methods used to communicate with the client.
- *
- * Depending of the configuration, it may be constant or determined at startup.
- *
- * @note When only one protocol is enabled, using function pointers produces
- * smaller binaries than using macro (which is counter-intuitive).
  */
 //@{
 
-#if (defined ENABLE_UART) && (defined ENABLE_I2C_SLAVE)
-
-// defaults to uart, to send the first prompt
-static void (*proto_send)(char) = uart_send;
-static char (*proto_recv)(void) = uart_recv;
-
-#elif (defined ENABLE_UART)
-
 static void (*const proto_send)(char) = uart_send;
 static char (*const proto_recv)(void) = uart_recv;
-
-#elif (defined ENABLE_I2C_SLAVE)
-
-static void (*const proto_send)(char) = i2cs_send;
-static char (*const proto_recv)(void) = i2cs_recv;
-
-#else
-#error "no communication protocol enabled"
-#endif
 
 //@}
 
@@ -273,7 +199,6 @@ static char (*const proto_recv)(void) = i2cs_recv;
 #define STATUS_BAD_FORMAT       0x83
 #define STATUS_BAD_VALUE        0x84
 #define STATUS_CRC_MISMATCH     0x90
-#define STATUS_I2C_ERROR        0xa0
 
 
 static void send_u8(uint8_t v)
@@ -313,8 +238,6 @@ static uint8_t recv_u8(void)
  * \e msg must be 10 character long.
  * The resulting message will be \e msg surrounded by CRLF sequences, and still
  * be a valid protocol reply.
- *
- * @note This method is not relevant when using I2C.
  */
 #define SEND_MESSAGE(msg) send_str("\r\n" msg "\r\n")
 
@@ -382,18 +305,12 @@ static void reply_error(uint8_t st)
  */
 static void boot(void)
 {
-#ifdef ENABLE_UART
   // extra null bytes to make sure the status is properly sent
   uart_send(0);
   uart_send(0);
   // wait for the last byte
   while( !(UCSRxA & ((1<<UDREx)|(1<<TXCx))) ) ;
   UCSRxB = 0; // disable
-#endif
-#ifdef ENABLE_I2C_SLAVE
-  TWCR = 0;
-  TWAR = 0;
-#endif
 
   /* interruptions not used, moving interrupt vector not needed
   IVCR = (1<<IVCE);
@@ -419,7 +336,6 @@ static void boot(void)
  *  - reply fields.
  *
  * @note The reply size is never 0 since it includes at least the status code.
- * This is used by the I2C slave sessions, for read frames.
  *
  * \e SZ designates a null-terminated string. Addresses provided an u32.
  * However, they may be internally used as u16 for devices with less than 64kB
@@ -438,8 +354,6 @@ static void boot(void)
  *  - supported commands (SZ)
  *
  * Supported features are:
- *  - \c U if UART is enabled
- *  - \c S if I2C (as slave) is enabled
  *  - \c C if CRC check while programming is enabled
  *
  * @todo Return bitmasks, not strings.
@@ -452,12 +366,6 @@ static void cmd_infos(void)
     // features
 #ifndef DISABLE_PROG_CRC
     'C',
-#endif
-#ifdef ENABLE_UART
-    'U',
-#endif
-#ifdef ENABLE_I2C_SLAVE
-    'S',
 #endif
     0,
     // commands
@@ -476,9 +384,6 @@ static void cmd_infos(void)
 #endif
 #ifndef DISABLE_COPY_PAGES
     'y',
-#endif
-#ifdef ENABLE_I2C_MASTER
-    '<', '>',
 #endif
     0
   };
@@ -677,189 +582,6 @@ static void cmd_copy_pages(void)
 
 #endif
 
-
-#ifdef ENABLE_I2C_MASTER
-
-/** @name I2C master commands.
- *
- * The slave part is intended to be minimalistic. Therefore, it has a (very)
- * lazy handling of I2C states. Especially, the master should not except NACK
- * from it.
- */
-//@{
-
-/** @brief Common init code for I2C master commands.
- *
- * Read and check the slave address, configure I2C and poll the slave.
- *
- * @return The I2C slave address on success, 0 on failure.
- */
-static uint8_t init_cmd_i2c(void)
-{
-#ifdef ENABLE_I2C_SLAVE
-#ifndef DISABLE_STRICT_CHECKS
-  // command allowed in UART mode only
-  if( proto_send != uart_send ) {
-    reply_failure();
-    return 0;
-  }
-#endif
-#endif
-  const uint8_t addr = recv_u8(); // slave addr
-#ifndef DISABLE_STRICT_CHECKS
-  if( addr < 0x08 || addr >= 0x78 ) {
-    reply_error(STATUS_BAD_VALUE);
-    return 0;
-  }
-#endif
-
-  // configure I2C
-  TWBR = I2C_BITRATE;
-  TWCR = _BV(TWEN)|_BV(TWINT);
-  if(I2C_PRESCALER & 1) TWSR |= _BV(TWPS0);
-  if(I2C_PRESCALER & 2) TWSR |= _BV(TWPS1);
-
-  return addr;
-}
-
-
-/* @brief Receive data from an I2C slave.
- *
- * Parameters for the '>' command:
- *  - I2C slave address (u8)
- *  - data size (u8) or 0
- *
- * If the data size is 0, the value is read from the first data byte and is the
- * number of bytes to read after this first one. This is used to read protocol
- * replies from the slave.
- */
-static void cmd_i2c_recv(void)
-{
-  const uint8_t addr = init_cmd_i2c();
-  if( addr == 0 ) {
-    return; // reply sent by init_cmd_i2c()
-  }
-
-  uint8_t size = recv_u8();
-  // poll the slave
-  do I2CM_START(); while( TW_STATUS != TW_START );
-  // slave address + Read bit (1)
-  I2C_SEND((addr<<1)+1);
-#ifndef DISABLE_STRICT_CHECKS
-  if( TW_STATUS != TW_MR_SLA_ACK && TW_STATUS != TW_MR_SLA_NACK ) {
-    I2CM_STOP();
-    goto slave_i2c_error;
-  }
-#endif
-  if( size == 0 ) {
-    // read the size in the first byte
-    I2C_ACK();
-    size = TWDR;
-    reply_success(size+1);
-    send_u8(size);
-  } else {
-    reply_success(size);
-  }
-  while( size-- != 1 ) {
-    I2C_ACK();
-    const uint8_t c = TWDR;
-    send_u8(c);
-  }
-  I2C_NACK();
-  send_u8( TWDR );
-  I2CM_STOP();
-
-  return;
-#ifndef DISABLE_STRICT_CHECKS
-slave_i2c_error:
-  reply_error(STATUS_I2C_ERROR);
-  return;
-#endif
-}
-
-/** @brief Send data to an I2C slave.
- *
- * Parameters:
- *  - I2C slave address (u8)
- *  - data size (u16)
- *  - data to send
- *
- * If the data size is 0 an empty frame is sent.
- * This can be used to synchronize the slave.
- *
- * @warning Since UART data is not bufferised, if slave is too long to UART
- * buffer overflows and the server will wait forever its input data.
- */
-static void cmd_i2c_send(void)
-{
-  const uint8_t addr = init_cmd_i2c();
-  if( addr == 0 ) {
-    return; // reply sent by init_cmd_i2c()
-  }
-
-  // write frame
-  uint16_t size = recv_u16();
-  // poll the slave
-  do I2CM_START(); while( TW_STATUS != TW_START );
-  // slave address + Write bit (0)
-  I2C_SEND(addr<<1);
-#ifndef DISABLE_STRICT_CHECKS
-  uint8_t tw_status_copy = TW_STATUS;
-  if( tw_status_copy == TW_MT_SLA_NACK ) {
-    goto i2c_stop_slave_i2c_error;
-  }
-  if( tw_status_copy != TW_MT_SLA_ACK ) {
-    goto slave_i2c_error;
-  }
-#endif
-
-  if( size != 0 ) {
-#ifndef DISABLE_STRICT_CHECKS
-    tw_status_copy = TW_STATUS;
-    if( tw_status_copy == TW_MT_SLA_NACK ) {
-      goto i2c_stop_slave_i2c_error;
-    }
-    if( tw_status_copy != TW_MT_SLA_ACK ) {
-      goto slave_i2c_error;
-    }
-#endif
-    // transfer data
-    while( size-- != 1 ) {
-      const uint8_t c = recv_u8();
-      I2C_SEND(c);
-#ifndef DISABLE_STRICT_CHECKS
-      tw_status_copy = TW_STATUS;
-      if( tw_status_copy != TW_MT_DATA_ACK ) {
-        goto i2c_stop_slave_i2c_error;
-      }
-#endif
-    }
-    const uint8_t c_last = recv_u8();
-    I2C_SEND_LAST(c_last);
-#ifndef DISABLE_STRICT_CHECKS
-    tw_status_copy = TW_STATUS;
-    if( tw_status_copy != TW_MT_DATA_ACK && tw_status_copy != TW_MT_DATA_NACK ) {
-      goto i2c_stop_slave_i2c_error;
-    }
-#endif
-  }
-
-  I2CM_STOP();
-
-  reply_success(0);
-  return;
-#ifndef DISABLE_STRICT_CHECKS
-i2c_stop_slave_i2c_error:
-  I2CM_STOP();
-slave_i2c_error:
-  reply_error(STATUS_I2C_ERROR);
-  return;
-#endif
-}
-
-//@}
-#endif
-
 //@}
 
 
@@ -887,47 +609,24 @@ void main(void)
   IVCR = (1<<IVSEL);
    */
 
-#ifdef ENABLE_UART
   // UART init (all values have been already computed)
   UBRRxH = UART_UBRR_VAL>>8;
   UBRRxL = UART_UBRR_VAL;
   UCSRxA = UART_U2X_VAL;
   UCSRxB = (1<<RXENx) | (1<<TXENx);
   UCSRxC = UART_NBITS_VAL | UART_PARITY_VAL | UART_STOP_BIT_VAL;
-#endif
-#ifdef ENABLE_I2C_SLAVE
-  // I2C init
-  TWAR = I2C_ADDR << 1;
-  TWCR = (1<<TWEN)|(1<<TWINT)|(1<<TWEA);
-#endif
 
-#ifdef ENABLE_UART
   SEND_MESSAGE("boot ENTER");
-#endif
   // timeout before booting
   uint8_t i = (BOOT_TIMEOUT)*F_CPU/(65536*4*1000);
   for(;;) {
     // detect activity from client
     // set the proto_* method if needed
 
-    // from UART
-#ifdef ENABLE_UART
     if( (UCSRxA & (1<<RXCx)) ) {
       // UART is the default for proto_*
       break;
     }
-#endif
-
-    // from I2C
-#ifdef ENABLE_I2C_SLAVE
-    if( (TWCR & (1<<TWINT)) ) {
-#ifdef ENABLE_UART
-      proto_send = i2cs_send;
-      proto_recv = i2cs_recv;
-#endif
-      break;
-    }
-#endif
 
     if( i == 0 ) {
       boot(); // timeout
@@ -960,10 +659,6 @@ void main(void)
 #endif
 #ifndef DISABLE_COPY_PAGES
     else if( c == 'y' ) cmd_copy_pages();
-#endif
-#ifdef ENABLE_I2C_MASTER
-    else if( c == '<' ) cmd_i2c_recv();
-    else if( c == '>' ) cmd_i2c_send();
 #endif
     else {
       reply_error(STATUS_UNKNOWN_COMMAND);
