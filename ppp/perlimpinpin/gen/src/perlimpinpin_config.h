@@ -8,22 +8,8 @@
  */
 #define PPP_DEVICE_ROID   ROID_DEVICE_NAME
 
-/// Enable UART transmissions (implied by PPP_UART_NUM).
-#define PPP_UART
 /// Use given UART number (defaults to UART_NUM).
 //#define PPP_UART_NUM  0
-
-/// Enable I2C transmissions.
-#define PPP_I2C
-
-/// Number of tries for sending I2C frames (infinite if undefined).
-//#define PPP_I2C_RETRY_COUNT  1000
-
-/** @brief Delay coefficient between retries in microseconds (no delay if undefined).
- *
- * It will multiplied to the device's ROID for randomness.
- */
-#define PPP_I2C_RETRY_DELAY  100
 
 /// Enable trace logs of sent/received/forwarded messages.
 //#define PPP_DEBUG_TRACE

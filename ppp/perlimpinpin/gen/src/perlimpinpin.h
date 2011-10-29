@@ -95,22 +95,10 @@ typedef void PPPMsgCallback(PPPMsgFrame *);
 /// Initialize perlimpinpin communications.
 void ppp_init(PPPMsgCallback *cb);
 
-/** @brief Handle all pending events.
- *
- * This method does not block except when transferring I2C frames.
- */
+/// Handle all pending events.
 void ppp_update(void);
 
-/** @brief Send a message.
- *
- * When sending over I2C, the transfer will be retried on failure, depending on
- * configuration. Broadcasting will not fail if no slave acknowledges.
- *
- * Between each try, pending I2C messages will be processed, as if ppp_update()
- * was called, in order to avoid devices waiting for each other.
- * As a consequence, ppp_msg_callback() and ppp_send_msg() may be called
- * recursively.
- */
+/// Send a message.
 void ppp_send_msg(PPPMsgFrame *frame);
 
 /** @name Helper macros to send messages.
