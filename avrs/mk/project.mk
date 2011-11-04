@@ -202,10 +202,6 @@ $(PROJECT_LIB): $(OBJS)
 		--rename-section .bss=.bss.project \
 		$@
 
-# .hex and .eep from ELF
-%.$(FORMAT_EXTENSION): %.elf
-	$(OBJCOPY) -O $(FORMAT) -R .eeprom $< $@
-
 size:
 	@$(SIZE) $(TARGET_OBJ)
 
