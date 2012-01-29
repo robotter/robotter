@@ -200,21 +200,24 @@ présent sur le haut de ce dernier.
 
 \subsection{Éléments de jeu}
 
-Les deux bras pourront stocker jusqu'à deux pions simultanément.
-Nous ne stockons pas les figures dans l'état actuel du design mécanique.
+Les deux bras du robot principal pourront stocker jusqu'à deux lingots simultanément.
+Aucune pièce ne sera stockée.
 
 \subsection{Stratégie}
 
-La stratégie en cours de match consistera à ramasser en priorité les lingots du
+La stratégie en cours de match pour le robot principal consistera à ramasser en priorité les lingots du
 totem le plus proche tout en poussant les pièces éventuellement placées sur le
 chemin.\\
+
+Le robot secondaire sera chargé de pousser les actionneur des bouteilles et
+garder l'entrée de la calle.\\
 
 La stratégie actuelle ne prévoit pas de jouer la carte au trésor.\\
 
 \subsection{Système d'évitement}
 
 Le système d'évitement est constitué de deux balises, l'une placée sur le robot
-adverse constitué d'un réflecteur et l'autre placée sur le robot en dessous de
+adverse constituée d'un réflecteur et l'autre placée sur le robot en dessous de
 l'espace réservé à la balise adverse.
 Cette dernière est constituée
 d'un capteur SICK de type barrière laser et d'un miroir rotatif permettant de
@@ -250,7 +253,8 @@ de classe 1.
 
 L'intelligence du robot est réalisée par :
 \begin{itemize}
-\item Une carte constituée d'un AVR ATmega 128 assurant la stratégie du robot.
+\item Une carte "OS embarquée" constituée d'un ARM et tournant sous linux
+assurant la stratégie;
 \item un carte constituée d'un AVR ATmega 128 et d'un FPGA Altera Cyclone 2, assurant
 l'asservissement en position du robot;
 \item une carte constituée d'un microcontrôleur AVR ATmega assurant le contrôle
@@ -263,7 +267,7 @@ développé par l'équipe.\\
 \begin{center} \includegraphics[width=0.5\textwidth]{img/simuv.png} \end{center}
 
 Ce dernier permet de tester des stratégies de manière simple (utilisation du
-langage de haut-niveau Lua pour l'intelligence).\\
+langage Python pour l'intelligence).\\
 
 Un des objectifs de l'équipe est d'utiliser la même architecture logicielle pour
 le simulateur et l'intelligence du robot permettant ainsi de passer de manière
