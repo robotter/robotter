@@ -555,7 +555,7 @@ class Blosh(cmd.Cmd):
         'LF2CRLF': ('\n', '\r\n'),
         'CR2LF':   ('\r', '\n'),
         'LF2CR':   ('\n', '\r'),
-        'none': (None, None),
+        'NONE': (None, None),
         }[ ctx.opts['eol'].val ]
 
     ctx.conn.flushInput()
