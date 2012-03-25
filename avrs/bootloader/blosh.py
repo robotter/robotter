@@ -264,6 +264,7 @@ class Blosh(cmd.Cmd):
       'clear': "clear cached device infos and last programmed data",
       'infos': "display device infos, fuse bytes and programmed binary state",
       'updatebl': ('updatebl[!] [file.hx]', "update the bootloader", """The given bootloader file, or the previous one if none is provided, is uploaded on the device. Without '!', only update if changes have been made. Change of start address is not supported and the last page must contain the new roblocop code."""),
+      'baudrate': ('baudrate [rate]', "get or set serial baudrate", """Without parameter, display current baudrate. Otherwise, set connection baudrate. This should not be used during communication with the bootloader but can be useful as an alternative to command '--baudrate' flag to set baudrate from a script."""),
       }
 
   _default_aliases = {
@@ -1107,6 +1108,13 @@ class Blosh(cmd.Cmd):
       ctx.last_bl_hex = pages
     except Exception, e:
       self.print_error('failed to update bootloader: %s' % e)
+
+  def do_baudrate(self, line):
+    ctx = self.ctx
+    if line:
+      ctx.conn.baudrate = int(line)
+    else:
+      self.print_fmt('{bold}baudrate:{} %d' % ctx.conn.baudrate)
 
 
   def _check_roid(self):
