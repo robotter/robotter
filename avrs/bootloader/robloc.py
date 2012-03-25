@@ -795,7 +795,7 @@ if __name__ == '__main__':
   from optparse import OptionParser
 
   # default port, platform-dependant
-  import sys
+  import os
   if os.name == 'nt':
     port_default = 'COM1'
   else:
