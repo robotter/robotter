@@ -246,7 +246,7 @@ class Blosh(cmd.Cmd):
       }
 
   _help_topics = {
-      'quit': "quit the interactive shell",
+      'quit': ('quit[!]', "quit the interactive shell", """With '!' exit immediately; this allows to exit from a script."""),
       'shell': ('!<cmd>', "run a shell command"),
       'reset': ('r[eset]', "reset the device by sending the reset string or boot"),
       'set': ('set [opt [value]]', "list, set or unset shell options",
@@ -860,6 +860,8 @@ class Blosh(cmd.Cmd):
 
 
   def do_quit(self, line):
+    if len(line) and line[0] == '!':
+      sys.exit()
     return True
   def do_EOF(self, line):
     self.print_ln('') # extra newline
