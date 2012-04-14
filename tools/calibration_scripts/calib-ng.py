@@ -37,55 +37,28 @@ class Robot:
 def comp():
   y = array([
 
-[-6223,2948,2932],
-[-12437,5863,5961],
-[-18651,8774,8954],
-[-24886,11702,11955],
-[-31162,14664,14994],
-[-37313,17574,17981],
+[-29503,61766,-29819],
+[-29487,61093,-29836],
 
-[26,5392,-5365],
-[92,10631,-10688],
-[161,15934,-16017],
-[178,21208,-21364],
-[227,26557,-26723],
-[328,31886,-32116],
+[-30628,-30398,61509],
+[-30697,-30392,61183],
 
-[62738,62739,62270],
-[125482,125578,124537],
-[188215,188419,186789],
-[250904,251246,249066],
-
-[-62672,-62234,-62026],
-[-125229,-124255,-124055],
-[-187752,-186406,-186030],
-[-250512,-248776,-248118],
+[248951,248858,248023],
+[249005,248645,247999],
 
  ])
+ # values in mm and rad
   x = array([
-[100,0,0],
-[200,0,0],
-[300,0,0],
-[400,0,0],
-[500,0,0],
-[600,0,0],
 
-[0,100,0],
-[0,200,0],
-[0,300,0],
-[0,400,0],
-[0,500,0],
-[0,600,0],
+[1000*cos(pi/3),1000*sin(pi/3),0],
+[1000*cos(pi/3),1000*sin(pi/3),0],
 
-[0,0,2*pi],
-[0,0,4*pi],
-[0,0,6*pi],
-[0,0,8*pi],
+[1000*cos(pi/3),-1000*sin(pi/3),0],
+[1000*cos(pi/3),-1000*sin(pi/3),0],
 
-[0,0,-2*pi],
-[0,0,-4*pi],
-[0,0,-6*pi],
-[0,0,-8*pi],
+[0,0,4*2*pi],
+[0,0,4*2*pi],
+
 ])
 
   # apply scale
@@ -98,8 +71,35 @@ def comp():
   pMm = scipy.linalg.pinv(Mm)
   robots.append(Robot(M,pMm))
 
+  #correctif
+  C = array([
+  [0.91,0,0],
+  [0,0.90,0],
+  [50e-6,10e-6,0.982],
+  #[50e-6,10e-6,0.9755],
+  ])
+  pMm = dot(C, pMm)
+  Mm = scipy.linalg.pinv(pMm)
+
+
+  def _to_cmat(x):
+    return '{%s}'%(','.join([str(v) for v in x.flatten()]))
+
+  print 'um/mrads -> motor encoder step'
   print Mm
+  m = '#ifndef HROBOT_MANAGER_CONFIG_H\n'
+  m+= '#define HROBOT_MANAGER_CONFIG_H\n'
+  m+= 'double hrobot_motors_matrix[9]='+_to_cmat(Mm)+';\n'
+  m+= '#endif//HROBOT_MANAGER_CONFIG_H\n'
+  open('../../avrs/projects/unioc_asserv/hrobot_manager_config.h','wb').write(m)
+
+  print 'motor encoder step -> um/mrads'
   print pMm
+  m = '#ifndef HROBOT_MANAGER_CONFIG_H\n'
+  m+= '#define HROBOT_MANAGER_CONFIG_H\n'
+  m+= 'double hrobot_motors_invmatrix[9]='+_to_cmat(pMm)+';\n'
+  m+= '#endif//HROBOT_MANAGER_CONFIG_H\n'
+  open('../../avrs/projects/unioc_asserv/hposition_manager_config.h','wb').write(m)
 
   return 
 

@@ -266,7 +266,47 @@ void paddock_testCode(void)
 {
   while(1)
   { 
-    htrajectory_autoset(&trajectory, TS_DOWN, 0, 0);
+    // quelques tours 
+    int i;
+    int tr = 5;
+    /htrajectory_gotoA(&trajectory, 0);
+    while(!htrajectory_doneA(&trajectory)) nop();
+    /*htrajectory_gotoA(&trajectory, tr*2*M_PI);
+    while(!htrajectory_doneA(&trajectory)) nop();*/
+    for(i=0; i<tr*3+1; i++)
+    {
+      NOTICE(0, "TR %d", i);
+      htrajectory_gotoA(&trajectory, i*2*M_PI/3);
+      while(!htrajectory_doneA(&trajectory)) nop();
+    }
+    
+    // a square
+    /*htrajectory_gotoXY(&trajectory, 0, 0);
+    while(!htrajectory_doneXY(&trajectory)) nop();
+
+    htrajectory_gotoXY(&trajectory, 3000, 0);
+    while(!htrajectory_doneXY(&trajectory)) nop();
+
+    htrajectory_gotoA(&trajectory, M_PI/3);
+    while(!htrajectory_doneA(&trajectory)) nop();
+
+    htrajectory_gotoXY(&trajectory, 3000, 2000);
+    while(!htrajectory_doneXY(&trajectory)) nop();
+
+    htrajectory_gotoA(&trajectory, 2*2*M_PI/3);
+    while(!htrajectory_doneA(&trajectory)) nop();
+
+    htrajectory_gotoXY(&trajectory, 0, 2000);
+    while(!htrajectory_doneXY(&trajectory)) nop();
+
+    htrajectory_gotoA(&trajectory, 3*2*M_PI/3);
+    while(!htrajectory_doneA(&trajectory)) nop();
+
+    htrajectory_gotoXY(&trajectory, 0, 0);
+    while(!htrajectory_doneXY(&trajectory)) nop();*/
+    
+
+
     while(1) nop();
   }
   
