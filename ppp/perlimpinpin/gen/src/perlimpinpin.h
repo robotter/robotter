@@ -64,6 +64,7 @@ typedef enum {
 typedef struct {
   uint16_t plsize;   ///< payload size, with src, dst, mid
   uint8_t src, dst;  ///< Message source and destination addresses
+  uint8_t tid;  ///< Transaction ID, 0 if not relevant
   PPPMsgID mid;
   union {
     uint8_t _data[$$ppp:self.max_payload_size()$$+1]; // +1 for checksum
@@ -90,6 +91,9 @@ void ppp_update(void);
 /// Send a message.
 void ppp_send_msg(PPPMsgFrame *frame);
 
+/// Return the next transaction ID.
+uint8_t ppp_next_tid(void);
+
 /** @name Helper macros to send messages.
  *
  * These macros fill a PPPMsgFrame structure then call ppp_send_msg().
@@ -100,7 +104,7 @@ void ppp_send_msg(PPPMsgFrame *frame);
     PPPMsgFrame _frame = { \
       .plsize = 5, \
       .src = PPP_ROID, .dst = (_d), \
-      .mid = 0 \
+      .tid = 0, .mid = 0 \
     }; \
     (_frame)._ppp.cmd = PPP_SUBCMD_SUBSCRIBE; \
     (_frame)._ppp.subscriber = (_subscriber); \

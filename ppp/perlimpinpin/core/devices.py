@@ -150,15 +150,17 @@ class Message(MessageWrapper):
     name -- message name (lowercase, with underscores)
     params -- payload parameters, as a list of (name, type) pairs
     mid -- message ID (automatically assigned if None)
+    tid -- transaction ID type: None (always 0), True (manually set), False (auto set)
     desc -- message description, or None
 
   """
 
-  def __init__(self, name, params, mid=None, desc=None):
+  def __init__(self, name, params, mid=None, tid=0, desc=None):
     if not re.match('^[a-z][a-z0-9_]*$', name):
       raise ValueError("invalid message name: %r" % name)
     self.name = name
     self.mid = mid
+    self.tid = tid
     self.desc = desc
 
     names = set()  # defined parameter names
@@ -205,8 +207,8 @@ class Command(MessageWrapper):
   def __init__(self, name, preq, pres, desc=None, mid=None):
     name_r = name+self.response_suffix
     mid_r = None if mid is None else mid+1
-    self.request = Message(name, preq, mid)
-    self.response = Message(name_r, pres, mid_r)
+    self.request = Message(name, preq, mid, tid=False)
+    self.response = Message(name_r, pres, mid_r, tid=True)
     self.desc = desc
 
   def messages(self):

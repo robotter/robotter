@@ -149,7 +149,7 @@ class Frame(object):
 
   @classmethod
   def build_uart_discover(cls):
-    frame = cls(0, 0)
+    frame = cls(0, 0, 0)
     frame.pack(ppp_uint8, 0)
     frame.pack(ppp_uint8, SUBCMD_UART_DISCOVER)
     return frame
@@ -158,7 +158,7 @@ class Frame(object):
   def build_subscribe(cls, src, dst, subscriber=None):
     if subscriber is None:
       subscriber = src
-    frame = cls(src, dst)
+    frame = cls(src, dst, 0)
     frame.pack(ppp_uint8, 0)
     frame.pack(ppp_uint8, SUBCMD_SUBSCRIBE)
     frame.pack(ppp_uint8, subscriber)

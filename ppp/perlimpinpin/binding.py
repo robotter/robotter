@@ -1,6 +1,7 @@
 import os
 import threading
 import types
+import itertools
 from .core import protocol, Device, Message
 from .core.types import ppp_uint8
 from .core.protocol import Frame, UARTFrame
@@ -20,6 +21,7 @@ class Binding(object):
     roid -- ROID for sent frames (writable)
     _lock -- lock for connection read/write
     _messages -- dict of messages, indexed by mid
+    _tids -- transaction ID iterator
     _feed_data -- unprocessed fed data
     _listen_th -- listening thread
     _listen_pw -- listening pipe write end, to abort listening
@@ -31,6 +33,7 @@ class Binding(object):
     self.robot = robot
     self.roid = roid
     self._messages = dict( (msg.mid, msg) for msg in robot.messages )
+    self._tids = itertools.cycle(range(1, 256))
     self._lock = threading.RLock()
     self._feed_data = ''
     self._listen_th = None
@@ -42,7 +45,7 @@ class Binding(object):
     """Called on received non-frame data."""
     pass
 
-  def on_message(self, msg, src, args):
+  def on_message(self, msg, src, tid, args):
     """Called on received message.
     msg is the received message.
     src is the source device, or an integer ROID.
@@ -73,6 +76,7 @@ class Binding(object):
       if frame is None:
         break
       try:
+        tid = frame.unpack(ppp_uint8)
         mid = frame.unpack(ppp_uint8)
         if mid == 0:
           raise ValueError("unexpected protocol command")
@@ -84,21 +88,29 @@ class Binding(object):
         if len(frame.unparsed) != 0:
           raise ValueError("extra frame data")
         src = self.roid_to_data(frame.src)
-        self.on_message(msg, src, args)
+        self.on_message(msg, src, tid, args)
       except Exception, e:
         self.on_error(frame, str(e))
     self._feed_data = data
 
-  def build_frame(self, msg, dst, *args, **kw):
+  def build_frame(self, msg, dst, tid=None, *args, **kw):
     """Build a message frame."""
+    if tid is None:
+      if msg.tid is None:
+        tid = 0
+      elif msg.tid is False:
+        tid = self._tids.next()
+      else:
+        raise ValueError("tid must be set")
     frame = UARTFrame(self.roid, self.roid_from_data(dst))
+    frame.pack(ppp_uint8, tid)
     frame.pack(ppp_uint8, msg.mid)
     frame.pack_args(msg.params, args, kw)
     return frame
 
-  def send_message(self, msg, dst, *args, **kw):
+  def send_message(self, msg, dst, tid=None, *args, **kw):
     """Build and send a message frame."""
-    self.send(self.build_frame(msg, dst, *args, **kw))
+    self.send(self.build_frame(msg, dst, tid, *args, **kw))
 
   def roid_to_data(self, roid):
     """Convert an ROID to more data, if possible."""

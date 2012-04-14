@@ -67,6 +67,18 @@ static void ppp_debug_trace(const char *way, const PPPMsgFrame *frame);
 static void ppp_uart_send_frame(const PPPMsgFrame *frame);
 
 
+uint8_t ppp_next_tid(void)
+{
+  static uint8_t tid = 0xff;
+  if( tid == 0xff ) {
+    tid = 1; // skip 0
+  } else {
+    tid++;
+  }
+  return tid;
+}
+
+
 uint8_t ppp_checksum(const uint8_t *data, uint16_t size)
 {
   uint8_t crc = 0x00;
@@ -83,8 +95,8 @@ void ppp_debug_trace(const char *way, const PPPMsgFrame *frame)
   switch(frame->mid) {
 #pragma perlimpinpin_tpl  self.trace_msg_switch()
     default:
-      DEBUG(PPP_ERROR, "%s(0x%02X>0x%02X): unknown message ID: 0x%02X, plsize: %u",
-            way, frame->src, frame->dst, frame->mid, frame->plsize);
+      DEBUG(PPP_ERROR, "%s(0x%02X>0x%02X|%02x): unknown message ID: 0x%02X, plsize: %u",
+            way, frame->src, frame->dst, frame->tid, frame->mid, frame->plsize);
   }
 }
 #endif
@@ -174,13 +186,13 @@ void ppp_update(void)
 void ppp_process_input_frame(PPPMsgFrame *frame)
 {
   // frame and payload size
-  if( frame->plsize < 3 ) {  // src,dst (2) + mid (1)
+  if( frame->plsize < 4 ) {  // src,dst,tid (3) + mid (1)
     WARNING(PPP_ERROR, "payload is too short (expected at least 3 bytes, got %u)", frame->plsize);
     return;
   }
 
   // checksum
-  uint8_t chksum_got = frame->_data[frame->plsize-3];
+  uint8_t chksum_got = frame->_data[frame->plsize-4];
   uint8_t chksum_exp = ppp_checksum((void *)frame, frame->plsize+2);
   if( chksum_got != chksum_exp ) {
     WARNING(PPP_ERROR, "checksum mismatch (expected 0x%02X, got 0x%02X)", chksum_exp, chksum_got);
@@ -214,7 +226,7 @@ void ppp_send_msg(PPPMsgFrame *frame)
   if( frame->dst == ROID_SUBSCRIBER ) {
     frame->dst = ppp_subscriber;
   }
-  frame->_data[frame->plsize-3] = ppp_checksum((void *)frame, frame->plsize+2);
+  frame->_data[frame->plsize-4] = ppp_checksum((void *)frame, frame->plsize+2);
   ppp_uart_send_frame(frame);
 }
 

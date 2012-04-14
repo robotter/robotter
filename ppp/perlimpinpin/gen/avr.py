@@ -188,18 +188,20 @@ class CodeGenerator:
     ret = ''
     for msg in self.robot.messages:
       ret += (
-          '#define PPP_SEND_%s(_d%s) do { \\\n'
+          '#define PPP_SEND_%s(_d%s%s) do { \\\n'
           '    PPPMsgFrame _frame = { \\\n'
           '      .plsize = %u, \\\n'
           '      .src = PPP_ROID, .dst = (_d), \\\n'
-          '      .mid = %s \\\n'
+          '      .tid = %s, .mid = %s \\\n'
           '    }; \\\n'
           '%s'
           '    ppp_send_msg(&_frame); \\\n'
           '  } while(0);\n\n') % (
               msg.name.upper(),
+              ', _t' if msg.tid is True else '',
               ''.join( ', _a_%s'%v for v,t in msg.params ),
-              3+sum( t.packsize for v,t in msg.params ),
+              4+sum( t.packsize for v,t in msg.params ),
+              {None: 0, True: '(_t)', False: 'ppp_next_tid()'}[msg.tid],
               self.msgid_enum_name(msg),
               ''.join(
                 '    (_frame).%s.%s = (_a_%s); \\\n' % (msg.name, v, v)
