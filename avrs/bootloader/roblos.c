@@ -135,7 +135,7 @@ typedef uint16_t addr_type;
 #define UART_U2X_VAL  _BV(U2Xx)
 #endif
 
-#define UART_UBRR_VAL  (uint16_t)((float)(F_CPU) / ((UART_SPEED_FACTOR)*(UART_BAUDRATE)) - 1)
+#define UART_UBRR_VAL  ((uint16_t)((float)(F_CPU) / ((UART_SPEED_FACTOR)*(UART_BAUDRATE)) - 1) & 0x0fff)
 
 #if UART_NBITS == 9
 #error "9-bit UART not supported"
