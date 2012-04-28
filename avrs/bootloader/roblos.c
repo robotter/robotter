@@ -120,7 +120,6 @@ typedef uint16_t addr_type;
 #define U2Xx    UART_NCAT(U2X,)
 #define RXENx   UART_NCAT(RXEN,)
 #define TXENx   UART_NCAT(TXEN,)
-#define TXENx   UART_NCAT(TXEN,)
 #define UCSZx0  UART_NCAT(UCSZ,0)
 #define UBRRxH  UART_NCAT(UBRR,H)
 #define UBRRxL  UART_NCAT(UBRR,L)
