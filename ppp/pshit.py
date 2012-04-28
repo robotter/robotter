@@ -12,7 +12,7 @@ from robloc import Serial
 from perlimpinpin.core import Device
 from perlimpinpin.binding import Binding, Client
 import readline
-import IPython.ipapi
+import IPython
 
 
 class ShellBinding(Binding):
@@ -100,10 +100,27 @@ def main():
   cl = Client(b)
   b.listen_start()
 
-  _ppp_client = cl  # alias with a more "unique" name
-  from IPython.Shell import IPShellEmbed
-  ipshell = IPShellEmbed(['-pi1','ppp [\#]: '])
-  ipshell()
+  embed_old = False
+  try:
+    IPython.frontend.terminal.embed.InteractiveShellEmbed
+  except AttributeError:
+    embed_old = True
+
+  user_ns = {
+      'conn': conn, 'cl': cl, 'b': b,
+      '_ppp_client': cl,  # alias with a more "unique" name
+      }
+  if not embed_old:
+    # wrap embed() call in a function to have a fresh scope
+    def scoped(_ipy):
+      _ipy()
+    scoped(IPython.frontend.terminal.embed.InteractiveShellEmbed(
+      config=IPython.frontend.terminal.ipapp.load_default_config(),
+      user_ns=user_ns,
+      ))
+  else:
+    ipshell = IPython.Shell.IPShellEmbed(['-pi1','ppp [\#]: '])
+    ipshell(global_ns=dict(globals(), local_ns=user_ns))
 
 
 if __name__ == '__main__':
