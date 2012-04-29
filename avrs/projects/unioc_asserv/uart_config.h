@@ -27,6 +27,44 @@
 #define UART_CONFIG_H
 
 /*
+ * UART0 definitions 
+ */
+
+/* compile UART0 fonctions, undefine it to pass compilation */
+#define UART0_COMPILE  
+
+/* enable UART0 if == 1, disable if == 0 */
+#define UART0_ENABLED  1
+
+/* enable UART0 interrupts if == 1, disable if == 0 */
+#define UART0_INTERRUPT_ENABLED  1
+
+#define UART0_BAUDRATE 38400
+
+/* 
+ * if you enable this, the maximum baudrate you can reach is 
+ * higher, but the precision is lower. 
+ */
+#define UART0_USE_DOUBLE_SPEED 0
+//#define UART0_USE_DOUBLE_SPEED 1
+
+#define UART0_RX_FIFO_SIZE 10
+#define UART0_TX_FIFO_SIZE 10
+//#define UART0_NBITS 5
+//#define UART0_NBITS 6
+//#define UART0_NBITS 7
+#define UART0_NBITS 8
+//#define UART0_NBITS 9
+
+#define UART0_PARITY UART_PARTITY_NONE
+//#define UART0_PARITY UART_PARTITY_ODD
+//#define UART0_PARITY UART_PARTITY_EVEN
+
+#define UART0_STOP_BIT UART_STOP_BITS_1
+//#define UART0_STOP_BIT UART_STOP_BITS_2
+
+
+/*
  * UART1 definitions 
  */
 

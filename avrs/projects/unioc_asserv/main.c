@@ -41,6 +41,7 @@
 #include "pwm.h"
 #include "motor_encoders.h"
 #include "color_detection.h"
+#include "imu.h"
 
 #include "settings.h"
 
@@ -180,6 +181,10 @@ int main(void)
   NOTICE(0,"Initializing PPP");
   ppp_init(ppp_msg_callback);
  
+  NOTICE(0,"Initializing IMU communications");
+  imu_init();
+  uart_register_rx_event(0,imu_receive_event);
+
   NOTICE(0,"Initializing communications");
   //ppp_init();
 
@@ -191,8 +196,6 @@ int main(void)
   adns9500_set_mode(ADNS9500_BHVR_MODE_AUTOMATIC);
 
   // Unleash control systems
-
-
   event_cs = 
     scheduler_add_periodical_event_priority(&cs_update, NULL,
                                               SETTING_SCHED_CS_PERIOD,
@@ -264,50 +267,10 @@ int main(void)
 
 void paddock_testCode(void)
 {
+  NOTICE(0,"TEST CODE");
   while(1)
   { 
-    // quelques tours 
-    int i;
-    int tr = 5;
-    /htrajectory_gotoA(&trajectory, 0);
-    while(!htrajectory_doneA(&trajectory)) nop();
-    /*htrajectory_gotoA(&trajectory, tr*2*M_PI);
-    while(!htrajectory_doneA(&trajectory)) nop();*/
-    for(i=0; i<tr*3+1; i++)
-    {
-      NOTICE(0, "TR %d", i);
-      htrajectory_gotoA(&trajectory, i*2*M_PI/3);
-      while(!htrajectory_doneA(&trajectory)) nop();
-    }
-    
-    // a square
-    /*htrajectory_gotoXY(&trajectory, 0, 0);
-    while(!htrajectory_doneXY(&trajectory)) nop();
-
-    htrajectory_gotoXY(&trajectory, 3000, 0);
-    while(!htrajectory_doneXY(&trajectory)) nop();
-
-    htrajectory_gotoA(&trajectory, M_PI/3);
-    while(!htrajectory_doneA(&trajectory)) nop();
-
-    htrajectory_gotoXY(&trajectory, 3000, 2000);
-    while(!htrajectory_doneXY(&trajectory)) nop();
-
-    htrajectory_gotoA(&trajectory, 2*2*M_PI/3);
-    while(!htrajectory_doneA(&trajectory)) nop();
-
-    htrajectory_gotoXY(&trajectory, 0, 2000);
-    while(!htrajectory_doneXY(&trajectory)) nop();
-
-    htrajectory_gotoA(&trajectory, 3*2*M_PI/3);
-    while(!htrajectory_doneA(&trajectory)) nop();
-
-    htrajectory_gotoXY(&trajectory, 0, 0);
-    while(!htrajectory_doneXY(&trajectory)) nop();*/
-    
-
-
-    while(1) nop();
+    wait_ms(100);
   }
   
   while(1) nop();
