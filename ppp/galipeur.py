@@ -10,7 +10,7 @@ robot = Robot([
   Device('r3d2', 0x2C),
 
   # Common messages
-  MsgGroupWrapper(1, [
+  TransactionGroup(1, [
     Order('reset', [], desc="Reset the device"),
     Order('kill', [], desc="Stop the device and all its actuators"),
     Command('ping', [('v', 'uint8')], [('r', 'uint8')], desc="Ping/pong, for tests"),
@@ -18,14 +18,14 @@ robot = Robot([
     ]),
 
   # Strat
-  MsgGroupWrapper(0x10, [
+  TransactionGroup(0x10, [
     Order('strat_run', [], desc="Run the strat routine"),
     # color: 1 = red, 2 = blue
     Order('strat_set_color', [('color', 'uint8')]),
     ]),
 
   # Arms
-  MsgGroupWrapper(0x20, [
+  TransactionGroup(0x20, [
     # arm: 0 = left, 1 = right
     # pos: 0 = mid, 1 = high, -1 = low
     Order('arm_set_pos', [('arm', 'uint8'), ('pos', 'int8')],
@@ -52,14 +52,14 @@ robot = Robot([
     ]),
 
   # R3D2
-  MsgGroupWrapper(0x38, [
+  TransactionGroup(0x38, [
     Event('r3d2_detected', [('r', 'uint16'), ('a', 'int16')],
       desc="Robot detected at given polar coordinates"),
     ]),
 
   ## Robot movement
   # angle in milliradians, x&y in mlllimeters
-  MsgGroupWrapper(0x40, [
+  TransactionGroup(0x40, [
     Order('asserv_goto_a',[('a','int16')],
       desc="Absolute rotation"),
     Order('asserv_goto_ar',[('a','int16')],

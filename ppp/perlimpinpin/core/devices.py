@@ -8,6 +8,7 @@ class Robot:
 
   Attributes:
     devices -- a list of devices (Device instances)
+    transactions -- a list of transactions
     messages -- a list of messages
 
   """
@@ -15,6 +16,7 @@ class Robot:
   def __init__(self, objs):
     """Create a new robot description."""
     self.devices = []
+    self.transactions = []
     self.messages = []
     self.wrappers = []
     self.update(objs)
@@ -51,11 +53,11 @@ class Robot:
     self.devices += devices
 
 
-  def add_messages(self, wrappers):
-    """Add messages to the robot, from wrappers.
+  def add_transactions(self, transactions):
+    """Add message to the robot, from transactions.
     Auto-attribute IDs to messages without an ID.
     """
-    messages = [ msg for w in wrappers for msg in w.messages() ]
+    messages = [ msg for t in transactions for msg in t.messages() ]
 
     # check for duplicate message IDs or names (case insensitive)
     msgs_map = dict( (msg.mid, msg) for msg in self.messages )
@@ -88,23 +90,28 @@ class Robot:
       msg.mid = mid
       msgs_map[mid] = msg
 
+    self.transactions += transactions
     self.messages += messages
 
 
   def merge(self, robot):
     """Merge content from another robot."""
     self.add_devices(robot.devices)
-    self.add_messages(robot.messages)
+    self.add_transactions(robot.messages)
 
   def update(self, objs):
-    """Add/merge random objects (devices, messages, robots...)."""
+    """Add/merge random objects (devices, robots, transactions, ...)."""
     for obj in objs:
       if isinstance(obj, Robot):
         self.merge(obj)
       elif isinstance(obj, Device):
         self.add_devices([obj])
-      elif isinstance(obj, MessageWrapper):
-        self.add_messages([obj])
+      elif isinstance(obj, Transaction):
+        self.add_transactions([obj])
+      elif isinstance(obj, TransactionGroup):
+        self.add_transactions(obj.transactions)
+      elif isinstance(obj, (list, tuple)):
+        self.update(obj)
 
 
 
@@ -128,21 +135,7 @@ class Device(object):
     self.robot = None
 
 
-class MessageWrapper:
-  """
-  High-level object representing one or several messages.
-
-  Attributes:
-    desc -- message description, or None
-
-  """
-  desc = None  # provide default value for instances
-  def messages(self):
-    """Return messages implemented by the wrapper."""
-    raise NotImplementedError()
-
-
-class Message(MessageWrapper):
+class Message(object):
   """
   Single transmitted message.
 
@@ -150,18 +143,18 @@ class Message(MessageWrapper):
     name -- message name (lowercase, with underscores)
     params -- payload parameters, as a list of (name, type) pairs
     mid -- message ID (automatically assigned if None)
-    tid -- transaction ID type: None (always 0), True (manually set), False (auto set)
-    desc -- message description, or None
+    tid -- transaction ID type: None (always 0), 'new' or 'forward'
 
   """
 
-  def __init__(self, name, params, mid=None, tid=0, desc=None):
+  def __init__(self, name, params, mid=None, tid=None):
     if not re.match('^[a-z][a-z0-9_]*$', name):
       raise ValueError("invalid message name: %r" % name)
+    if tid not in (None, 'new', 'forward'):
+      raise ValueError("invalid tid: %r" % tid)
     self.name = name
     self.mid = mid
     self.tid = tid
-    self.desc = desc
 
     names = set()  # defined parameter names
     self.params = []
@@ -187,14 +180,44 @@ class Message(MessageWrapper):
     if not re.match('^[a-zA-Z][a-zA-Z0-9_]*$', name):
       raise ValueError("invalid parameter name: %r" % name)
 
-  def messages(self):
-    """For MessageWrapper interface."""
-    return [self]
 
-
-class Command(MessageWrapper):
+class Transaction(object):
   """
-  Command message.
+  High-level object which groups one or several messages.
+
+  Attributes:
+    name -- transaction group name (see Message.name)
+    desc -- description, or None
+
+  """
+  desc = None  # provide default value for instances
+
+  def messages(self):
+    """Return messages handled by the group."""
+    raise NotImplementedError()
+
+
+class TransactionSingle(Transaction):
+  """
+  Transaction with a single message
+
+  Attributes:
+    msg -- the message
+
+  """
+
+  def __init__(self, name, params, desc=None, mid=None):
+    self.name = name
+    self.desc = desc
+    self.msg = Message(name, params, mid, tid=None)
+
+  def messages(self):
+    return [self.msg]
+
+
+class Command(Transaction):
+  """
+  Command transaction.
 
   Attributes:
     request -- request message
@@ -207,36 +230,38 @@ class Command(MessageWrapper):
   def __init__(self, name, preq, pres, desc=None, mid=None):
     name_r = name+self.response_suffix
     mid_r = None if mid is None else mid+1
-    self.request = Message(name, preq, mid, tid=False)
-    self.response = Message(name_r, pres, mid_r, tid=True)
+    self.name = name
     self.desc = desc
+    self.request = Message(name, preq, mid, tid='new')
+    self.response = Message(name_r, pres, mid_r, tid='forward')
 
   def messages(self):
     return [self.request, self.response]
 
 
-class Order(Message): pass
-class Event(Message): pass
+class Order(TransactionSingle):
+  pass
+
+class Event(TransactionSingle):
+  pass
 
 
-class MsgGroupWrapper(MessageWrapper):
+class TransactionGroup(object):
   """
-  Message group with successive message IDs.
+  Group transactions
+
+  Only used to group transactions so they have successive message IDs.
 
   Attributes:
-    mid -- starting mid
-    grpmsgs -- messages of the group
+    transactions -- transaction list
 
   """
-  def __init__(self, mid, wrappers):
-    self.mid = mid
-    self.grpmsgs = [ msg for w in wrappers for msg in w.messages() ]
-    for msg in self.grpmsgs:
-      if msg.mid is not None:
-        raise ValueError("mid already set on %s" % msg.name)
-      msg.mid = mid
-      mid += 1
 
-  def messages(self):
-    return self.grpmsgs
+  def __init__(self, mid, transactions):
+    self.transactions = transactions
+    for t in transactions:
+      for m in t.messages():
+        if m.mid is None:
+          m.mid = mid
+          mid += 1
 

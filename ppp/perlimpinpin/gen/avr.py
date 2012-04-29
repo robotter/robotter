@@ -1,7 +1,8 @@
 import re, os
 import time  # used by templates
 
-from ..core import Message, ppp_types
+from ..core import ppp_types
+from ..core import devices
 
 
 def templatize(tpl, out, loc):
@@ -184,30 +185,68 @@ class CodeGenerator:
     return ret
 
 
+  @classmethod
+  def msg_macro_pnames(cls, msg):
+    return [ '_a_%s'%v for v,t in msg.params ]
+
+  @classmethod
+  def msg_macro_helper(cls, msg):
+    pnames = ['_d', '_t'] + cls.msg_macro_pnames(msg)
+    plsize = 4 + sum( t.packsize for v,t in msg.params )
+    return (
+        '#define PPP_MSG_%s(%s) do { \\\n'
+        '    PPPMsgFrame _frame = { \\\n'
+        '      .plsize = %u, \\\n'
+        '      .src = PPP_ROID, .dst = (_d), \\\n'
+        '      .tid = (_t), .mid = %s \\\n'
+        '    }; \\\n'
+        '%s'
+        '    ppp_send_msg(&_frame); \\\n'
+        '  } while(0);\n\n') % (
+            msg.name.upper(), ', '.join(pnames),
+            plsize, cls.msgid_enum_name(msg),
+            ''.join(
+              '    (_frame).%s.%s = (_a_%s); \\\n' % (msg.name, v, v)
+              for v,t in msg.params
+              ),
+            )
+
+  @classmethod
+  def forward_msg_macro_helper(cls, prefix, name, msg, params, dst, tid):
+    pnames = cls.msg_macro_pnames(msg)
+    return (
+        '#define PPP_%s_%s(%s) \\\n'
+        '    PPP_MSG_%s(%s)\n\n') % (
+            prefix, name.upper(), ', '.join(list(params) + pnames),
+            msg.name.upper(), ', '.join([dst, tid] + pnames),
+        )
+
+  @classmethod
+  def trans_macro_helpers(cls, trans):
+    ret = ''
+    if isinstance(trans, devices.Command):
+      ret += cls.forward_msg_macro_helper(
+          'SEND', trans.name, trans.request,
+          ['_d'], '(_d)', 'ppp_next_tid()')
+      ret += cls.forward_msg_macro_helper(
+          'REPLY', trans.name, trans.response,
+          ['_m'], '(_m)->src', '(_m)->tid')
+    elif isinstance(trans, devices.TransactionSingle):
+      ret += cls.forward_msg_macro_helper(
+          'SEND', trans.name, trans.msg,
+          ['_d'], '(_d)', '0')
+    else:
+      raise TypeError("unsupported transaction type: %r" % trans)
+    return ret
+
+
   def send_helpers(self):
     ret = ''
+    for trans in self.robot.transactions:
+      ret += self.trans_macro_helpers(trans)
+    ret += '\n'
     for msg in self.robot.messages:
-      ret += (
-          '#define PPP_SEND_%s(_d%s%s) do { \\\n'
-          '    PPPMsgFrame _frame = { \\\n'
-          '      .plsize = %u, \\\n'
-          '      .src = PPP_ROID, .dst = (_d), \\\n'
-          '      .tid = %s, .mid = %s \\\n'
-          '    }; \\\n'
-          '%s'
-          '    ppp_send_msg(&_frame); \\\n'
-          '  } while(0);\n\n') % (
-              msg.name.upper(),
-              ', _t' if msg.tid is True else '',
-              ''.join( ', _a_%s'%v for v,t in msg.params ),
-              4+sum( t.packsize for v,t in msg.params ),
-              {None: 0, True: '(_t)', False: 'ppp_next_tid()'}[msg.tid],
-              self.msgid_enum_name(msg),
-              ''.join(
-                '    (_frame).%s.%s = (_a_%s); \\\n' % (msg.name, v, v)
-                for v,t in msg.params
-                ),
-              )
+      ret += self.msg_macro_helper(msg)
     return ret
 
 

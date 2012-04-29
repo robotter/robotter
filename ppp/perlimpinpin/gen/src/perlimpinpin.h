@@ -100,11 +100,14 @@ uint8_t ppp_next_tid(void);
  */
 //@{
 
-#define PPP_SEND_SUBSCRIBE(_d, _subscriber) do { \
+#define PPP_SEND_SUBSCRIBE(_d, _subscriber) \
+    PPP_MSG_SUBSCRIBE(_d, 0, _subscriber)
+
+#define PPP_MSG_SUBSCRIBE(_d, _t, _subscriber) do { \
     PPPMsgFrame _frame = { \
       .plsize = 5, \
       .src = PPP_ROID, .dst = (_d), \
-      .tid = 0, .mid = 0 \
+      .tid = (_t), .mid = 0 \
     }; \
     (_frame)._ppp.cmd = PPP_SUBCMD_SUBSCRIBE; \
     (_frame)._ppp.subscriber = (_subscriber); \
