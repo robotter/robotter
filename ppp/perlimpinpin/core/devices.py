@@ -1,4 +1,5 @@
 import re
+from collections import namedtuple
 from . import types as ppp_types
 
 
@@ -144,6 +145,7 @@ class Message(object):
     params -- payload parameters, as a list of (name, type) pairs
     mid -- message ID (automatically assigned if None)
     tid -- transaction ID type: None (always 0), 'new' or 'forward'
+    ptuple -- namedtuple for message parameters
 
   """
 
@@ -164,6 +166,7 @@ class Message(object):
         raise ValueError("parameter %r already defined" % n)
       names.add(n)
       self.params.append((n, self._convert_type(t)))
+    self.ptuple = namedtuple('%s_params' % name, [ k for k,t in params ])
 
   @classmethod
   def _convert_type(cls, t):
