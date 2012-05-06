@@ -135,6 +135,10 @@ class Device(object):
     self.roid = int(roid)
     self.robot = None
 
+  def __repr__(self):
+    return "<%s %r:%02X>" % (
+        self.__class__.__name__, self.name, self.roid)
+
 
 class Message(object):
   """
@@ -168,6 +172,11 @@ class Message(object):
       self.params.append((n, self._convert_type(t)))
     self.ptuple = namedtuple('%s_params' % name, [ k for k,t in params ])
 
+  def __repr__(self):
+    return "<%s %r:%02X (%s)>" % (
+        self.__class__.__name__, self.name, self.mid,
+        ', '.join('%s:%s'%kv for kv in self.params))
+
   @classmethod
   def _convert_type(cls, t):
     """Helper method to check and convert a parameter type."""
@@ -198,6 +207,9 @@ class Transaction(object):
   def messages(self):
     """Return messages handled by the group."""
     raise NotImplementedError()
+
+  def __repr__(self):
+    return "<%s %r>" % (self.__class__.__name__, self.name)
 
 
 class TransactionSingle(Transaction):
@@ -259,6 +271,9 @@ class TransactionGroup(object):
     transactions -- transaction list
 
   """
+
+  def __repr__(self):
+    return "<%s %r>" % (self.__class__.__name__, self.transactions)
 
   def __init__(self, mid, transactions):
     self.transactions = transactions

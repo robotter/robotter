@@ -29,6 +29,10 @@ class Frame(object):
     self.payload = data or ''
     self.unparsed = data
 
+  def __repr__(self):
+    return "<%s %02X->%02X len=%d>" % (
+        self.__class__.__name__, self.src, self.dst, len(self.payload))
+
   @classmethod
   def fromdata(cls, data):
     """Parse data into a frame."""

@@ -145,6 +145,9 @@ class Binding(object):
     self._listen_th = None
     self._listen_pw = None
 
+  def __repr__(self):
+    return "<%s roid=%02X>" % (self.__class__.__name__, self.roid)
+
   def _init_cons(self, cons):
     all_cons = set()
     self.cons = {}
@@ -409,6 +412,10 @@ class BindingDevice(object):
     for trans in b.robot.transactions:
       self._init_transaction_attrs(trans)
 
+  def __repr__(self):
+    return "<%s %r:%02X>" % (
+        self.__class__.__name__, self.name, self.dev.roid)
+
   def _init_transaction_attrs(self, trans):
     if isinstance(trans, Command):
       bmreq = self.b.messages[trans.request.mid]
@@ -443,6 +450,11 @@ class BindingMessage(object):
     self.b = b
     self.msg = msg
     self.name = msg.name
+
+  def __repr__(self):
+    return "<%s %r:%02X (%s)>" % (
+        self.__class__.__name__, self.name, self.msg.mid,
+        ', '.join('%s:%s'%kv for kv in self.msg.params))
 
   def __call__(self, src, dst, tid=None, *args, **kw):
     params = self.msg.ptuple(*args, **kw)
@@ -482,6 +494,12 @@ class MsgFrame(object):
     self.src, self.dst = src, dst
     self.update_tid(tid)
     self.params = params
+
+  def __repr__(self):
+    return "<%s [%02X->%02X|%s] %r (%s)>" % (self.__class__.__name__,
+        self.b.roid_from_data(self.src), self.b.roid_from_data(self.dst),
+        '??' if self.tid is None else '%02X'%self.tid,
+        self.msg.name, ', '.join('%s=%r'%kv for kv in self.params._asdict().items()))
 
   def update_tid(self, tid=None):
     if tid is None:
