@@ -5,7 +5,6 @@ from perlimpinpin.core import *
 robot = Robot([
 
   Device('prop', 0x20),
-  Device('strat', 0x24),
   Device('meca', 0x28),
   Device('r3d2', 0x2C),
 
@@ -15,13 +14,6 @@ robot = Robot([
     Order('kill', [], desc="Stop the device and all its actuators"),
     Command('ping', [('v', 'uint8')], [('r', 'uint8')], desc="Ping/pong, for tests"),
     Event('start', [], desc="Device is up and running"),
-    ]),
-
-  # Strat
-  TransactionGroup(0x10, [
-    Order('strat_run', [], desc="Run the strat routine"),
-    # color: 1 = red, 2 = blue
-    Order('strat_set_color', [('color', 'uint8')]),
     ]),
 
   # Arms
@@ -52,14 +44,14 @@ robot = Robot([
     ]),
 
   # R3D2
-  TransactionGroup(0x38, [
+  TransactionGroup(0x60, [
     Event('r3d2_detected', [('r', 'uint16'), ('a', 'int16')],
       desc="Robot detected at given polar coordinates"),
     ]),
 
   ## Robot movement
   # angle in milliradians, x&y in mlllimeters
-  TransactionGroup(0x40, [
+  TransactionGroup(0xC0, [
     Order('asserv_goto_a',[('a','int16')],
       desc="Absolute rotation"),
     Order('asserv_goto_ar',[('a','int16')],
