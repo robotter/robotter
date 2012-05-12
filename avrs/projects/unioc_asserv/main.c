@@ -183,7 +183,7 @@ int main(void)
  
   NOTICE(0,"Initializing IMU communications");
   imu_init();
-  uart_register_rx_event(0,imu_receive_event);
+  uart0_set_rx_event(imu_receive_event);
 
   NOTICE(0,"Initializing communications");
   //ppp_init();

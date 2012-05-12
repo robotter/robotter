@@ -130,7 +130,7 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       if(htrajectory_doneAutoset(&trajectory))
         status |= _BV(3);
 
-      PPP_SEND_ASSERV_STATUS_R(msg->src, status);
+      PPP_REPLY_ASSERV_STATUS(msg, status);
       break;
 
     case PPP_MID_ASSERV_SET_POSITION:
@@ -146,7 +146,7 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       ix = FROM_MM(hvec.x);
       iy = FROM_MM(hvec.y);
       ia = FROM_RAD(hvec.alpha);
-      PPP_SEND_ASSERV_GET_POSITION_R(msg->src, ix, iy, ia);
+      PPP_REPLY_ASSERV_GET_POSITION(msg, ix, iy, ia);
       break;
 
     default:
