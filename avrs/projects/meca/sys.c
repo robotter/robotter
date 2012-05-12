@@ -111,28 +111,6 @@ void sys_update(void* dummy)
   // update communication
   ppp_update();
 
-  // manage scanner
-  uint8_t scertainty;
-  double sx,sy,sh;
-  switch(scanner_state)
-  {
-    case ST_SCHEDULED_LEFT:
-      scertainty = scanner_detect(ARM_LEFT, &sx, &sy, &sh);
-      PPP_SEND_ARM_SCAN_R(scanner_source_address, scertainty, sx, sy, sh);
-      scanner_state = ST_NONE;
-      break;
-
-    case ST_SCHEDULED_RIGHT:
-      scertainty = scanner_detect(ARM_RIGHT, &sx, &sy, &sh);
-      PPP_SEND_ARM_SCAN_R(scanner_source_address, scertainty, sx, sy, sh);
-      scanner_state = ST_NONE;
-      break;
-
-    case ST_NONE:
-    default: 
-      break;
-  }
-
   // poll ground detectors
   if( t == 0 )
   {

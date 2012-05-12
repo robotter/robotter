@@ -39,16 +39,6 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       return;
     }
 
-    case PPP_MID_ARM_SCAN:
-      scanner_source_address = msg->src;
-      switch(msg->arm_scan.arm)
-      {
-        case 0: scanner_state = ST_SCHEDULED_LEFT; break;
-        case 1: scanner_state = ST_SCHEDULED_RIGHT; break;
-        default: break;
-      }
-      return;
-
     case PPP_MID_ARM_RELEASE:
       switch(msg->arm_release.arm)
       {

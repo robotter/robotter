@@ -33,7 +33,7 @@
 /* XXX do a safe_ax12() function that will retry once or twice if we
  * see some problems. */
 
-#define UART_AX12_NUM 1
+#define UART_AX12(f) (uart1_ ## f)
 
 void ax12_user_init(void);
 

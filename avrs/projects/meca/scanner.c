@@ -50,7 +50,8 @@ static void _rotate(armPos_t n, double *x, double *y)
       xn = (*x)*COS_60 + (*y)*SIN_60;
       yn = -(*x)*SIN_60 + (*y)*COS_60;
       break;
-    default: break;
+    default:
+      return;
   }
   *x = xn; *y = yn;
 }

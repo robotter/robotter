@@ -57,7 +57,6 @@
  *
  */
 
-#define UCSRxB UCSR1B
 #define AX12_TIMEOUT 50000L /* in us */
 
 extern AX12 ax12;
@@ -81,7 +80,6 @@ static microseconds t_prev_msg = 0;
  */
 
 static volatile uint8_t ax12_state = AX12_STATE_READ;
-extern volatile struct cirbuf g_tx_fifo[]; /* uart fifo */
 static volatile uint8_t ax12_nsent = 0;
 
 /* Called by ax12 module to send a character on serial line. Count the
@@ -89,7 +87,7 @@ static volatile uint8_t ax12_nsent = 0;
  * drop the bytes that we transmitted. */
 static int8_t ax12_send_char(uint8_t c)
 {
-	uart_send(UART_AX12_NUM, c);
+	UART_AX12(send)(c);
 	ax12_nsent++;
 	return 0;
 }
@@ -99,21 +97,6 @@ static int8_t ax12_send_char(uint8_t c)
 #define TXEN TXEN0
 #endif
 
-/* called by uart module when the character has been written in
- * UDR. It does not mean that the byte is physically transmitted. */
-static void ax12_send_callback(__attribute__((unused)) char c)
-{
-	if (ax12_state == AX12_STATE_READ) {
-		/* disable TX when last byte is pushed. */
-		if (CIRBUF_IS_EMPTY(&g_tx_fifo[UART_AX12_NUM]))
-    {
-			UCSRxB &= ~(1<<TXEN);
-      while(!bit_is_set(UCSR1A,TXC1));
-      cbi(PORTD,4);
-    }
-	}
-}
-
 /* Called by ax12 module when we want to receive a char. Note that we
  * also receive the bytes we sent ! So we need to drop them. */
 static int16_t ax12_recv_char(void)
@@ -121,7 +104,7 @@ static int16_t ax12_recv_char(void)
 	microseconds t = time_get_us2();
 	int c;
 	while (1) {
-		c = uart_recv_nowait(UART_AX12_NUM);
+		c = UART_AX12(recv_nowait)();
 		if (c != -1) {
 			if (ax12_nsent == 0)
 				return c;
@@ -135,12 +118,7 @@ static int16_t ax12_recv_char(void)
 	return c;
 }
 
-/* called by ax12 module when we want to switch serial line. As we
- * work in interruption mode, this function can be called to switch
- * back in read mode even if the bytes are not really transmitted on
- * the line. That's why in this case we do nothing, we will fall back
- * in read mode in any case when xmit is finished -- see in
- * ax12_send_callback() -- */
+/* called by ax12 module when we want to switch serial line. */
 static void ax12_switch_uart(uint8_t state)
 {
 	uint8_t flags;
@@ -148,25 +126,17 @@ static void ax12_switch_uart(uint8_t state)
 	if (state == AX12_STATE_WRITE) {
 		IRQ_LOCK(flags);
 		ax12_nsent=0;
-		while (uart_recv_nowait(UART_AX12_NUM) != -1);
-		UCSRxB |= (1<<TXEN);
-    sbi(PORTD,4);
+		while (UART_AX12(recv_nowait)() != -1);
+		sbi(PORTD,4);
 
 		ax12_state = AX12_STATE_WRITE;
 		IRQ_UNLOCK(flags);
 	}
 	else {
+		UART_AX12(disable_tx)(true);
 		IRQ_LOCK(flags);
-
-		if (CIRBUF_IS_EMPTY(&g_tx_fifo[UART_AX12_NUM]))
-    {
-			UCSRxB &= ~(1<<TXEN);
-      while(!bit_is_set(UCSR1A,TXC1));
-      cbi(PORTD,4);
-    }
-
+		cbi(PORTD,4);
 		ax12_state = AX12_STATE_READ;
-
 		IRQ_UNLOCK(flags);
 	}
 }
@@ -310,6 +280,5 @@ void ax12_user_init(void)
 	AX12_set_hardware_send(&ax12, ax12_send_char);
 	AX12_set_hardware_recv(&ax12, ax12_recv_char);
 	AX12_set_hardware_switch(&ax12, ax12_switch_uart);
-	uart_register_tx_event(UART_AX12_NUM, ax12_send_callback);
 	t_prev_msg = time_get_us2();
 }
