@@ -13,7 +13,7 @@ AVARICE_PORT = "/dev/ttyUSB1"
 AVARICE_DEBUG_PORT = 1234
 MODULES = base/scheduler hardware/pwm_ng hardware/timer debug/error
 
-ROBOTTER_MODULES := comm/perlimpinpin comm/i2c_robotter comm/uart
+ROBOTTER_MODULES := comm/perlimpinpin comm/uart
 AVERSIVE_MODULES := $(MODULES)
 MODULES := $(addprefix ../../modules/,$(ROBOTTER_MODULES)) $(MODULES)
 
