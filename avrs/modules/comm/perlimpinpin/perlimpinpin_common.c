@@ -11,7 +11,7 @@ int8_t ppp_common_callback(const PPPMsgFrame *msg)
       wdt_enable(WDTO_30MS);
       for(;;) ;
     case PPP_MID_PING:
-      PPP_SEND_PING_R(msg->src, msg->ping.v);
+      PPP_REPLY_PING(msg, msg->ping.v);
       break;
     default: // not handled
       return 0;
