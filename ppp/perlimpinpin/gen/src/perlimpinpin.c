@@ -153,7 +153,7 @@ void ppp_update(void)
         return;
       }
       buf[1] = ret;
-      size = *(uint16_t*)buf;
+      size = buf[0] | (buf[1] << 8);
       if( size > sizeof(buf)-3 ) {
         WARNING(PPP_ERROR, "UART frame size is too big (got %u)", size);
         state = 0;
