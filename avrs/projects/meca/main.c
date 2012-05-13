@@ -186,24 +186,22 @@ void paddock_actuatorsManual(void)
     switch(c)
     {
       case 'u':
-        actuators_arm_raise(&actuators,ARM_LEFT);
+        actuators_arm_set_angle(&actuators, ARM_LEFT, ARM_ANGLE_HI);
         break;
-
       case 'j':
-        actuators_arm_lower(&actuators,ARM_LEFT);
+        actuators_arm_set_angle(&actuators, ARM_LEFT, ARM_ANGLE_LOW);
         break;
 
       case 'i':
-        actuators_arm_raise(&actuators,ARM_RIGHT);
+        actuators_arm_set_angle(&actuators, ARM_RIGHT, ARM_ANGLE_HI);
         break;
-
       case 'k':
-        actuators_arm_lower(&actuators,ARM_RIGHT);
+        actuators_arm_set_angle(&actuators, ARM_RIGHT, ARM_ANGLE_LOW);
         break;
 
       case 'x':
         EMERG(MAIN_ERROR,"safe key 'x' pressed");
-      
+
       default: break;
     }
   }

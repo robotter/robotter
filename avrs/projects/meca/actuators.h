@@ -30,31 +30,35 @@
 
 #define ACTUATORS_ERROR 0x70
 
-typedef enum
-{
+typedef enum {
   ARM_LEFT = 0,
-  ARM_RIGHT
-}armPos_t;
+  ARM_RIGHT,
+  ARM_COUNT,
+  ARM_NONE
 
-typedef enum
-{
-  POS_LOW = -1,
-  POS_MID,
-  POS_HI,
-  POS_NONE
-}pos_t;
+} arm_location_t;
 
-typedef struct
-{
+typedef enum {
+  ARM_ANGLE_LOW = 0,
+  ARM_ANGLE_MID,
+  ARM_ANGLE_HI,
+  ARM_ANGLE_INIT,
+  ARM_ANGLE_COUNT,
+  ARM_ANGLE_NONE,
+  ARM_ANGLE_OVERTORQUE,
+} arm_angle_t;
+
+typedef struct {
+  uint8_t id;
+  uint16_t angles[ARM_ANGLE_COUNT];
+} arm_t;
+
+typedef struct {
   uint16_t ax12Speed;
   uint16_t ax12Torque;
   uint16_t ax12Punch; // high value = danger
-
-  pos_t arms_pos[2];
-
-}actuators_t;
-
-// -- --
+  arm_angle_t arm_angles[ARM_COUNT];
+} actuators_t;
 
 void actuators_init(actuators_t*);
 
@@ -63,14 +67,8 @@ void actuators_loadDefaults(actuators_t* m);
 
 
 // -- arms --
-
-void actuators_arm_raise(actuators_t*, armPos_t);
-void actuators_arm_mid(actuators_t*, armPos_t);
-void actuators_arm_lower(actuators_t*, armPos_t);
-
-uint8_t actuators_arm_is_raised(actuators_t*, armPos_t);
-uint8_t actuators_arm_is_mided(actuators_t*, armPos_t);
-uint8_t actuators_arm_is_lowered(actuators_t*, armPos_t);
+void actuators_arm_set_angle(actuators_t*, arm_location_t, arm_angle_t);
+uint8_t actuators_arm_get_angle(actuators_t*, arm_location_t);
 
 // -- ax12 --
 
@@ -100,6 +98,6 @@ int16_t actuators_ax12_getPosition(actuators_t* m, uint8_t id);
  */
 uint8_t actuators_ax12_checkPosition(actuators_t*, uint8_t id, uint16_t pos);
 
-void actuators_arm_send_status(actuators_t* m, armPos_t arm);
+void actuators_arm_send_status(actuators_t* m, arm_location_t arm);
 
 #endif/*_ACTUATORS_H_*/

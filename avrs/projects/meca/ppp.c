@@ -13,19 +13,16 @@ void ppp_msg_callback(PPPMsgFrame *msg)
   if( ppp_common_callback(msg) ) {
     return;
   }
-  uint8_t armid;
-
   led_toggle(3);
 
   switch( msg->mid ) {
-    case PPP_MID_ARM_SET_POS:
-      armid = msg->arm_set_pos.arm;
-      //TODO arm positions
-      switch(msg->arm_set_pos.pos) {
-        case -1: actuators_arm_lower(&actuators, armid); break;
-        case  0: actuators_arm_mid(&actuators, armid); break;
-        case  1: actuators_arm_raise(&actuators, armid); break;
-        default: break;
+    case PPP_MID_ARM_SET_ANGLE:
+      {
+        arm_location_t loc = msg->arm_set_angle.arm;
+        arm_angle_t angle = msg->arm_set_angle.angle;
+        if( loc < ARM_COUNT && angle < ARM_ANGLE_COUNT ) {
+          actuators_arm_set_angle(&actuators, loc, angle);
+        }
       }
       return;
 

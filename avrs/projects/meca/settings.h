@@ -53,9 +53,6 @@
 
 // -- AX12s --
 
-#define SETTING_AX12_ID_LEFT_ARM  (0x03)
-#define SETTING_AX12_ID_RIGHT_ARM (0x01)
-
 #define SETTING_AX12_MODEL_NUMBER (0x000C)
 
 #define SETTING_AX12_DEFAULT_SPEED (0x3FF)
@@ -72,21 +69,6 @@
 
 // AX12 speed for arms movement
 #define SETTING_AX12_ARM_SPEED (70)
-
-// LEFT ARM low position
-#define SETTING_AX12_POS_LARM_LOWERED (0x257)
-// RIGHT ARM low position
-#define SETTING_AX12_POS_RARM_LOWERED (0x257)
-
-// LEFT ARM mid position
-#define SETTING_AX12_POS_LARM_MID (0x240)
-// RIGHT ARM mid position
-#define SETTING_AX12_POS_RARM_MID (0x240)
-
-// LEFT ARM high position
-#define SETTING_AX12_POS_LARM_RAISED (0x110)
-// RIGHT ARM high position
-#define SETTING_AX12_POS_RARM_RAISED (0x11F)
 
 
 #endif/*SETTINGS_H*/

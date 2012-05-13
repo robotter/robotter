@@ -18,14 +18,13 @@ robot = Robot([
 
   # Meca
   TransactionGroup(0x20, [
-    # arm: 0 = left, 1 = right
-    # pos: see enum
-    Order('arm_set_pos', [('arm', 'uint8'), ('pos', 'int8')],
-      desc="Move arm at given position"),
+    # arm, angles: see enums
+    Order('arm_set_angle', [('arm', 'uint8'), ('angle', 'uint8')],
+      desc="Move arm at given angle"),
     Event('arm_overtorque', [('arm', 'uint8')],
       desc="Arm overtorque"),
-    Event('arm_at_pos', [('arm', 'uint8'), ('pos', 'int8')],
-      desc="Arm has moved to given postion."),
+    Event('arm_at_angle', [('arm', 'uint8'), ('angle', 'uint8')],
+      desc="Arm has moved to given angle"),
     ]),
 
   # R3D2
