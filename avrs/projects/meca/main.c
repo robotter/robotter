@@ -118,6 +118,7 @@ int main(void)
 
   led_off(1);
 
+  PPP_SEND_START(0);
 #ifdef SETTING_UART_UI_ENABLED
   NOTICE(0,"Strike 'x' to reboot / 'e' AX12 EEPROM load / 'm' AX12 / 'a' actuators / 'p' GP2* ");
 

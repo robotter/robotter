@@ -70,8 +70,10 @@ void sys_update(void* dummy)
   else
     led_off(0);
 
+#ifndef SETTING_UART_UI_ENABLED
   // update communication
   ppp_update();
+#endif
 
   // poll arms position
   switch( step ) {
