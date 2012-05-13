@@ -203,21 +203,20 @@ int main(void)
                                               SETTING_SCHED_CS_PERIOD,
                                               SETTING_SCHED_CS_PRIORITY);
 
+#ifdef SETTING_UART_UI_ENABLED
   // Safe key event
   event_key =
     scheduler_add_periodical_event_priority(&safe_key_pressed, NULL,
                                               SETTING_SCHED_SAFEKEY_PERIOD,
                                               SETTING_SCHED_SAFEKEY_PRIORITY);
+#endif
 
   // remove break
   hrobot_break(NULL,0);
 
   //----------------------------------------------------------------------
 
-#ifdef SETTING_NO_UART
-  scheduler_del_event(event_key);
-  NOTICE(0, "NO INPUT UART");
-#else
+#ifdef SETTING_UART_UI_ENABLED
   NOTICE(0,"'x' to reboot / 'c' manual control / 'a' ADNS test / 'z' position test / 'p' PWM test / 'l' calibration / 'o' color / 't' test code");
   //PPP_SEND_START(ROID_SUBSCRIBER);
 
@@ -262,8 +261,7 @@ int main(void)
       break;
   }
 #endif
-
-  while(1) nop();
+  for(;;) ;
   return 0;
 }
 
