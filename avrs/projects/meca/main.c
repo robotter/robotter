@@ -72,13 +72,10 @@ int main(void)
   log_level = ERROR_SEVERITY_NOTICE;
   log_level = ERROR_SEVERITY_DEBUG;
 
-  // Clear screen
-  printf("%c[2J",0x1B);
-  printf("%c[0;0H",0x1B);
-
-  // Some advertisment :p
-  NOTICE(0,"Robotter 2k11 - Galipeur - MECA-2011");
-  NOTICE(0,"Compiled "__DATE__" at "__TIME__".");
+#ifdef SETTING_UART_UI_ENABLED
+  printf("\033[2J\033[0;0H"); // clear screen
+  NOTICE(0,"MECA, compiled "__DATE__" at "__TIME__);
+#endif
 
   //--------------------------------------------------------
   // initialize scheduler
@@ -103,12 +100,14 @@ int main(void)
   NOTICE(0,"Initializing PPP");
   ppp_init(ppp_msg_callback);
 
+#ifdef SETTING_UART_UI_ENABLED
   //--------------------------------------------------------
   // Safe key event
   event_safe_key =
     scheduler_add_periodical_event_priority(&safe_key_pressed, NULL,
                                               SETTING_SCHED_SAFEKEY_PERIOD,
                                               SETTING_SCHED_SAFEKEY_PRIORITY);
+#endif
 
   //--------------------------------------------------------
   // Unleash systems
@@ -117,18 +116,14 @@ int main(void)
                                             SETTING_SCHED_SYS_PRIORITY);
 
 
-  uint8_t c;
   led_off(1);
 
-#ifdef SETTING_NO_UART
-  NOTICE(0,"NO INPUT UART");
-  scheduler_del_event(event_safe_key);
-#else
+#ifdef SETTING_UART_UI_ENABLED
   NOTICE(0,"Strike 'x' to reboot / 'e' AX12 EEPROM load / 'm' AX12 / 'a' actuators / 'p' GP2* ");
 
   while(1)
   {
-    c = cli_getkey();
+    uint8_t c = cli_getkey();
     
     if(c == 'x')
       EMERG(MAIN_ERROR,"safe key 'x' pressed");
@@ -146,8 +141,7 @@ int main(void)
       paddock_GP2();
   }
 #endif
-
-  while(1) nop();
+  for(;;) ;
 }
 
 void paddock_GP2(void)

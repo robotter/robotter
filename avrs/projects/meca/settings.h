@@ -26,9 +26,10 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+//#define SETTING_UART_UI_ENABLED
+
 // --
 
-//#define SETTING_NO_UART
 //#define SETTING_OVERRIDE_CPUUSAGE
 
 // -- playground
