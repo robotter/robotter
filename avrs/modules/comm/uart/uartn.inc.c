@@ -63,7 +63,7 @@ static void uartN(_init)(void)
   fifobuf_init((FifoBuf *)&uartN(_tx_buf));
 
 #define UART_UBRR_VAL \
-  (uint16_t)((float)(F_CPU) / (( (UARTN(_DOUBLE_SPEED)) ? 8 : 16 )*(UARTN(_BAUDRATE))) - 1 )
+  (uint16_t)((float)(F_CPU) / (( (UARTN(_DOUBLE_SPEED)) ? 8 : 16 )*((unsigned long)UARTN(_BAUDRATE))) - 1 )
   N_(UBRR,H) = UART_UBRR_VAL>>8;
   N_(UBRR,L) = UART_UBRR_VAL;
 #undef UART_UBRR_VAL
