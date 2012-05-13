@@ -144,8 +144,10 @@ void cs_update(void* dummy)
   // reset TIMER3
   timer3_set(0);
 
+#ifndef SETTING_UART_UI_ENABLED
   // update communications with perlimpinpin
   ppp_update();
+#endif
 
   // update avoidance system
   avoidance_update(&avoidance);

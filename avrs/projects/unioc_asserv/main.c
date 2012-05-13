@@ -216,9 +216,9 @@ int main(void)
 
   //----------------------------------------------------------------------
 
+  PPP_SEND_START(ROID_SUBSCRIBER);
 #ifdef SETTING_UART_UI_ENABLED
   NOTICE(0,"'x' to reboot / 'c' manual control / 'a' ADNS test / 'z' position test / 'p' PWM test / 'l' calibration / 'o' color / 't' test code");
-  //PPP_SEND_START(ROID_SUBSCRIBER);
 
   int c;
   while(1)
