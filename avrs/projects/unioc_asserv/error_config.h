@@ -28,4 +28,7 @@
 /** enable the dump of filename and line number */
 //#define ERROR_DUMP_FILE_LINE
 
+/** activate error logging but remain silent */
+#define AVERSIVE_ERROR_FORCE_SILENT
+
 #endif

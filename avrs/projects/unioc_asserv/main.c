@@ -117,8 +117,10 @@ int main(void)
   log_level = ERROR_SEVERITY_DEBUG;
 
   // Clear screen
+#ifdef SETTING_UART_UI_ENABLED
   printf("%c[2J",0x1B);
   printf("%c[0;0H",0x1B);
+#endif
 
   // Some advertisment :p
   NOTICE(0,"Robotter 2010 - Galipeur - UNIOC-NG PROPULSION");
