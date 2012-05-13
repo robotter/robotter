@@ -149,9 +149,12 @@ int uartN(_send_nowait)(uint8_t v)
 }
 
 
-void uartN(_disable_tx)(void)
+void uartN(_disable_tx)(bool wait)
 {
   N_(UCSR,B) |= (1<<N_(TXCIE,));
+  if( wait ) {
+    while( N_(UCSR,A) & N_(TXC,) );
+  }
 }
 
 

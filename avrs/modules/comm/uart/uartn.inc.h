@@ -7,6 +7,7 @@
 
 #define uartN(s) N_(uart,s)
 
+#include <stdbool.h>
 
 /** @brief Receive a byte.
  * @return The received value.
@@ -30,10 +31,13 @@ int uartN(_send_nowait)(uint8_t v);
 
 /** @brief Disable TX after sending the current frame.
  *
+ * If \e wait is set, wait for all waiting data to be transmitted before
+ * returning.
+ *
  * This method should be called right after sending the last frame byte.
  * TX will be enabled on the next send.
  */
-void uartN(_disable_tx)(void);
+void uartN(_disable_tx)(bool wait);
 
 
 /// Get function to be used with fdevopen().
