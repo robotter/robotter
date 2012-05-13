@@ -13,6 +13,7 @@ bool uart_ui_enabled = false;
 void uart_ui_enable(void)
 {
   uart_ui_enabled = true;
+  printf("UART UI enabled\n");
 }
 
 void uart_ui_disable(void)
