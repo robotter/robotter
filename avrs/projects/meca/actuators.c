@@ -130,9 +130,6 @@ void actuators_ax12_init(actuators_t* m)
   // Check AX12s
   actuators_ax12_check(m, SETTING_AX12_ID_LEFT_ARM);
   actuators_ax12_check(m, SETTING_AX12_ID_RIGHT_ARM);
-  actuators_ax12_check(m, SETTING_AX12_ID_LEFT_SCANNER);
-  actuators_ax12_check(m, SETTING_AX12_ID_RIGHT_SCANNER);
-
   return;
 }
 

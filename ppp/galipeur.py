@@ -16,31 +16,16 @@ robot = Robot([
     Event('start', [], desc="Device is up and running"),
     ]),
 
-  # Arms
+  # Meca
   TransactionGroup(0x20, [
     # arm: 0 = left, 1 = right
-    # pos: 0 = mid, 1 = high, -1 = low
+    # pos: see enum
     Order('arm_set_pos', [('arm', 'uint8'), ('pos', 'int8')],
       desc="Move arm at given position"),
-    Order('arm_release', [('arm', 'uint8')],
-      desc="Release pawn grabbed by the arm"),
     Event('arm_overtorque', [('arm', 'uint8')],
       desc="Arm overtorque"),
     Event('arm_at_pos', [('arm', 'uint8'), ('pos', 'int8')],
       desc="Arm has moved to given postion."),
-    Event('arm_pawn_present', [('arm', 'uint8'), ('b', 'bool')],
-      desc="Arm pawn detector state changed"),
-    Order('scanner_set_distance', [('arm', 'uint8'), ('distance','uint16')],
-      desc="Set scanner distance"),
-    Order('scanner_set_threshold', [('arm', 'uint8'), ('threshold','uint16')],
-      desc="Set scanner z threshold in mm"),
-    Event('scanner_threshold', [('arm', 'uint8'), ('state','uint8')],
-      desc="Object seen by scanner state: 1 - over, 0 - under"),
-
-    # certainty: cf. enum
-    # x, y: position relative to robot's coordinates
-    Command('arm_scan', [('arm', 'uint8')], [('certainty', 'uint8'), ('x', 'int16'), ('y', 'int16'), ('h', 'uint8')],
-      desc="Scan for a pawn"),
     ]),
 
   # R3D2

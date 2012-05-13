@@ -13,9 +13,7 @@
 #include "ax12_user.h"
 
 #include "sys.h"
-#include "scanner.h"
 #include "actuators.h"
-#include "ground_detector.h"
 #include "led.h"
 #include "logging.h"
 #include "cli.h"
@@ -32,10 +30,6 @@ extern AX12 ax12;
 // actuators
 extern actuators_t actuators;
 
-// ground detectors
-extern ground_detector_t gd_left;
-extern ground_detector_t gd_right;
-
 // safe key
 void safe_key_pressed(void*);
 
@@ -45,8 +39,6 @@ uint8_t event_safe_key;
 void paddock_setAX12EEPROMs(void);
 void paddock_AX12manual(void);
 void paddock_actuatorsManual(void);
-void paddock_groundDetector(void);
-void paddock_sandbox(void);
 void paddock_GP2(void);
 
 extern void ppp_msg_callback(PPPMsgFrame *);
@@ -132,7 +124,7 @@ int main(void)
   NOTICE(0,"NO INPUT UART");
   scheduler_del_event(event_safe_key);
 #else
-  NOTICE(0,"Strike 'x' to reboot / 'e' AX12 EEPROM load / 'm' AX12 / 'a' actuators / 'g' ground / 'p' GP2* / 's' sandbox ");
+  NOTICE(0,"Strike 'x' to reboot / 'e' AX12 EEPROM load / 'm' AX12 / 'a' actuators / 'p' GP2* ");
 
   while(1)
   {
@@ -149,12 +141,6 @@ int main(void)
 
     if(c == 'a')
       paddock_actuatorsManual();
-
-    if(c == 'g')
-      paddock_groundDetector();
-
-    if(c == 's')
-      paddock_sandbox();
 
     if(c == 'p')
       paddock_GP2();
@@ -301,82 +287,6 @@ void paddock_AX12manual(void)
   }
 }
 
-
-void paddock_sandbox(void)
-{
-  scanner_look_at(ARM_LEFT, 250);
-  scanner_look_at(ARM_RIGHT, 250);
-
-  while(1)
-  {
-    NOTICE(0,"%d",scanner_get_z(ARM_LEFT));
-    wait_ms(100);
-  }
-}
-
-void paddock_groundDetector(void)
-{
-  char c;
-  uint16_t object_threshold = 30;
-  uint8_t continuous_object_scan_active =0;
-  ground_detector_t* gd = &gd_left;
-  
-  // kill safe key task
-  scheduler_del_event(event_safe_key);
-
-  NOTICE(0,"Ground detector menu | s : sensor state | o/l : select L/R | i/k : threshold | p/m : pwm | r : run measure");
-  
-  while(1)
-  {
-
-    c = cli_getkey_nowait();
-    
-    switch(c)
-    {
-      case 0xFF:break; //no character received
-      case 'x':
-        EMERG(MAIN_ERROR,"safe key 'x' pressed");
-      
-      case 'o':
-        NOTICE(0,"left selected");
-        gd = &gd_left;
-        break;
-
-      case 'l':
-        NOTICE(0,"right selected");
-        gd = &gd_right;
-        break;
-
-      case 's': 
-        NOTICE(0,"pwm count : %d", ground_detector_get_object_presence_pwm_count(gd));
-        break;
-
-      case 'i': 
-        object_threshold ++;
-        ground_detector_set_object_present_threshold(gd, object_threshold);
-        NOTICE(0,"threshold : %d", ground_detector_get_object_present_threshold(gd));;
-        break;
-
-      case 'k': 
-        object_threshold --;
-        ground_detector_set_object_present_threshold(gd, object_threshold);
-        NOTICE(0,"threshold : %d", ground_detector_get_object_present_threshold(gd));
-        break;
-
-      case 'r':
-        continuous_object_scan_active = !continuous_object_scan_active;
-        break;
-
-      default: break;
-    }
-
-    if (continuous_object_scan_active)
-    {
-      wait_ms(100);    
-      NOTICE(0,"? : %d",ground_detector_is_object_present(gd));
-    }
-  }
-}
 
 void safe_key_pressed(void* dummy)
 {
