@@ -26,17 +26,28 @@
 
 #ifdef CONFIG_MODULE_ERROR
 #include <error.h>
+
+#ifdef AVERSIVE_ERROR_FORCE_SILENT
+#undef EMERG
+#define EMERG(num, text...)  do {} while(0)
+#undef ERROR
+#define ERROR(num, text...)  do {} while(0)
+#undef WARNING
+#define WARNING(num, text...)  do {} while(0)
+#undef NOTICE
+#define NOTICE(num, text...)  do {} while(0)
+#undef DEBUG
+#define DEBUG(num, text...)  do {} while(0)
+#endif//AVERSIVE_ERROR_FORCE_SILENT
+
 #else
 
 #define EMERG(num, text...)  do {} while(0)
-
 #define ERROR(num, text...)  do {} while(0)
-
 #define WARNING(num, text...)  do {} while(0)
-
 #define NOTICE(num, text...)  do {} while(0)
-
 #define DEBUG(num, text...)  do {} while(0)
 
-#endif
-#endif
+#endif//CONFIG_MODULE_ERROR
+
+#endif//_AVERSIVE_ERROR_H_
