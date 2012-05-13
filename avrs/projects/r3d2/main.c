@@ -1,36 +1,14 @@
-/*
- *  Copyright RobOtter (2011)
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
-
-/** \file
-  * \author Lamygalle
-  */
-
 #include <aversive.h>
 #include <aversive/error.h>
+#include <math.h>
 #include <uart.h>
 #include <scheduler.h>
 #include <perlimpinpin_common.h>
 #include "r3d2.h"
 #include "logging.h"
-#include "uart_communication.h"
+#include "uart_ui.h"
 
 
-// log level
 extern uint8_t log_level;
 
 static void init_led(void)
@@ -55,13 +33,26 @@ static void ppp_msg_callback(PPPMsgFrame *msg)
 }
 
 
+bool r3d2_periodic_position_msg_enabled = true;
+
+static void r3d2_periodic_position_msg(void *dummy)
+{
+  if(r3d2_periodic_position_msg_enabled && r3d2_robot_detected) {
+    if(uart_ui_enabled) {
+      printf("angle %4.2f | dist %3.2f\n", r3d2_robot_angle*180/M_PI, r3d2_robot_distance);
+    } else {
+      PPP_SEND_R3D2_DETECTED(ROID_SUBSCRIBER, r3d2_robot_distance*10, 1000*r3d2_robot_angle);
+    }
+  }
+  PORTA =~ PORTA;
+}
+
+
 int main(void)
 {
   uart_init();
-  uart_com_init();
   fdevopen(uart_dev_send, uart_dev_recv);
 
-  //--------------------------------------------------------
   // Error configuration
   error_register_emerg(log_event);
   error_register_error(log_event);
@@ -73,37 +64,27 @@ int main(void)
   log_level = ERROR_SEVERITY_DEBUG;
 
   ppp_init(ppp_msg_callback);
-
   sei();
+
+  PPP_SEND_START(0);
   printf("\033[2J\033[0;0H"
-         "Robotter 2011 - Galipeur - R3D2-2011"
-         "Compiled "__DATE__" at "__TIME__".");
+         "R3D2 - compiled "__DATE__" at "__TIME__"\n");
 
-  //NOTICE(0,"Initializing r3d2");
   r3d2_init();
-
-  //NOTICE(0,"Initializing leds");
   init_led();
-
-  //NOTICE(0,"Initializing scheduler");
   scheduler_init();
 
-  scheduler_add_periodical_event_priority(&r3d2_monitor, NULL,
-                                          300,
-                                          50);
-
-  scheduler_add_periodical_event_priority(&send_periodic_position_msg, NULL,
-                                          1000,
-                                          60);
-
+  scheduler_add_periodical_event_priority(&r3d2_update, NULL, 300, 50);
+  scheduler_add_periodical_event_priority(&r3d2_periodic_position_msg, NULL, 1000, 60);
   PORTA = ~(0x55);
 
-  NOTICE(0,"Strike '?' for help");
-  PPP_SEND_START(ROID_SUBSCRIBER);
+  //uart_ui_enable();
 
-  while (1)
-  {
-    uart_com_monitor();
-    ppp_update();
+  for(;;) {
+    if(uart_ui_enabled) {
+      uart_ui_update();
+    } else {
+      ppp_update();
+    }
   }
 }
