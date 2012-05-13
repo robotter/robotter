@@ -238,9 +238,13 @@ do {				     \
 #define FALSE 0
 #define TRUE 1
 #define False FALSE
+#ifndef false
 #define false FALSE
+#endif
 #define True TRUE
+#ifndef false
 #define true TRUE
+#endif
 
 
 /** DDR and PINS from port adress */
