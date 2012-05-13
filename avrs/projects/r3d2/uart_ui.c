@@ -168,14 +168,20 @@ void uart_ui_update(void)
           r3d2_update_angle_offset_from_object_angle(v_double * M_PI/180);
         }
       }
-      printf("angle offset: %f\n", r3d2_angle_offset * 180 / M_PI);
+      {
+        int16_t vi = (r3d2_angle_offset * 180 / M_PI) * 100;
+        printf("angle offset: %d.%02d\n", vi/100, vi%100);
+      }
       break;
 
     case 'f':
       if(recv_double(&v_double)) {
         r3d2_update_distance_coef_from_object_distance(v_double);
       }
-      printf("distance coef: %f\n", r3d2_distance_coef);
+      {
+        int16_t vi = r3d2_distance_coef * 1000;
+        printf("distance coef: %d.%03d\n", vi/1000, vi%1000);
+      }
       break;
 
     case 'o':
