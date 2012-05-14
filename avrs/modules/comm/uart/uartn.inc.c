@@ -30,6 +30,7 @@
 #define RXCIE0 RXCIE
 #define TXCIE0 TXCIE
 #define UDRIE0 UDRIE
+#define TXC0 TXC
 #define UDR0 UDR
 #endif
 
@@ -151,9 +152,17 @@ int uartN(_send_nowait)(uint8_t v)
 
 void uartN(_disable_tx)(bool wait)
 {
-  N_(UCSR,B) |= (1<<N_(TXCIE,));
+  uint8_t flags;
+  IRQ_LOCK(flags);
+  if( (N_(UCSR,A) & (1<<N_(UDRE,))) ) {
+    N_(UCSR,B) &= ~(1<<N_(TXEN,));
+    wait = false;
+  } else {
+    N_(UCSR,B) |= (1<<N_(TXCIE,));
+  }
+  IRQ_UNLOCK(flags);
   if( wait ) {
-    while( N_(UCSR,A) & N_(TXC,) );
+    while( N_(UCSR,B) & (1<<N_(TXEN,)) );
   }
 }
 
