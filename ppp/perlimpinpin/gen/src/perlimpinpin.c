@@ -25,6 +25,13 @@
 #define PPP_MAX_PAYLOAD_SIZE   $$ppp:self.max_payload_size()$$
 #define PPP_MAX_FRAME_SIZE     (PPP_MAX_PAYLOAD_SIZE+5)
 
+#ifdef CONFIG_MODULE_UART
+
+#define ppp_uart_recv_nowait() uart_recv_nowait(PPP_UART_NUM)
+#define ppp_uart_send(c) uart_send(PPP_UART_NUM, c)
+
+#else
+
 #ifndef PPP_UART_NUM
 #define PPP_UART_F(s)  uart_ ## s
 #elif PPP_UART_NUM == 0
@@ -37,6 +44,11 @@
 #define PPP_UART_F(s)  uart ## 3_ ## s
 #else
 #error "Invalid PPP_UART_NUM"
+#endif
+
+#define ppp_uart_recv_nowait() PPP_UART_F(recv_nowait)()
+#define ppp_uart_send(c) PPP_UART_F(send)(c)
+
 #endif
 
 /// Default destination, used with ROID_SUBSCRIBER
@@ -126,7 +138,7 @@ void ppp_update(void)
   for(;;) {
     // wait for start bytes
     while( state < 2 ) {
-      switch( PPP_UART_F(recv_nowait)() ) {
+      switch( ppp_uart_recv_nowait() ) {
         case -1:
           return;
         case 0xff:
@@ -139,7 +151,7 @@ void ppp_update(void)
 
     // wait for frame size
     if( state < 3 ) {
-      int ret = PPP_UART_F(recv_nowait)();
+      int ret = ppp_uart_recv_nowait();
       if( ret == -1 ) {
         return;
       }
@@ -147,7 +159,7 @@ void ppp_update(void)
       state++;
     }
     if( state < 4 ) {
-      int ret = PPP_UART_F(recv_nowait)();
+      int ret = ppp_uart_recv_nowait();
       if( ret == -1 ) {
         return;
       }
@@ -165,7 +177,7 @@ void ppp_update(void)
 
     // fill the frame buffer
     while( size != 0 ) {
-      int ret = PPP_UART_F(recv_nowait)();
+      int ret = ppp_uart_recv_nowait();
       if( ret == -1 ) {
         return;
       }
@@ -232,12 +244,12 @@ void ppp_send_msg(PPPMsgFrame *frame)
 
 void ppp_uart_send_frame(const PPPMsgFrame *frame)
 {
-  PPP_UART_F(send)(0xff);
-  PPP_UART_F(send)(0xff);
+  ppp_uart_send(0xff);
+  ppp_uart_send(0xff);
   const uint8_t *p = (const void *)frame;
   uint16_t size = frame->plsize+3;
   while( size != 0 ) {
-    PPP_UART_F(send)(*p);
+    ppp_uart_send(*p);
     p++; size--;
   }
 }
