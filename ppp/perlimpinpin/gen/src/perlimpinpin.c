@@ -23,7 +23,7 @@
 
 
 #define PPP_MAX_PAYLOAD_SIZE   $$ppp:self.max_payload_size()$$
-#define PPP_MAX_FRAME_SIZE     (PPP_MAX_PAYLOAD_SIZE+5)
+#define PPP_MAX_FRAME_SIZE     (PPP_MAX_PAYLOAD_SIZE+6)
 
 #ifdef CONFIG_MODULE_UART
 
