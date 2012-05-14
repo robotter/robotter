@@ -1,21 +1,49 @@
+/*  
+ *  Copyright RobOtter (2011) 
+ * 
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/** \file 
+  * \author Lamygalle
+  */
+
+#include "settings.h"
 #include <aversive.h>
+#include <aversive/wait.h>
 #include <aversive/error.h>
-#include <math.h>
+#include <stdlib.h>
+#include <pwm_ng.h>
+#include <timer.h>
 #include <uart.h>
+#include <avr/interrupt.h>
+#include <math.h>
 #include <scheduler.h>
 #include <perlimpinpin_common.h>
 #include "r3d2.h"
 #include "logging.h"
-#include "uart_ui.h"
+#include "uart_communication.h"
 
 
+// log level
 extern uint8_t log_level;
 
-static void init_led(void)
+void init_led(void)
 {
-  DDRA = 0xFF;
+	DDRA = 0xFF;
 }
-
 
 static void ppp_msg_callback(PPPMsgFrame *msg)
 {
@@ -24,75 +52,23 @@ static void ppp_msg_callback(PPPMsgFrame *msg)
   }
   switch( msg->mid ) {
     case PPP_MID_KILL:
-      r3d2_stop();
+      stop_r3d2();
       NOTICE(0,"killed");
       break;
-
-    case PPP_MID_R3D2_SET_STATE:
-      if(msg->r3d2_set_state.state) {
-        r3d2_start();
-      } else {
-        r3d2_stop();
-      }
-      PPP_REPLY_R3D2_SET_STATE(msg);
-      break;
-
-    case PPP_MID_R3D2_ENABLE_UART_UI:
-      uart_ui_enable();
-      break;
-
-    case PPP_MID_R3D2_GET_CONF:
-      PPP_REPLY_R3D2_GET_CONF(msg, r3d2_get_motor_speed(),
-                              r3d2_detection_threshold,
-                              r3d2_motor_watchdog_timeout,
-                              r3d2_angle_offset * 1000,
-                              r3d2_distance_coef * 1000);
-      break;
-    case PPP_MID_R3D2_SET_CONF:
-      r3d2_set_motor_speed(msg->r3d2_set_conf.motor_speed);
-      r3d2_detection_threshold = msg->r3d2_set_conf.detection_threshold;
-      r3d2_motor_watchdog_timeout = msg->r3d2_set_conf.motor_watchdog_timeout;
-      r3d2_angle_offset = msg->r3d2_set_conf.angle_offset / 1000.0;
-      r3d2_distance_coef = msg->r3d2_set_conf.distance_coef / 1000.0;
-      PPP_REPLY_R3D2_SET_CONF(msg);
-      break;
-    case PPP_MID_R3D2_WRITE_TO_EEPROM:
-      r3d2_write_to_eeprom();
-      break;
-
-    case PPP_MID_R3D2_CALIBRATE_ANGLE_OFFSET:
-      r3d2_update_angle_offset_from_object_angle(msg->r3d2_calibrate_angle_offset.a / 1000.0);
-      break;
-    case PPP_MID_R3D2_CALIBRATE_DISTANCE_COEF:
-      r3d2_update_distance_coef_from_object_distance(msg->r3d2_calibrate_distance_coef.d / 1000.0);
-      break;
-
     default:
       return;
   }
 }
 
-
-bool r3d2_periodic_position_msg_enabled = true;
-
-static void r3d2_periodic_position_msg(void *dummy)
-{
-  if(r3d2_periodic_position_msg_enabled && r3d2_robot_detected) {
-    if(uart_ui_enabled) {
-      printf("angle %4.2f | dist %3.2f\n", r3d2_robot_angle*180/M_PI, r3d2_robot_distance);
-    } else {
-      PPP_SEND_R3D2_DETECTED(ROID_SUBSCRIBER, r3d2_robot_distance*10, 1000*r3d2_robot_angle);
-    }
-  }
-  PORTA =~ PORTA;
-}
-
-
 int main(void)
 {
-  uart_init();
-  fdevopen(uart_dev_send, uart_dev_recv);
+	init_led();  
 
+	uart_init();
+  uart_com_init();
+	fdevopen(uart0_dev_send, uart0_dev_recv);
+	
+	//--------------------------------------------------------
   // Error configuration
   error_register_emerg(log_event);
   error_register_error(log_event);
@@ -104,27 +80,28 @@ int main(void)
   log_level = ERROR_SEVERITY_DEBUG;
 
   ppp_init(ppp_msg_callback);
-  sei();
 
-  PPP_SEND_START(0);
-  printf("\033[2J\033[0;0H"
-         "R3D2 - compiled "__DATE__" at "__TIME__"\n");
+	sei();
+#ifndef AVERSIVE_ERROR_FORCE_SILENT
+	printf("%c[2J",0x1B);
+  printf("%c[0;0H",0x1B);
+#endif
+  NOTICE(0,"Robotter 2011 - Galipeur - R3D2-2K12");
+  NOTICE(0,"Compiled "__DATE__" at "__TIME__".");
 
-  r3d2_init();
-  init_led();
-  scheduler_init();
+	r3d2_init();
+	scheduler_init();
 
-  scheduler_add_periodical_event_priority(&r3d2_update, NULL, 300, 50);
-  scheduler_add_periodical_event_priority(&r3d2_periodic_position_msg, NULL, 1000, 60);
-  PORTA = ~(0x55);
+  scheduler_add_periodical_event_priority(&r3d2_monitor, NULL, 300, 50);	
+	scheduler_add_periodical_event_priority(&send_periodic_position_msg, NULL, 1000, 60);	
 
-  //uart_ui_enable();
-
-  for(;;) {
-    if(uart_ui_enabled) {
-      uart_ui_update();
-    } else {
-      ppp_update();
-    }
-  }
+	while (1)	
+	{	
+#ifdef SETTING_UART_UI_ENABLED
+    #warning UART ui activated
+		uart_com_monitor();
+#else
+    ppp_update();
+#endif
+	}
 }

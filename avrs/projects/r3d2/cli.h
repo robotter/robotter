@@ -1,5 +1,5 @@
 /*  
- *  Copyright Droids Corporation, Microb Technology, Eirbot (2005)
+ *  Copyright RobOtter (2009) 
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -14,21 +14,27 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *  Revision : $Id: error_config.h,v 1.4 2006-02-21 23:05:18 zer0 Exp $
- *
  */
 
-#ifndef _ERROR_CONFIG_
-#define _ERROR_CONFIG_
+/** \file cli.h
+  * \author JD
+  */
 
-/** enable the dump of the comment */
-#define ERROR_DUMP_TEXTLOG 
+#ifndef _CLI_H_
+#define _CLI_H_
 
-/** enable the dump of filename and line number */
-#define ERROR_DUMP_FILE_LINE
+#include <aversive.h>
+#include <uart.h>
 
-/** activate error logging but remain silent */
-#define AVERSIVE_ERROR_FORCE_SILENT
+#define CLI_USER_UART 0
 
-#endif
+static inline uint8_t cli_getkey(void)
+{
+  return (uart_recv(CLI_USER_UART));
+}
+
+static inline uint8_t cli_getkey_nowait(void)
+{
+  return (uart_recv_nowait(CLI_USER_UART));
+}
+#endif/*_CLI_H_*/

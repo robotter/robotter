@@ -9,7 +9,7 @@
 #define PPP_ROID   ROID_R3D2
 
 /// Use given UART number (defaults to UART_NUM).
-//#define PPP_UART_NUM  0
+#define PPP_UART_NUM  0
 
 /// Enable trace logs of sent/received/forwarded messages.
 //#define PPP_DEBUG_TRACE

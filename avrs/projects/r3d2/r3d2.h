@@ -1,49 +1,75 @@
+/*  
+ *  Copyright RobOtter (2011) 
+ * 
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/** \file 
+  * \author Lamygalle
+  */
+
 #ifndef R3D2_H
 #define R3D2_H
 
-#include <stdint.h>
-#include <stdbool.h>
+	#include <aversive.h>
 
-void r3d2_init(void);
-void r3d2_start(void);
-void r3d2_stop(void);
+	typedef enum {
+		robot_not_detected = 0x00,
+		robot_detected
+	} robot_detected_t;
 
-/// True if robot is in the detection range
-extern bool r3d2_robot_detected;
-/// Detected robot angle
-extern double r3d2_robot_angle;
-/// Detected robot distance
-extern double r3d2_robot_distance;
+	void r3d2_init(void);
+	
+	void start_r3d2(void);
+	void stop_r3d2(void);
 
-/// Timeout of motor watchdog (restart on stop), writable
-extern uint8_t r3d2_motor_watchdog_timeout;
-/// Duration after which robot is considered in the detection range, writable
-extern uint8_t r3d2_detection_threshold;
-/// Offset added to the computed angle, writable
-extern double r3d2_angle_offset;
-/// Coefficient for robot distance computation
-extern double r3d2_distance_coef;
+	robot_detected_t is_robot_detected(void);
 
-/// Method to call regularly to update detection values
-void r3d2_update(void *);
+	double get_detected_robot_angle(void);
 
-void r3d2_enable_sensor(void);
-void r3d2_disable_sensor(void);
+	double get_detected_robot_distance(void);
 
-void r3d2_start_motor(void);
-void r3d2_stop_motor(void);
+	void r3d2_monitor(void *dummy);
 
-void r3d2_set_motor_speed(uint16_t speed);
-uint16_t r3d2_get_motor_speed(void);
+	//---------------------------------------------
+	// ACCESSORS
+	void enable_sensor(void);
+	void disable_sensor(void);
 
-/// Compute angle offset from known object angle (in radians)
-void r3d2_update_angle_offset_from_object_angle(double angle);
+	void start_motor(void);
+	void stop_motor(void);
+	
+	void set_motor_speed(uint16_t speed);
+	uint16_t get_motor_speed(void);
 
-/// Compute distance coef from known object distance (in cm)
-void r3d2_update_distance_coef_from_object_distance(double dist);
+	void set_motor_rotating_timout_treshold(uint8_t value);
+	uint8_t get_motor_rotating_timout_treshold(void);
 
-/// Write all current memory values to EEPROM
-void r3d2_write_to_eeprom(void);
+	uint8_t get_robot_detected_timout_treshold(void);
+	void set_robot_detected_timout_treshold(uint8_t treshold);
+
+	void set_robot_detected_angle_offset(double offset);
+	double get_robot_detected_angle_offset(void);
+	void update_angle_offset_from_object_angle(double given_angle);
+
+	double get_surface_reflection_ratio(void);
+	void set_surface_reflection_ratio(double ratio);
+	void update_surface_ratio_from_object_distance(double distance);
+
+	uint8_t get_robot_detected_timout_treshold(void);
+	void set_robot_detected_timout_treshold(uint8_t treshold);
 
 
-#endif
+#endif // R3D2_H 

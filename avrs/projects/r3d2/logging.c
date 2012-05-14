@@ -22,8 +22,10 @@
 
 #include <stdio.h>
 #include <uart.h>
+#include <scheduler.h>
 
 //#include "reset.h"
+#include "cli.h"
 #include "logging.h"
 
 // default log level
@@ -77,7 +79,16 @@ void log_event(struct error * e, ...)
     // TODO Add shutdown procedures here TODO
     
     // wait for key
-    while( uart_recv() != 'x' ) ;
+    int8_t key;
+    while(1)
+    {
+      key = cli_getkey();
+
+      if( (key == -1)||(key == 'x'))
+        continue;
+      
+      break;
+    }
   }
 
 }
