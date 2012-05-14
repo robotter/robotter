@@ -14,6 +14,7 @@
 
 #include "sys.h"
 #include "actuators.h"
+#include "brush.h"
 #include "led.h"
 #include "logging.h"
 #include "cli.h"
@@ -38,8 +39,8 @@ uint8_t event_safe_key;
 // paddocks
 void paddock_setAX12EEPROMs(void);
 void paddock_AX12manual(void);
-void paddock_actuatorsManual(void);
 void paddock_GP2(void);
+void paddock_brush(void);
 
 extern void ppp_msg_callback(PPPMsgFrame *);
 
@@ -119,7 +120,7 @@ int main(void)
 
   PPP_SEND_START(0);
 #ifdef SETTING_UART_UI_ENABLED
-  NOTICE(0,"Strike 'x' to reboot / 'e' AX12 EEPROM load / 'm' AX12 / 'a' actuators / 'p' GP2* ");
+  NOTICE(0,"Strike 'x' to reboot / 'e' AX12 EEPROM load / 'm' AX12 / 'b' brush / 'p' GP2* ");
 
   while(1)
   {
@@ -134,30 +135,11 @@ int main(void)
     if(c == 'm')
       paddock_AX12manual();
 
-    if(c == 'a')
-      paddock_actuatorsManual();
-
-    if(c == 'p')
-      paddock_GP2();
+    if(c == 'b')
+      paddock_brush();
   }
 #endif
   for(;;) ;
-}
-
-void paddock_GP2(void)
-{
-  int16_t m1,m2,m3,m4;
-
-  NOTICE(0,"GP2 DEBUG");
-
-  while(1)
-  {
-    m1 = adc_get_value( MUX_ADC0 | ADC_REF_AVCC );
-    m2 = adc_get_value( MUX_ADC1 | ADC_REF_AVCC );
-    m3 = adc_get_value( MUX_ADC2 | ADC_REF_AVCC );
-    m4 = adc_get_value( MUX_ADC3 | ADC_REF_AVCC );
-    NOTICE(0,"0: %d | 1: %d | 2: %d | 3: %d",m1,m2,m3,m4);
-  }
 }
 
 void paddock_setAX12EEPROMs(void)
@@ -165,41 +147,6 @@ void paddock_setAX12EEPROMs(void)
   actuators_loadDefaults(&actuators);
 
   EMERG(MAIN_ERROR,"done");
-}
-
-void paddock_actuatorsManual(void)
-{
-  uint8_t c;  
-
-  NOTICE(0,"ACT MAN CONTROL LARM u/j | RARM i/k");
-
-  while(1)
-  {
-    c = cli_getkey();
-    
-    switch(c)
-    {
-      case 'u':
-        actuators_arm_set_angle(&actuators, ARM_LEFT, ARM_ANGLE_HI);
-        break;
-      case 'j':
-        actuators_arm_set_angle(&actuators, ARM_LEFT, ARM_ANGLE_LOW);
-        break;
-
-      case 'i':
-        actuators_arm_set_angle(&actuators, ARM_RIGHT, ARM_ANGLE_HI);
-        break;
-      case 'k':
-        actuators_arm_set_angle(&actuators, ARM_RIGHT, ARM_ANGLE_LOW);
-        break;
-
-      case 'x':
-        EMERG(MAIN_ERROR,"safe key 'x' pressed");
-
-      default: break;
-    }
-  }
-  
 }
 
 void paddock_AX12manual(void)
@@ -279,6 +226,30 @@ void paddock_AX12manual(void)
   }
 }
 
+void paddock_brush(void)
+{
+  NOTICE(0,"Brush control | a/z start/stop");
+
+  for(;;) {
+    uint8_t c = cli_getkey();
+    switch(c) {
+      case 'x':
+        EMERG(MAIN_ERROR,"safe key 'x' pressed");
+
+      case 'a':
+        brush_start();
+        NOTICE(0,"start brush");
+        break;
+      case 'z':
+        brush_stop();
+        NOTICE(0,"stop brush");
+        break;
+
+      default:
+        break;
+    }
+  }
+}
 
 void safe_key_pressed(void* dummy)
 {
