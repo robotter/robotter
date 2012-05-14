@@ -55,6 +55,40 @@ static void ppp_msg_callback(PPPMsgFrame *msg)
       stop_r3d2();
       NOTICE(0,"killed");
       break;
+
+    case PPP_MID_R3D2_SET_STATE:
+      if(msg->r3d2_set_state.state) {
+        start_r3d2();
+      } else {
+        stop_r3d2();
+      }
+      PPP_REPLY_R3D2_SET_STATE(msg);
+      break;
+
+    case PPP_MID_R3D2_GET_CONF:
+      PPP_REPLY_R3D2_GET_CONF(
+          msg, get_motor_speed(),
+          get_robot_detected_timout_treshold(),
+          get_motor_rotating_timout_treshold(),
+          get_robot_detected_angle_offset()*1000*M_PI/180.,
+          get_surface_reflection_ratio()*100);
+      break;
+    case PPP_MID_R3D2_SET_CONF:
+      set_motor_speed(msg->r3d2_set_conf.motor_speed);
+      set_robot_detected_timout_treshold(msg->r3d2_set_conf.detection_threshold);
+      set_motor_rotating_timout_treshold(msg->r3d2_set_conf.motor_watchdog_timeout);
+      set_robot_detected_angle_offset(msg->r3d2_set_conf.angle_offset*180./(1000*M_PI));
+      set_surface_reflection_ratio(msg->r3d2_set_conf.distance_coef/100.);
+      PPP_REPLY_R3D2_SET_CONF(msg);
+      break;
+
+    case PPP_MID_R3D2_CALIBRATE_ANGLE_OFFSET:
+      update_angle_offset_from_object_angle(msg->r3d2_calibrate_angle_offset.a*100./(1000*M_PI));
+      break;
+    case PPP_MID_R3D2_CALIBRATE_DISTANCE_COEF:
+      update_surface_ratio_from_object_distance(msg->r3d2_calibrate_distance_coef.d*100.);
+      break;
+
     default:
       return;
   }
