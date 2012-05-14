@@ -37,10 +37,10 @@ extern AX12 ax12;
 
 static const arm_t arms[ARM_COUNT] = {
   { .id = 0x03,
-    .angles = { 0x257, 0x240, 0x110, 0x110 },
+    .angles = { 0xC8, 0x118, 0x200, 0x1E8, 0x220 },
   },
   { .id = 0x01,
-    .angles = { 0x257, 0x240, 0x11F, 0x11F },
+    .angles = { 0xD0, 0x118, 0x200, 0x1E8, 0x220 },
   },
 };
 
@@ -51,8 +51,8 @@ void actuators_init(actuators_t* m)
   m->ax12Torque = SETTING_AX12_DEFAULT_TORQUE;
   m->ax12Punch = SETTING_AX12_DEFAULT_PUNCH;
 
-  m->arm_angles[ARM_LEFT] = ARM_ANGLE_HI;
-  m->arm_angles[ARM_RIGHT] = ARM_ANGLE_HI;
+  m->arm_angles[ARM_LEFT] = ARM_ANGLE_INIT;
+  m->arm_angles[ARM_RIGHT] = ARM_ANGLE_INIT;
 
   NOTICE(ACTUATORS_ERROR,"Initializing AX12s");
   actuators_ax12_init(m);
