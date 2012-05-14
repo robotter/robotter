@@ -73,7 +73,6 @@ int main(void)
   log_level = ERROR_SEVERITY_DEBUG;
 
 #ifdef SETTING_UART_UI_ENABLED
-  printf("\033[2J\033[0;0H"); // clear screen
   NOTICE(0,"MECA, compiled "__DATE__" at "__TIME__);
 #endif
 

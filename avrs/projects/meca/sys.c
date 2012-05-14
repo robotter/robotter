@@ -72,7 +72,6 @@ void sys_update(void* dummy)
 #ifndef SETTING_UART_UI_ENABLED
   // update communication
   ppp_update();
-#endif
 
   // poll arms position
   switch( step ) {
@@ -85,4 +84,5 @@ void sys_update(void* dummy)
     default:
       break;
   }
+#endif
 }
