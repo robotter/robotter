@@ -26,15 +26,15 @@
 #include <aversive.h>
 #include <uart.h>
 
-#define CLI_USER_UART(f) (uart0_ ## f)
+#define CLI_USER_UART 0
 
 static inline int cli_getkey(void)
 {
-  return CLI_USER_UART(recv)();
+  return (uart_recv(CLI_USER_UART));
 }
 
 static inline int cli_getkey_nowait(void)
 {
-  return CLI_USER_UART(recv_nowait)();
+  return (uart_recv_nowait(CLI_USER_UART));
 }
 #endif/*_CLI_H_*/

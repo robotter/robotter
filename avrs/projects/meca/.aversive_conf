@@ -11,9 +11,9 @@ AVRDUDE_PORT = "/dev/parport0"
 AVARICE_PROGRAMMER = mkI
 AVARICE_PORT = "/dev/ttyS0"
 AVARICE_DEBUG_PORT = 1234
-MODULES = devices/servo/ax12 base/time base/scheduler hardware/pwm_ng hardware/adc hardware/timer base/cirbuf debug/error
+MODULES = devices/servo/ax12 base/time base/scheduler comm/uart hardware/pwm_ng hardware/adc hardware/timer base/cirbuf debug/error
 
-ROBOTTER_MODULES := comm/perlimpinpin devices/servo/ax12 comm/uart
+ROBOTTER_MODULES := comm/perlimpinpin devices/servo/ax12
 AVERSIVE_MODULES := $(MODULES)
 MODULES := $(addprefix ../../modules/,$(ROBOTTER_MODULES)) $(MODULES)
 
