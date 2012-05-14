@@ -31,6 +31,7 @@
 #include "led.h"
 #include "ax12_user.h"
 #include "actuators.h"
+#include "brush.h"
 #include "settings.h"
 
 // ax12s
@@ -39,9 +40,6 @@ AX12 ax12;
 // actuators
 actuators_t actuators;
 
-// SYS cpu usage in percents
-uint8_t sys_cpuUsage;
-
 void sys_init(void)
 {
   NOTICE(0,"Initializing AX12s");
@@ -49,11 +47,12 @@ void sys_init(void)
 
   NOTICE(0,"Initializing actuators");
   actuators_init(&actuators);
+
+  brush_init();
 }
 
 void sys_update(void* dummy)
 {
-  uint16_t dt;
   enum {
     SYS_STEP_ARM_LEFT = 0,
     SYS_STEP_ARM_RIGHT,
@@ -86,17 +85,4 @@ void sys_update(void* dummy)
     default:
       break;
   }
-
-  // reset TIMER3
-  timer3_set(0);
-
-  // compute CPU usage
-  dt = timer3_get();
-  sys_cpuUsage = (100*timer3_tics_to_us(dt))
-       /(SETTING_SCHED_SYS_PERIOD*SCHEDULER_UNIT);
-
-  #ifndef SETTING_OVERRIDE_CPUUSAGE
-    if(sys_cpuUsage > 95)
-      ERROR(SYS_ERROR,"sys_update CPU usage go over 95% : %d",sys_cpuUsage);
-  #endif
 }

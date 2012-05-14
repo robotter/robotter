@@ -3,6 +3,7 @@
 
 #include "led.h"
 #include "actuators.h"
+#include "brush.h"
 #include "sys.h"
 #include "settings.h"
 
@@ -24,6 +25,9 @@ void ppp_msg_callback(PPPMsgFrame *msg)
           actuators_arm_set_angle(&actuators, loc, angle);
         }
       }
+      return;
+    case PPP_MID_BRUSH_SET_STATE:
+      brush_set_state(msg->brush_set_state.on, msg->brush_set_state.open);
       return;
 
     default:

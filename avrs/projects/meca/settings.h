@@ -28,10 +28,6 @@
 
 //#define SETTING_UART_UI_ENABLED
 
-// --
-
-//#define SETTING_OVERRIDE_CPUUSAGE
-
 // -- playground
 #define SETTING_PLAYGROUND_PAWN_R (100)
 
@@ -70,6 +66,15 @@
 
 // AX12 speed for arms movement
 #define SETTING_AX12_ARM_SPEED (70)
+
+// Brush
+#define SETTING_BRUSH_SPEED  1000 //TODO
+#define SETTING_SCHED_BRUSH_PERIOD   (100)
+#define SETTING_SCHED_BRUSH_PRIORITY (80)
+#define SETTING_BRUSH_OPEN_TMIN  1000
+#define SETTING_BRUSH_OPEN_TMAX  2000
+#define SETTING_BRUSH_CLOSE_TMIN  0
+#define SETTING_BRUSH_CLOSE_TMAX  10
 
 
 #endif/*SETTINGS_H*/

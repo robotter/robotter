@@ -25,6 +25,10 @@ robot = Robot([
       desc="Arm overtorque"),
     Event('arm_at_angle', [('arm', 'uint8'), ('angle', 'uint8')],
       desc="Arm has moved to given angle"),
+    Order('brush_set_state', [('on', 'bool'), ('open', 'bool')],
+      desc="Set brush state, open is ignored if state is true"),
+    Order('brush_set_speed', [('speed', 'uint16')],
+      desc="Set brush speed, between 0 and 4095"),
     ]),
 
   # R3D2

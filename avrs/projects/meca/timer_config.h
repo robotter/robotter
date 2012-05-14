@@ -20,5 +20,5 @@
  */
 
 #define TIMER3_ENABLED
-
 #define TIMER3_PRESCALER_DIV 1
+
