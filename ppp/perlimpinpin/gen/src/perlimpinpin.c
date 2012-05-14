@@ -109,7 +109,6 @@ static PPPMsgCallback *_ppp_msg_callback = NULL;
 void ppp_init(PPPMsgCallback *cb)
 {
   _ppp_msg_callback = cb;
-  uart_init();
 }
 
 
