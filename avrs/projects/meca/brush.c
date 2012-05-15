@@ -9,6 +9,8 @@
 static struct pwm_ng brush_pwm;
 static uint8_t brush_event;
 
+static volatile uint16_t brush_position = 0;
+
 
 enum {
   BRUSH_ON,
@@ -20,8 +22,11 @@ enum {
 
 void brush_update(void *dummy)
 {
+  uint8_t flags;
   if( brush_state == BRUSH_STOP_OPEN && brush_state == BRUSH_STOP_CLOSE ) {
-    uint16_t t = timer3_get();
+    IRQ_LOCK(flags);
+    uint16_t t = brush_position;
+    IRQ_UNLOCK(flags);
     uint16_t tmin, tmax;
     if( brush_state == BRUSH_STOP_OPEN ) {
       tmin = SETTING_BRUSH_OPEN_TMIN;
@@ -34,9 +39,10 @@ void brush_update(void *dummy)
       brush_stop();
     }
   }
-  if( PORTC & _BV(5) ) {
-    timer3_set(0);
-    //TODO reset PORTC5 ?
+  if( PINC & _BV(5) ) {
+    IRQ_LOCK(flags);
+    brush_position = 0;
+    IRQ_UNLOCK(flags);
   }
 }
 
@@ -45,6 +51,8 @@ void brush_init(void)
 {
   DDRC &= ~_BV(5);
   PINC |= _BV(5);
+  DDRC |= _BV(3);
+  PORTC |= _BV(3);
 
   PWM_NG_TIMER_16BITS_INIT(1, TIMER_16_MODE_PWM_8, TIMER1_PRESCALER_DIV_8);
   PWM_NG_INIT16(&brush_pwm, 1, A, 9, PWM_NG_MODE_NORMAL, 0, 0);
@@ -80,5 +88,11 @@ void brush_set_speed(uint16_t speed)
 {
   pwm_ng_set(&brush_pwm, speed);
   brush_state = BRUSH_ON;
+}
+
+
+SIGNAL(SIG_INTERRUPT7)
+{
+  brush_position++;
 }
 
