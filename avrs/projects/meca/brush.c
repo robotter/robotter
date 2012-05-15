@@ -76,4 +76,9 @@ void brush_stop(void)
   brush_state = BRUSH_OFF;
 }
 
+void brush_set_speed(uint16_t speed)
+{
+  pwm_ng_set(&brush_pwm, speed);
+  brush_state = BRUSH_ON;
+}
 

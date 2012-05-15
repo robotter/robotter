@@ -29,6 +29,9 @@ void ppp_msg_callback(PPPMsgFrame *msg)
     case PPP_MID_BRUSH_SET_STATE:
       brush_set_state(msg->brush_set_state.on, msg->brush_set_state.open);
       return;
+    case PPP_MID_BRUSH_SET_SPEED:
+      brush_set_speed(msg->brush_set_speed.speed);
+      return;
 
     default:
       return;
