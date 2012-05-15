@@ -203,7 +203,7 @@ class Binding(object):
       bm = BindingMessage(self, msg)
       self.messages._add(msg.mid, msg.name, bm)
       def msg_call(self, dst, *a, **kw):
-        return msg(self, dst, None, *a, **kw)
+        return bm(self, dst, None, *a, **kw)
       f = types.MethodType(msg_call, self, self.__class__)
       setattr(self, 'msg_%s' % trans.name, f)
     else:
