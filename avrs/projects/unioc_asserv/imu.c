@@ -63,7 +63,6 @@ void imu_receive_event(uint8_t c)
       {
         psi_deg = *(int16_t*)(imu.data +3);
         imu.psi = psi_deg/100.0;
-        NOTICE(0,"psi=%f",imu.psi);
       }
 
       break;
