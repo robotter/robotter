@@ -32,6 +32,9 @@ void ppp_msg_callback(PPPMsgFrame *msg)
     case PPP_MID_BRUSH_SET_SPEED:
       brush_set_speed(msg->brush_set_speed.speed);
       return;
+    case PPP_MID_BRUSH_GET_POS:
+      PPP_REPLY_BRUSH_GET_POS(msg, brush_get_pos());
+      break;
 
     default:
       return;

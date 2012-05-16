@@ -90,6 +90,15 @@ void brush_set_speed(uint16_t speed)
   brush_state = BRUSH_ON;
 }
 
+uint16_t brush_get_pos(void)
+{
+  uint8_t flags;
+  IRQ_LOCK(flags);
+  uint16_t v = brush_position;
+  IRQ_UNLOCK(flags);
+  return v;
+}
+
 
 SIGNAL(SIG_INTERRUPT7)
 {

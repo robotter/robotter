@@ -29,6 +29,8 @@ robot = Robot([
       desc="Set brush state, open is ignored if state is true"),
     Order('brush_set_speed', [('speed', 'uint16')],
       desc="Set brush speed, between 0 and 4095"),
+    Command('brush_get_pos', [], [('pos', 'uint16')],
+      desc="Get brush position"),
     ]),
 
   # R3D2
