@@ -254,8 +254,9 @@ class Command(Transaction):
     return [self.request, self.response]
 
 
-class Order(TransactionSingle):
-  pass
+class Order(Command):
+  def __init__(self, name, preq, desc=None, mid=None):
+    Command.__init__(self, name, preq, [], desc, mid)
 
 class Event(TransactionSingle):
   pass
