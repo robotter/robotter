@@ -85,8 +85,10 @@ void ppp_msg_callback(PPPMsgFrame *msg)
         WARNING(0,"Command ASSERV_LOAD failed, index not in range: %d>%d",
                     n, HTRAJECTORY_MAX_POINTS);
       else
+      {
         points[n].x = x;
         points[n].y = y;
+      }
       PPP_REPLY_ASSERV_LOAD(msg);
       break;
 
