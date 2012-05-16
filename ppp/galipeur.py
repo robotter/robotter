@@ -107,6 +107,9 @@ robot = Robot([
 
     Command('asserv_get_position',[],[('x','int16'),('y','int16'),('a','int16')],
       desc='Get robot position'),
+
+    Order('force_avoidance',[('b','bool')],
+      desc='Force avoidance system (false:normal,true:detection forced)'),
     ]),
   ])
 

@@ -2,7 +2,9 @@
 #include <perlimpinpin_common.h>
 
 #include "htrajectory.h"
+#include "avoidance.h"
 
+extern avoidance_t avoidance;
 extern robot_cs_t robot_cs;
 extern htrajectory_t trajectory;
 
@@ -151,6 +153,11 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       iy = FROM_MM(hvec.y);
       ia = FROM_RAD(hvec.alpha);
       PPP_REPLY_ASSERV_GET_POSITION(msg, ix, iy, ia);
+      break;
+
+    case PPP_MID_FORCE_AVOIDANCE:
+      n = msg->force_avoidance.b;
+      avoidance_force_blocked(&avoidance, n);
       break;
 
     default:

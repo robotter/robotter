@@ -39,6 +39,9 @@ typedef struct
   // gp2 detections status
   uint8_t gp2_detections[SETTING_AVOIDANCE_GP2ARRAY_SIZE];
 
+  // detection forced to blocked state
+  uint8_t forced_blocked;
+
 }avoidance_t;
 
 /** @brief Initialize avoidance systems */
@@ -46,6 +49,9 @@ void avoidance_init(avoidance_t*);
 
 /** @brief Update avoidance system */
 void avoidance_update(avoidance_t*);
+
+/** @brief Force avoidance to blocked */
+void avoidance_force_blocked(avoidance_t* av, uint8_t state);
 
 /** @brief Check avoidance sensors */
 direction_t avoidance_check(avoidance_t*);

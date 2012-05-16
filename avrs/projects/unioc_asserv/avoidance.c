@@ -35,6 +35,8 @@ void avoidance_init(avoidance_t* av)
   av->gp2_muxs[0] = SETTING_AVOIDANCE_GP2ARRAY_60;
   av->gp2_muxs[1] = SETTING_AVOIDANCE_GP2ARRAY_180;
   av->gp2_muxs[2] = SETTING_AVOIDANCE_GP2ARRAY_300;
+
+  av->forced_blocked = 0;
 }
 
 /** @brief Update avoidance system */
@@ -69,9 +71,20 @@ void avoidance_update(avoidance_t* av)
 
 }
 
+/** @brief Force avoidance to blocked 
+ * @param state 0 - normal 1 - force to blocked status */
+void avoidance_force_blocked(avoidance_t* av, uint8_t state)
+{
+  av->forced_blocked = state;
+}
+
 /** @brief Check avoidance sensors */
 direction_t avoidance_check(avoidance_t* av)
 {
+  // if avoidance is blocked set all direction
+  if( av->forced_blocked )
+    return DIR_60|DIR_180|DIR_300;
+
 #ifdef SETTING_AVOIDANCE_ENABLED
   uint16_t rv = DIR_NONE;
   if( av->gp2_detections[0] > SETTING_AVOIDANCE_GP2ARRAY_COUNT )
@@ -82,6 +95,6 @@ direction_t avoidance_check(avoidance_t* av)
     rv |= DIR_300;
   return rv;
 #else
-  return 0x00;
+  return DIR_NONE;
 #endif
 }
