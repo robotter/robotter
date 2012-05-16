@@ -37,6 +37,8 @@ robot = Robot([
   TransactionGroup(0x60, [
     Event('r3d2_detected', [('r', 'uint16'), ('a', 'int16')],
       desc="Robot detected at given polar coordinates"),
+    Event('r3d2_disappeared', [],
+      desc="A previously detected robot just disappeared"),
     Command('r3d2_set_state', [('state', 'bool')], [],
       desc="Enable or disable R3D2 (motor and sensor)"),
     Order('r3d2_enable_uart_ui', [],

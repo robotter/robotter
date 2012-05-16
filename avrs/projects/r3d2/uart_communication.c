@@ -39,19 +39,34 @@ void enable_periodic_position_msg(void)
 
 void send_periodic_position_msg(void* dummy)
 {
+  static bool previously_detected = false;
   static bool b = false;
   b = !b;
-	if (is_robot_detected() && (periodic_position_msg_status!=0))
-	{
+
+  if (periodic_position_msg_status!=0)
+  {
+    bool detected = is_robot_detected();
+    if (detected)
+    {
 #ifdef SETTING_UART_UI_ENABLED
-		printf("angle %4.2f | dist %3.2f\n", get_detected_robot_angle(), get_detected_robot_distance());
+      printf("angle %4.2f | dist %3.2f\n", get_detected_robot_angle(), get_detected_robot_distance());
 #else
-    PPP_SEND_R3D2_DETECTED(0, get_detected_robot_distance()*100, get_detected_robot_angle()*1000*M_PI/180.);
+      PPP_SEND_R3D2_DETECTED(0, get_detected_robot_distance()*100, get_detected_robot_angle()*1000*M_PI/180.);
 #endif
-    PORTA = b?0x0F:0xF0;
-	}
-  else
-    PORTA = b?0x55:~0x55;
+      PORTA = b?0x0F:0xF0;
+    }
+    else
+    {
+      // f_e on detection
+      if (previously_detected)
+      {
+        PPP_SEND_R3D2_DISAPPEARED(0);
+      }
+
+      PORTA = b?0x55:~0x55;
+    } // if (detected)
+    previously_detected = detected;
+  }//  if (periodic_position_msg_status!=0)
 } 
 
 void uart_com_monitor(void)
