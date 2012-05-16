@@ -8,6 +8,7 @@ int8_t ppp_common_callback(const PPPMsgFrame *msg)
 {
   switch( msg->mid ) {
     case PPP_MID_RESET:
+      PPP_REPLY_RESET(msg);
       wdt_enable(WDTO_30MS);
       for(;;) ;
     case PPP_MID_PING:

@@ -52,6 +52,7 @@ static void ppp_msg_callback(PPPMsgFrame *msg)
   }
   switch( msg->mid ) {
     case PPP_MID_KILL:
+      PPP_REPLY_KILL(msg);
       stop_r3d2();
       NOTICE(0,"killed");
       break;
@@ -84,9 +85,11 @@ static void ppp_msg_callback(PPPMsgFrame *msg)
 
     case PPP_MID_R3D2_CALIBRATE_ANGLE_OFFSET:
       update_angle_offset_from_object_angle(msg->r3d2_calibrate_angle_offset.a*180./(1000*M_PI));
+      PPP_REPLY_R3D2_CALIBRATE_ANGLE_OFFSET(msg);
       break;
     case PPP_MID_R3D2_CALIBRATE_DISTANCE_COEF:
       update_surface_ratio_from_object_distance(msg->r3d2_calibrate_distance_coef.d/100.0);
+      PPP_REPLY_R3D2_CALIBRATE_DISTANCE_COEF(msg);
       break;
 
     default:

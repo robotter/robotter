@@ -33,6 +33,7 @@ void ppp_msg_callback(PPPMsgFrame *msg)
 
   switch( msg->mid ) {
     case PPP_MID_KILL:
+      PPP_REPLY_KILL(msg);
       EMERG(0,"KILL recveived from PPP");
       break;
 
@@ -40,12 +41,14 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       a = TO_RAD(msg->asserv_goto_a.a);
       DEBUG(0,"GOTO_A %1.1f",a);
       htrajectory_gotoA(&trajectory,a);
+      PPP_REPLY_ASSERV_GOTO_A(msg);
       break;
 
     case PPP_MID_ASSERV_GOTO_AR:
       a = TO_RAD(msg->asserv_goto_ar.a);
       DEBUG(0,"GOTO_AR %1.1f",a);
       htrajectory_gotoA_R(&trajectory,a);
+      PPP_REPLY_ASSERV_GOTO_AR(msg);
       break;
 
     case PPP_MID_ASSERV_GOTO_XY:
@@ -53,6 +56,7 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       y = TO_MM(msg->asserv_goto_xy.y);
       DEBUG(0,"GOTO_XY %1.1f %1.1f",x,y);
       htrajectory_gotoXY(&trajectory, x, y);
+      PPP_REPLY_ASSERV_GOTO_XY(msg);
       break;
 
     case PPP_MID_ASSERV_GOTO_XYR:
@@ -60,6 +64,7 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       y = TO_MM(msg->asserv_goto_xyr.y);
       DEBUG(0,"GOTO_XYR %1.1f %1.1f",x,y);
       htrajectory_gotoXY_R(&trajectory, x, y);
+      PPP_REPLY_ASSERV_GOTO_XYR(msg);
       break;
 
     case PPP_MID_ASSERV_RUN:
@@ -69,6 +74,7 @@ void ppp_msg_callback(PPPMsgFrame *msg)
                     n, HTRAJECTORY_MAX_POINTS);
       else
         htrajectory_run(&trajectory, points, n);
+      PPP_REPLY_ASSERV_RUN(msg);
       break;
 
     case PPP_MID_ASSERV_LOAD:
@@ -81,6 +87,7 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       else
         points[n].x = x;
         points[n].y = y;
+      PPP_REPLY_ASSERV_LOAD(msg);
       break;
 
     case PPP_MID_ASSERV_AUTOSET:
@@ -88,41 +95,48 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       x = TO_MM(msg->asserv_autoset.x);
       y = TO_MM(msg->asserv_autoset.y);
       htrajectory_autoset(&trajectory, n, x, y);
+      PPP_REPLY_ASSERV_AUTOSET(msg);
       break;
 
     case PPP_MID_ASSERV_SET_A_SPEED:
       s = TO_AS(msg->asserv_set_a_speed.speed);
       a = TO_AS(msg->asserv_set_a_speed.acc);
       htrajectory_setASpeed(&trajectory, s, a);
+      PPP_REPLY_ASSERV_SET_A_SPEED(msg);
       break;
 
     case PPP_MID_ASSERV_SET_XY_CRUISE_SPEED:
       s = TO_XYS(msg->asserv_set_xy_cruise_speed.speed);
       a = TO_XYS(msg->asserv_set_xy_cruise_speed.acc);
       htrajectory_setXYCruiseSpeed(&trajectory, s, a);
+      PPP_REPLY_ASSERV_SET_XY_CRUISE_SPEED(msg);
       break;
 
     case PPP_MID_ASSERV_SET_XY_STEERING_SPEED:
       s = TO_XYS(msg->asserv_set_xy_steering_speed.speed);
       a = TO_XYS(msg->asserv_set_xy_steering_speed.acc);
       htrajectory_setXYCruiseSpeed(&trajectory, s, a);
+      PPP_REPLY_ASSERV_SET_XY_STEERING_SPEED(msg);
       break;
 
     case PPP_MID_ASSERV_SET_XY_STOP_SPEED:
       s = TO_XYS(msg->asserv_set_xy_stop_speed.speed);
       a = TO_XYS(msg->asserv_set_xy_stop_speed.acc);
       htrajectory_setXYCruiseSpeed(&trajectory, s, a);
+      PPP_REPLY_ASSERV_SET_XY_STOP_SPEED(msg);
       break;
 
     case PPP_MID_ASSERV_SET_STEERING_WINDOW:
       x = TO_MM(msg->asserv_set_steering_window.xywin);
       htrajectory_setSteeringWindow(&trajectory, x);
+      PPP_REPLY_ASSERV_SET_STEERING_WINDOW(msg);
       break;
 
     case PPP_MID_ASSERV_SET_STOP_WINDOWS:
       x = TO_MM(msg->asserv_set_stop_windows.xywin);
       a = TO_RAD(msg->asserv_set_stop_windows.awin);
       htrajectory_setStopWindows(&trajectory, x, a);
+      PPP_REPLY_ASSERV_SET_STOP_WINDOWS(msg);
       break;
 
     case PPP_MID_ASSERV_STATUS:
@@ -145,6 +159,7 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       a = TO_RAD(msg->asserv_set_position.a);
       hposition_set(trajectory.hrp, x, y, a);
       htrajectory_reset_carrot(&trajectory);
+      PPP_REPLY_ASSERV_SET_POSITION(msg);
       break;
 
     case PPP_MID_ASSERV_GET_POSITION:
@@ -158,6 +173,7 @@ void ppp_msg_callback(PPPMsgFrame *msg)
     case PPP_MID_FORCE_AVOIDANCE:
       n = msg->force_avoidance.b;
       avoidance_force_blocked(&avoidance, n);
+      PPP_REPLY_FORCE_AVOIDANCE(msg);
       break;
 
     default:

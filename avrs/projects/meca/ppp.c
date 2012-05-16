@@ -19,6 +19,7 @@ void ppp_msg_callback(PPPMsgFrame *msg)
 
   switch( msg->mid ) {
     case PPP_MID_KILL:
+      PPP_REPLY_KILL(msg);
       brush_stop();
       actuators_stop(&actuators);
       break;
@@ -31,12 +32,15 @@ void ppp_msg_callback(PPPMsgFrame *msg)
           actuators_arm_set_angle(&actuators, loc, angle);
         }
       }
+      PPP_REPLY_ARM_SET_ANGLE(msg);
       return;
     case PPP_MID_BRUSH_SET_STATE:
       brush_set_state(msg->brush_set_state.on, msg->brush_set_state.open);
+      PPP_REPLY_BRUSH_SET_STATE(msg);
       return;
     case PPP_MID_BRUSH_SET_SPEED:
       brush_set_speed(msg->brush_set_speed.speed);
+      PPP_REPLY_BRUSH_SET_SPEED(msg);
       return;
     case PPP_MID_BRUSH_GET_POS:
       PPP_REPLY_BRUSH_GET_POS(msg, brush_get_pos());
