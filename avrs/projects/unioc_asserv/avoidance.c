@@ -72,16 +72,16 @@ void avoidance_update(avoidance_t* av)
 /** @brief Check avoidance sensors */
 direction_t avoidance_check(avoidance_t* av)
 {
+#ifdef SETTING_AVOIDANCE_ENABLED
   uint16_t rv = DIR_NONE;
-
   if( av->gp2_detections[0] > SETTING_AVOIDANCE_GP2ARRAY_COUNT )
     rv |= DIR_60;
-
   if( av->gp2_detections[1] > SETTING_AVOIDANCE_GP2ARRAY_COUNT )
     rv |= DIR_180;
-
   if( av->gp2_detections[2] > SETTING_AVOIDANCE_GP2ARRAY_COUNT )
     rv |= DIR_300;
-
   return rv;
+#else
+  return 0x00;
+#endif
 }
