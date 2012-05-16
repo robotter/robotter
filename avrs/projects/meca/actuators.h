@@ -62,6 +62,7 @@ typedef struct {
 } actuators_t;
 
 void actuators_init(actuators_t*);
+void actuators_stop(actuators_t*);
 
 /** @brief Load up default configuration in all actuators */
 void actuators_loadDefaults(actuators_t* m);

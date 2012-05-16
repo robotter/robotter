@@ -60,6 +60,15 @@ void actuators_init(actuators_t* m)
   return;
 }
 
+void actuators_stop(actuators_t* m)
+{
+  uint8_t it;
+  for(it=0; it<ARM_ANGLE_COUNT; it++) {
+    ax12_user_write_byte(&ax12, arms[it].id, AA_TORQUE_ENABLE, 0);
+  }
+}
+
+
 void actuators_arm_set_angle(actuators_t* m, arm_location_t loc, arm_angle_t a)
 {
   if( loc >= ARM_COUNT ) {
