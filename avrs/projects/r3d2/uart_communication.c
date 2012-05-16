@@ -46,7 +46,7 @@ void send_periodic_position_msg(void* dummy)
 #ifdef SETTING_UART_UI_ENABLED
 		printf("angle %4.2f | dist %3.2f\n", get_detected_robot_angle(), get_detected_robot_distance());
 #else
-    PPP_SEND_R3D2_DETECTED(0, get_detected_robot_distance()*10, get_detected_robot_angle()*1000*M_PI/180.);
+    PPP_SEND_R3D2_DETECTED(0, get_detected_robot_distance()*100, get_detected_robot_angle()*1000*M_PI/180.);
 #endif
     PORTA = b?0x0F:0xF0;
 	}

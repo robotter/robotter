@@ -83,10 +83,10 @@ static void ppp_msg_callback(PPPMsgFrame *msg)
       break;
 
     case PPP_MID_R3D2_CALIBRATE_ANGLE_OFFSET:
-      update_angle_offset_from_object_angle(msg->r3d2_calibrate_angle_offset.a*100./(1000*M_PI));
+      update_angle_offset_from_object_angle(msg->r3d2_calibrate_angle_offset.a*180./(1000*M_PI));
       break;
     case PPP_MID_R3D2_CALIBRATE_DISTANCE_COEF:
-      update_surface_ratio_from_object_distance(msg->r3d2_calibrate_distance_coef.d*100.);
+      update_surface_ratio_from_object_distance(msg->r3d2_calibrate_distance_coef.d/100.0);
       break;
 
     default:
