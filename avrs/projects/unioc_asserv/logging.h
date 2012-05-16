@@ -34,6 +34,10 @@
 #define ERROR_SEVTEXT_NOTICE  "NOTICE   "
 #define ERROR_SEVTEXT_DEBUG   "DEBUG    "
 
+// log callback function used by aversive/error
 void log_event(struct error * e, ...);
+
+// shutdown function used by callbacks
+void log_shutdown(void);
 
 #endif/*_LOGGING_H_*/

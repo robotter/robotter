@@ -78,36 +78,33 @@ void log_event(struct error * e, ...)
   // restore flags
   stdout->flags = flags;
 
-
   // dead end
   if( (e->severity == ERROR_SEVERITY_ERROR)
     ||(e->severity == ERROR_SEVERITY_EMERG) )
   {
     printf_P(PSTR("\nprogram stopped, strike a key other than 'x' to reset\n"));
-    
-    // TODO Add shutdown procedures here TODO
-    
-    // breaking motors
-    hrobot_break(NULL,1);
-
-    // killing cs & position tasks
-    scheduler_del_event(event_cs);
-  
-    // wait for key
-    int key;
-    while(1)
-    {
-      key = cli_getkey();
-
-      if( (key == -1)||(key == 'x'))
-        continue;
-      
-      break;
-    }
-
-    reset_bootloader();
+    // shutdown CSs and wait for reboot
+    log_shutdown();
   }
 
+}
+
+void log_shutdown()
+{
+  // breaking motors
+  hrobot_break(NULL,1);
+  // killing cs & position tasks
+  scheduler_del_event(event_cs);
+  // wait for key
+  int key;
+  while(1)
+  {
+    key = cli_getkey();
+    if( (key == -1)||(key == 'x'))
+      continue;
+    break;
+  }
+  reset_bootloader();
 }
 
 

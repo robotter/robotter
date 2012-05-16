@@ -30,6 +30,10 @@ void ppp_msg_callback(PPPMsgFrame *msg)
   DEBUG(0,"msg_callback %d %d",msg->src, msg->mid);
 
   switch( msg->mid ) {
+    case PPP_MID_KILL:
+      EMERG(0,"KILL recveived from PPP");
+      break;
+
     case PPP_MID_ASSERV_GOTO_A:
       a = TO_RAD(msg->asserv_goto_a.a);
       DEBUG(0,"GOTO_A %1.1f",a);
