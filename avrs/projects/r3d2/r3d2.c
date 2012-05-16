@@ -429,7 +429,7 @@ void r3d2_monitor(void *dummy)
 
 		float_duty_cycle = (((float)object_duty_cycle)*360)/motor_period_local;
     double new_v = surface_reflection_ratio/(2 * tan((float_duty_cycle/2)*M_PI/180));
-		detected_robot_distance = 0.1*new_v + 0.9*detected_robot_distance;
+		detected_robot_distance = 0.3*new_v + 0.7*detected_robot_distance;
 
 		// update flags
 		robot_detected_value = robot_detected;
