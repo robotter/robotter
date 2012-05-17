@@ -3,6 +3,7 @@
 
 #include "htrajectory.h"
 #include "avoidance.h"
+#include "logging.h"
 
 extern avoidance_t avoidance;
 extern robot_cs_t robot_cs;
@@ -34,7 +35,8 @@ void ppp_msg_callback(PPPMsgFrame *msg)
   switch( msg->mid ) {
     case PPP_MID_KILL:
       PPP_REPLY_KILL(msg);
-      EMERG(0,"KILL recveived from PPP");
+      // set break, shutdown CSs
+      log_shutdown();
       break;
 
     case PPP_MID_ASSERV_GOTO_A:
