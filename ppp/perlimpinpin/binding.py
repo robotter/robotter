@@ -280,6 +280,10 @@ class Binding(object):
         self._process_input(self._fd2file[fd])
     return True
 
+  def process_input_all(self, timeout=0):
+    while self.process_input(timeout):
+      pass
+
   def _process_input(self, f):
     """Read and process data from a single file object"""
     if hasattr(f, 'inWaiting') and callable(f.inWaiting):
