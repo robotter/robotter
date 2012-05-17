@@ -14,6 +14,7 @@ void brush_set_state(bool on, bool open);
 
 void brush_start(void);
 void brush_stop(void);
+void brush_stop_closed(void);
 /// Set brush speed, between 0 and 4095
 void brush_set_speed(uint16_t speed);
 uint16_t brush_get_pos(void);

@@ -34,9 +34,13 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       }
       PPP_REPLY_ARM_SET_ANGLE(msg);
       return;
-    case PPP_MID_BRUSH_SET_STATE:
-      brush_set_state(msg->brush_set_state.on, msg->brush_set_state.open);
-      PPP_REPLY_BRUSH_SET_STATE(msg);
+    case PPP_MID_BRUSH_STOP:
+      if (msg->brush_stop.now) {
+        brush_stop();
+      } else {
+        brush_stop_closed();
+      }
+      PPP_REPLY_BRUSH_STOP(msg);
       return;
     case PPP_MID_BRUSH_SET_SPEED:
       brush_set_speed(msg->brush_set_speed.speed);

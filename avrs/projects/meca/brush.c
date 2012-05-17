@@ -13,37 +13,17 @@ static volatile uint16_t brush_position = 0;
 
 
 enum {
-  BRUSH_ON,
+  BRUSH_ON = 0,
   BRUSH_OFF,
-  BRUSH_STOP_OPEN,
-  BRUSH_STOP_CLOSE,
+  BRUSH_STOPPING
 } brush_state;
 
 
 void brush_update(void *dummy)
 {
-  uint8_t flags;
-  if( brush_state == BRUSH_STOP_OPEN && brush_state == BRUSH_STOP_CLOSE ) {
-    IRQ_LOCK(flags);
-    uint16_t t = brush_position;
-    IRQ_UNLOCK(flags);
-    uint16_t tmin, tmax;
-    if( brush_state == BRUSH_STOP_OPEN ) {
-      tmin = SETTING_BRUSH_OPEN_TMIN;
-      tmax = SETTING_BRUSH_OPEN_TMAX;
-    } else {
-      tmin = SETTING_BRUSH_CLOSE_TMIN;
-      tmax = SETTING_BRUSH_CLOSE_TMAX;
-    }
-    if( tmin <= t && t <= tmax ) {
-      brush_stop();
-    }
-  }
-  if( PINC & _BV(5) ) {
-    IRQ_LOCK(flags);
-    brush_position = 0;
-    IRQ_UNLOCK(flags);
-  }
+  // index
+  if ((PINC & _BV(5)) && (brush_state == BRUSH_STOPPING))
+    brush_stop();
 }
 
 
@@ -54,6 +34,11 @@ void brush_init(void)
   DDRC |= _BV(3);
   PORTC |= _BV(3);
 
+  // register any logical change on EINT7
+  // XXX no longer used XXX
+  //EICRB = _BV(ISC70);
+  //EIMSK = _BV(INT7);
+
   PWM_NG_TIMER_16BITS_INIT(1, TIMER_16_MODE_PWM_8, TIMER1_PRESCALER_DIV_8);
   PWM_NG_INIT16(&brush_pwm, 1, A, 9, PWM_NG_MODE_NORMAL, 0, 0);
   brush_stop();
@@ -61,15 +46,6 @@ void brush_init(void)
   brush_event = scheduler_add_periodical_event_priority(
       &brush_update, 0,
       SETTING_SCHED_BRUSH_PERIOD, SETTING_SCHED_BRUSH_PRIORITY);
-}
-
-void brush_set_state(bool on, bool open)
-{
-  if(on) {
-    brush_start();
-  } else {
-    brush_state = open ? BRUSH_STOP_OPEN : BRUSH_STOP_CLOSE;
-  }
 }
 
 void brush_start(void)
@@ -82,6 +58,13 @@ void brush_stop(void)
 {
   pwm_ng_set(&brush_pwm, 0);
   brush_state = BRUSH_OFF;
+}
+
+void brush_stop_closed(void)
+{
+  brush_state = BRUSH_STOPPING;
+  // reduce brush speed
+  pwm_ng_set(&brush_pwm, 200);
 }
 
 void brush_set_speed(uint16_t speed)
@@ -97,11 +80,5 @@ uint16_t brush_get_pos(void)
   uint16_t v = brush_position;
   IRQ_UNLOCK(flags);
   return v;
-}
-
-
-SIGNAL(SIG_INTERRUPT7)
-{
-  brush_position++;
 }
 
