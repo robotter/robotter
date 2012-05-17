@@ -69,13 +69,18 @@ void actuators_stop(actuators_t* m)
 }
 
 
-void actuators_arm_set_angle(actuators_t* m, arm_location_t loc, arm_angle_t a)
+void actuators_arm_set_angle(actuators_t* m, arm_location_t loc, arm_angle_t a, uint16_t speed)
 {
   if( loc >= ARM_COUNT ) {
     return;
   }
   const arm_t *arm = &arms[loc];
-  actuators_ax12_setPositionSpeed(m, arm->id, arm->angles[a], SETTING_AX12_ARM_SPEED);
+
+  // if speed is zero, set default speed
+  if( speed == 0 )
+    speed = SETTING_AX12_ARM_SPEED;
+
+  actuators_ax12_setPositionSpeed(m, arm->id, arm->angles[a], speed);
 }
 
 uint8_t actuators_arm_get_angle(actuators_t* m, arm_location_t loc)

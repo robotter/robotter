@@ -69,7 +69,7 @@ void actuators_loadDefaults(actuators_t* m);
 
 
 // -- arms --
-void actuators_arm_set_angle(actuators_t*, arm_location_t, arm_angle_t);
+void actuators_arm_set_angle(actuators_t*, arm_location_t, arm_angle_t, uint16_t speed);
 uint8_t actuators_arm_get_angle(actuators_t*, arm_location_t);
 
 // -- ax12 --

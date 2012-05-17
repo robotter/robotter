@@ -28,8 +28,9 @@ void ppp_msg_callback(PPPMsgFrame *msg)
       {
         arm_location_t loc = msg->arm_set_angle.arm;
         arm_angle_t angle = msg->arm_set_angle.angle;
+        uint16_t speed = msg->arm_set_angle.speed;
         if( loc < ARM_COUNT && angle < ARM_ANGLE_COUNT ) {
-          actuators_arm_set_angle(&actuators, loc, angle);
+          actuators_arm_set_angle(&actuators, loc, angle, speed);
         }
       }
       PPP_REPLY_ARM_SET_ANGLE(msg);
