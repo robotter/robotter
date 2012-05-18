@@ -119,14 +119,14 @@ void ppp_msg_callback(PPPMsgFrame *msg)
     case PPP_MID_ASSERV_SET_XY_STEERING_SPEED:
       s = TO_XYS(msg->asserv_set_xy_steering_speed.speed);
       a = TO_XYS(msg->asserv_set_xy_steering_speed.acc);
-      htrajectory_setXYCruiseSpeed(&trajectory, s, a);
+      htrajectory_setXYSteeringSpeed(&trajectory, s, a);
       PPP_REPLY_ASSERV_SET_XY_STEERING_SPEED(msg);
       break;
 
     case PPP_MID_ASSERV_SET_XY_STOP_SPEED:
       s = TO_XYS(msg->asserv_set_xy_stop_speed.speed);
       a = TO_XYS(msg->asserv_set_xy_stop_speed.acc);
-      htrajectory_setXYCruiseSpeed(&trajectory, s, a);
+      htrajectory_setXYStopSpeed(&trajectory, s, a);
       PPP_REPLY_ASSERV_SET_XY_STOP_SPEED(msg);
       break;
 
