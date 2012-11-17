@@ -58,4 +58,5 @@ class UnknownPayload(Payload):
 # register knwon classes
 from . import system
 from . import log
+from . import room
 
