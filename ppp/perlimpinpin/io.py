@@ -10,6 +10,8 @@ import fcntl
 import threading
 import Queue
 from frame import Frame
+import payload
+from payload.system import *
 
 __all__ = ['Connection', 'Hub', 'HubBase']
 
@@ -237,5 +239,97 @@ class Hub(object):
       self._poll = None
       self._msg_pw = None
       self._msg_queue = None
+
+
+class HubBase(Hub):
+  """
+  Basic hub implementation
+
+  This subclass provides handling of base features such as system payload.
+
+  Payload handlers may also be defined on the instance/class as methods named
+  payload_handler_NAME(), where NAME is the payload's pname.
+  Note that only frames sent to the hub are processed by these handlers.
+
+  PayloadHandler classes can be mixed-in to add specific payload support.
+
+  Supported payloads use the payload_handlers map. None values can be added to
+  fake support of a given payload.
+
+  Attributes:
+    address -- hub address
+    network -- routing table, {address: Connection} map
+    node_name -- node name, returned in 'name' system payload
+    payload_handlers -- map of payload callbacks, indexed by payload ID
+
+  """
+
+  def __init__(self, addr):
+    Hub.__init__(self)
+    self.address = addr
+    self.network = {}
+    self.node_name = 'pyhub'
+    self.payload_handlers = {}
+    # register payload handler methods
+    for pl in payload.payloads.values():
+      fname = 'payload_handler_%s' % pl.pname.replace('-', '_')
+      if hasattr(self, fname):
+        self.payload_handlers[pl.pid] = getattr(self, fname)
+
+  def on_frame(self, con, frame):
+    # update traceroute distance before replying/routing
+    drop = False
+    pl = frame.payload
+    if isinstance(pl, PayloadSystemTraceroute):
+      if pl.request:
+        pl.distance += 1
+        if pl.distance >= 255:
+          drop = True
+      else:
+        pl.distance -= 1
+        if pl.distance < 0:
+          drop = True
+
+    # route if needed
+    if not drop:
+      cons = self.route_frame(frame, con)
+      if cons:
+        self.send(frame, cons)
+
+    # process payload
+    if frame.dst == 0xff or frame.dst == self.address:
+      handler = self.payload_handlers.get(pl.pid, None)
+      if handler is not None:
+        handler(frame)
+
+
+  def route_frame(self, frame, con=None):
+    if frame.dst == 0xff:
+      return [c for c in self.cons if c != con]
+    elif frame.dst != self.address and frame.dst in self.network:
+      c = self.network[frame.dst]
+      if c != con:
+        return [c]
+    return []
+
+
+  def payload_handler_system(self, frame):
+    pl = frame.payload
+    if not pl.request:
+      return
+
+    reply = None
+    if isinstance(pl, PayloadSystemPing):
+      reply = PayloadSystemPing(False, pl.value)
+    elif isinstance(pl, PayloadSystemTraceroute):
+      reply = PayloadSystemTraceroute(False, 0)
+    elif isinstance(pl, PayloadSystemName):
+      reply = PayloadSystemName(False, self.node_name)
+    elif isinstance(pl, PayloadSystemReset):
+      pass #TODO
+    elif isinstance(pl, PayloadSystemSupportedPayloads):
+      reply = PayloadSystemSupportedPayloads(False, set(self.payload_handlers))
+    if reply is not None:
+      self.send(Frame(self.address, frame.src, reply))
 
 
