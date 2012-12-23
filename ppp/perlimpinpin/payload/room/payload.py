@@ -48,7 +48,7 @@ class PayloadRoom(_Payload):
     if len(data) < 1:
       raise ValueError("invalid payload data size")
     n = ord(data[0])
-    rcls = payloads[n]
+    rcls = room_payloads[n]
     args = []
     data = data[1:]
     for k,t in rcls.ptypes:
@@ -68,9 +68,9 @@ class PayloadRoom(_Payload):
 
 def register(cls):
   """Register a PayloadRoom subclass"""
-  if cls.mid in payloads:
+  if cls.mid in room_payloads:
     raise ValueError("ROOM payload with message ID %d already defined" % cls.mid)
-  payloads[cls.mid] = cls
+  room_payloads[cls.mid] = cls
 
 def create(mid, mname, ptypes):
   """Create and return a PayloadRoom subclass"""
