@@ -9,7 +9,8 @@ class PayloadSystem(_Payload):
 
   Class attributes:
     system_id -- system type ID
-    system_name = system type name
+    system_name -- system type name
+    system_repr_attrs -- attributes to show in repr()
 
   Attributes:
     request -- True for requests, False for responses
@@ -18,6 +19,7 @@ class PayloadSystem(_Payload):
 
   pid = 0x00
   pname = 'system'
+  system_repr_attrs = []
 
   class __metaclass__(_Payload.__metaclass__):
     def __new__(mcls, name, bases, fields):
@@ -53,7 +55,8 @@ class PayloadSystem(_Payload):
     raise NotImplementedError()
 
   def __repr__(self):
-    return "<payload:%s %s>" % (self.pname, self.system_name)
+    attrs = ''.join(' %s=%r' % (k, getattr(self, k, '?')) for k in self.system_repr_attrs)
+    return "<payload:%s %s%s>" % (self.pname, self.system_name, attrs)
 
 
 class PayloadSystemAck(PayloadSystem):
@@ -104,6 +107,7 @@ class PayloadSystemPing(PayloadSystem):
   """
   system_id = 2
   system_name = 'ping'
+  system_repr_attrs = ['value']
 
   def __init__(self, request, value):
     PayloadSystem.__init__(self, request)
@@ -129,6 +133,7 @@ class PayloadSystemTraceroute(PayloadSystem):
   """
   system_id = 3
   system_name = 'traceroute'
+  system_repr_attrs = ['distance']
 
   def __init__(self, request, distance):
     PayloadSystem.__init__(self, request)
@@ -154,6 +159,7 @@ class PayloadSystemName(PayloadSystem):
   """
   system_id = 4
   system_name = 'name'
+  system_repr_attrs = ['name']
 
   valid_chars = set( chr(x) for x in range(ord(' '), 128) )
 
@@ -220,6 +226,7 @@ class PayloadSystemSupportedPayloads(PayloadSystem):
   """
   system_id = 7
   system_name = 'supported-payloads'
+  system_repr_attrs = ['supported_pids']
 
   def __init__(self, request, pids):
     PayloadSystem.__init__(self, request)
