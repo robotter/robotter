@@ -75,18 +75,20 @@ class room_int(_BaseType):
   Class attributes:
     signed -- True if signed, False if unsigned
     packfmt -- packing format
-    kpack -- scaling factor (applied to pack values)
+    fpack -- callable applied to values before packing
+    funpack -- callable applied to unpacked value
 
   """
   name = 'int'
   packsize = None
-  kpack = 1
+  fpack = int
+  funpack = int
 
   @classmethod
   def pack(cls, v):
     if cls == room_int:
       raise TypeError("base integer type cannot be packed")
-    return struct.pack(int(cls.packfmt, v * cls.kpack))
+    return struct.pack(cls.packfmt, cls.fpack(v))
 
   @classmethod
   def unpack(cls, data):
@@ -95,7 +97,7 @@ class room_int(_BaseType):
     n = struct.calcsize(cls.packfmt)
     if len(data) < n:
       raise ValueError("not enough data to unpack (expected %u, got %u)" % (n, len(data)))
-    return struct.unpack(cls.packfmt, data[:n])[0] / float(cls.kpack), data[n:]
+    return cls.funpack(struct.unpack(cls.packfmt, data[:n])[0]), data[n:]
 
 
 # define common integer types
@@ -141,25 +143,35 @@ class room_bool(room_uint8):
   """Boolean type."""
   name = 'bool'
   packfmt = '<?'
+  fpack = bool
+  funpack = bool
 
+
+# fonctions used to pack/unpack dist/angle values
+_scale1000_fpack = staticmethod(lambda v: int(v * 1000))
+_scale1000_funpack = staticmethod(lambda v: float(v) / 1000)
 
 class room_dist(room_int16):
   """Distance type (meters / millimeters)"""
   name = 'dist'
-  kpack = 1000
+  fpack = _scale1000_fpack
+  funpack = _scale1000_funpack
 
 class room_udist(room_uint16):
   """Positive distance type (meters / millimeters)"""
   name = 'udist'
-  kpack = 1000
+  fpack = _scale1000_fpack
+  funpack = _scale1000_funpack
 
 class room_angle(room_int16):
   """Angle type (radians / milliradians)"""
   name = 'angle'
-  kpack = 1000
+  fpack = _scale1000_fpack
+  funpack = _scale1000_funpack
 
 class room_uangle(room_uint16):
   """Positive angle type (radians / milliradians)"""
   name = 'uangle'
-  kpack = 1000
+  fpack = _scale1000_fpack
+  funpack = _scale1000_funpack
 
