@@ -63,7 +63,8 @@ class PayloadRoom(_Payload):
     return ret
 
   def __repr__(self):
-    return "<payload:%s %s>" % (self.pname, self.mname)
+    attrs = ''.join(' %s=%r' % kv for kv in zip(self.params._fields, self.params))
+    return "<payload:%s %s%s>" % (self.pname, self.mname, attrs)
 
 
 def register(cls):
