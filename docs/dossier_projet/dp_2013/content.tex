@@ -1,0 +1,317 @@
+\mychapter{Questionnaire}
+
+\textbf{Nom équipe :} Rob'Otter \\
+
+\textbf{1} : Autorisez-vous la diffusion de ce projet, avant la compétition, à des
+partenaires du concours? \\
+\begin{center} OUI \end{center}
+
+\section{L'équipe}
+
+\textbf{2} : Y'a-t-il eu des changements dans la constitution de l'équipe depuis votre
+pré-inscription ? (départs, arrivées...)\\
+\begin{center} NON \end{center}
+
+\newpage
+\section{Planning}
+
+\subsection{Robot principal}
+
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+
+ \hline
+ \multicolumn{9}{|c|}{Robot principal}\\
+ \hline
+ & 10\% & 25\% & 50\% & 75\% & 90\% &  100\% & Fin & Commentaires \\\hline
+ \textbf{Méca} / Conception 			& & & & & & $\surd$ & Janvier & \\\hline
+ \textbf{Méca} / Réalisation 		& & & & $\surd$ & & & Février& \\\hline
+ \textbf{Méca} / Test unitaires 	& & & & $\surd$ & & & Mars & \\\hline
+ \textbf{Élec} / Conception 			& & & & & & $\surd$ & Février & \\\hline
+ \textbf{Élec} / Réalisation 		& & & & &$\surd$ & & Mars & \\\hline
+ \textbf{Élec} / Test unitaires 	& & & &$\surd$ & & & Mars & \\\hline
+ \textbf{Info} / Conception 			& & & & & $\surd$ & & Mars & \\\hline
+ \textbf{Info} / Réalisation 		& & & & & $\surd$& & Avril & \\\hline
+ \textbf{Info} / Test unitaires 	& & & & $\surd$ & & & Mai & \\\hline
+ Intégration 						& & $\surd$ & & & & & Avril & \\\hline
+ Tests finaux						& $\surd$ & & & & & & Mai & \\\hline
+ \hline
+ \multicolumn{9}{|c|}{Robot secondaire}\\
+ \hline
+ & 10\% & 25\% & 50\% & 75\% & 90\% &  100\% & Fin & Commentaires \\\hline
+ \textbf{Méca} / Conception 			& & & & & $\surd$ & & Février& \\\hline
+ \textbf{Méca} / Réalisation 		& $\surd$ & & & & & & Mars& \\\hline
+ \textbf{Méca} / Test unitaires 	& $\surd$ & & & & & & Avril & \\\hline
+ \textbf{Élec} / Conception 			& & & & & & $\surd$ & Janvier & \\\hline
+ \textbf{Élec} / Réalisation 		& $\surd$ & & & & & & Mars & \\\hline
+ \textbf{Élec} / Test unitaires 	& & & & $\surd$ & & & Avril & \\\hline
+ \textbf{Info} / Conception 			& & & & $\surd$& & & Mars & \\\hline
+ \textbf{Info} / Réalisation 		& & $\surd$ & & & & & Mars & \\\hline
+ \textbf{Info} / Test unitaires 	&$\surd$ & & & & & & Mai & \\\hline
+ Intégration 						& & $\surd$ & & & & & Avril & \\\hline
+ Tests finaux						& $\surd$ & & & & & & Mai & \\\hline
+
+\end{tabular}
+
+\vskip 1cm
+
+\textbf{5} : Date à laquelle le robot se déplacera :\\
+\begin{center}
+Les deux robots devraient de déplacer aux environs de Mars.
+
+En ce qui concerne le robot principal l'asservissement et le système de propulsion ont été conservés par rapport à
+l'année dernière.
+L'asservissement et la propulsion du robot secondaire diffèrent en terme de
+système (propulsion holonome pour le robot principal, "robot char" pour le robot
+secondaire).
+\end{center}
+
+\textbf{6} : Date à laquelle votre robot sera homologable :\\
+\begin{center} Dès son premier déplacement. \end{center}
+
+\textbf{7} : Matchs d'entraînements :\\
+\begin{center} NON \end{center}
+
+\textbf{8} : Suivi de l'équipe par un bénévole :\\
+\begin{center} NON \end{center}
+
+
+\section{Le budget}
+
+\textbf{1} : Budget prévisionnel (hors déplacement)
+
+\begin{center}
+Robot principal :
+\begin{tabular} {|l|r|}
+\hline
+mécanique & 150\euro \\\hline
+électronique & 350\euro \\\hline
+\hline
+total & 500\euro \\\hline
+\end{tabular}
+
+Robot secondaire :
+\begin{tabular} {|l|r|}
+\hline
+mécanique & 400\euro \\\hline
+électronique & 1000\euro \\\hline
+\hline
+total & 1400\euro \\\hline
+\end{tabular}
+\end{center}
+
+\vskip 1cm
+
+\textbf{2} : Buget prévisionnel du voyage :\\
+\begin{center} 1000\euro \end{center}
+
+\textbf{3} : Partenaires :\\
+\begin{itemize}
+  \item Armadeus
+  \item Eolite Systems
+	\item Fly-n-Sense
+  \item Eirbot
+\end{itemize}
+
+\vskip 1cm
+
+\textbf{4} : Matériel à disposition : \\
+\begin{itemize}
+  \item outillage mécanique basique (personnel + sponsors + partenariat
+	Fly-n-Sense + partenariat équipe Eirbot);
+  \item outillage électronique : moyen de réalisation PCB, oscilloscope,
+  moyens soudage, etc (personnel + sponsors + partenariat Fly-n-Sense + partenariat équipe Eirbot);
+  \item table de jeu (partenariat équipe Eirbot).
+\end{itemize}
+
+\mychapter{Descriptif du projet}
+
+\section{Description générale}
+
+L'objectif est de réaliser 2 robots, un robot principal et un robot
+secondaire.\\
+
+L'objectif du robot principal est d'éteindre les bougies du gâteau.\\
+
+Le robot dispose de deux bras escamotables chacun dédié à une rangée de bougies
+sur le gâteau. Chaque bras est capable d'appuyer sur la bougie et la pousse à
+l'aide d'une route en rotation rapide au bout du bras. Ce pièce en rotation
+permet d'éviter que la balle de tennis ne se bloque sur le bord supérieur de la
+bougie.\\
+Le déplacement holonome est un énorme avantage pour le robot principal car il
+lui permet d'épouser la forme du gâteau dans son déplacement et perdre moins de
+temps.\\
+
+L'objectif du robot secondaire est de pousser les cadeaux et ramasser les
+verres.\\
+
+Les cadeaux sont poussés au moyens de \emph{doigts escamotables} installés sur la gauche et
+la droite du robot.\\
+
+Les verres resteront au niveu du sol mais seront bloqués au moyen d'emplacement
+adaptés et de \emph{doigts escamotables} sur le pourtour du robot (5 au
+total).\\
+
+\begin{itemize}
+\item Hauteur du robot principal : \textbf{30cm}
+\item Périmètre du robot principal en position de départ : \textbf{110cm}
+\item Périmètre du robot principal déployé : \textbf{130cm}
+\item Couleur du robot principal : structure aluminium (gris/blanc), roues en plastique
+bleu clair, plaques de plexiglass transparent pour coque.
+\end{itemize}
+\vskip 1cm
+
+\begin{itemize}
+\item Hauteur du robot secondaire : \textbf{30cm}
+\item Périmètre du robot secondaire en position de départ : \textbf{80cm}
+\item Périmètre du robot secondaire déployé : \textbf{100cm}
+\item Couleur du robot secondaire : structure aluminium (gris/blanc), roues en plastique
+bleu clair.
+\end{itemize}
+\vskip 2cm
+
+\clearpage
+Design mécanique du robot principal: base roulante seule. Ce plan et le périmètre indiqués ne reflétent 
+pas les dimensions finales, les préhenseurs n'étant pas représentés.\\
+\includegraphics[width=1.0\textwidth]{img/robot1.png}\\
+
+\clearpage
+Design mécanique complet du robot secondaire. Les verres transportés sont
+représentés.\\
+\includegraphics[width=1.0\textwidth]{img/robot2.png}\\
+
+\clearpage
+
+\section{Description technique}
+
+\subsection{Motorisation}
+
+Le robot principal sera propulsé de manière holonome par 3 motoréducteurs RE25/PLG32. Le
+contact sera sol est effectué par 3 omniwheels FXA315 positionnées à 120°.\\
+
+La motorisation fixe la vitesse maximale du robot à 1 m/s environ même si les
+contraintes d'asservissement donnent une vitesse de 0.5 m/s plus probable.\\
+
+Le robot principal sera propulsé par 2 motoréducteurs PD3237. Le contact au sol
+sera effectué par 2 roues de conception interne à l'aide d'une bande roulement
+souple.
+
+\subsection{Positionnement}
+
+Le positionnement est réalisé par les codeurs incrémentaux situés sur chaque
+moteur du robot.\\
+Une chaîne de traitement constituée d'un FPGA Altera Cyclone 2 et d'un
+microcontrôleur AVR ATmega 128 assure le traitement des capteurs et le calcul
+de la position.
+
+\subsection{Asservissement}
+
+Les moteurs sont asservis en vitesse grâce aux codeurs incrémentaux présents sur
+le motoréducteur. Le robot est asservi en position par le retour des capteurs
+optiques.
+
+Les asservissements sont réalisés par des filtres de type PIDf, implémentés dans
+le microcontrôleur.
+
+\subsection{Énergie}
+
+Le robot principal est alimenté par deux batteries au plomb alimentant sous 24V 
+les moteurs et l'étage puissance du robot. Une batterie au plomb supplémentaire
+est dédiée à l'étage logique du robot. 
+Les 3 batteries assurent une autonomie de fonctionnement d'une bonne 1/2 heure
+pour la puissance et presque 4 heures pour la logique (\emph{surdimensionné} est le mot que vous cherchez). \\
+
+Le robot secondaire est alimenté par une batterie LiPo 3S de 1000mAh
+l'alimentant sous 13V. La logique et la puissance sont toutes deux alimentées
+par cette batterie. Aucune estimation n'a été réalisé de manière précise sur 
+l'autonomie de ce robot.\\
+
+Deux jeux complets de batteries sont disponibles pour chaque robot.\\
+
+Un interrupteur arrêt d'urgence coupant le circuit de puissance du robot est
+présent sur le haut de ce dernier.
+
+\subsection{Éléments de jeu}
+
+Le robot principal ne stocke pas d'éléments de jeux.\\
+
+Le robot secondaire stocke sur son pourtour extérieur jusqu'à 5 verres.
+
+\subsection{Stratégie}
+
+La stratégie en cours de match pour le robot principal consistera à se déplacer
+le plus rapidement possible au niveau du gâteau et faire éteindre les bougies de
+sa couleur.\\
+
+Le robot secondaire sera chargé de pousser les actionneur des cadeaux et
+ramasser un maximum de verres.\\
+
+La stratégie actuelle ne prévoit pas de jouer les cerises.\\
+
+\subsection{Système d'évitement}
+
+Le système d'évitement est constitué de deux balises, l'une placée sur le robot
+adverse constituée d'un réflecteur et l'autre placée sur le robot en dessous de
+l'espace réservé à la balise adverse.
+Cette dernière est constituée
+d'un capteur SICK de type barrière laser et d'un miroir rotatif permettant de
+détecter le réflecteur placé sur le robot adverse et ainsi connaître la position
+du robot (l'angle est connu par la position du miroir de la balise, la distance
+par un calcul basé sur le temps durant lequel le réflecteur est détecté).\\
+
+Le système d'évitement du robot adverse consiste en 2 capteurs ultrason disposés
+à l'avant et à l'arrière du robot lui permettant de voir les obstacles et
+d'estimer leur distance.
+
+
+\subsection{Capteurs}
+
+Outre le positionnement, nous disposerons de télémètres IR SHARP GP2* et divers
+capteurs de position.\\
+Les servomoteurs AX12 utilisés sont "intelligents" et permettent de connaître
+diverses informations telles que leurs positions, vitesses, couple instantannés,
+etc.\\
+
+\subsection{Arrêt d'urgence et limite de temps}
+
+Un bouton d'arrêt d'urgence placé sur le dessus de la coque du robot permet de couper
+l'alimentation puissance du robot, stoppant ses actionneurs.\\
+
+Un système logiciel intégré à l'asservissement du robot le stoppe dès que la limite de jeu
+de 90s est atteinte.\\
+
+\subsection{Laser}
+
+Le capteur SICK utilisé par la balise de détection dispose d'un laser visible
+de classe 1.
+
+\subsection{Intelligence}
+
+L'intelligence du robot principal est réalisée par :
+\begin{itemize}
+\item Une carte "OS embarquée" constituée d'un ARM et tournant sous linux
+assurant la stratégie;
+\item un carte constituée d'un AVR ATmega 128 et d'un FPGA Altera Cyclone 2, assurant
+l'asservissement en position du robot;
+\item une carte constituée d'un microcontrôleur AVR ATmega assurant le contrôle
+des servomoteurs AX-12 et autres capteurs du robot.
+\end{itemize}
+
+L'intelligence du robot secondaire est réalisée par :
+\begin{itemize}
+\item Une unique carte constituée d'un AVR ATXmega 128 chargée de la totalitée
+des fonctions du robot.
+\end{itemize}
+
+En parallèle du développement embarqué sur le robot, un simulateur est
+développé par l'équipe.\\
+\href{URL}{http://code.google.com/p/simulotter/}
+\begin{center} \includegraphics[width=0.5\textwidth]{img/simuv.png} \end{center}
+
+Ce dernier permet de tester des stratégies de manière simple (utilisation du
+langage Python pour l'intelligence).\\
+
+Un des objectifs de l'équipe est d'utiliser la même architecture logicielle pour
+le simulateur et l'intelligence du robot permettant ainsi de passer de manière
+transparente un code de stratégie testé sur le simulateur vers le robot.\\
+
+Les langages utilisés seront C, VHDL et quelques langages haut-niveau (Python).
