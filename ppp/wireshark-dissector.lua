@@ -1,4 +1,6 @@
 -- How-to use this dissector:
+--   lua support must be enabled in wireshark, check /etc/wireshark/init.lua 
+--   ("disable_lua = true; do return end;" file must be commented or deleted)
 --   $ wireshark -X lua_script:wireshark-dissector.lua
 --   Start a capture or load a capture file
 --   Right-click on a PPP packet, click 'Decode As...'
