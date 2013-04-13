@@ -200,21 +200,20 @@ class Hub(object):
           # receive data
           elif ev & select.EPOLLIN:
             con = cons[fd]
-            while True:
-              try:
-                data = os.read(fd, 512)
-                if not data:
-                  if con.hub is self:  # avoid double removal
-                    self.remove_connection(con)
-                  break
-              except OSError as e:
-                if e.errno == os.errno.EAGAIN:
-                  break
-                raise
-              frame = con.rgen.send(data)
-              if frame is None:
+            try:
+              data = os.read(fd, 512)
+              if not data:
+                if con.hub is self:  # avoid double removal
+                  self.remove_connection(con)
                 break
-              self.on_frame(con, frame)
+            except OSError as e:
+              if e.errno == os.errno.EAGAIN:
+                break
+              raise
+            frame = con.rgen.send(data)
+            if frame is None:
+              break
+            self.on_frame(con, frame)
           # send data
           elif ev & select.EPOLLOUT:
             con = cons[fd]
