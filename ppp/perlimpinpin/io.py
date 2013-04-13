@@ -5,6 +5,8 @@ Handle PPP I/O from several sources simultaneously
 """
 
 import os
+import sys
+import re
 import select
 import fcntl
 import threading
@@ -331,4 +333,115 @@ class HubBase(Hub):
     if reply is not None:
       self.send(Frame(self.address, frame.src, reply))
 
+
+def main():
+  import argparse
+
+  parser = argparse.ArgumentParser()
+  parser.add_argument('address', type=int,
+      help="PPP node address")
+  parser.add_argument('source',
+      help="source to listen from (host:port or filename)")
+  parser.add_argument('--baudrate', type=int, default=None,
+      help="serial baudrate, imply serial port, defaults to 38400")
+  parser.add_argument('-i', '--interactive', action='store_true', default=False,
+      help="start an interactive IPython shell")
+
+  args = parser.parse_args()
+
+  # guess source type
+  src = args.source
+  src_type = None
+  if args.baudrate is not None:
+    src_type = 'serial'
+  elif re.match('^([^:]+):(\d+)$', src):
+    src_type = 'tcp'
+  elif src.startswith('/dev/tty'):
+    src_type = 'serial'
+  elif os.path.exists(src):
+    import stat
+    mode = os.stat(src).st_mode
+    if stat.S_ISREG(mode):
+      parser.error("source cannot be a regular file")
+    elif stat.S_ISFIFO(mode):
+      src_type = 'fifo'
+    elif stat.S_ISSOCK(mode):
+      src_type = 'socket'
+    elif stat.S_ISCHR(mode):
+      src_type = 'chr'
+  if src_type is None:
+    parser.error("cannot detect source type")
+
+  # get connection file object from source
+  if src_type == 'serial':
+    from serial import Serial
+    if args.baudrate is not None:
+      args.baudrate = 38400
+    fo = Serial(src, args.baudrate)
+  elif src_type == 'tcp':
+    import socket
+    m = re.match('^([^:]+):(\d+)$', src)
+    host, port = m.group(1), int(m.group(2))
+    fo = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    fo.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    print "connecting to %s:%d..." % (host, port)
+    fo.connect((host, port))
+  elif src_type == 'fifo':
+    parser.error("pipes not supported")
+  elif src_type == 'socket':
+    import socket
+    fo = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    fo.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    fo.connect(src)
+  elif src_type == 'chr':
+    fo = open(src, 'r+b')
+  else:
+    parser.error("invalid source type")
+
+  # simple client hub
+  class HubClient(HubBase):
+    def __init__(self, addr, fo):
+      HubBase.__init__(self, addr)
+      self.thread.daemon = True
+      self.server = Connection(fo)
+      self.add_connection(self.server)
+
+    def route_frame(self, frame, con=None):
+      if self.server == con:
+        return []
+      else:
+        return [self.server]
+
+    def on_frame(self, con, frame):
+      print "<<< %r" % frame
+      HubBase.on_frame(self, con, frame)
+
+  hub = HubClient(args.address, fo)
+  hub.start()
+  if not args.interactive:
+    # listen forever, without blocking keyboard interrupt
+    import time
+    while True:
+      time.sleep(100)
+  else:
+    import perlimpinpin
+    import perlimpinpin.frame
+    import perlimpinpin.payload
+    namespace = {
+        'hub': hub,
+        'Frame': Frame,
+        'payload': perlimpinpin.payload,
+        }
+    # payload base classes
+    namespace.update({ cls.__name__: cls for cls in perlimpinpin.payload.payloads.values() })
+    # payload.system subclasses
+    namespace.update({ k: getattr(perlimpinpin.payload.system, k)
+      for k in dir(perlimpinpin.payload.system) if k.startswith('PayloadSystem')
+      })
+    import IPython
+    IPython.embed(user_ns=namespace, banner2="PPP interactive shell")
+
+
+if __name__ == '__main__':
+  main()
 
