@@ -109,6 +109,25 @@ class room_int(_BaseType):
     return cls.funpack(struct.unpack(cls.packfmt, data[:n])[0]), data[n:]
 
 
+class room_float(_BaseType):
+  """
+  Float type
+  """
+  name = 'float'
+  packfmt = '<f'
+
+  @classmethod
+  def pack(cls, v):
+    return struct.pack(cls.packfmt, v)
+
+  @classmethod
+  def unpack(cls, data):
+    n = cls.packsize
+    if len(data) < n:
+      raise ValueError("not enough data to unpack (expected %u, got %u)" % (n, len(data)))
+    return struct.unpack(cls.packfmt, data[:n])[0]), data[n:]
+
+
 # define common integer types
 
 class room_int8(room_int):
