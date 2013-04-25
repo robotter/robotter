@@ -125,7 +125,7 @@ class room_float(_BaseType):
     n = cls.packsize
     if len(data) < n:
       raise ValueError("not enough data to unpack (expected %u, got %u)" % (n, len(data)))
-    return struct.unpack(cls.packfmt, data[:n])[0]), data[n:]
+    return struct.unpack(cls.packfmt, data[:n])[0], data[n:]
 
 
 # define common integer types
