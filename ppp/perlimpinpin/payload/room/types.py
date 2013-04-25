@@ -29,6 +29,13 @@ class _Type(type):
   def __new__(mcls, name, bases, fields):
     if 'name' in fields:
       name = fields['name']
+      if 'packfmt' in fields:
+        fmtsize = struct.calcsize(fields['packfmt'])
+        packsize = fields.get('packsize')
+        if packsize is None:
+          fields['packsize'] = fmtsize
+        elif packsize != fmtsize:
+          raise ValueError("packsize and packfmt mismatch")
       tcls = type.__new__(mcls, name, bases, fields)
       if name in types:
         raise ValueError("type '%s' already defined" % name)
@@ -51,6 +58,9 @@ class _BaseType:
 
   Class attributes:
     packsize -- byte size of packed value
+    packfmt -- packing format (optional)
+
+  If packfmt is used, packsize is deduced from it.
 
   """
   __metaclass__ = _Type
@@ -74,13 +84,12 @@ class room_int(_BaseType):
 
   Class attributes:
     signed -- True if signed, False if unsigned
-    packfmt -- packing format
+    packfmt -- packing format (mandatory)
     fpack -- callable applied to values before packing
     funpack -- callable applied to unpacked value
 
   """
   name = 'int'
-  packsize = None
   fpack = int
   funpack = int
 
@@ -94,7 +103,7 @@ class room_int(_BaseType):
   def unpack(cls, data):
     if cls == room_int:
       raise TypeError("base integer type cannot be unpacked")
-    n = struct.calcsize(cls.packfmt)
+    n = cls.packsize
     if len(data) < n:
       raise ValueError("not enough data to unpack (expected %u, got %u)" % (n, len(data)))
     return cls.funpack(struct.unpack(cls.packfmt, data[:n])[0]), data[n:]
@@ -106,37 +115,31 @@ class room_int8(room_int):
   name = 'int8'
   signed = True
   packfmt = '<b'
-  packsize = 1
 
 class room_uint8(room_int):
   name = 'uint8'
   signed = False
   packfmt = '<B'
-  packsize = 1
 
 class room_int16(room_int):
   name = 'int16'
   signed = True
   packfmt = '<h'
-  packsize = 2
 
 class room_uint16(room_int):
   name = 'uint16'
   signed = False
   packfmt = '<H'
-  packsize = 2
 
 class room_int32(room_int):
   name = 'int32'
   signed = True
   packfmt = '<i'
-  packsize = 4
 
 class room_uint32(room_int):
   name = 'uint32'
   signed = False
   packfmt = '<I'
-  packsize = 4
 
 
 class room_bool(room_uint8):
