@@ -427,6 +427,10 @@ class HubClient(HubBase):
     print "<<< %r" % frame
     HubBase.on_frame(self, con, frame)
 
+  def remove_connection(self, con):
+    HubBase.remove_connection(self, con)
+    if con is self.server:
+      self.stop()
 
 
 def main():
@@ -449,9 +453,8 @@ def main():
   hub.start()
   if not args.interactive:
     # listen forever, without blocking keyboard interrupt
-    import time
-    while True:
-      time.sleep(100)
+    while hub.thread.isAlive():
+      hub.thread.join(100)
   else:
     import perlimpinpin
     import perlimpinpin.frame
