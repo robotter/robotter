@@ -184,7 +184,8 @@ class Hub(object):
     if not self.thread.is_alive():
       raise RuntimeError("not running")
     self._msg_send('x', None)
-    self.thread.join()
+    if self.thread is not threading.current_thread():
+      self.thread.join()
 
 
   def _msg_send(self, c, data):
@@ -259,7 +260,10 @@ class Hub(object):
               elif c == 'C':
                 # remove connection
                 con = qsend.get()
-                self._poll.unregister(con.fd)
+                try:
+                  self._poll.unregister(con.fd)
+                except IOError:
+                  pass # already unregistered
                 del cons[con.fd]
               elif c == 'x':
                 # exit the I/O thread
@@ -271,6 +275,9 @@ class Hub(object):
               data = os.read(fd, 512)
               if not data:
                 if con.hub is self:  # avoid double removal
+                  # unregister now or the same event may be triggered
+                  # indefinitely, preventing the 'C' message to be processed
+                  self._poll.unregister(con.fd)
                   self.remove_connection(con)
                 break
             except OSError as e:
