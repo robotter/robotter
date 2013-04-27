@@ -50,6 +50,71 @@ class Connection(object):
     self.rgen.send(None)  # init the generator
     self.wbuf = None
 
+  @classmethod
+  def fromsource(cls, src, **kw):
+    """Create a connection from a source string
+
+    source may be
+      host:port -- TCP connection
+      /dev/tty* -- serial
+      filename -- special file (pseudo-terminal, socket, ...)
+
+    Keywords:
+      baudrate -- serial baudrate, imply serial port, default to 38400
+
+    """
+
+    baudrate = kw.get('baudrate')
+
+    # guess source type
+    src_type = None
+    if baudrate is not None:
+      src_type = 'serial'
+    elif re.match('^([^:]+):(\d+)$', src):
+      src_type = 'tcp'
+    elif src.startswith('/dev/tty'):
+      src_type = 'serial'
+    elif os.path.exists(src):
+      import stat
+      mode = os.stat(src).st_mode
+      if stat.S_ISREG(mode):
+        raise ValueError("source cannot be a regular file")
+      elif stat.S_ISFIFO(mode):
+        src_type = 'fifo'
+      elif stat.S_ISSOCK(mode):
+        src_type = 'socket'
+      elif stat.S_ISCHR(mode):
+        src_type = 'chr'
+    if src_type is None:
+      raise ValueError("cannot detect source type")
+
+    # get connection file object from source
+    if src_type == 'serial':
+      from serial import Serial
+      if baudrate is not None:
+        baudrate = 38400
+      fo = Serial(src, baudrate)
+    elif src_type == 'tcp':
+      import socket
+      m = re.match('^([^:]+):(\d+)$', src)
+      host, port = m.group(1), int(m.group(2))
+      fo = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      fo.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+      print "connecting to %s:%d..." % (host, port)
+      fo.connect((host, port))
+    elif src_type == 'fifo':
+      raise ValueError("pipe source not supported")
+    elif src_type == 'socket':
+      import socket
+      fo = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      fo.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+      fo.connect(src)
+    elif src_type == 'chr':
+      fo = open(src, 'r+b')
+    else:
+      raise ValueError("invalid source type")
+
+    return cls(fo)
 
 
 class Hub(object):
@@ -267,6 +332,7 @@ class HubBase(Hub):
 
   def __init__(self, addr):
     Hub.__init__(self)
+    self.thread.daemon = True
     self.address = addr
     self.network = {}
     self.node_name = 'pyhub'
@@ -334,11 +400,33 @@ class HubBase(Hub):
       self.send(Frame(self.address, frame.src, reply))
 
 
+class HubClient(HubBase):
+  """
+  Hub for a single client connection that print received messages
+  """
+
+  def __init__(self, addr, con):
+    HubBase.__init__(self, addr)
+    self.server = con
+    self.add_connection(self.server)
+
+  def route_frame(self, frame, con=None):
+    if self.server == con:
+      return []
+    else:
+      return [self.server]
+
+  def on_frame(self, con, frame):
+    print "<<< %r" % frame
+    HubBase.on_frame(self, con, frame)
+
+
+
 def main():
   import argparse
 
   parser = argparse.ArgumentParser()
-  parser.add_argument('address', type=int,
+  parser.add_argument('address', type=lambda x: int(x, 0),
       help="PPP node address")
   parser.add_argument('source',
       help="source to listen from (host:port or filename)")
@@ -349,73 +437,7 @@ def main():
 
   args = parser.parse_args()
 
-  # guess source type
-  src = args.source
-  src_type = None
-  if args.baudrate is not None:
-    src_type = 'serial'
-  elif re.match('^([^:]+):(\d+)$', src):
-    src_type = 'tcp'
-  elif src.startswith('/dev/tty'):
-    src_type = 'serial'
-  elif os.path.exists(src):
-    import stat
-    mode = os.stat(src).st_mode
-    if stat.S_ISREG(mode):
-      parser.error("source cannot be a regular file")
-    elif stat.S_ISFIFO(mode):
-      src_type = 'fifo'
-    elif stat.S_ISSOCK(mode):
-      src_type = 'socket'
-    elif stat.S_ISCHR(mode):
-      src_type = 'chr'
-  if src_type is None:
-    parser.error("cannot detect source type")
-
-  # get connection file object from source
-  if src_type == 'serial':
-    from serial import Serial
-    if args.baudrate is not None:
-      args.baudrate = 38400
-    fo = Serial(src, args.baudrate)
-  elif src_type == 'tcp':
-    import socket
-    m = re.match('^([^:]+):(\d+)$', src)
-    host, port = m.group(1), int(m.group(2))
-    fo = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    fo.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-    print "connecting to %s:%d..." % (host, port)
-    fo.connect((host, port))
-  elif src_type == 'fifo':
-    parser.error("pipes not supported")
-  elif src_type == 'socket':
-    import socket
-    fo = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    fo.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-    fo.connect(src)
-  elif src_type == 'chr':
-    fo = open(src, 'r+b')
-  else:
-    parser.error("invalid source type")
-
-  # simple client hub
-  class HubClient(HubBase):
-    def __init__(self, addr, fo):
-      HubBase.__init__(self, addr)
-      self.thread.daemon = True
-      self.server = Connection(fo)
-      self.add_connection(self.server)
-
-    def route_frame(self, frame, con=None):
-      if self.server == con:
-        return []
-      else:
-        return [self.server]
-
-    def on_frame(self, con, frame):
-      print "<<< %r" % frame
-      HubBase.on_frame(self, con, frame)
-
+  fo = Connection.fromsource(args.source, baudrate=args.baudrate)
   hub = HubClient(args.address, fo)
   hub.start()
   if not args.interactive:
