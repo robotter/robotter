@@ -147,6 +147,7 @@ class Hub(object):
     _poll -- epoll object
     _msg_queue -- Queue for internal events data
     _msg_pw -- pipe to announce internal events to the I/O thread
+    _start_event -- used to wait for the thread to be up and running
 
   """
 
@@ -177,7 +178,9 @@ class Hub(object):
 
   def start(self):
     """Start the I/O thread"""
+    self._start_event = threading.Event()
     self.thread.start()
+    self._start_event.wait()
 
   def stop(self):
     """Stop the I/O thread"""
@@ -234,6 +237,7 @@ class Hub(object):
       self._poll = poll
       self._msg_pw = msg_pw
 
+    self._start_event.set()
     try:
       while True:
         for fd, ev in poll.poll(-1):
