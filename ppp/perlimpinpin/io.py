@@ -91,7 +91,7 @@ class Connection(object):
     # get connection file object from source
     if src_type == 'serial':
       from serial import Serial
-      if baudrate is not None:
+      if baudrate is None:
         baudrate = 38400
       fo = Serial(src, baudrate)
     elif src_type == 'tcp':
