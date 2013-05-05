@@ -32,6 +32,7 @@ class PayloadRoom(_Payload):
   pid = 0x10
   pname = 'room'
   transaction = None
+  response = None
 
   class __metaclass__(_Payload.__metaclass__):
     def __new__(mcls, name, bases, fields):
