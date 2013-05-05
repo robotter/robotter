@@ -48,7 +48,9 @@ class PayloadRoom(_Payload):
     if len(data) < 1:
       raise ValueError("invalid payload data size")
     n = ord(data[0])
-    rcls = room_payloads[n]
+    rcls = room_payloads.get(n)
+    if rcls is None:
+      return PayloadRoomUnknown(n, data[1:])
     args = []
     data = data[1:]
     for k,t in rcls.ptypes:
@@ -65,6 +67,20 @@ class PayloadRoom(_Payload):
   def __repr__(self):
     attrs = ''.join(' %s=%r' % kv for kv in zip(self.params._fields, self.params))
     return "<payload:%s %s%s>" % (self.pname, self.mname, attrs)
+
+
+class PayloadRoomUnknown(PayloadRoom):
+  """
+  Default ROOM payload, for unknown message ID
+  """
+  mid = None
+  mname = None
+
+  ptuple = _namedtuple('PayloadRoomUnknown_params', ['data'])
+
+  def __init__(self, mid, data):
+    self.mid = mid
+    self.params = self.ptuple(data)
 
 
 def register(cls):
