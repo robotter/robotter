@@ -248,7 +248,11 @@ class Hub(object):
                 # new frame to send
                 frame, dst_cons = qsend.get()
                 qsend.task_done()
-                data = frame.data()
+                try:
+                  data = frame.data()
+                except Exception as e:
+                  print "failed to format frame: %s" % e
+                  continue
                 for con in dst_cons:
                   if con.wbuf is None:
                     con.wbuf = data
