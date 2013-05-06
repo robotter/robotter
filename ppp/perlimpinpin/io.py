@@ -121,7 +121,8 @@ class Hub(object):
   """
   Handle PPP I/O for multiple connections
 
-  I/O are processed in a separated thread.
+  I/O routines are thread-safe. Callbacks are processed in the thread that calls
+  run() or run_one().
 
   The following methods must be implemented:
     on_frame() -- called when a frame is received
@@ -130,11 +131,11 @@ class Hub(object):
   Frames can be sent directly through a Connection object or through the hub to
   be routed.
 
-  Events such as I/O thread stop, new frames in queue, etc. are announced using
+  Events such as server stop, new frames in queue, etc. are announced using
   an internal pipe and queue. See also _internal_msg_send().
   The following characters can be sent:
     'w' -- new frame to send in queue, data: (Frame, Connections)
-    'x' -- exit I/O thread, data: None
+    'x' -- exit run(), data: None
     'c' -- add a new connection, data: Connection
     'C' -- remove a connection, data: Connection
 
@@ -142,19 +143,22 @@ class Hub(object):
 
   Attributes:
     cons -- set of Connection objects
-    thread -- I/O thread
+    started -- True if start() has been called
+    _running -- True when run() is being called
     _lock -- lock for thread-safety
     _poll -- epoll object
+    _poll_cons -- polled connections, indexed by fd
     _msg_queue -- Queue for internal events data
-    _msg_pw -- pipe to announce internal events to the I/O thread
-    _start_event -- used to wait for the thread to be up and running
+    _msg_pr -- pipe to read internal events in run()/run_one()
+    _msg_pw -- pipe to announce internal events to run()/run_one()
 
   """
 
   def __init__(self):
-    self.thread = threading.Thread(target=self.run, name='PPPHub')
     self.cons = set()
     self._lock = threading.RLock()
+    self.started = False
+    self._running = False
 
   def add_connection(self, con):
     """Add a connection to a hub"""
@@ -163,7 +167,7 @@ class Hub(object):
     with self._lock:
       con.hub = self
       self.cons.add(con)
-      if self.thread.is_alive():
+      if self.started:
         self._msg_send('c', con)
 
   def remove_connection(self, con):
@@ -173,26 +177,61 @@ class Hub(object):
     with self._lock:
       self.cons.remove(con)
       con.hub = None
-      if self.thread.is_alive():
+      if self.started:
         self._msg_send('C', con)
 
   def start(self):
-    """Start the I/O thread"""
-    self._start_event = threading.Event()
-    self.thread.start()
-    self._start_event.wait()
+    """Initialize I/O processing
+
+    This method must be called before run(), run_one(), send(), ...
+    It should be called after initializing connections, etc.
+    """
+    if self.started:
+      raise RuntimeError("already started")
+    # prepare connection, queue, epoll, etc.
+    with self._lock:
+      self._poll_cons = {}
+      poll = select.epoll(len(self.cons)+1)
+      msg_pr, msg_pw = os.pipe()
+      poll.register(msg_pr, select.EPOLLIN)
+      for con in self.cons:
+        con.reset()
+        self._poll_cons[con.fd] = con
+        poll.register(con.fd, select.EPOLLIN)
+      # keep copies on instance
+      self._msg_queue = Queue.Queue()
+      self._poll = poll
+      self._msg_pr = msg_pr
+      self._msg_pw = msg_pw
+      self.started = True
 
   def stop(self):
-    """Stop the I/O thread"""
-    if not self.thread.is_alive():
+    """Stop I/O processing
+
+    This will interrupt a call to run().
+    """
+    if not self.started:
       raise RuntimeError("not running")
-    self._msg_send('x', None)
-    if self.thread is not threading.current_thread():
-      self.thread.join()
+    if self._running:
+      # delay, will be processed by run_one()
+      self._msg_send('x', None)
+    else:
+      # stop now
+      self._stop()
+
+  def _stop(self):
+    """Deinitialize I/O processing"""
+    self.started = False
+    self._poll.close()
+    os.close(self._msg_pr)
+    os.close(self._msg_pw)
+    self._poll = None
+    self._msg_pw = None
+    self._msg_queue = None
 
 
   def _msg_send(self, c, data):
-    """Send an internal event to the I/O thread"""
+    """Send an internal event to the I/O processing"""
     with self._lock:
       self._msg_queue.put(data)
       os.write(self._msg_pw, c)
@@ -212,114 +251,123 @@ class Hub(object):
 
   def send(self, frame, cons=None):
     """Route and send a PPP frame"""
-    if not self.thread.is_alive():
-      raise RuntimeError("not running")
+    if not self.started:
+      raise RuntimeError("not started")
     if cons is None:
       cons = self.route_frame(frame)
     if cons:
       self._msg_send('w', (frame, cons))
 
-  def run(self):
-    """I/O thread target"""
-    cons = {}  # connections, indexed by fd
-    # prepare connection, queue, epoll, etc.
-    with self._lock:
-      qsend = Queue.Queue()
-      poll = select.epoll(len(self.cons)+1)
-      msg_pr, msg_pw = os.pipe()
-      poll.register(msg_pr, select.EPOLLIN)
-      for con in self.cons:
-        con.reset()
-        cons[con.fd] = con
-        poll.register(con.fd, select.EPOLLIN)
-      # keep copies on instance
-      self._msg_queue = qsend
-      self._poll = poll
-      self._msg_pw = msg_pw
 
-    self._start_event.set()
-    try:
-      while True:
-        for fd, ev in poll.poll(-1):
-          # internal event
-          if fd == msg_pr:
-            for c in os.read(fd, 32):
-              if c == 'w':
-                # new frame to send
-                frame, dst_cons = qsend.get()
-                qsend.task_done()
-                try:
-                  data = frame.data()
-                except Exception as e:
-                  print "failed to format frame: %s" % e
-                  continue
-                for con in dst_cons:
-                  if con.wbuf is None:
-                    con.wbuf = data
-                    poll.modify(con.fd, select.EPOLLIN|select.EPOLLOUT)
-                  else:
-                    con.wbuf += data
-              elif c == 'c':
-                # new connection
-                con = qsend.get()
-                con.reset()
-                cons[con.fd] = con
-                self._poll.register(con.fd, select.EPOLLIN)
-              elif c == 'C':
-                # remove connection
-                con = qsend.get()
-                try:
-                  self._poll.unregister(con.fd)
-                except IOError:
-                  pass # already unregistered
-                del cons[con.fd]
-              elif c == 'x':
-                # exit the I/O thread
-                return
-          # receive data
-          elif ev & select.EPOLLIN:
-            con = cons[fd]
+  def run_one(self, timeout=None):
+    """Process a single batch of I/O events
+
+    If timeout is set (in seconds), wait at most for the given time before
+    returning.
+
+    Processing exceptions are printed on stderr.
+    """
+
+    for fd, ev in self._poll.poll(-1 if timeout is None else timeout):
+      # internal event
+      if fd == self._msg_pr:
+        for c in os.read(fd, 32):
+          if c == 'w':
+            # new frame to send
+            frame, dst_cons = self._msg_queue.get()
+            self._msg_queue.task_done()
             try:
-              data = os.read(fd, 512)
-              if not data:
-                if con.hub is self:  # avoid double removal
-                  # unregister now or the same event may be triggered
-                  # indefinitely, preventing the 'C' message to be processed
-                  self._poll.unregister(con.fd)
-                  self.remove_connection(con)
-                break
-            except OSError as e:
-              if e.errno == os.errno.EAGAIN:
-                break
-              raise
-            frame = con.rgen.send(data)
-            if frame is None:
-              break
-            self.on_frame(con, frame)
-          # send data
-          elif ev & select.EPOLLOUT:
-            con = cons[fd]
-            try:
-              n = os.write(fd, con.wbuf)
-            except OSError as e:
-              if e.errno != os.errno.EAGAIN:
-                raise
-            else:
-              if n == len(con.wbuf):
-                poll.modify(fd, select.EPOLLIN)
-                con.wbuf = None
+              data = frame.data()
+            except Exception as e:
+              sys.stderr.write("failed to format frame: %s\n" % e)
+              continue
+            for con in dst_cons:
+              if con.wbuf is None:
+                con.wbuf = data
+                self._poll.modify(con.fd, select.EPOLLIN|select.EPOLLOUT)
               else:
-                con.wbuf = con.wbuf[n:]
-          # unexpected event
+                con.wbuf += data
+          elif c == 'c':
+            # new connection
+            con = self._msg_queue.get()
+            con.reset()
+            self._poll_cons[con.fd] = con
+            self._poll.register(con.fd, select.EPOLLIN)
+          elif c == 'C':
+            # remove connection
+            con = self._msg_queue.get()
+            try:
+              self._poll.unregister(con.fd)
+            except IOError:
+              pass # already unregistered
+            del self._poll_cons[con.fd]
+          elif c == 'x':
+            # exit I/O processing
+            return
+      # receive data
+      elif ev & select.EPOLLIN:
+        con = self._poll_cons[fd]
+        try:
+          data = os.read(fd, 512)
+          if not data:
+            if con.hub is self:  # avoid double removal
+              # unregister now or the same event may be triggered
+              # indefinitely, preventing the 'C' message to be processed
+              self._poll.unregister(con.fd)
+              self.remove_connection(con)
+            break
+        except OSError as e:
+          if e.errno == os.errno.EAGAIN:
+            break
+          raise
+        frame = con.rgen.send(data)
+        if frame is None:
+          break
+        try:
+          self.on_frame(con, frame)
+        except Exception as e:
+          print_exc()
+          continue
+      # send data
+      elif ev & select.EPOLLOUT:
+        con = self._poll_cons[fd]
+        try:
+          n = os.write(fd, con.wbuf)
+        except OSError as e:
+          if e.errno != os.errno.EAGAIN:
+            raise
+        else:
+          if n == len(con.wbuf):
+            self._poll.modify(fd, select.EPOLLIN)
+            con.wbuf = None
           else:
-            raise RuntimeError("unexpected event %r for fd %d" % (ev, fd))
+            con.wbuf = con.wbuf[n:]
+      # unexpected event
+      else:
+        raise RuntimeError("unexpected event %r for fd %d" % (ev, fd))
+
+
+  def run(self):
+    """Process I/O events indefinitely
+
+    This method can be interrupted by calling stop().
+    """
+    self._running = True
+    try:
+      while self.started:
+        self.run_one()
     finally:
-      poll.close()
-      os.close(msg_pr)
-      os.close(msg_pw)
-      self._poll = None
-      self._msg_pw = None
-      self._msg_queue = None
+      self._running = False
+      self._stop()
+
+  def run_threaded(self):
+    """Process I/O events in a separated thread
+    Return the created thread.
+    """
+    thread = threading.Thread(target=self.run, name='PPPHub')
+    thread.daemon = True
+    thread.start()
+    return thread
 
 
 class HubBase(Hub):
@@ -347,7 +395,6 @@ class HubBase(Hub):
 
   def __init__(self, addr):
     Hub.__init__(self)
-    self.thread.daemon = True
     self.address = addr
     self.network = {}
     self.node_name = 'pyhub'
@@ -460,10 +507,10 @@ def main():
   hub = HubClient(args.address, fo)
   hub.start()
   if not args.interactive:
-    # listen forever, without blocking keyboard interrupt
-    while hub.thread.isAlive():
-      hub.thread.join(100)
+    hub.run()
   else:
+    hub.thread = hub.run_threaded()
+
     import perlimpinpin
     import perlimpinpin.frame
     import perlimpinpin.payload
@@ -478,6 +525,7 @@ def main():
     namespace.update({ k: getattr(perlimpinpin.payload.system, k)
       for k in dir(perlimpinpin.payload.system) if k.startswith('PayloadSystem')
       })
+
     import IPython
     IPython.embed(user_ns=namespace, banner2="PPP interactive shell")
 
