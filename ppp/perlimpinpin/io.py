@@ -11,6 +11,7 @@ import select
 import fcntl
 import threading
 import Queue
+import time
 from frame import Frame
 import payload
 from payload.system import *
@@ -151,6 +152,7 @@ class Hub(object):
     _msg_queue -- Queue for internal events data
     _msg_pr -- pipe to read internal events in run()/run_one()
     _msg_pw -- pipe to announce internal events to run()/run_one()
+    _timers_queue -- timed callbacks priority queue
 
   """
 
@@ -159,6 +161,7 @@ class Hub(object):
     self._lock = threading.RLock()
     self.started = False
     self._running = False
+    self._timers_queue = Queue.PriorityQueue()
 
   def add_connection(self, con):
     """Add a connection to a hub"""
@@ -258,6 +261,12 @@ class Hub(object):
     if cons:
       self._msg_send('w', (frame, cons))
 
+  def schedule(self, dt, cb):
+    """Schedule a callback to be executed in dt seconds"""
+    t = time.clock() + dt
+    with self._lock:
+      self._timers_queue.put((t, cb))
+
 
   def run_one(self, timeout=None):
     """Process a single batch of I/O events
@@ -268,7 +277,28 @@ class Hub(object):
     Processing exceptions are printed on stderr.
     """
 
-    for fd, ev in self._poll.poll(-1 if timeout is None else timeout):
+    if self._timers_queue.empty():
+      cb = None
+    else:
+      tnow = time.clock()
+      # get() may block, but we don't consider it for the timeout
+      t, cb = self._timers_queue.get()
+      dt = max(0, t - tnow)
+      if timeout is None:
+        timeout = dt
+      else:
+        timeout = min(timeout, dt)
+
+    events = self._poll.poll(-1 if timeout is None else timeout)
+    if cb is not None:
+      if not len(events):
+        # timeout, execute the callback
+        cb()
+      else:
+        # put back the callback
+        self._timers_queue.put((t, cb))
+
+    for fd, ev in events:
       # internal event
       if fd == self._msg_pr:
         for c in os.read(fd, 32):
