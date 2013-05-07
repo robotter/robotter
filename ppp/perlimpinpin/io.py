@@ -12,6 +12,7 @@ import fcntl
 import threading
 import Queue
 import time
+import traceback
 from frame import Frame
 import payload
 from payload.system import *
@@ -350,14 +351,15 @@ class Hub(object):
           if e.errno == os.errno.EAGAIN:
             break
           raise
-        frame = con.rgen.send(data)
-        if frame is None:
-          break
-        try:
-          self.on_frame(con, frame)
-        except Exception as e:
-          print_exc()
-          continue
+        while True:
+          frame = con.rgen.send(data)
+          if frame is None:
+            break
+          data = ''
+          try:
+            self.on_frame(con, frame)
+          except Exception as e:
+            traceback.print_exc()
       # send data
       elif ev & select.EPOLLOUT:
         con = self._poll_cons[fd]
