@@ -503,6 +503,7 @@ class HubClient(HubBase):
     HubBase.__init__(self, addr)
     self.server = con
     self.add_connection(self.server)
+    self.verbose = False
 
   def route_frame(self, frame, con=None):
     if self.server == con:
@@ -511,7 +512,8 @@ class HubClient(HubBase):
       return [self.server]
 
   def on_frame(self, con, frame):
-    print "<<< %r" % frame
+    if self.verbose:
+      print "<<< %r" % frame
     HubBase.on_frame(self, con, frame)
 
   def remove_connection(self, con):
@@ -537,6 +539,7 @@ def main():
 
   fo = Connection.fromsource(args.source, baudrate=args.baudrate)
   hub = HubClient(args.address, fo)
+  hub.verbose = True
   hub.start()
   if not args.interactive:
     hub.run()
