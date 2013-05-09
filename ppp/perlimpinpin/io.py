@@ -44,7 +44,7 @@ class Connection(object):
     self.hub = None
 
   def send(self, frame):
-    self.hub._msg_send('w', (frame, [self]))
+    self.hub.send(frame, self)
 
   def reset(self):
     """Reset connection for handling by a hub"""
@@ -133,14 +133,6 @@ class Hub(object):
   Frames can be sent directly through a Connection object or through the hub to
   be routed.
 
-  Events such as server stop, new frames in queue, etc. are announced using
-  an internal pipe and queue. See also _internal_msg_send().
-  The following characters can be sent:
-    'w' -- new frame to send in queue, data: (Frame, Connections)
-    'x' -- exit run(), data: None
-    'c' -- add a new connection, data: Connection
-    'C' -- remove a connection, data: Connection
-
   Connections are switched to non-blocking mode.
 
   Attributes:
@@ -148,11 +140,7 @@ class Hub(object):
     started -- True if start() has been called
     _running -- True when run() is being called
     _lock -- lock for thread-safety
-    _poll -- epoll object
     _poll_cons -- polled connections, indexed by fd
-    _msg_queue -- Queue for internal events data
-    _msg_pr -- pipe to read internal events in run()/run_one()
-    _msg_pw -- pipe to announce internal events to run()/run_one()
     _timers_queue -- timed callbacks priority queue
 
   """
@@ -172,7 +160,8 @@ class Hub(object):
       con.hub = self
       self.cons.add(con)
       if self.started:
-        self._msg_send('c', con)
+        con.reset()
+        self._poll_cons[con.fd] = con
 
   def remove_connection(self, con):
     """Remove a connection from a hub"""
@@ -182,7 +171,7 @@ class Hub(object):
       self.cons.remove(con)
       con.hub = None
       if self.started:
-        self._msg_send('C', con)
+        del self._poll_cons[con.fd]
 
   def start(self):
     """Initialize I/O processing
@@ -195,18 +184,13 @@ class Hub(object):
     # prepare connection, queue, epoll, etc.
     with self._lock:
       self._poll_cons = {}
-      poll = select.epoll(len(self.cons)+1)
       msg_pr, msg_pw = os.pipe()
-      poll.register(msg_pr, select.EPOLLIN)
+      flags = fcntl.fcntl(msg_pr, fcntl.F_GETFL)
+      fcntl.fcntl(msg_pr, fcntl.F_SETFL, flags|os.O_NONBLOCK)
       for con in self.cons:
         con.reset()
         self._poll_cons[con.fd] = con
-        poll.register(con.fd, select.EPOLLIN)
       # keep copies on instance
-      self._msg_queue = Queue.Queue()
-      self._poll = poll
-      self._msg_pr = msg_pr
-      self._msg_pw = msg_pw
       self.started = True
 
   def stop(self):
@@ -217,8 +201,7 @@ class Hub(object):
     if not self.started:
       raise RuntimeError("not running")
     if self._running:
-      # delay, will be processed by run_one()
-      self._msg_send('x', None)
+      pass #TODO(?)
     else:
       # stop now
       self._stop()
@@ -226,19 +209,7 @@ class Hub(object):
   def _stop(self):
     """Deinitialize I/O processing"""
     self.started = False
-    self._poll.close()
-    os.close(self._msg_pr)
-    os.close(self._msg_pw)
-    self._poll = None
-    self._msg_pw = None
-    self._msg_queue = None
 
-
-  def _msg_send(self, c, data):
-    """Send an internal event to the I/O processing"""
-    with self._lock:
-      self._msg_queue.put(data)
-      os.write(self._msg_pw, c)
 
   def on_frame(self, con, frame):
     """Method called when a frame is received"""
@@ -260,11 +231,19 @@ class Hub(object):
     if cons is None:
       cons = self.route_frame(frame)
     if cons:
-      self._msg_send('w', (frame, cons))
+      try:
+        data = frame.data()
+      except Exception as e:
+        sys.stderr.write("failed to format frame: %s\n" % e)
+        return
+      for con in cons:
+        n = os.write(con.fd, data)
+        if n != len(data):
+          raise RuntimeError("incomplete write to %d" % con.fd)
 
   def schedule(self, dt, cb):
     """Schedule a callback to be executed in dt seconds"""
-    t = time.clock() + dt
+    t = time.time() + dt
     with self._lock:
       self._timers_queue.put((t, cb))
 
@@ -272,111 +251,42 @@ class Hub(object):
   def run_one(self, timeout=None):
     """Process a single batch of I/O events
 
-    If timeout is set (in seconds), wait at most for the given time before
-    returning.
+    timeout is ignored.
 
     Processing exceptions are printed on stderr.
     """
 
-    if self._timers_queue.empty():
-      cb = None
-    else:
-      tnow = time.clock()
+    time.sleep(0.01)
+
+    if not self._timers_queue.empty():
+      tnow = time.time()
       # get() may block, but we don't consider it for the timeout
       t, cb = self._timers_queue.get()
-      dt = max(0, t - tnow)
-      if timeout is None:
-        timeout = dt
-      else:
-        timeout = min(timeout, dt)
-
-    events = self._poll.poll(-1 if timeout is None else timeout)
-    if cb is not None:
-      if not len(events):
-        # timeout, execute the callback
+      if tnow >= t:
         cb()
       else:
         # put back the callback
         self._timers_queue.put((t, cb))
 
-    for fd, ev in events:
-      # internal event
-      if fd == self._msg_pr:
-        for c in os.read(fd, 32):
-          if c == 'w':
-            # new frame to send
-            frame, dst_cons = self._msg_queue.get()
-            self._msg_queue.task_done()
-            try:
-              data = frame.data()
-            except Exception as e:
-              sys.stderr.write("failed to format frame: %s\n" % e)
-              continue
-            for con in dst_cons:
-              if con.wbuf is None:
-                con.wbuf = data
-                self._poll.modify(con.fd, select.EPOLLIN|select.EPOLLOUT)
-              else:
-                con.wbuf += data
-          elif c == 'c':
-            # new connection
-            con = self._msg_queue.get()
-            con.reset()
-            self._poll_cons[con.fd] = con
-            self._poll.register(con.fd, select.EPOLLIN)
-          elif c == 'C':
-            # remove connection
-            con = self._msg_queue.get()
-            try:
-              self._poll.unregister(con.fd)
-            except IOError:
-              pass # already unregistered
-            del self._poll_cons[con.fd]
-          elif c == 'x':
-            # exit I/O processing
-            return
-      # receive data
-      elif ev & select.EPOLLIN:
-        con = self._poll_cons[fd]
+    # process connections
+    for con in self._poll_cons.values():
+      fd = con.fd
+      try:
+        data = os.read(fd, 4096)
+        #TODO for now, we never remove connections
+      except OSError as e:
+        if e.errno == os.errno.EAGAIN:
+          continue
+        raise
+      while True:
+        frame = con.rgen.send(data)
+        if frame is None:
+          break
+        data = ''
         try:
-          data = os.read(fd, 512)
-          if not data:
-            if con.hub is self:  # avoid double removal
-              # unregister now or the same event may be triggered
-              # indefinitely, preventing the 'C' message to be processed
-              self._poll.unregister(con.fd)
-              self.remove_connection(con)
-            break
-        except OSError as e:
-          if e.errno == os.errno.EAGAIN:
-            break
-          raise
-        while True:
-          frame = con.rgen.send(data)
-          if frame is None:
-            break
-          data = ''
-          try:
-            self.on_frame(con, frame)
-          except Exception as e:
-            traceback.print_exc()
-      # send data
-      elif ev & select.EPOLLOUT:
-        con = self._poll_cons[fd]
-        try:
-          n = os.write(fd, con.wbuf)
-        except OSError as e:
-          if e.errno != os.errno.EAGAIN:
-            raise
-        else:
-          if n == len(con.wbuf):
-            self._poll.modify(fd, select.EPOLLIN)
-            con.wbuf = None
-          else:
-            con.wbuf = con.wbuf[n:]
-      # unexpected event
-      else:
-        raise RuntimeError("unexpected event %r for fd %d" % (ev, fd))
+          self.on_frame(con, frame)
+        except Exception as e:
+          traceback.print_exc()
 
 
   def run(self):
