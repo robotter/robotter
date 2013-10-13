@@ -358,6 +358,45 @@ DIN A4, landscape with location and doc. field</description>
 <wire x1="-1.5" y1="5.9" x2="-1.5" y2="5.7" width="0.8128" layer="21"/>
 <wire x1="1.5" y1="5.9" x2="1.5" y2="5.7" width="0.8128" layer="21"/>
 </package>
+<package name="1503_12">
+<description>&lt;b&gt;Jack connectors according to JISC 6560, 2.5 mm&lt;/b&gt;&lt;p&gt;
+Klinkensteckverbinder nach JISC 6560, 2,5 mm&lt;br&gt;
+Source: http://www.lumberg.com/Produkte/PDFs/KLBR1.pdf</description>
+<wire x1="-1.25" y1="4.7" x2="-0.75" y2="5.2" width="0" layer="46" curve="-90"/>
+<wire x1="-0.75" y1="5.2" x2="0.75" y2="5.2" width="0" layer="46"/>
+<wire x1="0.75" y1="5.2" x2="1.25" y2="4.7" width="0" layer="46" curve="-90"/>
+<wire x1="1.25" y1="4.7" x2="0.75" y2="4.2" width="0" layer="46" curve="-90"/>
+<wire x1="0.75" y1="4.2" x2="-0.75" y2="4.2" width="0" layer="46"/>
+<wire x1="-0.75" y1="4.2" x2="-1.25" y2="4.7" width="0" layer="46" curve="-90"/>
+<wire x1="-1.25" y1="-4.7" x2="-0.75" y2="-4.2" width="0" layer="46" curve="-90"/>
+<wire x1="-0.75" y1="-4.2" x2="0.75" y2="-4.2" width="0" layer="46"/>
+<wire x1="0.75" y1="-4.2" x2="1.25" y2="-4.7" width="0" layer="46" curve="-90"/>
+<wire x1="1.25" y1="-4.7" x2="0.75" y2="-5.2" width="0" layer="46" curve="-90"/>
+<wire x1="0.75" y1="-5.2" x2="-0.75" y2="-5.2" width="0" layer="46"/>
+<wire x1="-0.75" y1="-5.2" x2="-1.25" y2="-4.7" width="0" layer="46" curve="-90"/>
+<wire x1="-4" y1="-4.75" x2="-4.5" y2="-4.25" width="0" layer="46" curve="-90"/>
+<wire x1="-4.5" y1="-4.25" x2="-4.5" y2="-2.75" width="0" layer="46"/>
+<wire x1="-4.5" y1="-2.75" x2="-4" y2="-2.25" width="0" layer="46" curve="-90"/>
+<wire x1="-4" y1="-2.25" x2="-3.5" y2="-2.75" width="0" layer="46" curve="-90"/>
+<wire x1="-3.5" y1="-2.75" x2="-3.5" y2="-4.25" width="0" layer="46"/>
+<wire x1="-3.5" y1="-4.25" x2="-4" y2="-4.75" width="0" layer="46" curve="-90"/>
+<wire x1="-3" y1="11.85" x2="3" y2="11.85" width="0.2032" layer="21"/>
+<wire x1="4.9" y1="8.35" x2="4.9" y2="-6.35" width="0.2032" layer="21"/>
+<wire x1="4.9" y1="-6.35" x2="2.25" y2="-6.35" width="0.2032" layer="21"/>
+<wire x1="-2.25" y1="-6.35" x2="-4.1" y2="-6.35" width="0.2032" layer="25"/>
+<wire x1="-4.1" y1="-6.35" x2="-5" y2="-6.35" width="0.2032" layer="51"/>
+<wire x1="-5" y1="-1.7" x2="-5" y2="8.35" width="0.2032" layer="21"/>
+<wire x1="-5" y1="8.35" x2="-3" y2="8.35" width="0.2032" layer="21"/>
+<wire x1="-3" y1="8.35" x2="3" y2="8.35" width="0.2032" layer="21"/>
+<wire x1="3" y1="8.35" x2="4.9" y2="8.35" width="0.2032" layer="21"/>
+<wire x1="-3" y1="8.35" x2="-3" y2="11.85" width="0.2032" layer="21"/>
+<wire x1="3" y1="11.85" x2="3" y2="8.35" width="0.2032" layer="21"/>
+<pad name="3" x="0" y="-6.35" drill="3" diameter="4" shape="octagon"/>
+<pad name="5" x="0" y="6.35" drill="3" diameter="4" shape="octagon"/>
+<pad name="4" x="-5.3" y="-4.35" drill="3" diameter="4" shape="octagon" rot="R90"/>
+<text x="-5.715" y="-1.905" size="1.27" layer="25" rot="R90">&gt;NAME</text>
+<text x="6.985" y="-4.445" size="1.27" layer="27" rot="R90">&gt;VALUE</text>
+</package>
 </packages>
 <symbols>
 <symbol name="SD_CARD">
@@ -445,6 +484,23 @@ DIN A4, landscape with location and doc. field</description>
 <pin name="2" x="5.08" y="0" visible="off" length="short" direction="pas" rot="R180"/>
 <pin name="3" x="-5.08" y="2.54" visible="off" length="short" direction="pas"/>
 <pin name="4" x="5.08" y="2.54" visible="off" length="short" direction="pas" rot="R180"/>
+</symbol>
+<symbol name="JACK-SWITCH">
+<wire x1="-2.54" y1="2.54" x2="0" y2="2.54" width="0.1524" layer="94"/>
+<wire x1="0" y1="2.54" x2="1.524" y2="1.016" width="0.1524" layer="94"/>
+<wire x1="1.524" y1="1.016" x2="2.286" y2="1.778" width="0.1524" layer="94"/>
+<wire x1="-2.54" y1="0" x2="-0.762" y2="0" width="0.1524" layer="94"/>
+<wire x1="-0.762" y1="0" x2="-0.762" y2="2.286" width="0.1524" layer="94"/>
+<wire x1="-0.762" y1="2.286" x2="-1.016" y2="1.524" width="0.254" layer="94"/>
+<wire x1="-1.016" y1="1.524" x2="-0.508" y2="1.524" width="0.254" layer="94"/>
+<wire x1="-0.508" y1="1.524" x2="-0.762" y2="2.286" width="0.254" layer="94"/>
+<wire x1="-2.54" y1="-2.54" x2="4.572" y2="-2.54" width="0.1524" layer="94"/>
+<text x="-2.54" y="4.064" size="1.778" layer="95">&gt;NAME</text>
+<text x="-2.54" y="-6.096" size="1.778" layer="96">&gt;VALUE</text>
+<rectangle x1="2.286" y1="-0.508" x2="7.874" y2="0.508" layer="94" rot="R90"/>
+<pin name="5" x="-5.08" y="-2.54" visible="pad" length="short" direction="pas"/>
+<pin name="3" x="-5.08" y="2.54" visible="pad" length="short" direction="pas"/>
+<pin name="4" x="-5.08" y="0" visible="pad" length="short" direction="pas"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -571,6 +627,32 @@ Atmel pdi connector</description>
 </connects>
 <technologies>
 <technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="1503_12" prefix="X">
+<description>&lt;b&gt;Jack connectors according to JISC 6560, 2.5mm / 3.5 mm&lt;/b&gt;&lt;p&gt;
+Klinkensteckverbinder nach JISC 6560, 2.5mm / 3,5 mm&lt;br&gt;
+Source: http://www.lumberg.com/Produkte/PDFs/KLBR2.pdf&lt;br&gt;
+ www.lumberg.com/Produkte/PDFs/KLBR1.pdf</description>
+<gates>
+<gate name="G$1" symbol="JACK-SWITCH" x="0" y="0"/>
+</gates>
+<devices>
+<device name="&quot;" package="1503_12">
+<connects>
+<connect gate="G$1" pin="3" pad="3"/>
+<connect gate="G$1" pin="4" pad="4"/>
+<connect gate="G$1" pin="5" pad="5"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MF" value="" constant="no"/>
+<attribute name="MPN" value="1503 12" constant="no"/>
+<attribute name="OC_FARNELL" value="1340604"/>
+<attribute name="OC_NEWARK" value="" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -2015,6 +2097,8 @@ Source: http://www.analog.com/UploadedFiles/Data_Sheets/703465986AD8611_2_0.pdf<
 <wire x1="17.78" y1="-17.78" x2="17.78" y2="12.7" width="0.254" layer="94"/>
 <wire x1="17.78" y1="12.7" x2="-10.16" y2="12.7" width="0.254" layer="94"/>
 <wire x1="-10.16" y1="12.7" x2="-10.16" y2="-17.78" width="0.254" layer="94"/>
+<text x="-10.16" y="-20.32" size="1.778" layer="96">&gt;VALUE</text>
+<text x="-10.16" y="12.7" size="1.778" layer="95">&gt;NAME</text>
 </symbol>
 </symbols>
 <devicesets>
@@ -5081,100 +5165,6 @@ wire to board 2.54 mm (.1 inch) pitch header</description>
 </deviceset>
 </devicesets>
 </library>
-<library name="con-lumberg">
-<description>&lt;b&gt;Lumberg Connectors&lt;/b&gt;&lt;p&gt;
-include con-mfs.lbr - 2001.03.22&lt;br&gt;
-Jack connectors - 2005.11.23&lt;p&gt;
-http://www.lumberg.de&lt;p&gt;
-&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
-<packages>
-<package name="1503_04">
-<description>&lt;b&gt;Jack connectors according to JISC 6560, 3.5 mm, IP 57&lt;/b&gt;&lt;p&gt;
-Klinkensteckverbinder nach JISC 6560, 3,5 mm, IP 57&lt;br&gt;
-Source: http://www.lumberg.com/Produkte/PDFs/1503_04.pdf</description>
-<wire x1="0.25" y1="-9.65" x2="0.65" y2="-9.25" width="0" layer="46" curve="-90"/>
-<wire x1="0.65" y1="-9.25" x2="1.05" y2="-9.65" width="0" layer="46" curve="-90"/>
-<wire x1="1.05" y1="-9.65" x2="1.05" y2="-10.85" width="0" layer="46"/>
-<wire x1="1.05" y1="-10.85" x2="0.65" y2="-11.25" width="0" layer="46" curve="-90"/>
-<wire x1="0.65" y1="-11.25" x2="0.25" y2="-10.85" width="0" layer="46" curve="-90"/>
-<wire x1="0.25" y1="-10.85" x2="0.25" y2="-9.65" width="0" layer="46"/>
-<wire x1="-3.4" y1="-10.15" x2="-3.4" y2="2.9" width="0.2032" layer="21"/>
-<wire x1="-3.4" y1="2.9" x2="4.9" y2="2.9" width="0.2032" layer="21"/>
-<wire x1="4.9" y1="2.9" x2="4.9" y2="-10.15" width="0.2032" layer="21"/>
-<wire x1="4.9" y1="-10.15" x2="3.1" y2="-10.15" width="0.2032" layer="51"/>
-<wire x1="3.1" y1="-10.15" x2="1.45" y2="-10.15" width="0.2032" layer="21"/>
-<wire x1="1.45" y1="-10.15" x2="-3.1" y2="-10.15" width="0.2032" layer="51"/>
-<wire x1="-3.1" y1="-10.15" x2="-3.4" y2="-10.15" width="0.2032" layer="21"/>
-<wire x1="-2.9" y1="3" x2="-2.9" y2="5.9" width="0.2032" layer="21"/>
-<wire x1="-2.9" y1="5.9" x2="2.9" y2="5.9" width="0.2032" layer="21"/>
-<wire x1="2.9" y1="5.9" x2="2.9" y2="3" width="0.2032" layer="21"/>
-<wire x1="-2.8" y1="-9.75" x2="-2.3" y2="-9.25" width="0" layer="46" curve="-90"/>
-<wire x1="-2.3" y1="-9.25" x2="-1.8" y2="-9.75" width="0" layer="46" curve="-90"/>
-<wire x1="-1.8" y1="-9.75" x2="-1.8" y2="-10.75" width="0" layer="46"/>
-<wire x1="-1.8" y1="-10.75" x2="-2.3" y2="-11.25" width="0" layer="46" curve="-90"/>
-<wire x1="-2.3" y1="-11.25" x2="-2.8" y2="-10.75" width="0" layer="46" curve="-90"/>
-<wire x1="-2.8" y1="-10.75" x2="-2.8" y2="-9.75" width="0" layer="46"/>
-<wire x1="3.5" y1="-9.65" x2="3.9" y2="-9.25" width="0" layer="46" curve="-90"/>
-<wire x1="3.9" y1="-9.25" x2="4.3" y2="-9.65" width="0" layer="46" curve="-90"/>
-<wire x1="4.3" y1="-9.65" x2="4.3" y2="-10.85" width="0" layer="46"/>
-<wire x1="4.3" y1="-10.85" x2="3.9" y2="-11.25" width="0" layer="46" curve="-90"/>
-<wire x1="3.9" y1="-11.25" x2="3.5" y2="-10.85" width="0" layer="46" curve="-90"/>
-<wire x1="3.5" y1="-10.85" x2="3.5" y2="-9.65" width="0" layer="46"/>
-<pad name="1" x="3.9" y="-10.25" drill="0.8" diameter="1.2" shape="long" rot="R90"/>
-<pad name="2" x="0.65" y="-10.25" drill="0.8" diameter="1.2" shape="long" rot="R90"/>
-<pad name="3" x="-2.3" y="-10.25" drill="1" diameter="1.2" shape="long" rot="R90"/>
-<text x="-3.81" y="-10.16" size="1.27" layer="25" rot="R90">&gt;NAME</text>
-<text x="6.985" y="-10.16" size="1.27" layer="27" rot="R90">&gt;VALUE</text>
-<hole x="0" y="0" drill="1.6"/>
-</package>
-</packages>
-<symbols>
-<symbol name="STEREO-JACK3">
-<wire x1="-2.54" y1="2.54" x2="-1.524" y2="2.54" width="0.1524" layer="94"/>
-<wire x1="-1.524" y1="2.54" x2="0" y2="1.016" width="0.1524" layer="94"/>
-<wire x1="0" y1="1.016" x2="0.508" y2="1.524" width="0.1524" layer="94"/>
-<wire x1="-2.54" y1="-5.08" x2="0.508" y2="-5.08" width="0.1524" layer="94"/>
-<wire x1="0.508" y1="-5.08" x2="4.318" y2="-1.27" width="0.1524" layer="94"/>
-<wire x1="4.318" y1="-1.27" x2="4.826" y2="-1.778" width="0.1524" layer="94"/>
-<wire x1="-2.54" y1="-2.54" x2="0.762" y2="-2.54" width="0.1524" layer="94"/>
-<wire x1="0.762" y1="-2.54" x2="2.54" y2="-0.762" width="0.1524" layer="94"/>
-<wire x1="2.54" y1="-0.762" x2="3.048" y2="-1.27" width="0.1524" layer="94"/>
-<text x="-2.54" y="4.064" size="1.778" layer="95">&gt;NAME</text>
-<text x="-2.54" y="-7.366" size="1.778" layer="96">&gt;VALUE</text>
-<rectangle x1="5.207" y1="-2.667" x2="6.604" y2="2.667" layer="94"/>
-<pin name="1" x="-5.08" y="-5.08" visible="pad" length="short" direction="pas"/>
-<pin name="2" x="-5.08" y="2.54" visible="pad" length="short" direction="pas"/>
-<pin name="3" x="-5.08" y="-2.54" visible="pad" length="short" direction="pas"/>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="1503_04" prefix="X">
-<description>&lt;b&gt;Jack connectors according to JISC 6560, 3.5 mm, IP 57&lt;/b&gt;&lt;p&gt;
-Klinkensteckverbinder nach JISC 6560, 3,5 mm, IP 57&lt;br&gt;
-Source: http://www.lumberg.com/Produkte/PDFs/1503_04.pdf</description>
-<gates>
-<gate name="G$1" symbol="STEREO-JACK3" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="1503_04">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="3"/>
-<connect gate="G$1" pin="3" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="1216981" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
 </libraries>
 <attributes>
 </attributes>
@@ -5332,7 +5322,7 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_04.pdf</description>
 <part name="BAT" library="con-molex" deviceset="22-?-02" device="27-2021"/>
 <part name="COLOR/START" library="robotter_connector" deviceset="794618-4" device=""/>
 <part name="GND14" library="supply1" deviceset="GND" device=""/>
-<part name="HP" library="con-lumberg" deviceset="1503_04" device=""/>
+<part name="HP" library="robotter_connector" deviceset="1503_12" device="&quot;"/>
 <part name="FRAME8" library="frames" deviceset="A4L-LOC" device=""/>
 <part name="R24" library="robotter_resistor" deviceset="10K" device="-F"/>
 <part name="R25" library="robotter_resistor" deviceset="10K" device="-F"/>
@@ -5547,7 +5537,7 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_04.pdf</description>
 <instance part="BAT" gate="-2" x="281.94" y="134.62" rot="R180"/>
 <instance part="COLOR/START" gate="G$1" x="101.6" y="-414.02"/>
 <instance part="GND14" gate="1" x="93.98" y="-421.64"/>
-<instance part="HP" gate="G$1" x="472.44" y="-434.34"/>
+<instance part="HP" gate="G$1" x="434.34" y="-447.04"/>
 <instance part="FRAME8" gate="G$1" x="261.62" y="-541.02"/>
 <instance part="R24" gate="G$1" x="314.96" y="-434.34"/>
 <instance part="R25" gate="G$1" x="350.52" y="-434.34"/>
@@ -6296,28 +6286,28 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_04.pdf</description>
 <label x="27.94" y="124.46" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$13" class="0">
+<net name="LED4" class="0">
 <segment>
 <wire x1="109.22" y1="-91.44" x2="40.64" y2="-91.44" width="0.1524" layer="91"/>
 <label x="40.64" y="-91.44" size="1.778" layer="95"/>
 <pinref part="R8" gate="G$1" pin="2"/>
 </segment>
 </net>
-<net name="N$14" class="0">
+<net name="LED3" class="0">
 <segment>
 <wire x1="119.38" y1="-88.9" x2="40.64" y2="-88.9" width="0.1524" layer="91"/>
 <label x="40.64" y="-88.9" size="1.778" layer="95"/>
 <pinref part="R9" gate="G$1" pin="2"/>
 </segment>
 </net>
-<net name="N$16" class="0">
+<net name="LED2" class="0">
 <segment>
 <wire x1="129.54" y1="-86.36" x2="40.64" y2="-86.36" width="0.1524" layer="91"/>
 <label x="40.64" y="-86.36" size="1.778" layer="95"/>
 <pinref part="R10" gate="G$1" pin="2"/>
 </segment>
 </net>
-<net name="N$17" class="0">
+<net name="LED1" class="0">
 <segment>
 <wire x1="139.7" y1="-83.82" x2="40.64" y2="-83.82" width="0.1524" layer="91"/>
 <label x="40.64" y="-83.82" size="1.778" layer="95"/>
@@ -7050,6 +7040,12 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_04.pdf</description>
 <wire x1="429.26" y1="-403.86" x2="429.26" y2="-439.42" width="0.1524" layer="91"/>
 <pinref part="IC7" gate="G$1" pin="VO1"/>
 <wire x1="429.26" y1="-439.42" x2="398.78" y2="-439.42" width="0.1524" layer="91"/>
+<pinref part="HP" gate="G$1" pin="4"/>
+<pinref part="HP" gate="G$1" pin="3"/>
+<wire x1="429.26" y1="-447.04" x2="429.26" y2="-444.5" width="0.1524" layer="91"/>
+<wire x1="429.26" y1="-444.5" x2="429.26" y2="-439.42" width="0.1524" layer="91"/>
+<junction x="429.26" y="-444.5"/>
+<junction x="429.26" y="-439.42"/>
 </segment>
 </net>
 <net name="AUDIO_PWM_3V3" class="0">
@@ -7205,6 +7201,13 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_04.pdf</description>
 <pinref part="R11" gate="G$1" pin="1"/>
 <pinref part="LED9" gate="G$1" pin="A"/>
 <wire x1="139.7" y1="-116.84" x2="139.7" y2="-93.98" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$9" class="0">
+<segment>
+<pinref part="IC7" gate="G$1" pin="VO2"/>
+<wire x1="398.78" y1="-449.58" x2="429.26" y2="-449.58" width="0.1524" layer="91"/>
+<pinref part="HP" gate="G$1" pin="5"/>
 </segment>
 </net>
 </nets>
