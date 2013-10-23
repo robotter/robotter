@@ -5355,7 +5355,6 @@ wire to board 2.54 mm (.1 inch) pitch header</description>
 <text x="7.62" y="-193.04" size="5.08" layer="91">Logs</text>
 <text x="269.24" y="-193.04" size="5.08" layer="91">Super Unioc connectors</text>
 <text x="7.62" y="-373.38" size="5.08" layer="91">User interface</text>
-<text x="10.16" y="-106.68" size="1.778" layer="91">todo connect leds</text>
 </plain>
 <instances>
 <instance part="FRAME1" gate="G$1" x="0" y="0"/>
@@ -6720,6 +6719,7 @@ wire to board 2.54 mm (.1 inch) pitch header</description>
 <segment>
 <pinref part="IC6" gate="G$1" pin="PA0/ADCA0/AREF"/>
 <wire x1="58.42" y1="132.08" x2="27.94" y2="132.08" width="0.1524" layer="91"/>
+<label x="27.94" y="132.08" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$62" class="0">
