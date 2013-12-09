@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="6.4">
+<eagle version="6.5.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -267,8 +267,6 @@ DIN A4, landscape with location and doc. field</description>
 <wire x1="0" y1="2.54" x2="2.54" y2="0" width="3.9116" layer="51" curve="-90" cap="flat"/>
 <circle x="0" y="0" radius="0.762" width="0.4572" layer="51"/>
 <circle x="0" y="0" radius="4.572" width="0.1524" layer="21"/>
-<circle x="0" y="0" radius="5.08" width="2" layer="41"/>
-<circle x="0" y="0" radius="5.08" width="2" layer="42"/>
 <circle x="0" y="0" radius="5.08" width="2" layer="43"/>
 <circle x="0" y="0" radius="2.15" width="0.2032" layer="21"/>
 <pad name="B4,1" x="0" y="0" drill="4.1" diameter="8"/>
@@ -280,8 +278,6 @@ DIN A4, landscape with location and doc. field</description>
 <circle x="0" y="0" radius="4.4958" width="0.1524" layer="51"/>
 <circle x="0" y="0" radius="0.762" width="0.4572" layer="51"/>
 <circle x="0" y="0" radius="5.588" width="2" layer="43"/>
-<circle x="0" y="0" radius="5.588" width="2" layer="42"/>
-<circle x="0" y="0" radius="5.588" width="2" layer="41"/>
 <circle x="0" y="0" radius="5.588" width="2" layer="39"/>
 <circle x="0" y="0" radius="5.588" width="2" layer="40"/>
 <circle x="0" y="0" radius="2.25" width="0.1524" layer="21"/>
@@ -294,8 +290,6 @@ DIN A4, landscape with location and doc. field</description>
 <circle x="0" y="0" radius="4.4958" width="0.1524" layer="51"/>
 <circle x="0" y="0" radius="0.762" width="0.4572" layer="51"/>
 <circle x="0" y="0" radius="5.588" width="2" layer="43"/>
-<circle x="0" y="0" radius="5.588" width="2" layer="42"/>
-<circle x="0" y="0" radius="5.588" width="2" layer="41"/>
 <circle x="0" y="0" radius="5.588" width="2" layer="39"/>
 <circle x="0" y="0" radius="5.588" width="2" layer="40"/>
 <circle x="0" y="0" radius="2.35" width="0.1524" layer="21"/>
@@ -308,8 +302,6 @@ DIN A4, landscape with location and doc. field</description>
 <circle x="0" y="0" radius="4.4958" width="0.1524" layer="51"/>
 <circle x="0" y="0" radius="0.762" width="0.4572" layer="51"/>
 <circle x="0" y="0" radius="5.588" width="2" layer="43"/>
-<circle x="0" y="0" radius="5.588" width="2" layer="42"/>
-<circle x="0" y="0" radius="5.588" width="2" layer="41"/>
 <circle x="0" y="0" radius="5.588" width="2" layer="39"/>
 <circle x="0" y="0" radius="5.588" width="2" layer="40"/>
 <circle x="0" y="0" radius="2.6" width="0.1524" layer="21"/>
@@ -322,8 +314,6 @@ DIN A4, landscape with location and doc. field</description>
 <circle x="0" y="0" radius="4.4958" width="0.1524" layer="51"/>
 <circle x="0" y="0" radius="0.762" width="0.4572" layer="51"/>
 <circle x="0" y="0" radius="5.588" width="2" layer="43"/>
-<circle x="0" y="0" radius="5.588" width="2" layer="42"/>
-<circle x="0" y="0" radius="5.588" width="2" layer="41"/>
 <circle x="0" y="0" radius="5.588" width="2" layer="39"/>
 <circle x="0" y="0" radius="5.588" width="2" layer="40"/>
 <circle x="0" y="0" radius="2.85" width="0.1524" layer="21"/>
@@ -948,7 +938,9 @@ Atmel pdi connector</description>
 <connect gate="1" pin="VCC" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="" constant="no"/>
+</technology>
 </technologies>
 </device>
 <device name="L" package="ML6L">
@@ -961,7 +953,9 @@ Atmel pdi connector</description>
 <connect gate="1" pin="VCC" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="693-5242 " constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -992,7 +986,8 @@ Atmel pdi connector</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="FN" value="1109794" constant="no"/>
+<attribute name="FARNELL" value="1109794" constant="no"/>
+<attribute name="RS" value="605-8847" constant="no"/>
 <attribute name="VALUE" value="" constant="no"/>
 </technology>
 </technologies>
@@ -1024,7 +1019,9 @@ Atmel pdi connector</description>
 <connect gate="-8" pin="S" pad="8"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="739-1227 " constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -1072,7 +1069,9 @@ DDEController.pdf</description>
 <connect gate="-9" pin="S" pad="9"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="739-1237 " constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -1110,7 +1109,9 @@ DDEController.pdf</description>
 <connect gate="-9" pin="S" pad="9"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="739-1230 " constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -1726,7 +1727,8 @@ DDEController.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="VALUE" value="100nF_0603_50V" constant="no"/>
+<attribute name="RS" value=" 723-5534 " constant="no"/>
+<attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -1737,7 +1739,8 @@ DDEController.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="VALUE" value="100nF_0805_50V" constant="no"/>
+<attribute name="RS" value="220-7966 " constant="no"/>
+<attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -1755,6 +1758,7 @@ DDEController.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="RS" value=" 147-421 " constant="no"/>
 <attribute name="VALUE" value="15pF_0603_100V" constant="no"/>
 </technology>
 </technologies>
@@ -1772,73 +1776,21 @@ DDEController.pdf</description>
 </device>
 </devices>
 </deviceset>
-<deviceset name="C_" prefix="C">
+<deviceset name="1UF" prefix="C">
 <gates>
 <gate name="G$1" symbol="C_" x="0" y="0"/>
 </gates>
 <devices>
-<device name="100NF" package="C0805">
+<device name="D_25V" package="C1206">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="VALUE" value="100NF_50V_0805" constant="no"/>
+<attribute name="RS" value=" 740-7574 " constant="no"/>
+<attribute name="VALUE" value="1µF 25V" constant="no"/>
 </technology>
-</technologies>
-</device>
-<device name="1UF" package="C1206">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="VALUE" value="1UF_50V_1206" constant="no"/>
-</technology>
-</technologies>
-</device>
-<device name="15PF" package="C0805">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="VALUE" value="15PF_100V_0805" constant="no"/>
-</technology>
-</technologies>
-</device>
-<device name="10NF" package="C0603">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="VALUE" value="10nF_50V_0603" constant="no"/>
-</technology>
-</technologies>
-</device>
-<device name="22UF" package="C1210">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="VALUE" value="22µF_16V_1210" constant="no"/>
-</technology>
-</technologies>
-</device>
-<device name="10UF" package="C1210">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name=""/>
 </technologies>
 </device>
 </devices>
@@ -1848,13 +1800,28 @@ DDEController.pdf</description>
 <gate name="G$1" symbol="C_" x="0" y="0"/>
 </gates>
 <devices>
-<device name="C" package="C1210">
+<device name="-C_35V" package="C1210">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="758-3325 " constant="no"/>
+<attribute name="VALUE" value="10µF 35V" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-C_25V" package="C1210">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="766-1185 " constant="no"/>
+<attribute name="VALUE" value="10µF 25V" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -2086,7 +2053,9 @@ Source: http://www.maxim-ic.com/package_drawings/21-0041B.pdf</description>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value=" 547-6531" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -2120,8 +2089,12 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 <connect gate="P" pin="VCC" pad="16"/>
 </connects>
 <technologies>
-<technology name="C"/>
-<technology name="E"/>
+<technology name="C">
+<attribute name="RS" value="415-2105 " constant="no"/>
+</technology>
+<technology name="E">
+<attribute name="RS" value="415-2105 " constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -2161,13 +2134,15 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 <gate name="G$1" symbol="D" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="SOD123">
+<device name="'" package="SOD123">
 <connects>
 <connect gate="G$1" pin="A" pad="A"/>
 <connect gate="G$1" pin="C" pad="C"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="761-4283 " constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -2233,7 +2208,9 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="740-8899" constant="no"/>
+</technology>
 </technologies>
 </device>
 <device name="-E" package="R0805">
@@ -2242,7 +2219,9 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value=" 740-9072" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -2258,15 +2237,20 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value=" 679-0071" constant="no"/>
+</technology>
 </technologies>
 </device>
 <device name="-E" package="R0805">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="740-9019" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -2307,16 +2291,20 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="213-2222" constant="no"/>
+</technology>
 </technologies>
 </device>
-<device name="" package="R0805">
+<device name="-E" package="R0805">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="740-9038" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -2382,7 +2370,8 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="VALUE" value="GREEN_0805" constant="no"/>
+<attribute name="RS" value=" 692-0935 " constant="no"/>
+<attribute name="VALUE" value="GREEN"/>
 </technology>
 </technologies>
 </device>
@@ -2393,7 +2382,32 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="VALUE" value="YELLOW_0805" constant="no"/>
+<attribute name="RS" value="692-0925" constant="no"/>
+<attribute name="VALUE" value="YELLOW" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="R" package="CHIP-LED0805">
+<connects>
+<connect gate="G$1" pin="A" pad="A"/>
+<connect gate="G$1" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value=" 692-0931" constant="no"/>
+<attribute name="VALUE" value="RED" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="B" package="CHIP-LED0805">
+<connects>
+<connect gate="G$1" pin="A" pad="A"/>
+<connect gate="G$1" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="692-0953" constant="no"/>
+<attribute name="VALUE" value="BLUE" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -2433,7 +2447,9 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value=" 741-9271" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -2534,11 +2550,11 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <part name="+3V7" library="supply1" deviceset="+3V3" device=""/>
 <part name="GND10" library="supply1" deviceset="GND" device=""/>
 <part name="GND11" library="supply1" deviceset="GND" device=""/>
-<part name="C2" library="robotter_capacitor" deviceset="C_" device="1UF" value="1UF_50V_1206"/>
-<part name="C7" library="robotter_capacitor" deviceset="C_" device="1UF" value="1UF_50V_1206"/>
-<part name="C8" library="robotter_capacitor" deviceset="C_" device="1UF" value="1UF_50V_1206"/>
+<part name="C2" library="robotter_capacitor" deviceset="1UF" device="D_25V" value="1UF_50V_1206"/>
+<part name="C7" library="robotter_capacitor" deviceset="1UF" device="D_25V" value="1UF_50V_1206"/>
+<part name="C8" library="robotter_capacitor" deviceset="1UF" device="D_25V" value="1UF_50V_1206"/>
 <part name="C9" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF_0603_50V"/>
-<part name="D1" library="robotter_ic" deviceset="MMSD4148" device="" value="MMSD4148"/>
+<part name="D1" library="robotter_ic" deviceset="MMSD4148" device="'" value="MMSD4148"/>
 <part name="R1" library="robotter_resistor" deviceset="10K" device="-F"/>
 <part name="L1" library="robotter_inductor" deviceset="NPIS64D" device="471MTRF"/>
 <part name="H4" library="holes" deviceset="MOUNT-PAD-ROUND" device="3.3"/>
@@ -2561,10 +2577,10 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <part name="GND13" library="supply1" deviceset="GND" device=""/>
 <part name="GND14" library="supply1" deviceset="GND" device=""/>
 <part name="GND15" library="supply1" deviceset="GND" device=""/>
-<part name="C10" library="robotter_capacitor" deviceset="10UF" device="C"/>
-<part name="C11" library="robotter_capacitor" deviceset="10UF" device="C"/>
-<part name="C12" library="robotter_capacitor" deviceset="10UF" device="C"/>
-<part name="C13" library="robotter_capacitor" deviceset="10UF" device="C"/>
+<part name="C10" library="robotter_capacitor" deviceset="10UF" device="-C_25V"/>
+<part name="C11" library="robotter_capacitor" deviceset="10UF" device="-C_25V"/>
+<part name="C12" library="robotter_capacitor" deviceset="10UF" device="-C_25V"/>
+<part name="C13" library="robotter_capacitor" deviceset="10UF" device="-C_25V"/>
 <part name="GND9" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
