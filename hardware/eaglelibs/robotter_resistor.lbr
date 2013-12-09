@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="6.4">
+<eagle version="6.5.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -155,61 +155,6 @@
 <gate name="G$1" symbol="RES" x="0" y="0"/>
 </gates>
 <devices>
-<device name="10K" package="R0805">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="VALUE" value="10K_5P_0805" constant="no"/>
-</technology>
-</technologies>
-</device>
-<device name="470" package="R0805">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="VALUE" value="470_5P_0805" constant="no"/>
-</technology>
-</technologies>
-</device>
-<device name="270" package="R0805">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="VALUE" value="270_5P_0805" constant="no"/>
-</technology>
-</technologies>
-</device>
-<device name="1K" package="R0805">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="VALUE" value="1K_5P_0805" constant="no"/>
-</technology>
-</technologies>
-</device>
-<device name="0" package="R0805">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="VALUE" value="0_5P_0805" constant="no"/>
-</technology>
-</technologies>
-</device>
 <device name="22" package="R0805">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
@@ -276,28 +221,6 @@
 </technology>
 </technologies>
 </device>
-<device name="7K15_5%" package="R0603">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="VALUE" value="7k15_1P_0603" constant="no"/>
-</technology>
-</technologies>
-</device>
-<device name="10K_1%" package="R0603">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="VALUE" value="10K_1P_0603" constant="no"/>
-</technology>
-</technologies>
-</device>
 </devices>
 </deviceset>
 <deviceset name="8K2" prefix="R">
@@ -311,7 +234,9 @@
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="679-0759" constant="no"/>
+</technology>
 </technologies>
 </device>
 <device name="-E" package="R0805">
@@ -320,7 +245,9 @@
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value=" 679-1727" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -336,7 +263,9 @@
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="740-8899" constant="no"/>
+</technology>
 </technologies>
 </device>
 <device name="-E" package="R0805">
@@ -345,7 +274,9 @@
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value=" 740-9072" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -361,7 +292,10 @@
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="213-2266" constant="no"/>
+<attribute name="VALUE" value="1k" constant="no"/>
+</technology>
 </technologies>
 </device>
 <device name="-E" package="R0805">
@@ -370,7 +304,10 @@
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value=" 223-0427" constant="no"/>
+<attribute name="VALUE" value="1k" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -386,7 +323,9 @@
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="679-1689" constant="no"/>
+</technology>
 </technologies>
 </device>
 <device name="-F" package="R0603">
@@ -395,7 +334,9 @@
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="679-0709" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -411,7 +352,9 @@
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="740-8975" constant="no"/>
+</technology>
 </technologies>
 </device>
 <device name="-F" package="R0603">
@@ -420,7 +363,9 @@
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="740-8805" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -436,15 +381,20 @@
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value=" 679-0071" constant="no"/>
+</technology>
 </technologies>
 </device>
 <device name="-E" package="R0805">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="740-9019" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -485,16 +435,20 @@
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="213-2222" constant="no"/>
+</technology>
 </technologies>
 </device>
-<device name="" package="R0805">
+<device name="-E" package="R0805">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="740-9038" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>

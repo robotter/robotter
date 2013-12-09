@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="6.4">
+<eagle version="6.5.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -180,6 +180,22 @@
 <text x="-3.81" y="-5.08" size="1.27" layer="25">&gt;NAME</text>
 <text x="-3.81" y="3.81" size="1.27" layer="27">&gt;VALUE</text>
 </package>
+<package name="SDR403">
+<smd name="1" x="0" y="-1.65" dx="4.5" dy="1.8" layer="1"/>
+<smd name="2" x="0" y="1.65" dx="4.5" dy="1.8" layer="1"/>
+<wire x1="2.032" y1="0.635" x2="2.032" y2="-0.635" width="0.127" layer="21" curve="-34.679046"/>
+<wire x1="-2.032" y1="-0.635" x2="-2.032" y2="0.635" width="0.127" layer="21" curve="-34.679046"/>
+<text x="-2.3495" y="2.8575" size="1.27" layer="27">&gt;VALUE</text>
+<text x="-2.4765" y="-4.1275" size="1.27" layer="25">&gt;NAME</text>
+</package>
+<package name="SDR0805">
+<smd name="1" x="0" y="-2.65" dx="8" dy="2.7" layer="1"/>
+<smd name="2" x="0" y="2.65" dx="8" dy="2.7" layer="1"/>
+<text x="-3.4495" y="4.1575" size="1.27" layer="27">&gt;VALUE</text>
+<text x="-3.5765" y="-5.4275" size="1.27" layer="25">&gt;NAME</text>
+<wire x1="3.7" y1="1.1" x2="3.7" y2="-1.1" width="0.127" layer="21" curve="-33.114143"/>
+<wire x1="-3.7" y1="-1.1" x2="-3.7" y2="1.1" width="0.127" layer="21" curve="-33.114143"/>
+</package>
 </packages>
 <symbols>
 <symbol name="-L">
@@ -243,7 +259,45 @@ Texas Instruments and Fairchild Semiconductor
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value=" 741-9271" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="SDR0403">
+<gates>
+<gate name="G$1" symbol="-L" x="0" y="0"/>
+</gates>
+<devices>
+<device name="-2R2ML" package="SDR403">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value=" 727-1599" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="SDR0805" prefix="L">
+<gates>
+<gate name="G$1" symbol="-L" x="0" y="0"/>
+</gates>
+<devices>
+<device name="-270KL" package="SDR0805">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value=" 736-1282" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
