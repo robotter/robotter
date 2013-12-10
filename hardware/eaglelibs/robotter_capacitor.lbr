@@ -357,7 +357,8 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="VALUE" value="10nF_0603_50V" constant="no"/>
+<attribute name="RS" value="723-4982" constant="no"/>
+<attribute name="VALUE" value="10nF 50V" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -368,7 +369,8 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="VALUE" value="100nF_0805_50V" constant="no"/>
+<attribute name="RS" value="264-4371" constant="no"/>
+<attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
 </technologies>
 </device>
