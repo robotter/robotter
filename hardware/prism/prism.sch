@@ -9512,6 +9512,7 @@ Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;
 <part name="C21" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V"/>
 <part name="C34" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V"/>
 <part name="R59" library="robotter_resistor" deviceset="100_1W" device="-1W"/>
+<part name="FRAME3" library="frames" deviceset="A4L-LOC" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -9886,6 +9887,7 @@ Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;
 <instance part="C21" gate="G$1" x="421.64" y="68.58"/>
 <instance part="C34" gate="G$1" x="464.82" y="68.58"/>
 <instance part="R59" gate="G$1" x="403.86" y="71.12"/>
+<instance part="FRAME3" gate="G$1" x="266.7" y="-185.42"/>
 </instances>
 <busses>
 </busses>
