@@ -418,7 +418,9 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="VALUE" value="EEEFK1V331P" constant="no"/>
+<attribute name="MANUFACTURER" value="EEEFK1V331P" constant="no"/>
+<attribute name="RS" value="708-3475" constant="no"/>
+<attribute name="VALUE" value="330µF 35V" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -500,6 +502,25 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 <technology name="">
 <attribute name="RS" value="264-4365" constant="no"/>
 <attribute name="VALUE" value="4.7nF 50V" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="22UF" prefix="C">
+<gates>
+<gate name="G$1" symbol="C_" x="0" y="0"/>
+</gates>
+<devices>
+<device name="-C_10V" package="C1210">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="698-3844" constant="no"/>
+<attribute name="VALUE" value="22µF 10V" constant="no"/>
 </technology>
 </technologies>
 </device>

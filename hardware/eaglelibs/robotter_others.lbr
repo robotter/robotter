@@ -857,7 +857,10 @@
 <connect gate="G$1" pin="3" pad="3"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="734-7220" constant="no"/>
+<attribute name="VALUE" value="2MS1T2B4M6QNS" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>

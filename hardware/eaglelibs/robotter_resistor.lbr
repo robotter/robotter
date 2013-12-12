@@ -338,6 +338,18 @@ type 0309, grid 12.5 mm</description>
 </technology>
 </technologies>
 </device>
+<device name="-A" package="R2512">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="224-0395" constant="no"/>
+<attribute name="VALUE" value="1k 1W" constant="no"/>
+</technology>
+</technologies>
+</device>
 </devices>
 </deviceset>
 <deviceset name="7K15_1%" prefix="R">
@@ -588,6 +600,56 @@ type 0309, grid 12.5 mm</description>
 <technologies>
 <technology name="">
 <attribute name="RS" value="707-8625" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="15K" prefix="R">
+<gates>
+<gate name="G$1" symbol="RES" x="0" y="0"/>
+</gates>
+<devices>
+<device name="-E" package="R0805">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="740-8997" constant="no"/>
+<attribute name="VALUE" value="15k 1%" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-F" package="R0603">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="740-8912" constant="no"/>
+<attribute name="VALUE" value="15k 1%" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="22" prefix="R">
+<gates>
+<gate name="G$1" symbol="RES" x="0" y="0"/>
+</gates>
+<devices>
+<device name="-F" package="R0603">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="213-2042" constant="no"/>
+<attribute name="VALUE" value="22 ohms" constant="no"/>
 </technology>
 </technologies>
 </device>
