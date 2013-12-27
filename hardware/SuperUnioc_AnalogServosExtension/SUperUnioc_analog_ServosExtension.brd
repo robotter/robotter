@@ -8,17 +8,17 @@
 </settings>
 <grid distance="4" unitdist="mil" unit="mil" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
 <layers>
-<layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
+<layer number="1" name="Top" color="4" fill="1" visible="no" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
 <layer number="17" name="Pads" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="18" name="Vias" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="yes"/>
 <layer number="20" name="Dimension" color="15" fill="1" visible="yes" active="yes"/>
-<layer number="21" name="tPlace" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="21" name="tPlace" color="7" fill="1" visible="no" active="yes"/>
 <layer number="22" name="bPlace" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
-<layer number="25" name="tNames" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="25" name="tNames" color="7" fill="1" visible="no" active="yes"/>
 <layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="27" name="tValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
@@ -65,11 +65,6 @@
 </layers>
 <board>
 <plain>
-<wire x1="0" y1="0" x2="100" y2="0" width="0" layer="20"/>
-<wire x1="100" y1="0" x2="100" y2="80" width="0" layer="20"/>
-<wire x1="100" y1="80" x2="75" y2="80" width="0" layer="20"/>
-<wire x1="39.243" y1="80" x2="0" y2="80" width="0" layer="20"/>
-<wire x1="0" y1="80" x2="0" y2="0" width="0" layer="20"/>
 <wire x1="5.75" y1="80" x2="39.624" y2="80" width="0.254" layer="49"/>
 <wire x1="74.9808" y1="80" x2="86.75" y2="80" width="0.254" layer="49"/>
 <wire x1="86.75" y1="80" x2="92.5" y2="70" width="0.254" layer="49"/>
@@ -595,7 +590,7 @@ design rules under a new name.</description>
 <attribute name="VALUE" x="34.6896" y="41.9152" size="1.27" layer="27" ratio="10"/>
 </element>
 <element name="C12" library="robotter_capacitor" package="PANASONIC_F" value="220µF 35V" x="59.3344" y="48.768" smashed="yes" rot="R270">
-<attribute name="NAME" x="55.87" y="53.3628" size="1.016" layer="25"/>
+<attribute name="NAME" x="55.6668" y="53.3628" size="1.016" layer="25"/>
 <attribute name="VALUE" value="220µF 35V" x="56.6594" y="51.318" size="1.016" layer="27" rot="R270"/>
 <attribute name="RS" value="568-828" x="59.3344" y="48.768" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
@@ -615,8 +610,10 @@ design rules under a new name.</description>
 <attribute name="NAME" x="35.4838" y="49.5554" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="37.9222" y="48.3362" size="1.27" layer="28" rot="MR0"/>
 </element>
-<element name="R1" library="robotter_resistor" package="R0603" value="3k 1%" x="38.8112" y="47.9044" rot="MR180">
+<element name="R1" library="robotter_resistor" package="R0603" value="3k 1%" x="38.8112" y="47.9044" smashed="yes" rot="MR180">
 <attribute name="RS" value="708-7574" x="38.8112" y="47.9044" size="1.778" layer="28" rot="MR180" display="off"/>
+<attribute name="NAME" x="37.5666" y="47.0662" size="1.27" layer="26" rot="MR180"/>
+<attribute name="VALUE" x="38.1762" y="49.8094" size="1.27" layer="28" rot="MR180"/>
 </element>
 <element name="IC2" library="robotter_ic" package="TSSOP24" value="74LVC4245APW" x="33.3756" y="58.0136" smashed="yes" rot="MR0">
 <attribute name="RS" value="380-0500" x="-14.8844" y="54.2036" size="1.778" layer="28" rot="MR0" display="off"/>
@@ -636,7 +633,7 @@ design rules under a new name.</description>
 <element name="JA1" library="robotter_connector" package="EMBASE_8+8_FEM" value="EMBASE_8+8_FEM" x="46" y="71.8476" smashed="yes" rot="R270">
 <attribute name="RS" value="605-8847" x="12.98" y="48.9876" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="FARNELL" value="1109794" x="12.98" y="48.9876" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="42.396" y="67.046" size="1.27" layer="25" rot="R270"/>
+<attribute name="NAME" x="42.396" y="76.5964" size="1.27" layer="25" rot="R270"/>
 <attribute name="VALUE" x="42" y="79.8476" size="1.27" layer="27" rot="R270"/>
 </element>
 <element name="H1" library="holes" package="3,3-PAD" value="MOUNT-PAD-ROUND3.3" x="70.3326" y="72.9996"/>
@@ -707,7 +704,7 @@ design rules under a new name.</description>
 </element>
 <element name="C7" library="robotter_capacitor" package="C1210" value="10µF 25V" x="28.3464" y="61.7728" smashed="yes" rot="R90">
 <attribute name="RS" value="766-1185 " x="28.3464" y="61.7728" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="NAME" x="28.6766" y="57.6834" size="1.27" layer="25"/>
+<attribute name="NAME" x="27.2542" y="57.785" size="1.27" layer="25"/>
 <attribute name="VALUE" x="31.5214" y="59.8678" size="1.27" layer="27" rot="R90"/>
 </element>
 <element name="IC3" library="robotter_ic" package="TO263-5" value="LM2596S-ADJ" x="35.56" y="56.6928" smashed="yes">
