@@ -362,24 +362,6 @@ DIN A4, landscape with location and doc. field</description>
 <description>&lt;b&gt;Jack connectors according to JISC 6560, 2.5 mm&lt;/b&gt;&lt;p&gt;
 Klinkensteckverbinder nach JISC 6560, 2,5 mm&lt;br&gt;
 Source: http://www.lumberg.com/Produkte/PDFs/KLBR1.pdf</description>
-<wire x1="-1.25" y1="4.7" x2="-0.75" y2="5.2" width="0" layer="46" curve="-90"/>
-<wire x1="-0.75" y1="5.2" x2="0.75" y2="5.2" width="0" layer="46"/>
-<wire x1="0.75" y1="5.2" x2="1.25" y2="4.7" width="0" layer="46" curve="-90"/>
-<wire x1="1.25" y1="4.7" x2="0.75" y2="4.2" width="0" layer="46" curve="-90"/>
-<wire x1="0.75" y1="4.2" x2="-0.75" y2="4.2" width="0" layer="46"/>
-<wire x1="-0.75" y1="4.2" x2="-1.25" y2="4.7" width="0" layer="46" curve="-90"/>
-<wire x1="-1.25" y1="-4.7" x2="-0.75" y2="-4.2" width="0" layer="46" curve="-90"/>
-<wire x1="-0.75" y1="-4.2" x2="0.75" y2="-4.2" width="0" layer="46"/>
-<wire x1="0.75" y1="-4.2" x2="1.25" y2="-4.7" width="0" layer="46" curve="-90"/>
-<wire x1="1.25" y1="-4.7" x2="0.75" y2="-5.2" width="0" layer="46" curve="-90"/>
-<wire x1="0.75" y1="-5.2" x2="-0.75" y2="-5.2" width="0" layer="46"/>
-<wire x1="-0.75" y1="-5.2" x2="-1.25" y2="-4.7" width="0" layer="46" curve="-90"/>
-<wire x1="-4" y1="-4.75" x2="-4.5" y2="-4.25" width="0" layer="46" curve="-90"/>
-<wire x1="-4.5" y1="-4.25" x2="-4.5" y2="-2.75" width="0" layer="46"/>
-<wire x1="-4.5" y1="-2.75" x2="-4" y2="-2.25" width="0" layer="46" curve="-90"/>
-<wire x1="-4" y1="-2.25" x2="-3.5" y2="-2.75" width="0" layer="46" curve="-90"/>
-<wire x1="-3.5" y1="-2.75" x2="-3.5" y2="-4.25" width="0" layer="46"/>
-<wire x1="-3.5" y1="-4.25" x2="-4" y2="-4.75" width="0" layer="46" curve="-90"/>
 <wire x1="-3" y1="11.85" x2="3" y2="11.85" width="0.2032" layer="21"/>
 <wire x1="4.9" y1="8.35" x2="4.9" y2="-6.35" width="0.2032" layer="21"/>
 <wire x1="4.9" y1="-6.35" x2="2.25" y2="-6.35" width="0.2032" layer="21"/>
@@ -445,30 +427,6 @@ Source: http://www.hirose.co.jp/cataloge_hp/e24000019.pdf</description>
 <wire x1="1.9417" y1="-2.699" x2="5.3483" y2="-2.9233" width="0.1016" layer="21"/>
 <wire x1="5.3483" y1="-2.9233" x2="5.4605" y2="-3.0494" width="0.1016" layer="21" curve="-89.143172"/>
 <wire x1="5.4605" y1="-3.0494" x2="5.4605" y2="-3.7504" width="0.1016" layer="21"/>
-<wire x1="8.9" y1="-3.25" x2="9.3" y2="-3.65" width="0" layer="46" curve="-90"/>
-<wire x1="9.3" y1="-3.65" x2="8.9" y2="-4.05" width="0" layer="46" curve="-90"/>
-<wire x1="8.9" y1="-4.05" x2="7.9" y2="-4.05" width="0" layer="46"/>
-<wire x1="7.9" y1="-4.05" x2="7.5" y2="-3.65" width="0" layer="46" curve="-90"/>
-<wire x1="7.5" y1="-3.65" x2="7.9" y2="-3.25" width="0" layer="46" curve="-90"/>
-<wire x1="7.9" y1="-3.25" x2="8.9" y2="-3.25" width="0" layer="46"/>
-<wire x1="8.9" y1="4.05" x2="9.3" y2="3.65" width="0" layer="46" curve="-90"/>
-<wire x1="9.3" y1="3.65" x2="8.9" y2="3.25" width="0" layer="46" curve="-90"/>
-<wire x1="8.9" y1="3.25" x2="7.9" y2="3.25" width="0" layer="46"/>
-<wire x1="7.9" y1="3.25" x2="7.5" y2="3.65" width="0" layer="46" curve="-90"/>
-<wire x1="7.5" y1="3.65" x2="7.9" y2="4.05" width="0" layer="46" curve="-90"/>
-<wire x1="7.9" y1="4.05" x2="8.9" y2="4.05" width="0" layer="46"/>
-<wire x1="3.6" y1="-3.25" x2="4" y2="-3.65" width="0" layer="46" curve="-90"/>
-<wire x1="4" y1="-3.65" x2="3.6" y2="-4.05" width="0" layer="46" curve="-90"/>
-<wire x1="3.6" y1="-4.05" x2="2.6" y2="-4.05" width="0" layer="46"/>
-<wire x1="2.6" y1="-4.05" x2="2.2" y2="-3.65" width="0" layer="46" curve="-90"/>
-<wire x1="2.2" y1="-3.65" x2="2.6" y2="-3.25" width="0" layer="46" curve="-90"/>
-<wire x1="2.6" y1="-3.25" x2="3.6" y2="-3.25" width="0" layer="46"/>
-<wire x1="3.6" y1="4.05" x2="4" y2="3.65" width="0" layer="46" curve="-90"/>
-<wire x1="4" y1="3.65" x2="3.6" y2="3.25" width="0" layer="46" curve="-90"/>
-<wire x1="3.6" y1="3.25" x2="2.6" y2="3.25" width="0" layer="46"/>
-<wire x1="2.6" y1="3.25" x2="2.2" y2="3.65" width="0" layer="46" curve="-90"/>
-<wire x1="2.2" y1="3.65" x2="2.6" y2="4.05" width="0" layer="46" curve="-90"/>
-<wire x1="2.6" y1="4.05" x2="3.6" y2="4.05" width="0" layer="46"/>
 <pad name="M4" x="5.1" y="-3.65" drill="1.1" shape="octagon"/>
 <pad name="M3" x="5.1" y="3.65" drill="1.1" shape="octagon"/>
 <pad name="M1" x="3.3" y="-3.65" drill="1.1" shape="long" rot="R90"/>
@@ -2316,7 +2274,7 @@ Source: http://www.analog.com/UploadedFiles/Data_Sheets/703465986AD8611_2_0.pdf<
 <pin name="PDI" x="30.48" y="-20.32" length="middle" rot="R180"/>
 <pin name="/RESET" x="30.48" y="-22.86" length="middle" rot="R180"/>
 <pin name="PR0/XTAL2" x="30.48" y="-25.4" length="middle" rot="R180"/>
-<pin name="PR1/STAL1" x="30.48" y="-27.94" length="middle" rot="R180"/>
+<pin name="PR1/XTAL1" x="30.48" y="-27.94" length="middle" rot="R180"/>
 <wire x1="-27.94" y1="48.26" x2="25.4" y2="48.26" width="0.254" layer="94"/>
 <wire x1="25.4" y1="48.26" x2="25.4" y2="-48.26" width="0.254" layer="94"/>
 <wire x1="25.4" y1="-48.26" x2="-27.94" y2="-48.26" width="0.254" layer="94"/>
@@ -2558,7 +2516,7 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 <connect gate="G$1" pin="PF6" pad="54"/>
 <connect gate="G$1" pin="PF7" pad="55"/>
 <connect gate="G$1" pin="PR0/XTAL2" pad="58"/>
-<connect gate="G$1" pin="PR1/STAL1" pad="59"/>
+<connect gate="G$1" pin="PR1/XTAL1" pad="59"/>
 <connect gate="G$1" pin="RXD0/OC0C/PE2" pad="38"/>
 <connect gate="G$1" pin="RXD0/OC0C/PF2" pad="48"/>
 <connect gate="G$1" pin="SCK/TXD1/PE7" pad="43"/>
@@ -2594,7 +2552,9 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="VALUE" value="25 MHz" constant="no"/>
+</technology>
 </technologies>
 </device>
 <device name="16MHZ_HC49UP" package="HC49UP">
@@ -2605,6 +2565,7 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 <technologies>
 <technology name="">
 <attribute name="RS" value=" 547-6531" constant="no"/>
+<attribute name="VALUE" value="16 MHz" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -6488,7 +6449,7 @@ wire to board 2.54 mm (.1 inch) pitch header</description>
 <net name="N$75" class="0">
 <segment>
 <pinref part="C24" gate="G$1" pin="1"/>
-<pinref part="IC6" gate="G$1" pin="PR1/STAL1"/>
+<pinref part="IC6" gate="G$1" pin="PR1/XTAL1"/>
 <wire x1="121.92" y1="60.96" x2="121.92" y2="63.5" width="0.1524" layer="91"/>
 <pinref part="Q1" gate="G$1" pin="1"/>
 <wire x1="121.92" y1="63.5" x2="124.46" y2="63.5" width="0.1524" layer="91"/>
