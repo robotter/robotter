@@ -2425,6 +2425,22 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <text x="-3.81" y="-5.08" size="1.27" layer="25">&gt;NAME</text>
 <text x="-3.81" y="3.81" size="1.27" layer="27">&gt;VALUE</text>
 </package>
+<package name="R0603">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<wire x1="-0.432" y1="-0.356" x2="0.432" y2="-0.356" width="0.1524" layer="51"/>
+<wire x1="0.432" y1="0.356" x2="-0.432" y2="0.356" width="0.1524" layer="51"/>
+<wire x1="-1.473" y1="0.983" x2="1.473" y2="0.983" width="0.0508" layer="39"/>
+<wire x1="1.473" y1="0.983" x2="1.473" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="1.473" y1="-0.983" x2="-1.473" y2="-0.983" width="0.0508" layer="39"/>
+<wire x1="-1.473" y1="-0.983" x2="-1.473" y2="0.983" width="0.0508" layer="39"/>
+<smd name="1" x="-0.85" y="0" dx="1" dy="1.1" layer="1"/>
+<smd name="2" x="0.85" y="0" dx="1" dy="1.1" layer="1"/>
+<text x="-0.635" y="0.635" size="1.27" layer="25">&gt;NAME</text>
+<text x="-0.635" y="-1.905" size="1.27" layer="27">&gt;VALUE</text>
+<rectangle x1="0.4318" y1="-0.4318" x2="0.8382" y2="0.4318" layer="51"/>
+<rectangle x1="-0.8382" y1="-0.4318" x2="-0.4318" y2="0.4318" layer="51"/>
+<rectangle x1="-0.1999" y1="-0.4001" x2="0.1999" y2="0.4001" layer="35"/>
+</package>
 </packages>
 <symbols>
 <symbol name="-L">
@@ -2449,6 +2465,25 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <technologies>
 <technology name="">
 <attribute name="RS" value=" 741-9271" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="FERRITE_220OHMS" prefix="L">
+<gates>
+<gate name="G$1" symbol="-L" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="R0603">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="724-1302" constant="no"/>
+<attribute name="VALUE" value="220 ohms" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -2545,7 +2580,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <part name="C5" library="robotter_capacitor" deviceset="100NF" device="-E"/>
 <part name="+3V24" library="supply1" deviceset="+3V3" device=""/>
 <part name="GND8" library="supply1" deviceset="GND" device=""/>
-<part name="IC2" library="robotter_ic" deviceset="ADXRS453" device="BRGZ"/>
+<part name="IC2" library="robotter_ic" deviceset="ADXRS453" device="BRGZ" value="ADXRS453BRGZ"/>
 <part name="+3V4" library="supply1" deviceset="+3V3" device=""/>
 <part name="+3V7" library="supply1" deviceset="+3V3" device=""/>
 <part name="GND10" library="supply1" deviceset="GND" device=""/>
@@ -2582,6 +2617,8 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <part name="C12" library="robotter_capacitor" deviceset="10UF" device="-C_25V"/>
 <part name="C13" library="robotter_capacitor" deviceset="10UF" device="-C_25V"/>
 <part name="GND9" library="supply1" deviceset="GND" device=""/>
+<part name="P+7" library="supply1" deviceset="+12V" device=""/>
+<part name="L2" library="robotter_inductor" deviceset="FERRITE_220OHMS" device="" value="220 ohms"/>
 </parts>
 <sheets>
 <sheet>
@@ -2820,6 +2857,8 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <instance part="C12" gate="G$1" x="147.32" y="-91.44"/>
 <instance part="C13" gate="G$1" x="147.32" y="-43.18"/>
 <instance part="GND9" gate="1" x="340.36" y="101.6"/>
+<instance part="P+7" gate="1" x="492.76" y="142.24"/>
+<instance part="L2" gate="G$1" x="424.18" y="236.22"/>
 </instances>
 <busses>
 </busses>
@@ -3217,18 +3256,9 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <pinref part="UART_I2C" gate="-5" pin="S"/>
 </segment>
 <segment>
-<wire x1="370.84" y1="236.22" x2="370.84" y2="233.68" width="0.1524" layer="91"/>
-<wire x1="370.84" y1="236.22" x2="378.46" y2="236.22" width="0.1524" layer="91"/>
-<wire x1="378.46" y1="236.22" x2="408.94" y2="236.22" width="0.1524" layer="91"/>
-<wire x1="408.94" y1="236.22" x2="441.96" y2="236.22" width="0.1524" layer="91"/>
-<junction x="370.84" y="236.22"/>
-<junction x="378.46" y="236.22"/>
-<junction x="408.94" y="236.22"/>
 <pinref part="+3V2" gate="G$1" pin="+3V3"/>
-<pinref part="IC5" gate="G$1" pin="AVCC-A"/>
-<pinref part="IC5" gate="G$1" pin="AVCC-B"/>
-<pinref part="C28" gate="G$1" pin="1"/>
-<pinref part="C29" gate="G$1" pin="1"/>
+<pinref part="L2" gate="G$1" pin="2"/>
+<wire x1="429.26" y1="236.22" x2="441.96" y2="236.22" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <wire x1="513.08" y1="332.74" x2="518.16" y2="332.74" width="0.1524" layer="91"/>
@@ -3495,6 +3525,11 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <pinref part="P+2" gate="1" pin="+12V"/>
 <pinref part="R25" gate="G$1" pin="2"/>
 </segment>
+<segment>
+<pinref part="JA1" gate="G$1" pin="16"/>
+<pinref part="P+7" gate="1" pin="+12V"/>
+<wire x1="464.82" y1="139.7" x2="492.76" y2="139.7" width="0.1524" layer="91"/>
+</segment>
 </net>
 <net name="PWM_MOT0_3V3" class="0">
 <segment>
@@ -3520,14 +3555,14 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <pinref part="MOT1" gate="-3" pin="S"/>
 </segment>
 <segment>
-<wire x1="370.84" y1="345.44" x2="388.62" y2="345.44" width="0.1524" layer="91"/>
-<label x="373.38" y="345.44" size="1.778" layer="95"/>
-<pinref part="IC5" gate="G$1" pin="PF3(OC0D/TXD0)"/>
+<pinref part="IC5" gate="G$1" pin="PH1(!CAS!/!RE!)"/>
+<wire x1="370.84" y1="325.12" x2="383.54" y2="325.12" width="0.1524" layer="91"/>
+<label x="373.38" y="325.12" size="1.778" layer="95"/>
 </segment>
 <segment>
-<wire x1="411.48" y1="149.86" x2="449.58" y2="149.86" width="0.1524" layer="91"/>
-<label x="414.02" y="149.86" size="1.778" layer="95"/>
-<pinref part="JA1" gate="G$1" pin="7"/>
+<wire x1="411.48" y1="144.78" x2="449.58" y2="144.78" width="0.1524" layer="91"/>
+<label x="414.02" y="144.78" size="1.778" layer="95"/>
+<pinref part="JA1" gate="G$1" pin="11"/>
 </segment>
 </net>
 <net name="BRAKE_MOT0_3V3" class="0">
@@ -3537,14 +3572,14 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <pinref part="MOT1" gate="-4" pin="S"/>
 </segment>
 <segment>
-<wire x1="370.84" y1="337.82" x2="388.62" y2="337.82" width="0.1524" layer="91"/>
-<label x="373.38" y="337.82" size="1.778" layer="95"/>
-<pinref part="IC5" gate="G$1" pin="PF6(RXD1/MISO)"/>
+<pinref part="IC5" gate="G$1" pin="PH4(BA0/!CS0!/A16)"/>
+<wire x1="370.84" y1="317.5" x2="383.54" y2="317.5" width="0.1524" layer="91"/>
+<label x="373.38" y="317.5" size="1.778" layer="95"/>
 </segment>
 <segment>
-<wire x1="411.48" y1="142.24" x2="449.58" y2="142.24" width="0.1524" layer="91"/>
-<label x="414.02" y="142.24" size="1.778" layer="95"/>
-<pinref part="JA1" gate="G$1" pin="13"/>
+<pinref part="JA1" gate="G$1" pin="14"/>
+<wire x1="464.82" y1="142.24" x2="487.68" y2="142.24" width="0.1524" layer="91"/>
+<label x="467.36" y="142.24" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="ENCODER_A_MOT0_3V3" class="0">
@@ -3605,9 +3640,9 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <pinref part="IC5" gate="G$1" pin="PF2(OC0C/RXD0)"/>
 </segment>
 <segment>
-<wire x1="411.48" y1="152.4" x2="449.58" y2="152.4" width="0.1524" layer="91"/>
-<label x="414.02" y="152.4" size="1.778" layer="95"/>
-<pinref part="JA1" gate="G$1" pin="5"/>
+<pinref part="JA1" gate="G$1" pin="4"/>
+<wire x1="464.82" y1="154.94" x2="487.68" y2="154.94" width="0.1524" layer="91"/>
+<label x="467.36" y="154.94" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="DIRECTION_MOT2_3V3" class="0">
@@ -3617,14 +3652,14 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <pinref part="MOT3" gate="-3" pin="S"/>
 </segment>
 <segment>
-<wire x1="370.84" y1="340.36" x2="388.62" y2="340.36" width="0.1524" layer="91"/>
-<label x="373.38" y="340.36" size="1.778" layer="95"/>
-<pinref part="IC5" gate="G$1" pin="PF5(OC1B/XCK1/MOSI)"/>
+<pinref part="IC5" gate="G$1" pin="PH3(!DOM!/ALE2)"/>
+<wire x1="370.84" y1="320.04" x2="383.54" y2="320.04" width="0.1524" layer="91"/>
+<label x="373.38" y="320.04" size="1.778" layer="95"/>
 </segment>
 <segment>
-<wire x1="411.48" y1="144.78" x2="449.58" y2="144.78" width="0.1524" layer="91"/>
-<label x="414.02" y="144.78" size="1.778" layer="95"/>
-<pinref part="JA1" gate="G$1" pin="11"/>
+<wire x1="411.48" y1="142.24" x2="449.58" y2="142.24" width="0.1524" layer="91"/>
+<label x="414.02" y="142.24" size="1.778" layer="95"/>
+<pinref part="JA1" gate="G$1" pin="13"/>
 </segment>
 </net>
 <net name="BRAKE_MOT2_3V3" class="0">
@@ -3719,14 +3754,14 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <pinref part="MOT2" gate="-3" pin="S"/>
 </segment>
 <segment>
-<wire x1="370.84" y1="342.9" x2="388.62" y2="342.9" width="0.1524" layer="91"/>
-<label x="373.38" y="342.9" size="1.778" layer="95"/>
-<pinref part="IC5" gate="G$1" pin="PF4(OC1A/!SS!)"/>
+<pinref part="IC5" gate="G$1" pin="PH2(!RAS!/ALE1)"/>
+<wire x1="370.84" y1="322.58" x2="383.54" y2="322.58" width="0.1524" layer="91"/>
+<label x="373.38" y="322.58" size="1.778" layer="95"/>
 </segment>
 <segment>
-<wire x1="411.48" y1="147.32" x2="449.58" y2="147.32" width="0.1524" layer="91"/>
-<label x="414.02" y="147.32" size="1.778" layer="95"/>
-<pinref part="JA1" gate="G$1" pin="9"/>
+<pinref part="JA1" gate="G$1" pin="12"/>
+<wire x1="464.82" y1="144.78" x2="487.68" y2="144.78" width="0.1524" layer="91"/>
+<label x="467.36" y="144.78" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="BRAKE_MOT1_3V3" class="0">
@@ -3736,14 +3771,14 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <pinref part="MOT2" gate="-4" pin="S"/>
 </segment>
 <segment>
-<wire x1="370.84" y1="335.28" x2="388.62" y2="335.28" width="0.1524" layer="91"/>
-<label x="373.38" y="335.28" size="1.778" layer="95"/>
-<pinref part="IC5" gate="G$1" pin="PF7(TXD1/SCK)"/>
-</segment>
-<segment>
 <wire x1="411.48" y1="139.7" x2="449.58" y2="139.7" width="0.1524" layer="91"/>
 <label x="414.02" y="139.7" size="1.778" layer="95"/>
 <pinref part="JA1" gate="G$1" pin="15"/>
+</segment>
+<segment>
+<pinref part="IC5" gate="G$1" pin="PH5(BA1/!CS1!/A17)"/>
+<wire x1="370.84" y1="314.96" x2="383.54" y2="314.96" width="0.1524" layer="91"/>
+<label x="373.38" y="314.96" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="ENCODER_A_MOT1_3V3" class="0">
@@ -4316,6 +4351,94 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <pinref part="GP2" gate="-7" pin="S"/>
 <pinref part="R8" gate="G$1" pin="2"/>
 <wire x1="119.38" y1="-43.18" x2="124.46" y2="-43.18" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="PF3" class="0">
+<segment>
+<pinref part="IC5" gate="G$1" pin="PF3(OC0D/TXD0)"/>
+<wire x1="370.84" y1="345.44" x2="388.62" y2="345.44" width="0.1524" layer="91"/>
+<label x="373.38" y="345.44" size="1.778" layer="95"/>
+</segment>
+<segment>
+<wire x1="411.48" y1="152.4" x2="449.58" y2="152.4" width="0.1524" layer="91"/>
+<label x="414.02" y="152.4" size="1.778" layer="95"/>
+<pinref part="JA1" gate="G$1" pin="5"/>
+</segment>
+</net>
+<net name="PF4" class="0">
+<segment>
+<pinref part="IC5" gate="G$1" pin="PF4(OC1A/!SS!)"/>
+<wire x1="370.84" y1="342.9" x2="388.62" y2="342.9" width="0.1524" layer="91"/>
+<label x="373.38" y="342.9" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="JA1" gate="G$1" pin="6"/>
+<wire x1="464.82" y1="152.4" x2="487.68" y2="152.4" width="0.1524" layer="91"/>
+<label x="467.36" y="152.4" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="PF5" class="0">
+<segment>
+<pinref part="IC5" gate="G$1" pin="PF5(OC1B/XCK1/MOSI)"/>
+<wire x1="370.84" y1="340.36" x2="388.62" y2="340.36" width="0.1524" layer="91"/>
+<label x="373.38" y="340.36" size="1.778" layer="95"/>
+</segment>
+<segment>
+<wire x1="411.48" y1="149.86" x2="449.58" y2="149.86" width="0.1524" layer="91"/>
+<label x="414.02" y="149.86" size="1.778" layer="95"/>
+<pinref part="JA1" gate="G$1" pin="7"/>
+</segment>
+</net>
+<net name="PF6" class="0">
+<segment>
+<pinref part="IC5" gate="G$1" pin="PF6(RXD1/MISO)"/>
+<wire x1="370.84" y1="337.82" x2="388.62" y2="337.82" width="0.1524" layer="91"/>
+<label x="373.38" y="337.82" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="JA1" gate="G$1" pin="8"/>
+<wire x1="464.82" y1="149.86" x2="487.68" y2="149.86" width="0.1524" layer="91"/>
+<label x="467.36" y="149.86" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="PF7" class="0">
+<segment>
+<pinref part="IC5" gate="G$1" pin="PF7(TXD1/SCK)"/>
+<wire x1="370.84" y1="335.28" x2="388.62" y2="335.28" width="0.1524" layer="91"/>
+<label x="373.38" y="335.28" size="1.778" layer="95"/>
+</segment>
+<segment>
+<wire x1="411.48" y1="147.32" x2="449.58" y2="147.32" width="0.1524" layer="91"/>
+<label x="414.02" y="147.32" size="1.778" layer="95"/>
+<pinref part="JA1" gate="G$1" pin="9"/>
+</segment>
+</net>
+<net name="PH0" class="0">
+<segment>
+<pinref part="IC5" gate="G$1" pin="PH0(!WE!)"/>
+<wire x1="370.84" y1="327.66" x2="383.54" y2="327.66" width="0.1524" layer="91"/>
+<label x="373.38" y="327.66" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="JA1" gate="G$1" pin="10"/>
+<wire x1="464.82" y1="147.32" x2="487.68" y2="147.32" width="0.1524" layer="91"/>
+<label x="467.36" y="147.32" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="N$25" class="0">
+<segment>
+<wire x1="370.84" y1="236.22" x2="370.84" y2="233.68" width="0.1524" layer="91"/>
+<wire x1="370.84" y1="236.22" x2="378.46" y2="236.22" width="0.1524" layer="91"/>
+<wire x1="378.46" y1="236.22" x2="408.94" y2="236.22" width="0.1524" layer="91"/>
+<wire x1="408.94" y1="236.22" x2="419.1" y2="236.22" width="0.1524" layer="91"/>
+<junction x="370.84" y="236.22"/>
+<junction x="378.46" y="236.22"/>
+<junction x="408.94" y="236.22"/>
+<pinref part="IC5" gate="G$1" pin="AVCC-A"/>
+<pinref part="IC5" gate="G$1" pin="AVCC-B"/>
+<pinref part="C28" gate="G$1" pin="1"/>
+<pinref part="C29" gate="G$1" pin="1"/>
+<pinref part="L2" gate="G$1" pin="1"/>
 </segment>
 </net>
 </nets>
