@@ -1400,6 +1400,22 @@ type 0309, grid 12.5 mm</description>
 <rectangle x1="4.318" y1="-0.3048" x2="5.1816" y2="0.3048" layer="21"/>
 <rectangle x1="-5.1816" y1="-0.3048" x2="-4.318" y2="0.3048" layer="21"/>
 </package>
+<package name="R2512">
+<description>&lt;b&gt;RESISTOR&lt;/b&gt;</description>
+<wire x1="-2.362" y1="1.473" x2="2.387" y2="1.473" width="0.1524" layer="51"/>
+<wire x1="-2.362" y1="-1.473" x2="2.387" y2="-1.473" width="0.1524" layer="51"/>
+<wire x1="-3.973" y1="1.983" x2="3.973" y2="1.983" width="0.0508" layer="39"/>
+<wire x1="3.973" y1="1.983" x2="3.973" y2="-1.983" width="0.0508" layer="39"/>
+<wire x1="3.973" y1="-1.983" x2="-3.973" y2="-1.983" width="0.0508" layer="39"/>
+<wire x1="-3.973" y1="-1.983" x2="-3.973" y2="1.983" width="0.0508" layer="39"/>
+<smd name="1" x="-2.8" y="0" dx="1.8" dy="3.2" layer="1"/>
+<smd name="2" x="2.8" y="0" dx="1.8" dy="3.2" layer="1"/>
+<text x="-2.54" y="1.905" size="1.27" layer="25">&gt;NAME</text>
+<text x="-2.54" y="-3.175" size="1.27" layer="27">&gt;VALUE</text>
+<rectangle x1="-3.2004" y1="-1.5494" x2="-2.3505" y2="1.5507" layer="51"/>
+<rectangle x1="2.3622" y1="-1.5494" x2="3.2121" y2="1.5507" layer="51"/>
+<rectangle x1="-0.5001" y1="-1" x2="0.5001" y2="1" layer="35"/>
+</package>
 </packages>
 <symbols>
 <symbol name="RES">
@@ -1498,6 +1514,18 @@ type 0309, grid 12.5 mm</description>
 <technology name="">
 <attribute name="RS" value=" 223-0427" constant="no"/>
 <attribute name="VALUE" value="1k" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-A" package="R2512">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="224-0395" constant="no"/>
+<attribute name="VALUE" value="1k 1W" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -2867,7 +2895,7 @@ http://www.ti.com/product/lm25011</description>
 <gate name="G$1" symbol="74LVC4245" x="0" y="2.54"/>
 </gates>
 <devices>
-<device name="A" package="TSSOP24">
+<device name="APW" package="TSSOP24">
 <connects>
 <connect gate="G$1" pin="/OE" pad="22"/>
 <connect gate="G$1" pin="DIR_H_TO_L" pad="2"/>
@@ -2895,7 +2923,9 @@ http://www.ti.com/product/lm25011</description>
 <connect gate="G$1" pin="VL@1" pad="24"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="RS" value="380-0500" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -6664,7 +6694,7 @@ Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;
 <part name="T1" library="robotter_ic" deviceset="NTGS4111" device="PT1G" value="NTGS4111PT1G"/>
 <part name="R64" library="robotter_resistor" deviceset="4K7" device="-E"/>
 <part name="R43" library="robotter_resistor" deviceset="4K7" device="-E"/>
-<part name="IC6" library="robotter_ic" deviceset="74LVC4245" device="A"/>
+<part name="IC6" library="robotter_ic" deviceset="74LVC4245" device="APW"/>
 <part name="P+4" library="supply1" deviceset="+5V" device=""/>
 <part name="+3V5" library="supply1" deviceset="+3V3" device=""/>
 <part name="GND27" library="supply1" deviceset="GND" device=""/>
@@ -6676,7 +6706,7 @@ Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;
 <part name="R65" library="robotter_resistor" deviceset="0" device="-F"/>
 <part name="R66" library="robotter_resistor" deviceset="0" device="-F"/>
 <part name="R67" library="robotter_resistor" deviceset="0" device="-F"/>
-<part name="IC5" library="robotter_ic" deviceset="74LVC4245" device="A"/>
+<part name="IC5" library="robotter_ic" deviceset="74LVC4245" device="APW"/>
 <part name="P+5" library="supply1" deviceset="+5V" device=""/>
 <part name="+3V7" library="supply1" deviceset="+3V3" device=""/>
 <part name="+3V8" library="supply1" deviceset="+3V3" device=""/>
