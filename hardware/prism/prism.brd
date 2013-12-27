@@ -2342,7 +2342,9 @@ design rules under a new name.</description>
 <element name="R43" library="robotter_resistor" package="R0805" value="4K7-E" x="-222.25" y="-664.21">
 <attribute name="RS" value="223-0528" x="-222.25" y="-664.21" size="1.778" layer="27" display="off"/>
 </element>
-<element name="IC6" library="robotter_ic" package="TSSOP24" value="74LVC4245A" x="-224.79" y="-671.83"/>
+<element name="IC6" library="robotter_ic" package="TSSOP24" value="74LVC4245APW" x="-224.79" y="-671.83">
+<attribute name="RS" value="380-0500" x="-224.79" y="-671.83" size="1.778" layer="27" display="off"/>
+</element>
 <element name="C35" library="robotter_capacitor" package="C0603" value="100nF 50V" x="-228.6" y="-678.18">
 <attribute name="RS" value=" 723-5534 " x="-228.6" y="-678.18" size="1.778" layer="27" display="off"/>
 </element>
@@ -2353,7 +2355,9 @@ design rules under a new name.</description>
 <element name="R65" library="robotter_resistor" package="R0603" value="0-F" x="-228.6" y="-693.42"/>
 <element name="R66" library="robotter_resistor" package="R0603" value="0-F" x="-228.6" y="-698.5"/>
 <element name="R67" library="robotter_resistor" package="R0603" value="0-F" x="-228.6" y="-703.58"/>
-<element name="IC5" library="robotter_ic" package="TSSOP24" value="74LVC4245A" x="-224.79" y="-716.28"/>
+<element name="IC5" library="robotter_ic" package="TSSOP24" value="74LVC4245APW" x="-224.79" y="-716.28">
+<attribute name="RS" value="380-0500" x="-224.79" y="-716.28" size="1.778" layer="27" display="off"/>
+</element>
 <element name="C37" library="robotter_capacitor" package="C0603" value="100nF 50V" x="-228.6" y="-722.63">
 <attribute name="RS" value=" 723-5534 " x="-228.6" y="-717.55" size="1.778" layer="27" display="off"/>
 </element>
