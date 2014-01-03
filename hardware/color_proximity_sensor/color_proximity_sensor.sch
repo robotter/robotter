@@ -1614,13 +1614,13 @@ http://www.ti.com/product/lm25011</description>
 <wire x1="0" y1="0" x2="1.27" y2="0" width="0.6096" layer="94"/>
 <text x="-0.508" y="0.889" size="1.778" layer="95" rot="R180">&gt;NAME</text>
 <text x="0" y="0.889" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="S" x="5.08" y="0" visible="off" length="short" direction="pas" rot="R180"/>
+<pin name="S" x="5.08" y="0" visible="off" length="short" direction="pas" swaplevel="1" rot="R180"/>
 </symbol>
 <symbol name="M">
 <wire x1="1.27" y1="0" x2="2.54" y2="0" width="0.1524" layer="94"/>
 <wire x1="0" y1="0" x2="1.27" y2="0" width="0.6096" layer="94"/>
 <text x="-0.508" y="0.889" size="1.778" layer="95" rot="R180">&gt;NAME</text>
-<pin name="S" x="5.08" y="0" visible="off" length="short" direction="pas" rot="R180"/>
+<pin name="S" x="5.08" y="0" visible="off" length="short" direction="pas" swaplevel="1" rot="R180"/>
 </symbol>
 <symbol name="PDI_ATMEL_SIMPLIFIED">
 <wire x1="8.89" y1="-2.54" x2="-8.89" y2="-2.54" width="0.4064" layer="94"/>
@@ -2159,7 +2159,7 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <instance part="C18" gate="G$1" x="132.08" y="256.54"/>
 <instance part="C19" gate="G$1" x="157.48" y="256.54"/>
 <instance part="Q1" gate="G$1" x="144.78" y="264.16"/>
-<instance part="GND14" gate="1" x="335.28" y="45.72"/>
+<instance part="GND14" gate="1" x="327.66" y="43.18"/>
 <instance part="P+1" gate="1" x="55.88" y="157.48"/>
 <instance part="P+2" gate="1" x="309.88" y="144.78"/>
 <instance part="P+3" gate="1" x="335.28" y="66.04"/>
@@ -2168,14 +2168,14 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <instance part="H1" gate="G$1" x="434.34" y="58.42" rot="R90"/>
 <instance part="H3" gate="G$1" x="454.66" y="58.42" rot="R90"/>
 <instance part="GND15" gate="1" x="444.5" y="53.34"/>
-<instance part="COM" gate="-1" x="284.48" y="22.86"/>
-<instance part="COM" gate="-2" x="284.48" y="27.94"/>
-<instance part="COM" gate="-3" x="284.48" y="33.02"/>
-<instance part="COM" gate="-4" x="284.48" y="38.1"/>
-<instance part="COM" gate="-5" x="284.48" y="48.26"/>
-<instance part="COM" gate="-6" x="284.48" y="53.34"/>
-<instance part="COM" gate="-7" x="284.48" y="58.42"/>
-<instance part="COM" gate="-8" x="284.48" y="63.5"/>
+<instance part="COM" gate="-1" x="284.48" y="43.18"/>
+<instance part="COM" gate="-2" x="284.48" y="58.42"/>
+<instance part="COM" gate="-3" x="284.48" y="53.34"/>
+<instance part="COM" gate="-4" x="284.48" y="22.86"/>
+<instance part="COM" gate="-5" x="284.48" y="27.94"/>
+<instance part="COM" gate="-6" x="284.48" y="33.02"/>
+<instance part="COM" gate="-7" x="284.48" y="63.5"/>
+<instance part="COM" gate="-8" x="284.48" y="38.1"/>
 <instance part="J1" gate="G$1" x="127" y="198.12"/>
 <instance part="T4" gate="-Q2" x="106.68" y="58.42"/>
 <instance part="T4" gate="-Q1" x="71.12" y="78.74"/>
@@ -2354,11 +2354,6 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <junction x="144.78" y="251.46"/>
 </segment>
 <segment>
-<pinref part="GND14" gate="1" pin="GND"/>
-<wire x1="289.56" y1="48.26" x2="335.28" y2="48.26" width="0.1524" layer="91"/>
-<pinref part="COM" gate="-5" pin="S"/>
-</segment>
-<segment>
 <wire x1="434.34" y1="55.88" x2="444.5" y2="55.88" width="0.1524" layer="91"/>
 <pinref part="H3" gate="G$1" pin="MOUNT"/>
 <wire x1="444.5" y1="55.88" x2="454.66" y2="55.88" width="0.1524" layer="91"/>
@@ -2378,6 +2373,13 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <junction x="165.1" y="43.18"/>
 <pinref part="GND16" gate="1" pin="GND"/>
 <junction x="167.64" y="38.1"/>
+</segment>
+<segment>
+<pinref part="COM" gate="-1" pin="S"/>
+<pinref part="GND14" gate="1" pin="GND"/>
+<wire x1="327.66" y1="45.72" x2="292.1" y2="45.72" width="0.1524" layer="91"/>
+<wire x1="292.1" y1="45.72" x2="292.1" y2="43.18" width="0.1524" layer="91"/>
+<wire x1="292.1" y1="43.18" x2="289.56" y2="43.18" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="+3V3" class="0">
@@ -2484,9 +2486,9 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <pinref part="R14" gate="G$1" pin="2"/>
 </segment>
 <segment>
-<pinref part="IC5" gate="G$1" pin="PA0/ADCA0/AREF"/>
-<wire x1="68.58" y1="314.96" x2="30.48" y2="314.96" width="0.1524" layer="91"/>
-<label x="30.48" y="314.96" size="1.778" layer="95"/>
+<pinref part="IC5" gate="G$1" pin="PA5/ADCA5"/>
+<wire x1="68.58" y1="302.26" x2="27.94" y2="302.26" width="0.1524" layer="91"/>
+<label x="27.94" y="302.26" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$38" class="0">
@@ -2682,9 +2684,9 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <junction x="396.24" y="241.3"/>
 </segment>
 <segment>
-<pinref part="IC5" gate="G$1" pin="PA4/ADCA4"/>
-<wire x1="68.58" y1="304.8" x2="30.48" y2="304.8" width="0.1524" layer="91"/>
-<label x="30.48" y="304.8" size="1.778" layer="95"/>
+<pinref part="IC5" gate="G$1" pin="PA1/ADCA1"/>
+<wire x1="68.58" y1="312.42" x2="25.4" y2="312.42" width="0.1524" layer="91"/>
+<label x="25.4" y="312.42" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="APDS_AMBIENT_0-300MV" class="0">
@@ -2701,9 +2703,9 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <junction x="419.1" y="243.84"/>
 </segment>
 <segment>
-<pinref part="IC5" gate="G$1" pin="PA5/ADCA5"/>
-<wire x1="68.58" y1="302.26" x2="30.48" y2="302.26" width="0.1524" layer="91"/>
-<label x="30.48" y="302.26" size="1.778" layer="95"/>
+<pinref part="IC5" gate="G$1" pin="PA0/ADCA0/AREF"/>
+<wire x1="68.58" y1="314.96" x2="25.4" y2="314.96" width="0.1524" layer="91"/>
+<label x="25.4" y="314.96" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$3" class="0">
@@ -2720,9 +2722,9 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <label x="20.32" y="43.18" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="IC5" gate="G$1" pin="PC1/OC0B/XCK0/SCL"/>
-<wire x1="68.58" y1="271.78" x2="38.1" y2="271.78" width="0.1524" layer="91"/>
-<label x="38.1" y="271.78" size="1.778" layer="95"/>
+<pinref part="IC5" gate="G$1" pin="PC4/OC1A/\S\S"/>
+<wire x1="68.58" y1="264.16" x2="38.1" y2="264.16" width="0.1524" layer="91"/>
+<label x="38.1" y="264.16" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="LED_GREEN_CMD_3V3" class="0">
@@ -2732,9 +2734,9 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <label x="20.32" y="58.42" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="IC5" gate="G$1" pin="PC4/OC1A/\S\S"/>
-<wire x1="68.58" y1="264.16" x2="38.1" y2="264.16" width="0.1524" layer="91"/>
-<label x="38.1" y="264.16" size="1.778" layer="95"/>
+<pinref part="IC5" gate="G$1" pin="PC1/OC0B/XCK0/SCL"/>
+<wire x1="68.58" y1="271.78" x2="38.1" y2="271.78" width="0.1524" layer="91"/>
+<label x="38.1" y="271.78" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="LED_BLUE_CMD_3V3" class="0">
@@ -2833,7 +2835,7 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <segment>
 <wire x1="289.56" y1="58.42" x2="327.66" y2="58.42" width="0.1524" layer="91"/>
 <label x="294.64" y="58.42" size="1.778" layer="95"/>
-<pinref part="COM" gate="-7" pin="S"/>
+<pinref part="COM" gate="-2" pin="S"/>
 </segment>
 <segment>
 <pinref part="IC5" gate="G$1" pin="PC3/OC0D/TXD0"/>
@@ -2845,8 +2847,8 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <net name="RX_3V3" class="0">
 <segment>
 <label x="294.64" y="53.34" size="1.778" layer="95"/>
-<pinref part="COM" gate="-6" pin="S"/>
 <wire x1="289.56" y1="53.34" x2="327.66" y2="53.34" width="0.1524" layer="91"/>
+<pinref part="COM" gate="-3" pin="S"/>
 </segment>
 <segment>
 <pinref part="IC5" gate="G$1" pin="PC2/OC0C/RXD0"/>
@@ -2903,14 +2905,14 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <segment>
 <wire x1="335.28" y1="63.5" x2="289.56" y2="63.5" width="0.1524" layer="91"/>
 <pinref part="P+3" gate="1" pin="+24V"/>
-<pinref part="COM" gate="-8" pin="S"/>
+<pinref part="COM" gate="-7" pin="S"/>
 </segment>
 </net>
 <net name="COLOR_VALID_OUT_3V3" class="0">
 <segment>
 <wire x1="335.28" y1="38.1" x2="289.56" y2="38.1" width="0.1524" layer="91"/>
 <label x="294.64" y="38.1" size="1.778" layer="95"/>
-<pinref part="COM" gate="-4" pin="S"/>
+<pinref part="COM" gate="-8" pin="S"/>
 </segment>
 <segment>
 <pinref part="IC5" gate="G$1" pin="PB0/ADCA8/AREF"/>
@@ -2922,7 +2924,7 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <segment>
 <wire x1="289.56" y1="33.02" x2="335.28" y2="33.02" width="0.1524" layer="91"/>
 <label x="294.64" y="33.02" size="1.778" layer="95"/>
-<pinref part="COM" gate="-3" pin="S"/>
+<pinref part="COM" gate="-6" pin="S"/>
 </segment>
 <segment>
 <pinref part="IC5" gate="G$1" pin="PB1/ADCA9"/>
@@ -2934,7 +2936,7 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <segment>
 <wire x1="289.56" y1="27.94" x2="335.28" y2="27.94" width="0.1524" layer="91"/>
 <label x="294.64" y="27.94" size="1.778" layer="95"/>
-<pinref part="COM" gate="-2" pin="S"/>
+<pinref part="COM" gate="-5" pin="S"/>
 </segment>
 <segment>
 <pinref part="IC5" gate="G$1" pin="PB2/ADCA10"/>
@@ -2951,7 +2953,7 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <segment>
 <wire x1="289.56" y1="22.86" x2="335.28" y2="22.86" width="0.1524" layer="91"/>
 <label x="294.64" y="22.86" size="1.778" layer="95"/>
-<pinref part="COM" gate="-1" pin="S"/>
+<pinref part="COM" gate="-4" pin="S"/>
 </segment>
 </net>
 <net name="N$6" class="0">
