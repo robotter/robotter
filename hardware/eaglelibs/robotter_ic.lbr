@@ -2677,6 +2677,19 @@ http://www.ee.siue.edu/~alozows/library/datasheets/BFR96.pdf</description>
 <rectangle x1="-3.4" y1="4.95" x2="-3" y2="6.1001" layer="51"/>
 <rectangle x1="-4.1999" y1="4.95" x2="-3.8001" y2="6.1001" layer="51"/>
 </package>
+<package name="SOT563-6">
+<wire x1="-0.85" y1="-0.65" x2="-0.85" y2="0.65" width="0.1524" layer="21"/>
+<wire x1="0.85" y1="0.65" x2="0.85" y2="-0.65" width="0.1524" layer="21"/>
+<circle x="-1.15" y="-0.5" radius="0.1" width="0.127" layer="21"/>
+<smd name="1" x="-0.5" y="-0.75" dx="0.3" dy="0.6" layer="1"/>
+<smd name="2" x="0" y="-0.75" dx="0.3" dy="0.6" layer="1"/>
+<smd name="3" x="0.5" y="-0.75" dx="0.3" dy="0.6" layer="1"/>
+<smd name="4" x="0.5" y="0.75" dx="0.3" dy="0.6" layer="1"/>
+<smd name="5" x="0" y="0.75" dx="0.3" dy="0.6" layer="1"/>
+<smd name="6" x="-0.5" y="0.75" dx="0.3" dy="0.6" layer="1"/>
+<text x="-1.397" y="-2.872" size="1.016" layer="27" ratio="10">&gt;VALUE</text>
+<text x="-1.397" y="1.802" size="1.016" layer="25" ratio="10">&gt;NAME</text>
+</package>
 </packages>
 <symbols>
 <symbol name="LM2596">
@@ -3522,48 +3535,48 @@ http://www.ee.siue.edu/~alozows/library/datasheets/BFR96.pdf</description>
 <wire x1="-7.62" y1="-2.54" x2="-7.62" y2="-1.27" width="0.254" layer="94"/>
 </symbol>
 <symbol name="ATXMEGA_D4">
-<pin name="PA0/ADCA0/AREF" x="-33.02" y="40.64" length="middle"/>
-<pin name="PA1/ADCA1" x="-33.02" y="38.1" length="middle"/>
-<pin name="PA2/ADCA2" x="-33.02" y="35.56" length="middle"/>
-<pin name="PA3/ADCA3" x="-33.02" y="33.02" length="middle"/>
-<pin name="PA4/ADCA4" x="-33.02" y="30.48" length="middle"/>
-<pin name="PA5/ADCA5" x="-33.02" y="27.94" length="middle"/>
-<pin name="PA6/ADCA6" x="-33.02" y="25.4" length="middle"/>
-<pin name="PA7/ADCA7" x="-33.02" y="22.86" length="middle"/>
+<pin name="PA0/ADCA0/AREF" x="-33.02" y="40.64" length="middle" swaplevel="1"/>
+<pin name="PA1/ADCA1" x="-33.02" y="38.1" length="middle" swaplevel="1"/>
+<pin name="PA2/ADCA2" x="-33.02" y="35.56" length="middle" swaplevel="1"/>
+<pin name="PA3/ADCA3" x="-33.02" y="33.02" length="middle" swaplevel="1"/>
+<pin name="PA4/ADCA4" x="-33.02" y="30.48" length="middle" swaplevel="1"/>
+<pin name="PA5/ADCA5" x="-33.02" y="27.94" length="middle" swaplevel="1"/>
+<pin name="PA6/ADCA6" x="-33.02" y="25.4" length="middle" swaplevel="1"/>
+<pin name="PA7/ADCA7" x="-33.02" y="22.86" length="middle" swaplevel="1"/>
 <pin name="VCC@0" x="-5.08" y="53.34" length="middle" rot="R270"/>
 <pin name="GND@0" x="-2.54" y="-27.94" length="middle" rot="R90"/>
-<pin name="PB0/ADCA8/AREF" x="-33.02" y="15.24" length="middle"/>
-<pin name="PB1/ADCA9" x="-33.02" y="12.7" length="middle"/>
-<pin name="PB2/ADCA10" x="-33.02" y="10.16" length="middle"/>
-<pin name="PB3/ADCA11" x="-33.02" y="7.62" length="middle"/>
-<pin name="PC0/OC0A/SDA" x="-33.02" y="0" length="middle"/>
-<pin name="PC1/OC0B/XCK0/SCL" x="-33.02" y="-2.54" length="middle"/>
-<pin name="PC2/OC0C/RXD0" x="-33.02" y="-5.08" length="middle"/>
-<pin name="PC3/OC0D/TXD0" x="-33.02" y="-7.62" length="middle"/>
-<pin name="PC4/OC1A/\S\S" x="-33.02" y="-10.16" length="middle"/>
-<pin name="PC5/OC1B/MOSI" x="-33.02" y="-12.7" length="middle"/>
-<pin name="PC6/MISO" x="-33.02" y="-15.24" length="middle"/>
-<pin name="PC7/SCK" x="-33.02" y="-17.78" length="middle"/>
+<pin name="PB0/ADCA8/AREF" x="-33.02" y="15.24" length="middle" swaplevel="1"/>
+<pin name="PB1/ADCA9" x="-33.02" y="12.7" length="middle" swaplevel="1"/>
+<pin name="PB2/ADCA10" x="-33.02" y="10.16" length="middle" swaplevel="1"/>
+<pin name="PB3/ADCA11" x="-33.02" y="7.62" length="middle" swaplevel="1"/>
+<pin name="PC0/OC0A/SDA" x="-33.02" y="0" length="middle" swaplevel="1"/>
+<pin name="PC1/OC0B/XCK0/SCL" x="-33.02" y="-2.54" length="middle" swaplevel="1"/>
+<pin name="PC2/OC0C/RXD0" x="-33.02" y="-5.08" length="middle" swaplevel="1"/>
+<pin name="PC3/OC0D/TXD0" x="-33.02" y="-7.62" length="middle" swaplevel="1"/>
+<pin name="PC4/OC1A/\S\S" x="-33.02" y="-10.16" length="middle" swaplevel="1"/>
+<pin name="PC5/OC1B/MOSI" x="-33.02" y="-12.7" length="middle" swaplevel="1"/>
+<pin name="PC6/MISO" x="-33.02" y="-15.24" length="middle" swaplevel="1"/>
+<pin name="PC7/SCK" x="-33.02" y="-17.78" length="middle" swaplevel="1"/>
 <pin name="GND@1" x="0" y="-27.94" length="middle" rot="R90"/>
 <pin name="GND@2" x="2.54" y="-27.94" length="middle" rot="R90"/>
 <pin name="GND@3" x="5.08" y="-27.94" length="middle" rot="R90"/>
 <pin name="AVCC@0" x="5.08" y="53.34" length="middle" rot="R270"/>
-<pin name="OC0A/PD0" x="30.48" y="43.18" length="middle" rot="R180"/>
-<pin name="XCK0/OC0B/PD1" x="30.48" y="40.64" length="middle" rot="R180"/>
-<pin name="RXD0/OC0C/PD2" x="30.48" y="38.1" length="middle" rot="R180"/>
-<pin name="TXD0/OC0D/PD3" x="30.48" y="35.56" length="middle" rot="R180"/>
-<pin name="\S\S/PD4" x="30.48" y="33.02" length="middle" rot="R180"/>
-<pin name="MOSI/PD5" x="30.48" y="30.48" length="middle" rot="R180"/>
-<pin name="MISO/PD6" x="30.48" y="27.94" length="middle" rot="R180"/>
-<pin name="SCK/PD7" x="30.48" y="25.4" length="middle" rot="R180"/>
-<pin name="SDA/OC0A/PE0" x="30.48" y="17.78" length="middle" rot="R180"/>
-<pin name="SCL/OC0B/PE1" x="30.48" y="15.24" length="middle" rot="R180"/>
-<pin name="OC0C/PE2" x="30.48" y="12.7" length="middle" rot="R180"/>
-<pin name="OC0D/PE3" x="30.48" y="10.16" length="middle" rot="R180"/>
-<pin name="PDI" x="30.48" y="2.54" length="middle" rot="R180"/>
-<pin name="/RESET" x="30.48" y="0" length="middle" rot="R180"/>
-<pin name="PR0/XTAL2" x="30.48" y="-2.54" length="middle" rot="R180"/>
-<pin name="PR1/XTAL1" x="30.48" y="-5.08" length="middle" rot="R180"/>
+<pin name="OC0A/PD0" x="30.48" y="43.18" length="middle" swaplevel="1" rot="R180"/>
+<pin name="XCK0/OC0B/PD1" x="30.48" y="40.64" length="middle" swaplevel="1" rot="R180"/>
+<pin name="RXD0/OC0C/PD2" x="30.48" y="38.1" length="middle" swaplevel="1" rot="R180"/>
+<pin name="TXD0/OC0D/PD3" x="30.48" y="35.56" length="middle" swaplevel="1" rot="R180"/>
+<pin name="\S\S/PD4" x="30.48" y="33.02" length="middle" swaplevel="1" rot="R180"/>
+<pin name="MOSI/PD5" x="30.48" y="30.48" length="middle" swaplevel="1" rot="R180"/>
+<pin name="MISO/PD6" x="30.48" y="27.94" length="middle" swaplevel="1" rot="R180"/>
+<pin name="SCK/PD7" x="30.48" y="25.4" length="middle" swaplevel="1" rot="R180"/>
+<pin name="SDA/OC0A/PE0" x="30.48" y="17.78" length="middle" swaplevel="1" rot="R180"/>
+<pin name="SCL/OC0B/PE1" x="30.48" y="15.24" length="middle" swaplevel="1" rot="R180"/>
+<pin name="OC0C/PE2" x="30.48" y="12.7" length="middle" swaplevel="1" rot="R180"/>
+<pin name="OC0D/PE3" x="30.48" y="10.16" length="middle" swaplevel="1" rot="R180"/>
+<pin name="PDI" x="30.48" y="2.54" length="middle" swaplevel="1" rot="R180"/>
+<pin name="/RESET" x="30.48" y="0" length="middle" swaplevel="1" rot="R180"/>
+<pin name="PR0/XTAL2" x="30.48" y="-2.54" length="middle" swaplevel="1" rot="R180"/>
+<pin name="PR1/XTAL1" x="30.48" y="-5.08" length="middle" swaplevel="1" rot="R180"/>
 <wire x1="-27.94" y1="48.26" x2="25.4" y2="48.26" width="0.254" layer="94"/>
 <wire x1="25.4" y1="48.26" x2="25.4" y2="-22.86" width="0.254" layer="94"/>
 <wire x1="25.4" y1="-22.86" x2="-27.94" y2="-22.86" width="0.254" layer="94"/>
@@ -4723,6 +4736,30 @@ http://www.ti.com/product/lm25011</description>
 <technology name="">
 <attribute name="RS" value="" constant="no"/>
 <attribute name="VALUE" value="ATXMEGA64DA-AU" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="BC847CDXV6T" prefix="T">
+<gates>
+<gate name="-Q2" symbol="NPN" x="-10.16" y="0" swaplevel="1"/>
+<gate name="-Q1" symbol="NPN" x="5.08" y="0" swaplevel="1"/>
+</gates>
+<devices>
+<device name="" package="SOT563-6">
+<connects>
+<connect gate="-Q1" pin="B" pad="5"/>
+<connect gate="-Q1" pin="C" pad="3"/>
+<connect gate="-Q1" pin="E" pad="4"/>
+<connect gate="-Q2" pin="B" pad="2"/>
+<connect gate="-Q2" pin="C" pad="6"/>
+<connect gate="-Q2" pin="E" pad="1"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="773-7627" constant="no"/>
+<attribute name="VALUE" value="BC847CDXV6T1G" constant="no"/>
 </technology>
 </technologies>
 </device>
