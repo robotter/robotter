@@ -549,6 +549,22 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 <text x="-3.302" y="1.778" size="1.27" layer="27">&gt;VALUE</text>
 <rectangle x1="1" y1="-1.7" x2="1.5" y2="-1.4" layer="21"/>
 </package>
+<package name="CHIP-LED0805">
+<description>&lt;b&gt;Hyper CHIPLED Hyper-Bright LED&lt;/b&gt;&lt;p&gt;
+LB R99A&lt;br&gt;
+Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
+<wire x1="-0.625" y1="0.45" x2="-0.625" y2="-0.45" width="0.1016" layer="51"/>
+<wire x1="0.625" y1="0.45" x2="0.625" y2="-0.475" width="0.1016" layer="51"/>
+<smd name="C" x="0" y="1.05" dx="1.2" dy="1.2" layer="1"/>
+<smd name="A" x="0" y="-1.05" dx="1.2" dy="1.2" layer="1"/>
+<text x="-1.27" y="-1.27" size="1.27" layer="25" rot="R90">&gt;NAME</text>
+<text x="2.54" y="-1.27" size="1.27" layer="27" rot="R90">&gt;VALUE</text>
+<rectangle x1="-0.675" y1="0" x2="-0.525" y2="0.3" layer="21"/>
+<rectangle x1="0.525" y1="0" x2="0.675" y2="0.3" layer="21"/>
+<rectangle x1="-0.15" y1="0" x2="0.15" y2="0.3" layer="21"/>
+<rectangle x1="-0.675" y1="0.45" x2="0.675" y2="1.05" layer="51"/>
+<rectangle x1="-0.675" y1="-1.05" x2="0.675" y2="-0.45" layer="51"/>
+</package>
 </packages>
 <symbols>
 <symbol name="SCHOTTKY">
@@ -653,6 +669,61 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 <attribute name="MANUFACTURER" value="AVAGO TECHNOLOGIES" constant="no"/>
 <attribute name="RS" value="769-3520 " constant="no"/>
 <attribute name="VALUE" value="ASMT-YTD2-0BB02" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="LED_" prefix="LED">
+<gates>
+<gate name="G$1" symbol="LED" x="0" y="0"/>
+</gates>
+<devices>
+<device name="G" package="CHIP-LED0805">
+<connects>
+<connect gate="G$1" pin="A" pad="A"/>
+<connect gate="G$1" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value=" 692-0935 " constant="no"/>
+<attribute name="VALUE" value="GREEN"/>
+</technology>
+</technologies>
+</device>
+<device name="Y" package="CHIP-LED0805">
+<connects>
+<connect gate="G$1" pin="A" pad="A"/>
+<connect gate="G$1" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="692-0925" constant="no"/>
+<attribute name="VALUE" value="YELLOW" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="R" package="CHIP-LED0805">
+<connects>
+<connect gate="G$1" pin="A" pad="A"/>
+<connect gate="G$1" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value=" 692-0931" constant="no"/>
+<attribute name="VALUE" value="RED" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="B" package="CHIP-LED0805">
+<connects>
+<connect gate="G$1" pin="A" pad="A"/>
+<connect gate="G$1" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="692-0953" constant="no"/>
+<attribute name="VALUE" value="BLUE" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -906,6 +977,35 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 <technology name="">
 <attribute name="RS" value="213-2042" constant="no"/>
 <attribute name="VALUE" value="22 ohms" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="270" prefix="R">
+<gates>
+<gate name="G$1" symbol="RES" x="0" y="0"/>
+</gates>
+<devices>
+<device name="-F" package="R0603">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value=" 679-0071" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-E" package="R0805">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="740-9019" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -2046,6 +2146,11 @@ http://www.ti.com/product/lm25011</description>
 <part name="T4" library="robotter_ic" deviceset="BC847CDXV6T" device="" value="BC847CDXV6T1G"/>
 <part name="T1" library="robotter_ic" deviceset="BC847CDXV6T" device="" value="BC847CDXV6T1G"/>
 <part name="GND16" library="supply1" deviceset="GND" device=""/>
+<part name="PC6" library="robotter_diode" deviceset="LED_" device="G" value="GREEN"/>
+<part name="PC7" library="robotter_diode" deviceset="LED_" device="G" value="GREEN"/>
+<part name="R11" library="robotter_resistor" deviceset="270" device="-F"/>
+<part name="R12" library="robotter_resistor" deviceset="270" device="-F"/>
+<part name="GND17" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -2182,6 +2287,11 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <instance part="T1" gate="-Q2" x="142.24" y="43.18"/>
 <instance part="T1" gate="-Q1" x="167.64" y="43.18"/>
 <instance part="GND16" gate="1" x="167.64" y="35.56"/>
+<instance part="PC6" gate="G$1" x="43.18" y="243.84"/>
+<instance part="PC7" gate="G$1" x="55.88" y="243.84"/>
+<instance part="R11" gate="G$1" x="60.96" y="256.54"/>
+<instance part="R12" gate="G$1" x="48.26" y="259.08"/>
+<instance part="GND17" gate="1" x="48.26" y="236.22"/>
 </instances>
 <busses>
 </busses>
@@ -2380,6 +2490,14 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <wire x1="327.66" y1="45.72" x2="292.1" y2="45.72" width="0.1524" layer="91"/>
 <wire x1="292.1" y1="45.72" x2="292.1" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="292.1" y1="43.18" x2="289.56" y2="43.18" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="PC6" gate="G$1" pin="C"/>
+<pinref part="PC7" gate="G$1" pin="C"/>
+<wire x1="43.18" y1="238.76" x2="48.26" y2="238.76" width="0.1524" layer="91"/>
+<pinref part="GND17" gate="1" pin="GND"/>
+<wire x1="48.26" y1="238.76" x2="55.88" y2="238.76" width="0.1524" layer="91"/>
+<junction x="48.26" y="238.76"/>
 </segment>
 </net>
 <net name="+3V3" class="0">
@@ -3008,6 +3126,34 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <segment>
 <pinref part="R10" gate="G$1" pin="2"/>
 <pinref part="T1" gate="-Q2" pin="B"/>
+</segment>
+</net>
+<net name="N$13" class="0">
+<segment>
+<pinref part="IC5" gate="G$1" pin="PC7/SCK"/>
+<pinref part="R11" gate="G$1" pin="2"/>
+<wire x1="66.04" y1="256.54" x2="68.58" y2="256.54" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$16" class="0">
+<segment>
+<pinref part="IC5" gate="G$1" pin="PC6/MISO"/>
+<pinref part="R12" gate="G$1" pin="2"/>
+<wire x1="53.34" y1="259.08" x2="68.58" y2="259.08" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$21" class="0">
+<segment>
+<pinref part="PC7" gate="G$1" pin="A"/>
+<pinref part="R11" gate="G$1" pin="1"/>
+<wire x1="55.88" y1="246.38" x2="55.88" y2="256.54" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$22" class="0">
+<segment>
+<pinref part="R12" gate="G$1" pin="1"/>
+<pinref part="PC6" gate="G$1" pin="A"/>
+<wire x1="43.18" y1="259.08" x2="43.18" y2="246.38" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
