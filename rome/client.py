@@ -165,9 +165,20 @@ def main():
   else:
     fo = Serial(args.source, args.baudrate)
 
+  import datetime
+
   class ClientEcho(Client):
-    def on_frame(frame):
-      print ">>> %r" % frame
+    @classmethod
+    def log_strtime(cls):
+      t = datetime.datetime.now()
+      return '%02d:%02d:%02d.%03d' % (t.hour, t.minute, t.second, t.microsecond/1000)
+
+    def on_frame(self, frame):
+      print "%s <<< %r" % (self.log_strtime(), frame)
+
+    def on_sent_frame(self, frame):
+      print "%s >>> %r" % (self.log_strtime(), frame)
+
   client = ClientEcho(fo)
 
   if not args.interactive:
