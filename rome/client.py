@@ -90,6 +90,10 @@ class Client(object):
     """Method called to handle incoming frames"""
     raise NotImplementedError
 
+  def on_sent_frame(self, frame):
+    """Method called when a frame is sent"""
+    pass
+
 
   def run_rthread(self):
     """Process input data"""
@@ -113,6 +117,7 @@ class Client(object):
       except Queue.Empty:
         continue
 
+      self.on_sent_frame(frame)
       data = frame.data()
       if cb_ack is None:
         self.fo.write(data)
