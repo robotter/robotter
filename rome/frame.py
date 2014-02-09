@@ -227,6 +227,8 @@ class Message(object):
   """
 
   def __init__(self, mid, name, ptypes):
+    if mid <= 0 or mid > 255:
+      raise ValueError("invalid message ID: %r" % mid)
     self.mid = mid
     self.name = name
     self.ptypes = ptypes
