@@ -3841,7 +3841,7 @@ Source: ENG_CD_1445055_A.pdf</description>
 <plain>
 <text x="358.14" y="-43.18" size="1.778" layer="91">Vbatt : 12-26V</text>
 <text x="142.24" y="-264.16" size="1.778" layer="91">analog voltage used to verify that the voltage of the vacuum pump command</text>
-<text x="12.7" y="-134.62" size="1.778" layer="91">renommer les nets une fois la carte routée par pwm_E0_3v3 par exemple, renommer aussi les connecteurs</text>
+<text x="10.16" y="-142.24" size="1.778" layer="91">renommer les nets une fois la carte routée par pwm_E0_3v3 par exemple, renommer aussi les connecteurs</text>
 <text x="193.04" y="-129.54" size="1.778" layer="91">verifier sens transceiver</text>
 <text x="134.62" y="66.04" size="1.778" layer="91">ne pas connecter SS du port sur lequel est connecte la spi du codeur</text>
 </plain>
@@ -4851,10 +4851,11 @@ Source: ENG_CD_1445055_A.pdf</description>
 </segment>
 <segment>
 <pinref part="+3V4" gate="G$1" pin="+3V3"/>
-<wire x1="205.74" y1="-27.94" x2="205.74" y2="-20.32" width="0.1524" layer="91"/>
 <pinref part="C28" gate="G$1" pin="1"/>
 <wire x1="177.8" y1="-22.86" x2="177.8" y2="-20.32" width="0.1524" layer="91"/>
 <wire x1="177.8" y1="-20.32" x2="205.74" y2="-20.32" width="0.1524" layer="91"/>
+<pinref part="IC11" gate="G$1" pin="VCCA"/>
+<wire x1="205.74" y1="-20.32" x2="205.74" y2="-27.94" width="0.1524" layer="91"/>
 <junction x="205.74" y="-20.32"/>
 </segment>
 <segment>
@@ -5047,14 +5048,15 @@ Source: ENG_CD_1445055_A.pdf</description>
 <net name="+5V" class="0">
 <segment>
 <pinref part="P+3" gate="1" pin="+5V"/>
-<wire x1="210.82" y1="-27.94" x2="210.82" y2="-20.32" width="0.1524" layer="91"/>
 <pinref part="C27" gate="G$1" pin="1"/>
 <wire x1="233.68" y1="-20.32" x2="226.06" y2="-20.32" width="0.1524" layer="91"/>
-<junction x="210.82" y="-20.32"/>
 <pinref part="R17" gate="G$1" pin="2"/>
 <wire x1="226.06" y1="-20.32" x2="210.82" y2="-20.32" width="0.1524" layer="91"/>
 <wire x1="226.06" y1="-27.94" x2="226.06" y2="-20.32" width="0.1524" layer="91"/>
 <junction x="226.06" y="-20.32"/>
+<pinref part="IC11" gate="G$1" pin="VCCB"/>
+<wire x1="210.82" y1="-27.94" x2="210.82" y2="-20.32" width="0.1524" layer="91"/>
+<junction x="210.82" y="-20.32"/>
 </segment>
 <segment>
 <pinref part="P+5" gate="1" pin="+5V"/>
@@ -5501,34 +5503,6 @@ Source: ENG_CD_1445055_A.pdf</description>
 <pinref part="AX12" gate="G$1" pin="2"/>
 </segment>
 </net>
-<net name="PWM3_3V3" class="0">
-<segment>
-<wire x1="162.56" y1="-111.76" x2="180.34" y2="-111.76" width="0.1524" layer="91"/>
-<label x="167.64" y="-111.76" size="1.778" layer="95"/>
-<pinref part="IC6" gate="G$1" pin="IO_VL3"/>
-</segment>
-</net>
-<net name="PWM3" class="0">
-<segment>
-<pinref part="SV1" gate="G$1" pin="3"/>
-<wire x1="53.34" y1="-91.44" x2="55.88" y2="-91.44" width="0.1524" layer="91"/>
-<label x="53.34" y="-91.44" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="PWM2" class="0">
-<segment>
-<pinref part="SV6" gate="G$1" pin="3"/>
-<wire x1="53.34" y1="-76.2" x2="55.88" y2="-76.2" width="0.1524" layer="91"/>
-<label x="53.34" y="-76.2" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="PWM1" class="0">
-<segment>
-<pinref part="SV7" gate="G$1" pin="3"/>
-<wire x1="53.34" y1="-60.96" x2="55.88" y2="-60.96" width="0.1524" layer="91"/>
-<label x="53.34" y="-60.96" size="1.778" layer="95"/>
-</segment>
-</net>
 <net name="PWM0_5V" class="0">
 <segment>
 <wire x1="116.84" y1="-104.14" x2="101.6" y2="-104.14" width="0.1524" layer="91"/>
@@ -5543,26 +5517,26 @@ Source: ENG_CD_1445055_A.pdf</description>
 </net>
 <net name="PWM_D1_3V3" class="0">
 <segment>
-<wire x1="162.56" y1="-109.22" x2="180.34" y2="-109.22" width="0.1524" layer="91"/>
-<label x="167.64" y="-109.22" size="1.778" layer="95"/>
-<pinref part="IC6" gate="G$1" pin="IO_VL2"/>
-</segment>
-<segment>
 <pinref part="IC2" gate="G$1" pin="PD1(OC0B/XCK0/SCL)"/>
 <wire x1="40.64" y1="88.9" x2="12.7" y2="88.9" width="0.1524" layer="91"/>
 <label x="12.7" y="88.9" size="1.778" layer="95"/>
 </segment>
-</net>
-<net name="PWM_C4_3V3" class="0">
 <segment>
+<pinref part="IC6" gate="G$1" pin="IO_VL1"/>
 <wire x1="162.56" y1="-106.68" x2="180.34" y2="-106.68" width="0.1524" layer="91"/>
 <label x="167.64" y="-106.68" size="1.778" layer="95"/>
-<pinref part="IC6" gate="G$1" pin="IO_VL1"/>
 </segment>
+</net>
+<net name="PWM_C4_3V3" class="0">
 <segment>
 <pinref part="IC2" gate="G$1" pin="PC4(OC1A/!SS!)"/>
 <wire x1="40.64" y1="106.68" x2="12.7" y2="106.68" width="0.1524" layer="91"/>
 <label x="12.7" y="106.68" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="IC6" gate="G$1" pin="IO_VL3"/>
+<wire x1="162.56" y1="-111.76" x2="180.34" y2="-111.76" width="0.1524" layer="91"/>
+<label x="167.64" y="-111.76" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="PWM_D0_3V3" class="0">
@@ -6094,12 +6068,22 @@ Source: ENG_CD_1445055_A.pdf</description>
 <label x="101.6" y="-106.68" size="1.778" layer="95"/>
 <pinref part="IC6" gate="G$1" pin="IO_VCC1"/>
 </segment>
+<segment>
+<pinref part="SV7" gate="G$1" pin="3"/>
+<wire x1="53.34" y1="-60.96" x2="55.88" y2="-60.96" width="0.1524" layer="91"/>
+<label x="53.34" y="-60.96" size="1.778" layer="95"/>
+</segment>
 </net>
 <net name="PWM2_5V" class="0">
 <segment>
 <wire x1="116.84" y1="-109.22" x2="101.6" y2="-109.22" width="0.1524" layer="91"/>
 <label x="101.6" y="-109.22" size="1.778" layer="95"/>
 <pinref part="IC6" gate="G$1" pin="IO_VCC2"/>
+</segment>
+<segment>
+<pinref part="SV6" gate="G$1" pin="3"/>
+<wire x1="53.34" y1="-76.2" x2="55.88" y2="-76.2" width="0.1524" layer="91"/>
+<label x="53.34" y="-76.2" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="PWM3_5V" class="0">
@@ -6108,12 +6092,22 @@ Source: ENG_CD_1445055_A.pdf</description>
 <label x="101.6" y="-111.76" size="1.778" layer="95"/>
 <pinref part="IC6" gate="G$1" pin="IO_VCC3"/>
 </segment>
+<segment>
+<pinref part="SV1" gate="G$1" pin="3"/>
+<wire x1="53.34" y1="-91.44" x2="55.88" y2="-91.44" width="0.1524" layer="91"/>
+<label x="53.34" y="-91.44" size="1.778" layer="95"/>
+</segment>
 </net>
 <net name="PWM_D2_3V3" class="0">
 <segment>
 <pinref part="IC2" gate="G$1" pin="PD2(OC0C/RXD0)"/>
 <wire x1="40.64" y1="86.36" x2="12.7" y2="86.36" width="0.1524" layer="91"/>
 <label x="12.7" y="86.36" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="IC6" gate="G$1" pin="IO_VL2"/>
+<wire x1="162.56" y1="-109.22" x2="180.34" y2="-109.22" width="0.1524" layer="91"/>
+<label x="167.64" y="-109.22" size="1.778" layer="95"/>
 </segment>
 </net>
 </nets>
@@ -6131,45 +6125,6 @@ Source: ENG_CD_1445055_A.pdf</description>
 <approved hash="104,1,104.14,25.4,IC2,VCC,+3V3,,,"/>
 <approved hash="104,1,104.14,22.86,IC2,VCC,+3V3,,,"/>
 <approved hash="104,1,462.28,144.78,IC1P,VCC,+3V3,,,"/>
-<approved hash="104,1,213.36,-43.18,IC5,VCCA,+3V3,,,"/>
-<approved hash="104,1,218.44,-43.18,IC5,VCCB,+5V,,,"/>
-<approved hash="104,1,144.78,-101.6,IC4G$2,VCCB,+3V3,,,"/>
-<approved hash="104,1,142.24,-101.6,IC4G$2,VCCB,+3V3,,,"/>
-<approved hash="104,1,137.16,-101.6,IC4G$2,VCCA,+5V,,,"/>
-<approved hash="104,1,213.36,-88.9,IC8,VCCA,+3V3,,,"/>
-<approved hash="104,1,218.44,-88.9,IC8,VCCB,+5V,,,"/>
-<approved hash="104,1,142.24,-30.48,IC9G$2,VCCB,+3V3,,,"/>
-<approved hash="104,1,139.7,-30.48,IC9G$2,VCCB,+3V3,,,"/>
-<approved hash="104,1,134.62,-30.48,IC9G$2,VCCA,+5V,,,"/>
-<approved hash="115,1,130.071,89.431,FRAME1,,,,,"/>
-<approved hash="115,1,396.771,-95.989,FRAME4,,,,,"/>
-<approved hash="115,1,396.771,89.431,FRAME6,,,,,"/>
-<approved hash="115,1,33.02,21.0608,Q1,,,,,"/>
-<approved hash="115,1,215.9,153.865,PDI_ATMEL,,,,,"/>
-<approved hash="115,1,130.071,-95.989,FRAME8,,,,,"/>
-<approved hash="115,1,479.065,-33.02,R12,,,,,"/>
-<approved hash="115,1,479.065,-48.26,R16,,,,,"/>
-<approved hash="115,1,50.7577,-92.5153,SV1,,,,,"/>
-<approved hash="115,1,50.7577,-107.755,SV2,,,,,"/>
-<approved hash="115,1,35.56,-128.075,SV5,,,,,"/>
-<approved hash="115,1,50.7577,-77.2753,SV6,,,,,"/>
-<approved hash="115,1,50.7577,-62.0353,SV7,,,,,"/>
-<approved hash="115,1,50.7577,-46.7953,SV8,,,,,"/>
-<approved hash="115,1,65.6421,-124.46,X1,,,,,"/>
-<approved hash="115,1,494.828,-36.83,C38,,,,,"/>
-<approved hash="115,1,502.448,-36.83,C39,,,,,"/>
-<approved hash="115,1,497.368,-87.63,C40,,,,,"/>
-<approved hash="115,1,504.988,-87.63,C41,,,,,"/>
-<approved hash="115,1,405.928,-36.83,C42,,,,,"/>
-<approved hash="115,1,408.468,-87.63,C43,,,,,"/>
-<approved hash="115,1,93.9377,-18.8553,SV3,,,,,"/>
-<approved hash="115,1,93.9377,-31.5553,SV4,,,,,"/>
-<approved hash="115,1,93.9377,-44.2553,SV9,,,,,"/>
-<approved hash="115,1,93.9377,-56.9553,SV10,,,,,"/>
-<approved hash="115,1,93.9377,-74.7353,SV11,,,,,"/>
-<approved hash="115,1,93.9377,-87.4353,SV12,,,,,"/>
-<approved hash="115,1,93.9377,-100.135,SV13,,,,,"/>
-<approved hash="115,1,93.9377,-112.835,SV14,,,,,"/>
 </errors>
 </schematic>
 </drawing>
