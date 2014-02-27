@@ -30,7 +30,7 @@
 <layer number="34" name="bFinish" color="6" fill="6" visible="no" active="yes"/>
 <layer number="35" name="tGlue" color="7" fill="4" visible="no" active="yes"/>
 <layer number="36" name="bGlue" color="7" fill="5" visible="no" active="yes"/>
-<layer number="37" name="tTest" color="7" fill="1" visible="no" active="yes"/>
+<layer number="37" name="tTest" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="38" name="bTest" color="7" fill="1" visible="no" active="yes"/>
 <layer number="39" name="tKeepout" color="4" fill="11" visible="yes" active="yes"/>
 <layer number="40" name="bKeepout" color="1" fill="11" visible="yes" active="yes"/>
@@ -422,6 +422,20 @@
 <circle x="0" y="0" radius="1.5" width="0.2032" layer="21"/>
 <pad name="B2,8" x="0" y="0" drill="2.1" diameter="4"/>
 </package>
+<package name="PRISM_INDEX_EXTENSION_MALE">
+<smd name="2" x="0" y="1.27" dx="4" dy="1" layer="1"/>
+<smd name="1" x="0" y="-1.27" dx="4" dy="1" layer="1"/>
+<smd name="4" x="0" y="1.27" dx="4" dy="1" layer="16"/>
+<smd name="3" x="0" y="-1.27" dx="4" dy="1" layer="16"/>
+<wire x1="2.3" y1="-1.27" x2="2.3" y2="1.27" width="0.127" layer="21"/>
+</package>
+<package name="PRISM_INDEX_EXTENSION_FEMALE">
+<smd name="2" x="0" y="1.27" dx="4" dy="1" layer="1" rot="R180"/>
+<smd name="1" x="0" y="-1.27" dx="4" dy="1" layer="1" rot="R180"/>
+<smd name="4" x="0" y="1.27" dx="4" dy="1" layer="16" rot="R180"/>
+<smd name="3" x="0" y="-1.27" dx="4" dy="1" layer="16" rot="R180"/>
+<wire x1="-2.3" y1="1.27" x2="-2.3" y2="-1.27" width="0.127" layer="21"/>
+</package>
 </packages>
 <symbols>
 <symbol name="TINY6410_LCD">
@@ -771,6 +785,18 @@
 <text x="2.794" y="-2.4638" size="1.778" layer="96">&gt;VALUE</text>
 <pin name="MOUNT" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
 </symbol>
+<symbol name="PRISM_INDEX_EXTENSION">
+<wire x1="-7.62" y1="-7.62" x2="-7.62" y2="7.62" width="0.254" layer="94"/>
+<wire x1="-7.62" y1="7.62" x2="7.62" y2="7.62" width="0.254" layer="94"/>
+<wire x1="7.62" y1="7.62" x2="7.62" y2="-7.62" width="0.254" layer="94"/>
+<wire x1="7.62" y1="-7.62" x2="-7.62" y2="-7.62" width="0.254" layer="94"/>
+<text x="-7.62" y="7.62" size="1.27" layer="95">&gt;NAME</text>
+<text x="-7.62" y="-10.16" size="1.27" layer="96">&gt;VALUE</text>
+<pin name="GND@0" x="-12.7" y="-2.54" length="middle"/>
+<pin name="3V3" x="-12.7" y="5.08" length="middle"/>
+<pin name="GND@1" x="-12.7" y="-5.08" length="middle"/>
+<pin name="IDX_3V3" x="12.7" y="0" length="middle" rot="R180"/>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="TINY6410" prefix="TINY_">
@@ -1099,6 +1125,35 @@
 <device name="" package="2,1-PAD">
 <connects>
 <connect gate="G$1" pin="MOUNT" pad="B2,8"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="PRISM_INDEX_EXTENSION" prefix="IDX">
+<gates>
+<gate name="G$1" symbol="PRISM_INDEX_EXTENSION" x="0" y="0"/>
+</gates>
+<devices>
+<device name="_FEMALE" package="PRISM_INDEX_EXTENSION_FEMALE">
+<connects>
+<connect gate="G$1" pin="3V3" pad="2"/>
+<connect gate="G$1" pin="GND@0" pad="1"/>
+<connect gate="G$1" pin="GND@1" pad="3"/>
+<connect gate="G$1" pin="IDX_3V3" pad="4"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="_MALE" package="PRISM_INDEX_EXTENSION_MALE">
+<connects>
+<connect gate="G$1" pin="3V3" pad="2"/>
+<connect gate="G$1" pin="GND@0" pad="1"/>
+<connect gate="G$1" pin="GND@1" pad="3"/>
+<connect gate="G$1" pin="IDX_3V3" pad="4"/>
 </connects>
 <technologies>
 <technology name=""/>
