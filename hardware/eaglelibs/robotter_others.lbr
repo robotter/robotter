@@ -286,6 +286,8 @@
 <wire x1="-2.54" y1="-19.61" x2="-3.81" y2="-18.34" width="0.127" layer="21" curve="-180"/>
 <wire x1="-1.27" y1="-15.24" x2="-1.27" y2="-14.68" width="0.127" layer="21"/>
 <wire x1="1.27" y1="-15.24" x2="1.27" y2="-14.68" width="0.127" layer="21"/>
+<text x="-5.08" y="1.27" size="1.27" layer="25">&gt;NAME</text>
+<text x="2.54" y="-16.51" size="1.27" layer="27">&gt;VALUE</text>
 </package>
 <package name="2,8-PAD">
 <description>&lt;b&gt;MOUNTING PAD&lt;/b&gt; 2.8 mm, round</description>
@@ -1023,8 +1025,8 @@
 <devices>
 <device name="" package="2MS1T2B4M6QNS">
 <connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
+<connect gate="G$1" pin="1" pad="2"/>
+<connect gate="G$1" pin="2" pad="1"/>
 <connect gate="G$1" pin="3" pad="3"/>
 </connects>
 <technologies>
