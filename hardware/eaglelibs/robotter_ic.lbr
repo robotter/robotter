@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.05" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
+<grid distance="1.27" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -2705,20 +2705,20 @@ http://www.ee.siue.edu/~alozows/library/datasheets/BFR96.pdf</description>
 <text x="-1.397" y="1.802" size="1.016" layer="25" ratio="10">&gt;NAME</text>
 </package>
 <package name="482A">
-<wire x1="5.4102" y1="5.4102" x2="5.4102" y2="-5.4102" width="0.2032" layer="51"/>
-<wire x1="5.4102" y1="-5.4102" x2="-3.81" y2="-5.4102" width="0.2032" layer="51"/>
-<wire x1="-3.81" y1="-5.4102" x2="-5.4102" y2="-3.81" width="0.2032" layer="51"/>
-<wire x1="-5.4102" y1="-3.81" x2="-5.4102" y2="5.4102" width="0.2032" layer="51"/>
-<wire x1="-5.4102" y1="5.4102" x2="5.4102" y2="5.4102" width="0.2032" layer="51"/>
+<wire x1="5.4102" y1="5.4102" x2="5.4102" y2="-5.4102" width="0.2032" layer="21"/>
+<wire x1="5.4102" y1="-5.4102" x2="-3.81" y2="-5.4102" width="0.2032" layer="21"/>
+<wire x1="-3.81" y1="-5.4102" x2="-5.4102" y2="-3.81" width="0.2032" layer="21"/>
+<wire x1="-5.4102" y1="-3.81" x2="-5.4102" y2="5.4102" width="0.2032" layer="21"/>
+<wire x1="-5.4102" y1="5.4102" x2="5.4102" y2="5.4102" width="0.2032" layer="21"/>
 <circle x="-5.842" y="-6.35" radius="0.254" width="0.381" layer="21"/>
-<smd name="2" x="-1.27" y="-8.382" dx="1.524" dy="2.54" layer="1"/>
-<smd name="7" x="-1.27" y="8.382" dx="1.524" dy="2.54" layer="1"/>
-<smd name="1" x="-3.81" y="-8.382" dx="1.524" dy="2.54" layer="1"/>
-<smd name="3" x="1.27" y="-8.382" dx="1.524" dy="2.54" layer="1"/>
-<smd name="4" x="3.81" y="-8.382" dx="1.524" dy="2.54" layer="1"/>
-<smd name="8" x="-3.81" y="8.382" dx="1.524" dy="2.54" layer="1"/>
-<smd name="6" x="1.27" y="8.382" dx="1.524" dy="2.54" layer="1"/>
-<smd name="5" x="3.81" y="8.382" dx="1.524" dy="2.54" layer="1"/>
+<smd name="2" x="-1.27" y="-9.382" dx="1.524" dy="4.54" layer="1"/>
+<smd name="7" x="-1.27" y="9.382" dx="1.524" dy="4.54" layer="1"/>
+<smd name="1" x="-3.81" y="-9.382" dx="1.524" dy="4.54" layer="1"/>
+<smd name="3" x="1.27" y="-9.382" dx="1.524" dy="4.54" layer="1"/>
+<smd name="4" x="3.81" y="-9.382" dx="1.524" dy="4.54" layer="1"/>
+<smd name="8" x="-3.81" y="9.382" dx="1.524" dy="4.54" layer="1"/>
+<smd name="6" x="1.27" y="9.382" dx="1.524" dy="4.54" layer="1"/>
+<smd name="5" x="3.81" y="9.382" dx="1.524" dy="4.54" layer="1"/>
 <text x="-5.715" y="-1.905" size="1.27" layer="25" rot="R90">&gt;NAME</text>
 <text x="6.985" y="-1.905" size="1.27" layer="27" rot="R90">&gt;VALUE</text>
 <circle x="0" y="0" radius="5.6896" width="0.127" layer="21"/>
