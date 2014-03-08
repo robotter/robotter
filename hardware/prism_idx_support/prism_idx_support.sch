@@ -315,7 +315,7 @@
 </device>
 </devices>
 </deviceset>
-<deviceset name="4K7" prefix="R">
+<deviceset name="100" prefix="R">
 <gates>
 <gate name="G$1" symbol="RES" x="0" y="0"/>
 </gates>
@@ -327,7 +327,8 @@
 </connects>
 <technologies>
 <technology name="">
-<attribute name="RS" value="740-8959" constant="no"/>
+<attribute name="RS" value="740-8886" constant="no"/>
+<attribute name="VALUE" value="100-F" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -338,7 +339,8 @@
 </connects>
 <technologies>
 <technology name="">
-<attribute name="RS" value="223-0528" constant="no"/>
+<attribute name="RS" value="223-0297" constant="no"/>
+<attribute name="VALUE" value="100-E" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -820,13 +822,13 @@ DIN A4, landscape with location and doc. field</description>
 <part name="C2" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V"/>
 <part name="+3V6" library="supply1" deviceset="+3V3" device=""/>
 <part name="+3V9" library="supply1" deviceset="+3V3" device=""/>
-<part name="R2" library="robotter_resistor" deviceset="4K7" device="-F"/>
-<part name="R1" library="robotter_resistor" deviceset="270" device="-F"/>
 <part name="FRAME1" library="frames" deviceset="A4L-LOC" device=""/>
 <part name="H1" library="robotter_others" deviceset="MOUNT-PAD-ROUND" device="3.2"/>
 <part name="IDX" library="robotter_others" deviceset="PRISM_INDEX_EXTENSION" device="_FEMALE"/>
 <part name="C3" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V"/>
 <part name="GND1" library="supply1" deviceset="GND" device=""/>
+<part name="R2" library="robotter_resistor" deviceset="270" device="-E"/>
+<part name="R1" library="robotter_resistor" deviceset="100" device="-E" value="100-E"/>
 </parts>
 <sheets>
 <sheet>
@@ -841,13 +843,13 @@ DIN A4, landscape with location and doc. field</description>
 <instance part="C2" gate="G$1" x="109.22" y="86.36"/>
 <instance part="+3V6" gate="G$1" x="38.1" y="91.44"/>
 <instance part="+3V9" gate="G$1" x="109.22" y="91.44"/>
-<instance part="R2" gate="G$1" x="93.98" y="81.28" rot="R90"/>
-<instance part="R1" gate="G$1" x="68.58" y="81.28" rot="R90"/>
 <instance part="FRAME1" gate="G$1" x="0" y="0"/>
 <instance part="H1" gate="G$1" x="210.82" y="63.5" rot="R90"/>
 <instance part="IDX" gate="G$1" x="160.02" y="71.12" rot="MR0"/>
 <instance part="C3" gate="G$1" x="134.62" y="86.36"/>
 <instance part="GND1" gate="1" x="210.82" y="48.26"/>
+<instance part="R2" gate="G$1" x="93.98" y="81.28" rot="R90"/>
+<instance part="R1" gate="G$1" x="68.58" y="81.28" rot="R90"/>
 </instances>
 <busses>
 </busses>
@@ -891,7 +893,6 @@ DIN A4, landscape with location and doc. field</description>
 <segment>
 <pinref part="C2" gate="G$1" pin="1"/>
 <pinref part="+3V9" gate="G$1" pin="+3V3"/>
-<pinref part="R2" gate="G$1" pin="2"/>
 <wire x1="109.22" y1="88.9" x2="93.98" y2="88.9" width="0.1524" layer="91"/>
 <wire x1="93.98" y1="88.9" x2="93.98" y2="86.36" width="0.1524" layer="91"/>
 <junction x="109.22" y="88.9"/>
@@ -901,6 +902,7 @@ DIN A4, landscape with location and doc. field</description>
 <wire x1="172.72" y1="88.9" x2="172.72" y2="76.2" width="0.1524" layer="91"/>
 <pinref part="C3" gate="G$1" pin="1"/>
 <junction x="134.62" y="88.9"/>
+<pinref part="R2" gate="G$1" pin="2"/>
 </segment>
 <segment>
 <pinref part="+3V6" gate="G$1" pin="+3V3"/>
@@ -914,19 +916,19 @@ DIN A4, landscape with location and doc. field</description>
 <net name="N$57" class="0">
 <segment>
 <pinref part="IDX0" gate="G$1" pin="LED_A"/>
-<pinref part="R1" gate="G$1" pin="1"/>
 <wire x1="68.58" y1="76.2" x2="68.58" y2="71.12" width="0.1524" layer="91"/>
+<pinref part="R1" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="MIRROR_INDEX_1_3V3" class="0">
 <segment>
 <label x="106.68" y="71.12" size="1.778" layer="95"/>
 <pinref part="IDX0" gate="G$1" pin="TRANSISTOR_C"/>
-<pinref part="R2" gate="G$1" pin="1"/>
 <wire x1="93.98" y1="76.2" x2="93.98" y2="71.12" width="0.1524" layer="91"/>
 <wire x1="93.98" y1="71.12" x2="147.32" y2="71.12" width="0.1524" layer="91"/>
 <junction x="93.98" y="71.12"/>
 <pinref part="IDX" gate="G$1" pin="IDX_3V3"/>
+<pinref part="R2" gate="G$1" pin="1"/>
 </segment>
 </net>
 </nets>
