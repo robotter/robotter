@@ -1478,6 +1478,37 @@ Source: Comchip CGRM4001-G.pdf</description>
 </symbol>
 </symbols>
 <devicesets>
+<deviceset name="100" prefix="R">
+<gates>
+<gate name="G$1" symbol="RES" x="0" y="0"/>
+</gates>
+<devices>
+<device name="-F" package="R0603">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="740-8886" constant="no"/>
+<attribute name="VALUE" value="100-F" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-E" package="R0805">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="223-0297" constant="no"/>
+<attribute name="VALUE" value="100-E" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
 <deviceset name="270" prefix="R">
 <gates>
 <gate name="G$1" symbol="RES" x="0" y="0"/>
@@ -7094,8 +7125,8 @@ Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;
 <part name="C13" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V"/>
 <part name="+3V6" library="supply1" deviceset="+3V3" device=""/>
 <part name="+3V9" library="supply1" deviceset="+3V3" device=""/>
-<part name="R24" library="robotter_resistor" deviceset="4K7" device="-F"/>
-<part name="R17" library="robotter_resistor" deviceset="270" device="-F"/>
+<part name="R24" library="robotter_resistor" deviceset="270" device="-E"/>
+<part name="R17" library="robotter_resistor" deviceset="100" device="-E"/>
 <part name="GND5" library="supply1" deviceset="GND" device=""/>
 <part name="C18" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V"/>
 <part name="+3V11" library="supply1" deviceset="+3V3" device=""/>
@@ -7144,6 +7175,7 @@ Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;
 to read beacon id</text>
 <text x="292.1" y="96.52" size="1.778" layer="91">SW_BATT is a switch used to drive the mos that cut power</text>
 <text x="279.4" y="-167.64" size="1.778" layer="91">led used to show idx activity</text>
+<text x="492.76" y="162.56" size="1.778" layer="91">3,3V 1A</text>
 </plain>
 <instances>
 <instance part="FRAME1" gate="G$1" x="0" y="185.42"/>
