@@ -705,6 +705,37 @@ type 0309, grid 12.5 mm</description>
 </device>
 </devices>
 </deviceset>
+<deviceset name="100" prefix="R">
+<gates>
+<gate name="G$1" symbol="RES" x="0" y="0"/>
+</gates>
+<devices>
+<device name="-F" package="R0603">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="740-8886" constant="no"/>
+<attribute name="VALUE" value="100-F" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-E" package="R0805">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="RS" value="223-0297" constant="no"/>
+<attribute name="VALUE" value="100-E" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
 </devicesets>
 </library>
 </drawing>
