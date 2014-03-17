@@ -3836,6 +3836,8 @@ Source: ENG_CD_1445055_A.pdf</description>
 <part name="IC6" library="robotter_ic" deviceset="74LVC4245" device="APW"/>
 <part name="GND27" library="supply1" deviceset="GND" device=""/>
 <part name="C44" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V"/>
+<part name="C45" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V"/>
+<part name="C46" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V"/>
 </parts>
 <sheets>
 <sheet>
@@ -4226,6 +4228,8 @@ Source: ENG_CD_1445055_A.pdf</description>
 <instance part="IC6" gate="G$1" x="139.7" y="-114.3" rot="MR0"/>
 <instance part="GND27" gate="1" x="121.92" y="-93.98"/>
 <instance part="C44" gate="G$1" x="490.22" y="-144.78"/>
+<instance part="C45" gate="G$1" x="203.2" y="-299.72"/>
+<instance part="C46" gate="G$1" x="203.2" y="-246.38"/>
 </instances>
 <busses>
 </busses>
@@ -4661,6 +4665,10 @@ Source: ENG_CD_1445055_A.pdf</description>
 <pinref part="T1" gate="G$1" pin="S"/>
 <wire x1="185.42" y1="-254" x2="185.42" y2="-246.38" width="0.1524" layer="91"/>
 <junction x="185.42" y="-254"/>
+<pinref part="C46" gate="G$1" pin="2"/>
+<wire x1="195.58" y1="-254" x2="203.2" y2="-254" width="0.1524" layer="91"/>
+<wire x1="203.2" y1="-254" x2="203.2" y2="-251.46" width="0.1524" layer="91"/>
+<junction x="195.58" y="-254"/>
 </segment>
 <segment>
 <pinref part="R28" gate="G$1" pin="1"/>
@@ -4671,6 +4679,10 @@ Source: ENG_CD_1445055_A.pdf</description>
 <pinref part="T2" gate="G$1" pin="S"/>
 <wire x1="185.42" y1="-307.34" x2="185.42" y2="-299.72" width="0.1524" layer="91"/>
 <junction x="185.42" y="-307.34"/>
+<pinref part="C45" gate="G$1" pin="2"/>
+<wire x1="195.58" y1="-307.34" x2="203.2" y2="-307.34" width="0.1524" layer="91"/>
+<wire x1="203.2" y1="-307.34" x2="203.2" y2="-304.8" width="0.1524" layer="91"/>
+<junction x="195.58" y="-307.34"/>
 </segment>
 <segment>
 <pinref part="COLOR_SENS" gate="-1" pin="S"/>
@@ -5850,9 +5862,12 @@ Source: ENG_CD_1445055_A.pdf</description>
 <segment>
 <pinref part="R2" gate="G$1" pin="2"/>
 <pinref part="R26" gate="G$1" pin="1"/>
-<wire x1="195.58" y1="-243.84" x2="233.68" y2="-243.84" width="0.1524" layer="91"/>
+<wire x1="195.58" y1="-243.84" x2="203.2" y2="-243.84" width="0.1524" layer="91"/>
 <label x="200.66" y="-243.84" size="1.778" layer="95"/>
 <junction x="195.58" y="-243.84"/>
+<pinref part="C46" gate="G$1" pin="1"/>
+<wire x1="203.2" y1="-243.84" x2="233.68" y2="-243.84" width="0.1524" layer="91"/>
+<junction x="203.2" y="-243.84"/>
 </segment>
 <segment>
 <pinref part="IC2" gate="G$1" pin="PA6(ADCA6)"/>
@@ -5910,9 +5925,12 @@ Source: ENG_CD_1445055_A.pdf</description>
 <segment>
 <pinref part="R28" gate="G$1" pin="2"/>
 <pinref part="R29" gate="G$1" pin="1"/>
-<wire x1="195.58" y1="-297.18" x2="233.68" y2="-297.18" width="0.1524" layer="91"/>
+<wire x1="195.58" y1="-297.18" x2="203.2" y2="-297.18" width="0.1524" layer="91"/>
 <label x="200.66" y="-297.18" size="1.778" layer="95"/>
 <junction x="195.58" y="-297.18"/>
+<pinref part="C45" gate="G$1" pin="1"/>
+<wire x1="203.2" y1="-297.18" x2="233.68" y2="-297.18" width="0.1524" layer="91"/>
+<junction x="203.2" y="-297.18"/>
 </segment>
 <segment>
 <pinref part="IC2" gate="G$1" pin="PA7/(ADCA7/AC0-OUT)"/>
