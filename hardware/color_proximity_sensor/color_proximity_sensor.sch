@@ -1033,7 +1033,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <smd name="10" x="-1" y="2.127" dx="0.3" dy="1.25" layer="1" rot="R180"/>
 <text x="3" y="-3" size="1.27" layer="27" ratio="10" rot="R90">&gt;VALUE</text>
 <text x="-2" y="-3" size="1.27" layer="25" ratio="10" rot="R90">&gt;NAME</text>
-<rectangle x1="-1.3" y1="-0.9" x2="1.3" y2="0.9" layer="1"/>
+<smd name="THERMAL" x="0" y="0" dx="3" dy="1.8" layer="1"/>
 </package>
 <package name="FN6">
 <wire x1="1.2" y1="1" x2="1.2" y2="-0.3" width="0.2032" layer="51"/>
@@ -1251,22 +1251,23 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </packages>
 <symbols>
 <symbol name="LM25011">
-<wire x1="-7.62" y1="17.78" x2="7.62" y2="17.78" width="0.254" layer="94"/>
-<wire x1="7.62" y1="17.78" x2="7.62" y2="-12.7" width="0.254" layer="94"/>
-<wire x1="7.62" y1="-12.7" x2="-7.62" y2="-12.7" width="0.254" layer="94"/>
-<wire x1="-7.62" y1="-12.7" x2="-7.62" y2="17.78" width="0.254" layer="94"/>
-<text x="-7.62" y="19.05" size="1.778" layer="95">&gt;NAME</text>
-<text x="2.54" y="-15.24" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="VIN" x="-10.16" y="10.16" length="short" direction="in"/>
-<pin name="CS" x="10.16" y="5.08" length="short" direction="out" rot="R180"/>
-<pin name="FB" x="10.16" y="-10.16" length="short" direction="in" rot="R180"/>
-<pin name="RT" x="-10.16" y="0" length="short" direction="in"/>
-<pin name="SGND" x="0" y="-15.24" length="short" direction="pwr" rot="R90"/>
-<pin name="SS" x="-10.16" y="-10.16" length="short" direction="pwr"/>
-<pin name="SW" x="10.16" y="10.16" length="short" direction="out" rot="R180"/>
-<pin name="CSG" x="10.16" y="-2.54" length="short" direction="in" rot="R180"/>
-<pin name="PGD" x="-10.16" y="-2.54" length="short" direction="in"/>
-<pin name="BST" x="10.16" y="15.24" length="short" direction="in" rot="R180"/>
+<wire x1="-7.62" y1="15.24" x2="10.16" y2="15.24" width="0.254" layer="94"/>
+<wire x1="10.16" y1="15.24" x2="10.16" y2="-15.24" width="0.254" layer="94"/>
+<wire x1="10.16" y1="-15.24" x2="-7.62" y2="-15.24" width="0.254" layer="94"/>
+<wire x1="-7.62" y1="-15.24" x2="-7.62" y2="15.24" width="0.254" layer="94"/>
+<text x="-5.08" y="16.51" size="1.778" layer="95">&gt;NAME</text>
+<text x="5.08" y="-17.78" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="VIN" x="-10.16" y="7.62" length="short" direction="in"/>
+<pin name="CS" x="12.7" y="2.54" length="short" direction="out" rot="R180"/>
+<pin name="FB" x="12.7" y="-12.7" length="short" direction="in" rot="R180"/>
+<pin name="RT" x="-10.16" y="-2.54" length="short" direction="in"/>
+<pin name="SGND" x="2.54" y="-17.78" length="short" direction="pwr" rot="R90"/>
+<pin name="SS" x="-10.16" y="-12.7" length="short" direction="pwr"/>
+<pin name="SW" x="12.7" y="7.62" length="short" direction="out" rot="R180"/>
+<pin name="CSG" x="12.7" y="-5.08" length="short" direction="in" rot="R180"/>
+<pin name="PGD" x="-10.16" y="-5.08" length="short" direction="in"/>
+<pin name="BST" x="12.7" y="12.7" length="short" direction="in" rot="R180"/>
+<pin name="THERMAL_GND" x="0" y="-17.78" length="short" direction="pwr" rot="R90"/>
 </symbol>
 <symbol name="TCS3772">
 <wire x1="-10.16" y1="7.62" x2="10.16" y2="7.62" width="0.4064" layer="94"/>
@@ -1406,6 +1407,7 @@ http://www.ti.com/product/lm25011</description>
 <connect gate="G$1" pin="SGND" pad="5"/>
 <connect gate="G$1" pin="SS" pad="4"/>
 <connect gate="G$1" pin="SW" pad="9"/>
+<connect gate="G$1" pin="THERMAL_GND" pad="THERMAL"/>
 <connect gate="G$1" pin="VIN" pad="1"/>
 </connects>
 <technologies>
@@ -2059,7 +2061,7 @@ http://www.ti.com/product/lm25011</description>
 <part name="C30" library="robotter_capacitor" deviceset="1UF" device="D_25V" value="1µF 25V"/>
 <part name="C31" library="robotter_capacitor" deviceset="10NF" device="-F" value="10nF 50V"/>
 <part name="C32" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V"/>
-<part name="C33" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V"/>
+<part name="C33" library="robotter_capacitor" deviceset="22UF" device="-C_10V" value="22UF-C_10V"/>
 <part name="D8" library="robotter_diode" deviceset="B160-13F" device="" value="B160-13F"/>
 <part name="L1" library="robotter_inductor" deviceset="SDR0805" device="-270KL"/>
 <part name="R22" library="robotter_resistor" deviceset="0.27" device="-F"/>
@@ -2122,10 +2124,10 @@ http://www.ti.com/product/lm25011</description>
 <part name="C15" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V"/>
 <part name="C16" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V"/>
 <part name="R19" library="robotter_resistor" deviceset="10K" device="-F"/>
-<part name="R20" library="robotter_resistor" deviceset="10K" device="-F"/>
+<part name="R20" library="robotter_resistor" deviceset="3K09" device="-F"/>
 <part name="R21" library="robotter_resistor" deviceset="10K" device="-F"/>
 <part name="R23" library="robotter_resistor" deviceset="10K" device="-F"/>
-<part name="R25" library="robotter_resistor" deviceset="10K" device="-F"/>
+<part name="R25" library="robotter_resistor" deviceset="3K09" device="-F"/>
 <part name="L2" library="robotter_inductor" deviceset="FERRITE_220OHMS" device="" value="220 ohms"/>
 <part name="C17" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V"/>
 <part name="+3V5" library="supply1" deviceset="+3V3" device=""/>
@@ -2167,7 +2169,7 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <instance part="FRAME4" gate="G$1" x="264.16" y="182.88"/>
 <instance part="+3V17" gate="G$1" x="508" y="144.78"/>
 <instance part="GND23" gate="1" x="347.98" y="106.68"/>
-<instance part="IC4" gate="G$1" x="444.5" y="132.08"/>
+<instance part="IC4" gate="G$1" x="444.5" y="134.62"/>
 <instance part="C22" gate="G$1" x="396.24" y="132.08"/>
 <instance part="C30" gate="G$1" x="408.94" y="139.7"/>
 <instance part="C31" gate="G$1" x="426.72" y="119.38"/>
@@ -2191,7 +2193,7 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <instance part="R58" gate="G$1" x="429.26" y="137.16" rot="R90"/>
 <instance part="R60" gate="G$1" x="487.68" y="116.84" rot="R270"/>
 <instance part="R61" gate="G$1" x="487.68" y="132.08" rot="R270"/>
-<instance part="GND24" gate="1" x="444.5" y="106.68"/>
+<instance part="GND24" gate="1" x="447.04" y="106.68"/>
 <instance part="GND25" gate="1" x="462.28" y="124.46"/>
 <instance part="R13" gate="G$1" x="358.14" y="132.08" rot="R90"/>
 <instance part="R14" gate="G$1" x="358.14" y="114.3" rot="R90"/>
@@ -2305,14 +2307,15 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <pinref part="IC4" gate="G$1" pin="SGND"/>
 <wire x1="408.94" y1="109.22" x2="426.72" y2="109.22" width="0.1524" layer="91"/>
 <wire x1="426.72" y1="109.22" x2="444.5" y2="109.22" width="0.1524" layer="91"/>
-<wire x1="444.5" y1="109.22" x2="444.5" y2="116.84" width="0.1524" layer="91"/>
+<wire x1="444.5" y1="109.22" x2="447.04" y2="109.22" width="0.1524" layer="91"/>
+<wire x1="447.04" y1="109.22" x2="447.04" y2="116.84" width="0.1524" layer="91"/>
 <pinref part="C31" gate="G$1" pin="2"/>
 <wire x1="426.72" y1="114.3" x2="426.72" y2="109.22" width="0.1524" layer="91"/>
-<wire x1="444.5" y1="109.22" x2="487.68" y2="109.22" width="0.1524" layer="91"/>
+<wire x1="447.04" y1="109.22" x2="487.68" y2="109.22" width="0.1524" layer="91"/>
 <pinref part="R60" gate="G$1" pin="2"/>
 <wire x1="487.68" y1="109.22" x2="487.68" y2="111.76" width="0.1524" layer="91"/>
 <junction x="426.72" y="109.22"/>
-<junction x="444.5" y="109.22"/>
+<junction x="447.04" y="109.22"/>
 <pinref part="C30" gate="G$1" pin="2"/>
 <wire x1="408.94" y1="134.62" x2="408.94" y2="109.22" width="0.1524" layer="91"/>
 <pinref part="C33" gate="G$1" pin="2"/>
@@ -2320,12 +2323,15 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <wire x1="500.38" y1="109.22" x2="487.68" y2="109.22" width="0.1524" layer="91"/>
 <junction x="487.68" y="109.22"/>
 <junction x="408.94" y="109.22"/>
+<pinref part="IC4" gate="G$1" pin="THERMAL_GND"/>
+<wire x1="444.5" y1="116.84" x2="444.5" y2="109.22" width="0.1524" layer="91"/>
+<junction x="444.5" y="109.22"/>
 </segment>
 <segment>
 <pinref part="IC4" gate="G$1" pin="CSG"/>
-<wire x1="454.66" y1="129.54" x2="454.66" y2="127" width="0.1524" layer="91"/>
 <pinref part="R22" gate="G$1" pin="1"/>
-<wire x1="454.66" y1="127" x2="462.28" y2="127" width="0.1524" layer="91"/>
+<wire x1="457.2" y1="129.54" x2="457.2" y2="127" width="0.1524" layer="91"/>
+<wire x1="457.2" y1="127" x2="462.28" y2="127" width="0.1524" layer="91"/>
 <pinref part="GND25" gate="1" pin="GND"/>
 <junction x="462.28" y="127"/>
 </segment>
@@ -2402,20 +2408,14 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <pinref part="GND8" gate="1" pin="GND"/>
 </segment>
 <segment>
-<wire x1="53.34" y1="68.58" x2="53.34" y2="33.02" width="0.1524" layer="91"/>
-<wire x1="53.34" y1="33.02" x2="73.66" y2="33.02" width="0.1524" layer="91"/>
-<wire x1="73.66" y1="33.02" x2="86.36" y2="33.02" width="0.1524" layer="91"/>
-<wire x1="86.36" y1="33.02" x2="101.6" y2="33.02" width="0.1524" layer="91"/>
+<wire x1="73.66" y1="33.02" x2="101.6" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="101.6" y1="33.02" x2="109.22" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="109.22" y1="33.02" x2="144.78" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="144.78" y1="33.02" x2="144.78" y2="38.1" width="0.1524" layer="91"/>
 <wire x1="109.22" y1="53.34" x2="109.22" y2="33.02" width="0.1524" layer="91"/>
-<wire x1="86.36" y1="48.26" x2="86.36" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="73.66" y1="73.66" x2="73.66" y2="33.02" width="0.1524" layer="91"/>
 <pinref part="GND9" gate="1" pin="GND"/>
 <junction x="101.6" y="33.02"/>
-<junction x="73.66" y="33.02"/>
-<junction x="86.36" y="33.02"/>
 <junction x="109.22" y="33.02"/>
 <pinref part="T4" gate="-Q1" pin="E"/>
 <pinref part="T4" gate="-Q2" pin="E"/>
@@ -2613,7 +2613,7 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <segment>
 <pinref part="IC4" gate="G$1" pin="SW"/>
 <pinref part="D8" gate="G$1" pin="C"/>
-<wire x1="462.28" y1="142.24" x2="454.66" y2="142.24" width="0.1524" layer="91"/>
+<wire x1="462.28" y1="142.24" x2="457.2" y2="142.24" width="0.1524" layer="91"/>
 <pinref part="C32" gate="G$1" pin="2"/>
 <junction x="462.28" y="142.24"/>
 <pinref part="L1" gate="G$1" pin="1"/>
@@ -2624,7 +2624,7 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <segment>
 <pinref part="IC4" gate="G$1" pin="CS"/>
 <pinref part="D8" gate="G$1" pin="A"/>
-<wire x1="462.28" y1="137.16" x2="454.66" y2="137.16" width="0.1524" layer="91"/>
+<wire x1="462.28" y1="137.16" x2="457.2" y2="137.16" width="0.1524" layer="91"/>
 <pinref part="R22" gate="G$1" pin="2"/>
 <junction x="462.28" y="137.16"/>
 </segment>
@@ -2647,7 +2647,7 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <segment>
 <pinref part="IC4" gate="G$1" pin="FB"/>
 <pinref part="R60" gate="G$1" pin="1"/>
-<wire x1="454.66" y1="121.92" x2="487.68" y2="121.92" width="0.1524" layer="91"/>
+<wire x1="457.2" y1="121.92" x2="487.68" y2="121.92" width="0.1524" layer="91"/>
 <pinref part="R61" gate="G$1" pin="2"/>
 <wire x1="487.68" y1="127" x2="487.68" y2="121.92" width="0.1524" layer="91"/>
 <junction x="487.68" y="121.92"/>
@@ -2656,7 +2656,6 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <net name="N$48" class="0">
 <segment>
 <pinref part="IC4" gate="G$1" pin="BST"/>
-<wire x1="454.66" y1="147.32" x2="457.2" y2="147.32" width="0.1524" layer="91"/>
 <wire x1="457.2" y1="147.32" x2="457.2" y2="149.86" width="0.1524" layer="91"/>
 <pinref part="C32" gate="G$1" pin="1"/>
 <wire x1="457.2" y1="149.86" x2="462.28" y2="149.86" width="0.1524" layer="91"/>
@@ -3160,8 +3159,11 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 </sheet>
 </sheets>
 <errors>
-<approved hash="104,1,444.5,116.84,IC4,SGND,GND,,,"/>
+<approved hash="102,1,429.26,330.2,VCC,TCS_VCC,,,,"/>
+<approved hash="104,1,447.04,116.84,IC4,SGND,GND,,,"/>
 <approved hash="104,1,434.34,121.92,IC4,SS,N$43,,,"/>
+<approved hash="202,1,434.34,129.54,IC4,PGD,,,,"/>
+<approved hash="104,1,444.5,116.84,IC4,THERMAL_GND,GND,,,"/>
 <approved hash="113,1,132.337,89.431,FRAME1,,,,,"/>
 <approved hash="113,1,396.497,89.431,FRAME2,,,,,"/>
 <approved hash="113,1,132.337,272.311,FRAME3,,,,,"/>
