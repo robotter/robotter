@@ -1,0 +1,2 @@
+#gerbmerge color_proximity_sensor_pannel.cfg color_proximity_sensor_pannel.def
+gerbmerge --place-file=color_proximity_sensor_pannel_place.txt color_proximity_sensor_pannel.cfg
