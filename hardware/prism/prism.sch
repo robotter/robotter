@@ -1706,7 +1706,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </device>
 </devices>
 </deviceset>
-<deviceset name="4K7" prefix="R">
+<deviceset name="8K2" prefix="R">
 <gates>
 <gate name="G$1" symbol="RES" x="0" y="0"/>
 </gates>
@@ -1718,7 +1718,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="RS" value="740-8959" constant="no"/>
+<attribute name="RS" value="679-0759" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -1729,7 +1729,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="RS" value="223-0528" constant="no"/>
+<attribute name="RS" value=" 679-1727" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -6962,7 +6962,7 @@ Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;
 <part name="FRAME8" library="frames" deviceset="A4L-LOC" device=""/>
 <part name="GND64" library="supply1" deviceset="GND" device=""/>
 <part name="D4" library="robotter_diode" deviceset="BZV55-C3V3" device="SOD80C" value="bzv55-c3v3"/>
-<part name="R41" library="rcl" deviceset="R-EU_" device="R0603" value="nc"/>
+<part name="R41" library="robotter_resistor" deviceset="3K09" device="-F" value="3K09-F"/>
 <part name="IR_SENSOR1" library="robotter_connector" deviceset="794618-4" device=""/>
 <part name="GND71" library="supply1" deviceset="GND" device=""/>
 <part name="GND73" library="supply1" deviceset="GND" device=""/>
@@ -6987,7 +6987,7 @@ Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;
 <part name="D1" library="robotter_diode" deviceset="CGRM400*-G" device="" technology="4"/>
 <part name="FRAME2" library="frames" deviceset="A4L-LOC" device=""/>
 <part name="D3" library="robotter_diode" deviceset="BZV55-C3V3" device="SOD80C" value="bzv55-c3v3"/>
-<part name="R36" library="rcl" deviceset="R-EU_" device="R0603" value="nc"/>
+<part name="R36" library="robotter_resistor" deviceset="3K09" device="-F" value="3K09-F"/>
 <part name="R27" library="rcl" deviceset="R-EU_" device="R0603" value="nc"/>
 <part name="GND13" library="supply1" deviceset="GND" device=""/>
 <part name="GND14" library="supply1" deviceset="GND" device=""/>
@@ -7096,8 +7096,8 @@ Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;
 <part name="T8" library="robotter_ic" deviceset="NTGS4111" device="PT1G" value="NTGS4111PT1G"/>
 <part name="T5" library="robotter_ic" deviceset="NTGS4111" device="PT1G" value="NTGS4111PT1G"/>
 <part name="T2" library="robotter_ic" deviceset="NTGS4111" device="PT1G" value="NTGS4111PT1G"/>
-<part name="R34" library="robotter_resistor" deviceset="4K7" device="-E"/>
-<part name="R29" library="robotter_resistor" deviceset="4K7" device="-E"/>
+<part name="R34" library="robotter_resistor" deviceset="8K2" device="-E"/>
+<part name="R29" library="robotter_resistor" deviceset="8K2" device="-E"/>
 <part name="IC4" library="robotter_ic" deviceset="74LVC4245" device="APW"/>
 <part name="P+4" library="supply1" deviceset="+5V" device=""/>
 <part name="+3V5" library="supply1" deviceset="+3V3" device=""/>
@@ -7165,6 +7165,10 @@ Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;
 <part name="R42" library="robotter_resistor" deviceset="10K" device="-F"/>
 <part name="IDX0" library="robotter_others" deviceset="PRISM_INDEX_EXTENSION" device="_MALE"/>
 <part name="GND9" library="supply1" deviceset="GND" device=""/>
+<part name="R74" library="robotter_resistor" deviceset="270" device="-E"/>
+<part name="R75" library="robotter_resistor" deviceset="270" device="-E"/>
+<part name="+3V12" library="supply1" deviceset="+3V3" device=""/>
+<part name="+3V13" library="supply1" deviceset="+3V3" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -7178,6 +7182,14 @@ to read beacon id</text>
 <text x="292.1" y="96.52" size="1.778" layer="91">SW_BATT is a switch used to drive the mos that cut power</text>
 <text x="279.4" y="-167.64" size="1.778" layer="91">led used to show idx activity</text>
 <text x="492.76" y="162.56" size="1.778" layer="91">3,3V 1A</text>
+<text x="86.36" y="81.28" size="1.778" layer="91">connector to IR sensor : 
+S15-PA-2-A00-PK
+or 
+S15-PA-2-A00-NK</text>
+<text x="86.36" y="-114.3" size="1.778" layer="91">connector to IR sensor : 
+S15-PA-2-A00-PK
+or 
+S15-PA-2-A00-NK</text>
 </plain>
 <instances>
 <instance part="FRAME1" gate="G$1" x="0" y="185.42"/>
@@ -7313,7 +7325,7 @@ to read beacon id</text>
 <instance part="D1" gate="G$1" x="93.98" y="-139.7" rot="R90"/>
 <instance part="FRAME2" gate="G$1" x="0" y="-185.42"/>
 <instance part="D3" gate="G$1" x="154.94" y="99.06" rot="R90"/>
-<instance part="R36" gate="G$1" x="162.56" y="101.6" rot="R90"/>
+<instance part="R36" gate="G$1" x="165.1" y="101.6" rot="R90"/>
 <instance part="R27" gate="G$1" x="137.16" y="101.6" rot="R90"/>
 <instance part="GND13" gate="1" x="86.36" y="38.1" smashed="yes">
 <attribute name="VALUE" x="83.82" y="35.56" size="1.778" layer="96"/>
@@ -7504,7 +7516,7 @@ to read beacon id</text>
 <instance part="T8" gate="G$1" x="330.2" y="152.4" rot="R90"/>
 <instance part="T5" gate="G$1" x="91.44" y="127" rot="R90"/>
 <instance part="T2" gate="G$1" x="83.82" y="-71.12" rot="R90"/>
-<instance part="R34" gate="G$1" x="167.64" y="-91.44"/>
+<instance part="R34" gate="G$1" x="165.1" y="-91.44"/>
 <instance part="R29" gate="G$1" x="147.32" y="106.68"/>
 <instance part="IC4" gate="G$1" x="444.5" y="243.84"/>
 <instance part="P+4" gate="1" x="467.36" y="274.32" smashed="yes">
@@ -7603,6 +7615,10 @@ to read beacon id</text>
 <instance part="R42" gate="G$1" x="279.4" y="-48.26" rot="R90"/>
 <instance part="IDX0" gate="G$1" x="195.58" y="147.32"/>
 <instance part="GND9" gate="1" x="7.62" y="332.74"/>
+<instance part="R74" gate="G$1" x="154.94" y="111.76" rot="R90"/>
+<instance part="R75" gate="G$1" x="172.72" y="-86.36" rot="R90"/>
+<instance part="+3V12" gate="G$1" x="154.94" y="119.38"/>
+<instance part="+3V13" gate="G$1" x="172.72" y="-78.74"/>
 </instances>
 <busses>
 </busses>
@@ -7812,7 +7828,7 @@ to read beacon id</text>
 <wire x1="104.14" y1="91.44" x2="104.14" y2="106.68" width="0.1524" layer="91"/>
 <pinref part="R23" gate="G$1" pin="1"/>
 <wire x1="104.14" y1="91.44" x2="119.38" y2="91.44" width="0.1524" layer="91"/>
-<wire x1="162.56" y1="96.52" x2="162.56" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="165.1" y1="96.52" x2="165.1" y2="91.44" width="0.1524" layer="91"/>
 <pinref part="R36" gate="G$1" pin="1"/>
 <pinref part="D3" gate="G$1" pin="A"/>
 <pinref part="R27" gate="G$1" pin="1"/>
@@ -7820,7 +7836,7 @@ to read beacon id</text>
 <wire x1="119.38" y1="91.44" x2="137.16" y2="91.44" width="0.1524" layer="91"/>
 <wire x1="137.16" y1="91.44" x2="137.16" y2="96.52" width="0.1524" layer="91"/>
 <wire x1="137.16" y1="91.44" x2="154.94" y2="91.44" width="0.1524" layer="91"/>
-<wire x1="154.94" y1="91.44" x2="162.56" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="154.94" y1="91.44" x2="165.1" y2="91.44" width="0.1524" layer="91"/>
 <junction x="119.38" y="91.44"/>
 <junction x="104.14" y="91.44"/>
 <junction x="137.16" y="91.44"/>
@@ -8284,6 +8300,14 @@ to read beacon id</text>
 <wire x1="452.12" y1="-22.86" x2="467.36" y2="-22.86" width="0.1524" layer="91"/>
 <wire x1="467.36" y1="-22.86" x2="467.36" y2="-30.48" width="0.1524" layer="91"/>
 </segment>
+<segment>
+<pinref part="R74" gate="G$1" pin="2"/>
+<pinref part="+3V12" gate="G$1" pin="+3V3"/>
+</segment>
+<segment>
+<pinref part="R75" gate="G$1" pin="2"/>
+<pinref part="+3V13" gate="G$1" pin="+3V3"/>
+</segment>
 </net>
 <net name="/RESET_3V3" class="0">
 <segment>
@@ -8510,6 +8534,7 @@ to read beacon id</text>
 <net name="IR_SENSOR_1_OUTPUT_3V3" class="0">
 <segment>
 <wire x1="187.96" y1="-91.44" x2="205.74" y2="-91.44" width="0.1524" layer="91"/>
+<wire x1="170.18" y1="-91.44" x2="172.72" y2="-91.44" width="0.1524" layer="91"/>
 <wire x1="172.72" y1="-91.44" x2="175.26" y2="-91.44" width="0.1524" layer="91"/>
 <wire x1="175.26" y1="-91.44" x2="187.96" y2="-91.44" width="0.1524" layer="91"/>
 <wire x1="175.26" y1="-93.98" x2="175.26" y2="-91.44" width="0.1524" layer="91"/>
@@ -8519,6 +8544,8 @@ to read beacon id</text>
 <pinref part="R41" gate="G$1" pin="2"/>
 <pinref part="D4" gate="G$1" pin="C"/>
 <pinref part="R34" gate="G$1" pin="2"/>
+<pinref part="R75" gate="G$1" pin="1"/>
+<junction x="172.72" y="-91.44"/>
 </segment>
 <segment>
 <pinref part="IC1" gate="G$1" pin="PC0(OC0A/SDA)"/>
@@ -8590,7 +8617,7 @@ to read beacon id</text>
 <label x="124.46" y="-91.44" size="1.778" layer="95"/>
 <pinref part="IR_SENSOR1" gate="G$1" pin="2"/>
 <pinref part="R21" gate="G$1" pin="2"/>
-<wire x1="162.56" y1="-91.44" x2="121.92" y2="-91.44" width="0.1524" layer="91"/>
+<wire x1="160.02" y1="-91.44" x2="121.92" y2="-91.44" width="0.1524" layer="91"/>
 <pinref part="R20" gate="G$1" pin="1"/>
 <pinref part="R34" gate="G$1" pin="1"/>
 </segment>
@@ -8609,16 +8636,17 @@ to read beacon id</text>
 </net>
 <net name="IR_SENSOR_0_OUTPUT_3V3" class="0">
 <segment>
-<wire x1="162.56" y1="106.68" x2="182.88" y2="106.68" width="0.1524" layer="91"/>
+<wire x1="165.1" y1="106.68" x2="182.88" y2="106.68" width="0.1524" layer="91"/>
 <wire x1="152.4" y1="106.68" x2="154.94" y2="106.68" width="0.1524" layer="91"/>
-<wire x1="154.94" y1="106.68" x2="162.56" y2="106.68" width="0.1524" layer="91"/>
+<wire x1="154.94" y1="106.68" x2="165.1" y2="106.68" width="0.1524" layer="91"/>
 <wire x1="154.94" y1="101.6" x2="154.94" y2="106.68" width="0.1524" layer="91"/>
-<junction x="162.56" y="106.68"/>
+<junction x="165.1" y="106.68"/>
 <junction x="154.94" y="106.68"/>
 <label x="167.64" y="106.68" size="1.778" layer="95"/>
 <pinref part="R36" gate="G$1" pin="2"/>
 <pinref part="D3" gate="G$1" pin="C"/>
 <pinref part="R29" gate="G$1" pin="2"/>
+<pinref part="R74" gate="G$1" pin="1"/>
 </segment>
 <segment>
 <pinref part="IC1" gate="G$1" pin="PD5(OC1B/XCK1/MOSI)"/>
