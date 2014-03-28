@@ -403,6 +403,7 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" constant="no"/>
 <attribute name="RS" value=" 723-5534 " constant="no"/>
 <attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
@@ -415,6 +416,7 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GRM40Y104Z50D" constant="no"/>
 <attribute name="RS" value="220-7966 " constant="no"/>
 <attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
@@ -434,6 +436,7 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GCM188R71H103KA7D" constant="no"/>
 <attribute name="RS" value="723-4982" constant="no"/>
 <attribute name="VALUE" value="10nF 50V" constant="no"/>
 </technology>
@@ -465,6 +468,7 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="581-06031A150K4T2A " constant="no"/>
 <attribute name="RS" value=" 147-421 " constant="no"/>
 <attribute name="VALUE" value="15pF_0603_100V" constant="no"/>
 </technology>
@@ -477,6 +481,7 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="" constant="no"/>
 <attribute name="VALUE" value="15pF_0603_100V" constant="no"/>
 </technology>
 </technologies>
@@ -496,6 +501,7 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 <technologies>
 <technology name="">
 <attribute name="MANUFACTURER" value="EEEFK1V331P" constant="no"/>
+<attribute name="MOUSER" value="667-EEE-FK1V331P" constant="no"/>
 <attribute name="RS" value="708-3475" constant="no"/>
 <attribute name="VALUE" value="330µF 35V" constant="no"/>
 </technology>
@@ -515,6 +521,7 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="963-GMK325BJ106MN-T" constant="no"/>
 <attribute name="RS" value="758-3325 " constant="no"/>
 <attribute name="VALUE" value="10µF 35V" constant="no"/>
 </technology>
@@ -527,6 +534,7 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" constant="no"/>
 <attribute name="RS" value="766-1185 " constant="no"/>
 <attribute name="VALUE" value="10µF 25V" constant="no"/>
 </technology>
@@ -546,6 +554,7 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="810-C3216X7R1E105K-6" constant="no"/>
 <attribute name="RS" value=" 740-7574 " constant="no"/>
 <attribute name="VALUE" value="1µF 25V" constant="no"/>
 </technology>
@@ -565,6 +574,7 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GCM188R71H472K37D" constant="no"/>
 <attribute name="RS" value=" 723-5004" constant="no"/>
 <attribute name="VALUE" value="4.7nF 50V" constant="no"/>
 </technology>
@@ -596,6 +606,7 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="581-1210ZG226Z" constant="no"/>
 <attribute name="RS" value="698-3844" constant="no"/>
 <attribute name="VALUE" value="22µF 10V" constant="no"/>
 </technology>
@@ -615,6 +626,7 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="667-EEE-FK1V101P" constant="no"/>
 <attribute name="RS" value="537-0613" constant="no"/>
 <attribute name="VALUE" value="100µF 35V" constant="no"/>
 </technology>
@@ -634,6 +646,7 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="667-EEE-FP1V221AP" constant="no"/>
 <attribute name="RS" value="568-828" constant="no"/>
 <attribute name="VALUE" value="220µF 35V" constant="no"/>
 </technology>
@@ -653,6 +666,7 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="" constant="no"/>
 <attribute name="RS" value="147-213" constant="no"/>
 <attribute name="VALUE" value="180pF 50V" constant="no"/>
 </technology>

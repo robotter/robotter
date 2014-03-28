@@ -263,6 +263,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603-8.2K-E3" constant="no"/>
 <attribute name="RS" value="679-0759" constant="no"/>
 </technology>
 </technologies>
@@ -292,6 +293,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" constant="no"/>
 <attribute name="RS" value="740-8899" constant="no"/>
 </technology>
 </technologies>
@@ -345,6 +347,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="279-35201K0JT" constant="no"/>
 <attribute name="RS" value="224-0395" constant="no"/>
 <attribute name="VALUE" value="1k 1W" constant="no"/>
 </technology>
@@ -364,6 +367,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0805-7.15K-E3" constant="no"/>
 <attribute name="RS" value="679-1689" constant="no"/>
 </technology>
 </technologies>
@@ -375,6 +379,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603-7.15K-E3" constant="no"/>
 <attribute name="RS" value="679-0709" constant="no"/>
 </technology>
 </technologies>
@@ -393,6 +398,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0805-FX1002GLF" constant="no"/>
 <attribute name="RS" value="740-8975" constant="no"/>
 </technology>
 </technologies>
@@ -404,6 +410,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603FX-1002ELF" constant="no"/>
 <attribute name="RS" value="740-8805" constant="no"/>
 </technology>
 </technologies>
@@ -422,6 +429,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" constant="no"/>
 <attribute name="RS" value=" 679-0071" constant="no"/>
 </technology>
 </technologies>
@@ -433,6 +441,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0805-FX2700GLF" constant="no"/>
 <attribute name="RS" value="740-9019" constant="no"/>
 </technology>
 </technologies>
@@ -476,6 +485,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="279-CRG0603F470R" constant="no"/>
 <attribute name="RS" value="213-2222" constant="no"/>
 </technology>
 </technologies>
@@ -487,6 +497,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0805-FX4700GLF" constant="no"/>
 <attribute name="RS" value="740-9038" constant="no"/>
 </technology>
 </technologies>
@@ -505,6 +516,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603-JW-472GLF" constant="no"/>
 <attribute name="RS" value="740-8959" constant="no"/>
 </technology>
 </technologies>
@@ -516,6 +528,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="279-CRG0805F4K7" constant="no"/>
 <attribute name="RS" value="223-0528" constant="no"/>
 </technology>
 </technologies>
@@ -581,6 +594,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="667-ERA-3AEB3091V" constant="no"/>
 <attribute name="RS" value="708-7574" constant="no"/>
 </technology>
 </technologies>
@@ -617,6 +631,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0805FX-1502ELF" constant="no"/>
 <attribute name="RS" value="740-8997" constant="no"/>
 <attribute name="VALUE" value="15k 1%" constant="no"/>
 </technology>
@@ -629,6 +644,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603-JW-153GLF" constant="no"/>
 <attribute name="RS" value="740-8912" constant="no"/>
 <attribute name="VALUE" value="15k 1%" constant="no"/>
 </technology>
@@ -648,6 +664,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="279-CRG0603F22R" constant="no"/>
 <attribute name="RS" value="213-2042" constant="no"/>
 <attribute name="VALUE" value="22 ohms" constant="no"/>
 </technology>
@@ -686,6 +703,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603-JW-682GLF" constant="no"/>
 <attribute name="RS" value="740-8969" constant="no"/>
 <attribute name="VALUE" value="6k8" constant="no"/>
 </technology>
@@ -698,6 +716,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0805-6.8K-E3" constant="no"/>
 <attribute name="RS" value="679-1651" constant="no"/>
 <attribute name="VALUE" value="6k8" constant="no"/>
 </technology>
@@ -717,6 +736,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603-JW-101GLF" constant="no"/>
 <attribute name="RS" value="740-8886" constant="no"/>
 <attribute name="VALUE" value="100-F" constant="no"/>
 </technology>
@@ -729,6 +749,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="" constant="no"/>
 <attribute name="RS" value="223-0297" constant="no"/>
 <attribute name="VALUE" value="100-E" constant="no"/>
 </technology>

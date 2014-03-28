@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="1.27" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -316,6 +316,7 @@ Texas Instruments and Fairchild Semiconductor
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-SDR0403-2R2ML" constant="no"/>
 <attribute name="RS" value=" 727-1599" constant="no"/>
 </technology>
 </technologies>
@@ -334,6 +335,7 @@ Texas Instruments and Fairchild Semiconductor
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-SDR0805-270KL" constant="no"/>
 <attribute name="RS" value=" 736-1282" constant="no"/>
 </technology>
 </technologies>
@@ -352,6 +354,7 @@ Texas Instruments and Fairchild Semiconductor
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-SRR1280-330M" constant="no"/>
 <attribute name="RS" value="727-2274" constant="no"/>
 <attribute name="VALUE" value="33µH" constant="no"/>
 </technology>
@@ -371,6 +374,7 @@ Texas Instruments and Fairchild Semiconductor
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-BLM18BB221SN1D" constant="no"/>
 <attribute name="RS" value="724-1302" constant="no"/>
 <attribute name="VALUE" value="220 ohms" constant="no"/>
 </technology>
@@ -390,6 +394,7 @@ Texas Instruments and Fairchild Semiconductor
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-SRR7032-100M" constant="no"/>
 <attribute name="RS" value="727-2101" constant="no"/>
 <attribute name="VALUE" value="10µH" constant="no"/>
 </technology>
@@ -421,6 +426,7 @@ Texas Instruments and Fairchild Semiconductor
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-SRR1280-150M" constant="no"/>
 <attribute name="RS" value=" 693-4643" constant="no"/>
 <attribute name="VALUE" value="15µH 5.2A" constant="no"/>
 </technology>

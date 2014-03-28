@@ -835,6 +835,7 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="844-50WQ03FNPBF" constant="no"/>
 <attribute name="RS" value="302-167" constant="no"/>
 <attribute name="VALUE" value="50WQ03" constant="no"/>
 </technology>
@@ -854,6 +855,7 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171GKT" constant="no"/>
 <attribute name="RS" value=" 692-0935 " constant="no"/>
 <attribute name="VALUE" value="GREEN"/>
 </technology>
@@ -866,6 +868,7 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C170YKT" constant="no"/>
 <attribute name="RS" value="692-0925" constant="no"/>
 <attribute name="VALUE" value="YELLOW" constant="no"/>
 </technology>
@@ -878,6 +881,7 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171EKT" constant="no"/>
 <attribute name="RS" value=" 692-0931" constant="no"/>
 <attribute name="VALUE" value="RED" constant="no"/>
 </technology>
@@ -890,6 +894,7 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171TBKT" constant="no"/>
 <attribute name="RS" value="692-0953" constant="no"/>
 <attribute name="VALUE" value="BLUE" constant="no"/>
 </technology>
@@ -917,6 +922,7 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 <technology name="">
 <attribute name="FARNELL" value="1863245" constant="no"/>
 <attribute name="MANUFACTURER" value="AVAGO TECHNOLOGIES" constant="no"/>
+<attribute name="MOUSER" value="630-ASMT-YTD2-0BB02" constant="no"/>
 <attribute name="RS" value="769-3520 " constant="no"/>
 <attribute name="VALUE" value="ASMT-YTD2-0BB02" constant="no"/>
 </technology>
@@ -936,6 +942,7 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="621-B160-F" constant="no"/>
 <attribute name="RS" value="738-4765" constant="no"/>
 <attribute name="VALUE" value="B160-13F" constant="no"/>
 </technology>
@@ -957,6 +964,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="863-MBRA340T3G" constant="no"/>
 <attribute name="RS" value="688-0502" constant="no"/>
 <attribute name="VALUE" value="MBRA340T3" constant="no"/>
 </technology>
@@ -978,6 +986,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="4">
+<attribute name="MOUSER" value="863-MRA4004T3G" constant="no"/>
 <attribute name="RS" value=" 545-2456" constant="no"/>
 <attribute name="VALUE" value="MRA4004T3G" constant="no"/>
 </technology>
@@ -1020,6 +1029,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="720-SFH4250-Z" constant="no"/>
 <attribute name="RS" value="497-5425" constant="no"/>
 <attribute name="VALUE" value="SFH4250Z" constant="no"/>
 </technology>
@@ -1039,6 +1049,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="720-SFH4253-Z " constant="no"/>
 <attribute name="RS" value="665-5495" constant="no"/>
 <attribute name="VALUE" value="SFH 4253" constant="no"/>
 </technology>
@@ -1058,6 +1069,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="621-B120-F" constant="no"/>
 <attribute name="RS" value=" 751-3174" constant="no"/>
 <attribute name="VALUE" value="B120-13-F" constant="no"/>
 </technology>
