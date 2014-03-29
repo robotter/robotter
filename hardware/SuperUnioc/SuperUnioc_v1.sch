@@ -841,28 +841,28 @@ DDEController.pdf</description>
 <wire x1="7.96" y1="-0.33" x2="8.54" y2="-0.33" width="0.2032" layer="21"/>
 <wire x1="8.54" y1="-2.4" x2="8.54" y2="-0.33" width="0.2032" layer="21"/>
 <wire x1="8.54" y1="1" x2="8.54" y2="2.4" width="0.2032" layer="21"/>
-<wire x1="7.96" y1="2" x2="7.86" y2="2" width="0.2032" layer="21"/>
-<wire x1="-6.96" y1="2" x2="-7.96" y2="2" width="0.2032" layer="21"/>
-<wire x1="8.54" y1="2.4" x2="7.86" y2="2.4" width="0.2032" layer="21"/>
-<wire x1="-6.96" y1="2.4" x2="-8.54" y2="2.4" width="0.2032" layer="21"/>
-<wire x1="8.54" y1="-2.4" x2="6.96" y2="-2.4" width="0.2032" layer="21"/>
-<wire x1="-7.86" y1="-2.4" x2="-8.54" y2="-2.4" width="0.2032" layer="21"/>
+<wire x1="7.96" y1="2" x2="6.96" y2="2" width="0.2032" layer="21"/>
+<wire x1="-7.86" y1="2" x2="-7.96" y2="2" width="0.2032" layer="21"/>
+<wire x1="8.54" y1="2.4" x2="6.96" y2="2.4" width="0.2032" layer="21"/>
+<wire x1="-7.86" y1="2.4" x2="-8.54" y2="2.4" width="0.2032" layer="21"/>
+<wire x1="8.54" y1="-2.4" x2="7.86" y2="-2.4" width="0.2032" layer="21"/>
+<wire x1="-6.96" y1="-2.4" x2="-8.54" y2="-2.4" width="0.2032" layer="21"/>
 <wire x1="7.96" y1="-2" x2="7.96" y2="-0.33" width="0.2032" layer="21"/>
 <wire x1="7.96" y1="1" x2="7.96" y2="2" width="0.2032" layer="21"/>
-<wire x1="7.96" y1="-2" x2="6.96" y2="-2" width="0.2032" layer="21"/>
-<wire x1="-7.86" y1="-2" x2="-7.96" y2="-2" width="0.2032" layer="21"/>
-<smd name="1" x="6.985" y="2.794" dx="1.5" dy="4.5" layer="1"/>
-<smd name="3" x="4.445" y="2.794" dx="1.5" dy="4.5" layer="1"/>
-<smd name="5" x="1.905" y="2.794" dx="1.5" dy="4.5" layer="1"/>
-<smd name="7" x="-0.635" y="2.794" dx="1.5" dy="4.5" layer="1"/>
-<smd name="9" x="-3.175" y="2.794" dx="1.5" dy="4.5" layer="1"/>
-<smd name="11" x="-5.715" y="2.794" dx="1.5" dy="4.5" layer="1"/>
-<smd name="2" x="5.715" y="-2.794" dx="1.5" dy="4.5" layer="1"/>
-<smd name="4" x="3.175" y="-2.794" dx="1.5" dy="4.5" layer="1"/>
-<smd name="6" x="0.635" y="-2.794" dx="1.5" dy="4.5" layer="1"/>
-<smd name="8" x="-1.905" y="-2.794" dx="1.5" dy="4.5" layer="1"/>
-<smd name="10" x="-4.445" y="-2.794" dx="1.5" dy="4.5" layer="1"/>
-<smd name="12" x="-6.985" y="-2.794" dx="1.5" dy="4.5" layer="1"/>
+<wire x1="7.96" y1="-2" x2="7.86" y2="-2" width="0.2032" layer="21"/>
+<wire x1="-6.96" y1="-2" x2="-7.96" y2="-2" width="0.2032" layer="21"/>
+<smd name="2" x="5.715" y="2.794" dx="1.5" dy="4.5" layer="1"/>
+<smd name="4" x="3.175" y="2.794" dx="1.5" dy="4.5" layer="1"/>
+<smd name="6" x="0.635" y="2.794" dx="1.5" dy="4.5" layer="1"/>
+<smd name="8" x="-1.905" y="2.794" dx="1.5" dy="4.5" layer="1"/>
+<smd name="10" x="-4.445" y="2.794" dx="1.5" dy="4.5" layer="1"/>
+<smd name="12" x="-6.985" y="2.794" dx="1.5" dy="4.5" layer="1"/>
+<smd name="1" x="6.985" y="-2.794" dx="1.5" dy="4.5" layer="1"/>
+<smd name="3" x="4.445" y="-2.794" dx="1.5" dy="4.5" layer="1"/>
+<smd name="5" x="1.905" y="-2.794" dx="1.5" dy="4.5" layer="1"/>
+<smd name="7" x="-0.635" y="-2.794" dx="1.5" dy="4.5" layer="1"/>
+<smd name="9" x="-3.175" y="-2.794" dx="1.5" dy="4.5" layer="1"/>
+<smd name="11" x="-5.715" y="-2.794" dx="1.5" dy="4.5" layer="1"/>
 <text x="-7.62" y="5.08" size="1.27" layer="25">&gt;NAME</text>
 <text x="-6.985" y="-6.35" size="1.27" layer="27">&gt;VALUE</text>
 </package>
@@ -873,15 +873,15 @@ DDEController.pdf</description>
 <wire x1="0" y1="0" x2="1.27" y2="0" width="0.6096" layer="94"/>
 <text x="-0.508" y="0.889" size="1.778" layer="95" rot="R180">&gt;NAME</text>
 <text x="0" y="0.889" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="S" x="5.08" y="0" visible="off" length="short" direction="pas" rot="R180"/>
+<pin name="S" x="5.08" y="0" visible="off" length="short" direction="pas" swaplevel="1" rot="R180"/>
 </symbol>
 <symbol name="M">
 <wire x1="1.27" y1="0" x2="2.54" y2="0" width="0.1524" layer="94"/>
 <wire x1="0" y1="0" x2="1.27" y2="0" width="0.6096" layer="94"/>
 <text x="-0.508" y="0.889" size="1.778" layer="95" rot="R180">&gt;NAME</text>
-<pin name="S" x="5.08" y="0" visible="off" length="short" direction="pas" rot="R180"/>
+<pin name="S" x="5.08" y="0" visible="off" length="short" direction="pas" swaplevel="1" rot="R180"/>
 </symbol>
-<symbol name="06P">
+<symbol name="PDI_ATMEL">
 <wire x1="8.89" y1="-5.08" x2="-8.89" y2="-5.08" width="0.4064" layer="94"/>
 <wire x1="-8.89" y1="5.08" x2="-8.89" y2="-5.08" width="0.4064" layer="94"/>
 <wire x1="8.89" y1="-5.08" x2="8.89" y2="5.08" width="0.4064" layer="94"/>
@@ -925,7 +925,7 @@ DDEController.pdf</description>
 <description>Ref Harting : 09 18 506 7323
 Atmel pdi connector</description>
 <gates>
-<gate name="1" symbol="06P" x="0" y="0"/>
+<gate name="1" symbol="PDI_ATMEL" x="0" y="0"/>
 </gates>
 <devices>
 <device name="" package="ML6">
@@ -939,6 +939,7 @@ Atmel pdi connector</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="617-09185066323" constant="no"/>
 <attribute name="RS" value="" constant="no"/>
 </technology>
 </technologies>
@@ -954,6 +955,7 @@ Atmel pdi connector</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="617-09-18-506-7323 " constant="no"/>
 <attribute name="RS" value="693-5242 " constant="no"/>
 </technology>
 </technologies>
@@ -987,6 +989,7 @@ Atmel pdi connector</description>
 <technologies>
 <technology name="">
 <attribute name="FARNELL" value="1109794" constant="no"/>
+<attribute name="MOUSER" value="855-M22-7140842" constant="no"/>
 <attribute name="RS" value="605-8847" constant="no"/>
 <attribute name="VALUE" value="" constant="no"/>
 </technology>
@@ -1020,6 +1023,8 @@ Atmel pdi connector</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="FARNELL" value="1865096" constant="no"/>
+<attribute name="MOUSER" value="571-7-188275-8 " constant="no"/>
 <attribute name="RS" value="739-1227 " constant="no"/>
 </technology>
 </technologies>
@@ -1070,6 +1075,7 @@ DDEController.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="571-8-188275-6" constant="no"/>
 <attribute name="RS" value="739-1237 " constant="no"/>
 </technology>
 </technologies>
@@ -1110,6 +1116,7 @@ DDEController.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="571-8-188275-2" constant="no"/>
 <attribute name="RS" value="739-1230 " constant="no"/>
 </technology>
 </technologies>
@@ -1727,6 +1734,7 @@ DDEController.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" constant="no"/>
 <attribute name="RS" value=" 723-5534 " constant="no"/>
 <attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
@@ -1739,6 +1747,7 @@ DDEController.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GRM40Y104Z50D" constant="no"/>
 <attribute name="RS" value="220-7966 " constant="no"/>
 <attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
@@ -1758,6 +1767,7 @@ DDEController.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="581-06031A150K4T2A " constant="no"/>
 <attribute name="RS" value=" 147-421 " constant="no"/>
 <attribute name="VALUE" value="15pF_0603_100V" constant="no"/>
 </technology>
@@ -1770,6 +1780,7 @@ DDEController.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="" constant="no"/>
 <attribute name="VALUE" value="15pF_0603_100V" constant="no"/>
 </technology>
 </technologies>
@@ -1788,6 +1799,7 @@ DDEController.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="810-C3216X7R1E105K-6" constant="no"/>
 <attribute name="RS" value=" 740-7574 " constant="no"/>
 <attribute name="VALUE" value="1µF 25V" constant="no"/>
 </technology>
@@ -1807,6 +1819,7 @@ DDEController.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="963-GMK325BJ106MN-T" constant="no"/>
 <attribute name="RS" value="758-3325 " constant="no"/>
 <attribute name="VALUE" value="10µF 35V" constant="no"/>
 </technology>
@@ -1819,6 +1832,7 @@ DDEController.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" constant="no"/>
 <attribute name="RS" value="766-1185 " constant="no"/>
 <attribute name="VALUE" value="10µF 25V" constant="no"/>
 </technology>
@@ -2044,7 +2058,9 @@ Source: http://www.maxim-ic.com/package_drawings/21-0041B.pdf</description>
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="VALUE" value="25 MHz" constant="no"/>
+</technology>
 </technologies>
 </device>
 <device name="16MHZ_HC49UP" package="HC49UP">
@@ -2054,7 +2070,9 @@ Source: http://www.maxim-ic.com/package_drawings/21-0041B.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="559-FOXSD160-20-LF" constant="no"/>
 <attribute name="RS" value=" 547-6531" constant="no"/>
+<attribute name="VALUE" value="16 MHz" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -2090,9 +2108,11 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 </connects>
 <technologies>
 <technology name="C">
+<attribute name="MOUSER" value="511-ST3232CDR" constant="no"/>
 <attribute name="RS" value="415-2105 " constant="no"/>
 </technology>
 <technology name="E">
+<attribute name="MOUSER" value="511-ST3232CDR" constant="no"/>
 <attribute name="RS" value="415-2105 " constant="no"/>
 </technology>
 </technologies>
@@ -2124,7 +2144,10 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 <connect gate="G$1" pin="VX" pad="8"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="FARNELL" value="2377130" constant="no"/>
+<attribute name="MOUSER" value="584-ADXRS453BRGZ" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -2141,7 +2164,8 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="RS" value="761-4283 " constant="no"/>
+<attribute name="MOUSER" value="863-MMSD4148T1G " constant="no"/>
+<attribute name="RS" value="464-198" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -2209,6 +2233,7 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" constant="no"/>
 <attribute name="RS" value="740-8899" constant="no"/>
 </technology>
 </technologies>
@@ -2220,6 +2245,7 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW080510K0FKEB" constant="no"/>
 <attribute name="RS" value=" 740-9072" constant="no"/>
 </technology>
 </technologies>
@@ -2238,6 +2264,7 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" constant="no"/>
 <attribute name="RS" value=" 679-0071" constant="no"/>
 </technology>
 </technologies>
@@ -2249,6 +2276,7 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0805-FX2700GLF" constant="no"/>
 <attribute name="RS" value="740-9019" constant="no"/>
 </technology>
 </technologies>
@@ -2292,6 +2320,7 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="279-CRG0603F470R" constant="no"/>
 <attribute name="RS" value="213-2222" constant="no"/>
 </technology>
 </technologies>
@@ -2303,6 +2332,7 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0805-FX4700GLF" constant="no"/>
 <attribute name="RS" value="740-9038" constant="no"/>
 </technology>
 </technologies>
@@ -2370,6 +2400,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171GKT" constant="no"/>
 <attribute name="RS" value=" 692-0935 " constant="no"/>
 <attribute name="VALUE" value="GREEN"/>
 </technology>
@@ -2382,6 +2413,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C170YKT" constant="no"/>
 <attribute name="RS" value="692-0925" constant="no"/>
 <attribute name="VALUE" value="YELLOW" constant="no"/>
 </technology>
@@ -2394,6 +2426,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171EKT" constant="no"/>
 <attribute name="RS" value=" 692-0931" constant="no"/>
 <attribute name="VALUE" value="RED" constant="no"/>
 </technology>
@@ -2406,6 +2439,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171TBKT" constant="no"/>
 <attribute name="RS" value="692-0953" constant="no"/>
 <attribute name="VALUE" value="BLUE" constant="no"/>
 </technology>
@@ -2482,6 +2516,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-BLM18BB221SN1D" constant="no"/>
 <attribute name="RS" value="724-1302" constant="no"/>
 <attribute name="VALUE" value="220 ohms" constant="no"/>
 </technology>
