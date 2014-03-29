@@ -875,6 +875,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="963-GMK325BJ106MN-T" constant="no"/>
 <attribute name="RS" value="758-3325 " constant="no"/>
 <attribute name="VALUE" value="10µF 35V" constant="no"/>
 </technology>
@@ -887,6 +888,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" constant="no"/>
 <attribute name="RS" value="766-1185 " constant="no"/>
 <attribute name="VALUE" value="10µF 25V" constant="no"/>
 </technology>
@@ -906,6 +908,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" constant="no"/>
 <attribute name="RS" value=" 723-5534 " constant="no"/>
 <attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
@@ -918,6 +921,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GRM40Y104Z50D" constant="no"/>
 <attribute name="RS" value="220-7966 " constant="no"/>
 <attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
@@ -937,6 +941,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="810-C3216X7R1E105K-6" constant="no"/>
 <attribute name="RS" value=" 740-7574 " constant="no"/>
 <attribute name="VALUE" value="1µF 25V" constant="no"/>
 </technology>
@@ -956,6 +961,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GCM188R71H103KA7D" constant="no"/>
 <attribute name="RS" value="723-4982" constant="no"/>
 <attribute name="VALUE" value="10nF 50V" constant="no"/>
 </technology>
@@ -987,6 +993,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="581-06031A150K4T2A " constant="no"/>
 <attribute name="RS" value=" 147-421 " constant="no"/>
 <attribute name="VALUE" value="15pF_0603_100V" constant="no"/>
 </technology>
@@ -999,6 +1006,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="" constant="no"/>
 <attribute name="VALUE" value="15pF_0603_100V" constant="no"/>
 </technology>
 </technologies>
@@ -1018,6 +1026,7 @@ DIN A4, landscape with location and doc. field</description>
 <technologies>
 <technology name="">
 <attribute name="MANUFACTURER" value="EEEFK1V331P" constant="no"/>
+<attribute name="MOUSER" value="667-EEE-FK1V331P" constant="no"/>
 <attribute name="RS" value="708-3475" constant="no"/>
 <attribute name="VALUE" value="330µF 35V" constant="no"/>
 </technology>
@@ -1037,6 +1046,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="77-VJ0603A181GXACBC" constant="no"/>
 <attribute name="RS" value="147-213" constant="no"/>
 <attribute name="VALUE" value="180pF 50V" constant="no"/>
 </technology>
@@ -1270,6 +1280,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171GKT" constant="no"/>
 <attribute name="RS" value=" 692-0935 " constant="no"/>
 <attribute name="VALUE" value="GREEN"/>
 </technology>
@@ -1282,6 +1293,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C170YKT" constant="no"/>
 <attribute name="RS" value="692-0925" constant="no"/>
 <attribute name="VALUE" value="YELLOW" constant="no"/>
 </technology>
@@ -1294,6 +1306,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171EKT" constant="no"/>
 <attribute name="RS" value=" 692-0931" constant="no"/>
 <attribute name="VALUE" value="RED" constant="no"/>
 </technology>
@@ -1306,6 +1319,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171TBKT" constant="no"/>
 <attribute name="RS" value="692-0953" constant="no"/>
 <attribute name="VALUE" value="BLUE" constant="no"/>
 </technology>
@@ -1326,6 +1340,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="844-50WQ03FNPBF" constant="no"/>
 <attribute name="RS" value="302-167" constant="no"/>
 <attribute name="VALUE" value="50WQ03" constant="no"/>
 </technology>
@@ -1345,6 +1360,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="621-B160-F" constant="no"/>
 <attribute name="RS" value="738-4765" constant="no"/>
 <attribute name="VALUE" value="B160-13F" constant="no"/>
 </technology>
@@ -1366,6 +1382,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="4">
+<attribute name="MOUSER" value="863-MRA4004T3G" constant="no"/>
 <attribute name="RS" value=" 545-2456" constant="no"/>
 <attribute name="VALUE" value="MRA4004T3G" constant="no"/>
 </technology>
@@ -1386,6 +1403,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="771-BZV55-C3V3T/R " constant="no"/>
 <attribute name="RS" value="748-5029" constant="no"/>
 <attribute name="VALUE" value="bzv55-c3v3" constant="no"/>
 </technology>
@@ -1405,6 +1423,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="621-B120-F" constant="no"/>
 <attribute name="RS" value=" 751-3174" constant="no"/>
 <attribute name="VALUE" value="B120-13-F" constant="no"/>
 </technology>
@@ -1490,6 +1509,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603-JW-101GLF" constant="no"/>
 <attribute name="RS" value="740-8886" constant="no"/>
 <attribute name="VALUE" value="100-F" constant="no"/>
 </technology>
@@ -1502,6 +1522,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="603-AF0805FR-07100RL" constant="no"/>
 <attribute name="RS" value="223-0297" constant="no"/>
 <attribute name="VALUE" value="100-E" constant="no"/>
 </technology>
@@ -1521,6 +1542,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" constant="no"/>
 <attribute name="RS" value=" 679-0071" constant="no"/>
 </technology>
 </technologies>
@@ -1532,6 +1554,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0805-FX2700GLF" constant="no"/>
 <attribute name="RS" value="740-9019" constant="no"/>
 </technology>
 </technologies>
@@ -1550,6 +1573,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" constant="no"/>
 <attribute name="RS" value="740-8899" constant="no"/>
 </technology>
 </technologies>
@@ -1561,6 +1585,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW080510K0FKEB" constant="no"/>
 <attribute name="RS" value=" 740-9072" constant="no"/>
 </technology>
 </technologies>
@@ -1579,6 +1604,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603-1.0K-E3" constant="no"/>
 <attribute name="RS" value="213-2266" constant="no"/>
 <attribute name="VALUE" value="1k" constant="no"/>
 </technology>
@@ -1591,6 +1617,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0805-1.0K-E3" constant="no"/>
 <attribute name="RS" value=" 223-0427" constant="no"/>
 <attribute name="VALUE" value="1k" constant="no"/>
 </technology>
@@ -1603,6 +1630,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="279-35201K0JT" constant="no"/>
 <attribute name="RS" value="224-0395" constant="no"/>
 <attribute name="VALUE" value="1k 1W" constant="no"/>
 </technology>
@@ -1622,6 +1650,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="603-RL0603FR070R27L" constant="no"/>
 <attribute name="RS" value="722-1046" constant="no"/>
 </technology>
 </technologies>
@@ -1640,6 +1669,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="660-RK73H1JTTD7502F" constant="no"/>
 <attribute name="RS" value="679-0695" constant="no"/>
 </technology>
 </technologies>
@@ -1669,6 +1699,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="667-ERA-3AEB3091V" constant="no"/>
 <attribute name="RS" value="708-7574" constant="no"/>
 </technology>
 </technologies>
@@ -1687,6 +1718,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0805FX-1502ELF" constant="no"/>
 <attribute name="RS" value="740-8997" constant="no"/>
 <attribute name="VALUE" value="15k 1%" constant="no"/>
 </technology>
@@ -1699,6 +1731,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603-JW-153GLF" constant="no"/>
 <attribute name="RS" value="740-8912" constant="no"/>
 <attribute name="VALUE" value="15k 1%" constant="no"/>
 </technology>
@@ -1718,6 +1751,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603-8.2K-E3" constant="no"/>
 <attribute name="RS" value="679-0759" constant="no"/>
 </technology>
 </technologies>
@@ -1729,6 +1763,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW08058K20FKEB" constant="no"/>
 <attribute name="RS" value=" 679-1727" constant="no"/>
 </technology>
 </technologies>
@@ -1772,6 +1807,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603-113K-E3" constant="no"/>
 <attribute name="RS" value="708-9035" constant="no"/>
 <attribute name="VALUE" value="113k 0.1%" constant="no"/>
 </technology>
@@ -1791,6 +1827,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0805-FX1002GLF" constant="no"/>
 <attribute name="RS" value="740-8975" constant="no"/>
 </technology>
 </technologies>
@@ -1802,6 +1839,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603FX-1002ELF" constant="no"/>
 <attribute name="RS" value="740-8805" constant="no"/>
 </technology>
 </technologies>
@@ -2595,6 +2633,35 @@ Source: http://www.maxstream.net/products/xbee/datasheet_XBee_OEM_RF-Modules.pdf
 <text x="-24.765" y="10.414" size="1.27" layer="25" ratio="10">&gt;NAME</text>
 <text x="-24.765" y="-6.731" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
 </package>
+<package name="DPACK_3">
+<description>&lt;b&gt;DPAK&lt;/b&gt;&lt;p&gt;Style 3 (Motorola)</description>
+<wire x1="3.2766" y1="3.8354" x2="3.277" y2="-2.159" width="0.2032" layer="21"/>
+<wire x1="3.277" y1="-2.159" x2="-3.277" y2="-2.159" width="0.2032" layer="21"/>
+<wire x1="-3.277" y1="-2.159" x2="-3.2766" y2="3.8354" width="0.2032" layer="21"/>
+<wire x1="-3.277" y1="3.835" x2="3.2774" y2="3.8346" width="0.2032" layer="51"/>
+<wire x1="-2.5654" y1="3.937" x2="-2.5654" y2="4.6482" width="0.2032" layer="51"/>
+<wire x1="-2.5654" y1="4.6482" x2="-2.1082" y2="5.1054" width="0.2032" layer="51"/>
+<wire x1="-2.1082" y1="5.1054" x2="2.1082" y2="5.1054" width="0.2032" layer="51"/>
+<wire x1="2.1082" y1="5.1054" x2="2.5654" y2="4.6482" width="0.2032" layer="51"/>
+<wire x1="2.5654" y1="4.6482" x2="2.5654" y2="3.937" width="0.2032" layer="51"/>
+<wire x1="2.5654" y1="3.937" x2="-2.5654" y2="3.937" width="0.2032" layer="51"/>
+<smd name="4" x="0" y="2.5" dx="5.4" dy="6.2" layer="1"/>
+<smd name="1" x="-2.28" y="-4.8" dx="1" dy="1.6" layer="1"/>
+<smd name="3" x="2.28" y="-4.8" dx="1" dy="1.6" layer="1"/>
+<text x="-3.81" y="-2.54" size="1.27" layer="25" rot="R90">&gt;NAME</text>
+<text x="5.08" y="-2.54" size="1.27" layer="27" rot="R90">&gt;VALUE</text>
+<rectangle x1="-2.7178" y1="-5.1562" x2="-1.8542" y2="-2.2606" layer="51"/>
+<rectangle x1="1.8542" y1="-5.1562" x2="2.7178" y2="-2.2606" layer="51"/>
+<rectangle x1="-0.4318" y1="-3.0226" x2="0.4318" y2="-2.2606" layer="21"/>
+<polygon width="0.1998" layer="51">
+<vertex x="-2.5654" y="3.937"/>
+<vertex x="-2.5654" y="4.6482"/>
+<vertex x="-2.1082" y="5.1054"/>
+<vertex x="2.1082" y="5.1054"/>
+<vertex x="2.5654" y="4.6482"/>
+<vertex x="2.5654" y="3.937"/>
+</polygon>
+</package>
 </packages>
 <symbols>
 <symbol name="Q">
@@ -2867,6 +2934,18 @@ Source: http://www.maxstream.net/products/xbee/datasheet_XBee_OEM_RF-Modules.pdf
 <pin name="CSN" x="15.24" y="5.08" length="middle" rot="R180"/>
 <pin name="CE" x="-15.24" y="-5.08" length="middle"/>
 </symbol>
+<symbol name="78XX">
+<wire x1="-7.62" y1="-5.08" x2="7.62" y2="-5.08" width="0.4064" layer="94"/>
+<wire x1="7.62" y1="-5.08" x2="7.62" y2="2.54" width="0.4064" layer="94"/>
+<wire x1="7.62" y1="2.54" x2="-7.62" y2="2.54" width="0.4064" layer="94"/>
+<wire x1="-7.62" y1="2.54" x2="-7.62" y2="-5.08" width="0.4064" layer="94"/>
+<text x="-7.62" y="5.715" size="1.778" layer="95">&gt;NAME</text>
+<text x="-7.62" y="3.175" size="1.778" layer="96">&gt;VALUE</text>
+<text x="-2.032" y="-4.318" size="1.524" layer="95">GND</text>
+<pin name="VI" x="-10.16" y="0" length="short" direction="in"/>
+<pin name="GND" x="0" y="-7.62" visible="pad" length="short" direction="pas" rot="R90"/>
+<pin name="VO" x="10.16" y="0" length="short" direction="pas" rot="R180"/>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="CRYSTAL_" prefix="Q" uservalue="yes">
@@ -2893,6 +2972,7 @@ Source: http://www.maxstream.net/products/xbee/datasheet_XBee_OEM_RF-Modules.pdf
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="559-FOXSD160-20-LF" constant="no"/>
 <attribute name="RS" value=" 547-6531" constant="no"/>
 <attribute name="VALUE" value="16 MHz" constant="no"/>
 </technology>
@@ -2930,9 +3010,11 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 </connects>
 <technologies>
 <technology name="C">
+<attribute name="MOUSER" value="511-ST3232CDR" constant="no"/>
 <attribute name="RS" value="415-2105 " constant="no"/>
 </technology>
 <technology name="E">
+<attribute name="MOUSER" value="511-ST3232CDR" constant="no"/>
 <attribute name="RS" value="415-2105 " constant="no"/>
 </technology>
 </technologies>
@@ -3034,6 +3116,7 @@ http://www.ti.com/product/lm25011</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="926-LM25011MY/NOPB " constant="no"/>
 <attribute name="RS" value="761-4883" constant="no"/>
 <attribute name="VALUE" value="LM25011MY" constant="no"/>
 </technology>
@@ -3055,6 +3138,7 @@ http://www.ti.com/product/lm25011</description>
 </connects>
 <technologies>
 <technology name="MMBT2222ALT1">
+<attribute name="MOUSER" value="863-MMBT2222ALT1G" constant="no"/>
 <attribute name="RS" value="544-9400" constant="no"/>
 <attribute name="VALUE" value="mmbt2222" constant="no"/>
 </technology>
@@ -3078,6 +3162,7 @@ http://www.ti.com/product/lm25011</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="863-NTGS4111PT1G" constant="no"/>
 <attribute name="RS" value="780-0567" constant="no"/>
 <attribute name="VALUE" value="NTGS4111PT1G" constant="no"/>
 </technology>
@@ -3120,7 +3205,9 @@ http://www.ti.com/product/lm25011</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="771-74LVC4245APW-T" constant="no"/>
 <attribute name="RS" value="380-0500" constant="no"/>
+<attribute name="VALUE" value="74LVC4245APW" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -3141,6 +3228,7 @@ http://www.ti.com/product/lm25011</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="852-GP1S58VJ000F" constant="no"/>
 <attribute name="RS" value="667-5039" constant="no"/>
 <attribute name="VALUE" value="GP1S58VJ000F" constant="no"/>
 </technology>
@@ -3163,6 +3251,7 @@ http://www.ti.com/product/lm25011</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="926-LM2731XMF/NOPB" constant="no"/>
 <attribute name="RS" value="533-5418" constant="no"/>
 <attribute name="VALUE" value="LM2731XMF" constant="no"/>
 </technology>
@@ -3188,6 +3277,40 @@ http://www.ti.com/product/lm25011</description>
 </connects>
 <technologies>
 <technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="NCV78M" prefix="IC">
+<description>&lt;b&gt;500 mA Positive Voltage Regulators&lt;/b&gt;&lt;p&gt;
+Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;Data sheet&lt;/a&gt;</description>
+<gates>
+<gate name="G$1" symbol="78XX" x="0" y="2.54"/>
+</gates>
+<devices>
+<device name="" package="DPACK_3">
+<connects>
+<connect gate="G$1" pin="GND" pad="4"/>
+<connect gate="G$1" pin="VI" pad="1"/>
+<connect gate="G$1" pin="VO" pad="3"/>
+</connects>
+<technologies>
+<technology name="05BDTRKG">
+<attribute name="MOUSER" value="863-NCV78M05BDTRKG" constant="no"/>
+<attribute name="RS" value="785-7443" constant="no"/>
+</technology>
+<technology name="08BDTRKG">
+<attribute name="MOUSER" value="" constant="no"/>
+<attribute name="RS" value="" constant="no"/>
+</technology>
+<technology name="12BDTRKG">
+<attribute name="MOUSER" value="" constant="no"/>
+<attribute name="RS" value="" constant="no"/>
+</technology>
+<technology name="15BDTG">
+<attribute name="MOUSER" value="" constant="no"/>
+<attribute name="RS" value="" constant="no"/>
+</technology>
 </technologies>
 </device>
 </devices>
@@ -3693,221 +3816,6 @@ Source: ENG_CD_794681_E.pdf</description>
 <hole x="3.63" y="0" drill="2.4"/>
 <hole x="-3.67" y="0" drill="2.4"/>
 </package>
-</packages>
-<symbols>
-<symbol name="PDI_ATMEL">
-<wire x1="8.89" y1="-5.08" x2="-8.89" y2="-5.08" width="0.4064" layer="94"/>
-<wire x1="-8.89" y1="5.08" x2="-8.89" y2="-5.08" width="0.4064" layer="94"/>
-<wire x1="8.89" y1="-5.08" x2="8.89" y2="5.08" width="0.4064" layer="94"/>
-<wire x1="-8.89" y1="5.08" x2="8.89" y2="5.08" width="0.4064" layer="94"/>
-<text x="-3.81" y="-7.62" size="1.778" layer="96">&gt;VALUE</text>
-<text x="-3.81" y="5.842" size="1.778" layer="95">&gt;NAME</text>
-<pin name="CLK" x="-12.7" y="-2.54" length="middle" direction="pas" swaplevel="1"/>
-<pin name="VCC" x="12.7" y="2.54" length="middle" direction="pas" swaplevel="1" rot="R180"/>
-<pin name="NC." x="12.7" y="0" length="middle" direction="pas" swaplevel="1" rot="R180"/>
-<pin name="NC" x="-12.7" y="0" length="middle" direction="pas" swaplevel="1"/>
-<pin name="GND" x="12.7" y="-2.54" length="middle" direction="pas" swaplevel="1" rot="R180"/>
-<pin name="DATA" x="-12.7" y="2.54" length="middle" direction="pas" swaplevel="1"/>
-</symbol>
-<symbol name="P8-2">
-<wire x1="3.81" y1="-1.27" x2="-4.445" y2="-1.27" width="0.254" layer="94"/>
-<wire x1="-4.445" y1="8.89" x2="-4.445" y2="-1.27" width="0.254" layer="94"/>
-<wire x1="-4.445" y1="8.89" x2="3.81" y2="8.89" width="0.254" layer="94"/>
-<wire x1="3.81" y1="-1.27" x2="3.81" y2="8.89" width="0.254" layer="94"/>
-<circle x="-2.54" y="0" radius="0.635" width="0.254" layer="94"/>
-<circle x="-2.54" y="2.54" radius="0.635" width="0.254" layer="94"/>
-<circle x="2.54" y="0" radius="0.635" width="0.254" layer="94"/>
-<circle x="2.54" y="2.54" radius="0.635" width="0.254" layer="94"/>
-<text x="-5.08" y="-3.81" size="1.778" layer="95">&gt;NAME</text>
-<text x="-5.08" y="10.16" size="1.778" layer="96">&gt;VALUE</text>
-<text x="-1.524" y="-0.508" size="1.27" layer="95">1</text>
-<text x="-1.524" y="1.778" size="1.27" layer="95">2</text>
-<pin name="1" x="-5.08" y="0" visible="off" length="short" direction="pas"/>
-<pin name="5" x="5.08" y="0" visible="off" length="short" direction="pas" rot="R180"/>
-<pin name="2" x="-5.08" y="2.54" visible="off" length="short" direction="pas"/>
-<pin name="6" x="5.08" y="2.54" visible="off" length="short" direction="pas" rot="R180"/>
-<pin name="3" x="-5.08" y="5.08" visible="off" length="short" direction="pas"/>
-<pin name="4" x="-5.08" y="7.62" visible="off" length="short" direction="pas"/>
-<pin name="8" x="5.08" y="7.62" visible="off" length="short" direction="pas" rot="R180"/>
-<pin name="7" x="5.08" y="5.08" visible="off" length="short" direction="pas" rot="R180"/>
-<text x="1.016" y="-0.508" size="1.27" layer="95">5</text>
-<text x="1.016" y="1.778" size="1.27" layer="95">6</text>
-<circle x="-2.54" y="5.08" radius="0.635" width="0.254" layer="94"/>
-<circle x="-2.54" y="7.62" radius="0.635" width="0.254" layer="94"/>
-<circle x="2.54" y="5.08" radius="0.635" width="0.254" layer="94"/>
-<circle x="2.54" y="7.62" radius="0.635" width="0.254" layer="94"/>
-<text x="-1.524" y="4.572" size="1.27" layer="95">3</text>
-<text x="-1.524" y="6.858" size="1.27" layer="95">4</text>
-<text x="1.016" y="4.572" size="1.27" layer="95">7</text>
-<text x="1.016" y="6.858" size="1.27" layer="95">8</text>
-</symbol>
-<symbol name="P2">
-<wire x1="1.27" y1="-1.27" x2="-1.905" y2="-1.27" width="0.254" layer="94"/>
-<wire x1="-1.905" y1="3.81" x2="-1.905" y2="-1.27" width="0.254" layer="94"/>
-<wire x1="-1.905" y1="3.81" x2="1.27" y2="3.81" width="0.254" layer="94"/>
-<wire x1="1.27" y1="-1.27" x2="1.27" y2="3.81" width="0.254" layer="94"/>
-<circle x="0" y="0" radius="0.635" width="0.254" layer="94"/>
-<circle x="0" y="2.54" radius="0.635" width="0.254" layer="94"/>
-<text x="-2.54" y="-3.81" size="1.778" layer="95">&gt;NAME</text>
-<text x="-2.54" y="5.08" size="1.778" layer="96">&gt;VALUE</text>
-<text x="1.778" y="-0.508" size="1.27" layer="95">1</text>
-<pin name="1" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
-<pin name="2" x="-2.54" y="2.54" visible="off" length="short" direction="pas"/>
-</symbol>
-<symbol name="P4-2">
-<wire x1="3.81" y1="-1.27" x2="-4.445" y2="-1.27" width="0.254" layer="94"/>
-<wire x1="-4.445" y1="3.81" x2="-4.445" y2="-1.27" width="0.254" layer="94"/>
-<wire x1="-4.445" y1="3.81" x2="3.81" y2="3.81" width="0.254" layer="94"/>
-<wire x1="3.81" y1="-1.27" x2="3.81" y2="3.81" width="0.254" layer="94"/>
-<circle x="-2.54" y="0" radius="0.635" width="0.254" layer="94"/>
-<circle x="-2.54" y="2.54" radius="0.635" width="0.254" layer="94"/>
-<circle x="2.54" y="0" radius="0.635" width="0.254" layer="94"/>
-<circle x="2.54" y="2.54" radius="0.635" width="0.254" layer="94"/>
-<text x="-5.08" y="-3.81" size="1.778" layer="95">&gt;NAME</text>
-<text x="-5.08" y="5.08" size="1.778" layer="96">&gt;VALUE</text>
-<text x="-1.524" y="-0.508" size="1.27" layer="95">1</text>
-<text x="1.524" y="0.762" size="1.27" layer="95" rot="R180">2</text>
-<pin name="1" x="-5.08" y="0" visible="off" length="short" direction="pas"/>
-<pin name="2" x="5.08" y="0" visible="off" length="short" direction="pas" rot="R180"/>
-<pin name="3" x="-5.08" y="2.54" visible="off" length="short" direction="pas"/>
-<pin name="4" x="5.08" y="2.54" visible="off" length="short" direction="pas" rot="R180"/>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="PDI_ATMEL" prefix="SV" uservalue="yes">
-<description>Ref Harting : 09 18 506 7323
-Atmel pdi connector</description>
-<gates>
-<gate name="1" symbol="PDI_ATMEL" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="ML6">
-<connects>
-<connect gate="1" pin="CLK" pad="5"/>
-<connect gate="1" pin="DATA" pad="1"/>
-<connect gate="1" pin="GND" pad="6"/>
-<connect gate="1" pin="NC" pad="3"/>
-<connect gate="1" pin="NC." pad="4"/>
-<connect gate="1" pin="VCC" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="RS" value="" constant="no"/>
-</technology>
-</technologies>
-</device>
-<device name="L" package="ML6L">
-<connects>
-<connect gate="1" pin="CLK" pad="5"/>
-<connect gate="1" pin="DATA" pad="1"/>
-<connect gate="1" pin="GND" pad="6"/>
-<connect gate="1" pin="NC" pad="3"/>
-<connect gate="1" pin="NC." pad="4"/>
-<connect gate="1" pin="VCC" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="RS" value="693-5242 " constant="no"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="794618-8" prefix="J">
-<gates>
-<gate name="G$1" symbol="P8-2" x="0" y="-2.54"/>
-</gates>
-<devices>
-<device name="" package="794618-8">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-<connect gate="G$1" pin="3" pad="3"/>
-<connect gate="G$1" pin="4" pad="4"/>
-<connect gate="G$1" pin="5" pad="5"/>
-<connect gate="G$1" pin="6" pad="6"/>
-<connect gate="G$1" pin="7" pad="7"/>
-<connect gate="G$1" pin="8" pad="8"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="RS" value="495-9451" constant="no"/>
-<attribute name="VALUE" value="794618-8" constant="no"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="1445055-2" prefix="J">
-<description>&lt;b&gt;Micro MATE-N-LOK Connectors&lt;/b&gt; grid 1.5 mm&lt;p&gt;
-Source: ENG_CD_1445055_A.pdf</description>
-<gates>
-<gate name="G$1" symbol="P2" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="1445055-2">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="RS" value=" 495-9580" constant="no"/>
-<attribute name="VALUE" value="1445055-2" constant="no"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="794618-4" prefix="J">
-<gates>
-<gate name="G$1" symbol="P4-2" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="794618-4">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-<connect gate="G$1" pin="3" pad="3"/>
-<connect gate="G$1" pin="4" pad="4"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="RS" value="495-9439 " constant="no"/>
-<attribute name="VALUE" value="794618-4" constant="no"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="794681-4" prefix="J">
-<description>&lt;b&gt;Micro MATE-N-LOK Connectors&lt;/b&gt; grid 1.5mm&lt;p&gt;
-Dual Row Through Hole Vertical Metal Through Hole Holddowns&lt;br&gt;
-Source: ENG_CD_794681_E.pdf</description>
-<gates>
-<gate name="G$1" symbol="P4-2" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="794681-4">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-<connect gate="G$1" pin="3" pad="3"/>
-<connect gate="G$1" pin="4" pad="4"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="RS" value="495-9344" constant="no"/>
-<attribute name="VALUE" value="794630-4" constant="no"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
-<library name="con-molex">
-<packages>
 <package name="6410-02">
 <description>&lt;b&gt;MOLEX 2.54mm KK  CONNECTOR&lt;/b&gt;</description>
 <wire x1="-1.27" y1="2.54" x2="-1.27" y2="2.921" width="0.127" layer="21"/>
@@ -3994,25 +3902,238 @@ Source: ENG_CD_794681_E.pdf</description>
 </package>
 </packages>
 <symbols>
-<symbol name="MV">
+<symbol name="PDI_ATMEL">
+<wire x1="8.89" y1="-5.08" x2="-8.89" y2="-5.08" width="0.4064" layer="94"/>
+<wire x1="-8.89" y1="5.08" x2="-8.89" y2="-5.08" width="0.4064" layer="94"/>
+<wire x1="8.89" y1="-5.08" x2="8.89" y2="5.08" width="0.4064" layer="94"/>
+<wire x1="-8.89" y1="5.08" x2="8.89" y2="5.08" width="0.4064" layer="94"/>
+<text x="-3.81" y="-7.62" size="1.778" layer="96">&gt;VALUE</text>
+<text x="-3.81" y="5.842" size="1.778" layer="95">&gt;NAME</text>
+<pin name="CLK" x="-12.7" y="-2.54" length="middle" direction="pas" swaplevel="1"/>
+<pin name="VCC" x="12.7" y="2.54" length="middle" direction="pas" swaplevel="1" rot="R180"/>
+<pin name="NC." x="12.7" y="0" length="middle" direction="pas" swaplevel="1" rot="R180"/>
+<pin name="NC" x="-12.7" y="0" length="middle" direction="pas" swaplevel="1"/>
+<pin name="GND" x="12.7" y="-2.54" length="middle" direction="pas" swaplevel="1" rot="R180"/>
+<pin name="DATA" x="-12.7" y="2.54" length="middle" direction="pas" swaplevel="1"/>
+</symbol>
+<symbol name="P8-2">
+<wire x1="3.81" y1="-1.27" x2="-4.445" y2="-1.27" width="0.254" layer="94"/>
+<wire x1="-4.445" y1="8.89" x2="-4.445" y2="-1.27" width="0.254" layer="94"/>
+<wire x1="-4.445" y1="8.89" x2="3.81" y2="8.89" width="0.254" layer="94"/>
+<wire x1="3.81" y1="-1.27" x2="3.81" y2="8.89" width="0.254" layer="94"/>
+<circle x="-2.54" y="0" radius="0.635" width="0.254" layer="94"/>
+<circle x="-2.54" y="2.54" radius="0.635" width="0.254" layer="94"/>
+<circle x="2.54" y="0" radius="0.635" width="0.254" layer="94"/>
+<circle x="2.54" y="2.54" radius="0.635" width="0.254" layer="94"/>
+<text x="-5.08" y="-3.81" size="1.778" layer="95">&gt;NAME</text>
+<text x="-5.08" y="10.16" size="1.778" layer="96">&gt;VALUE</text>
+<text x="-1.524" y="-0.508" size="1.27" layer="95">1</text>
+<text x="-1.524" y="1.778" size="1.27" layer="95">2</text>
+<pin name="1" x="-5.08" y="0" visible="off" length="short" direction="pas"/>
+<pin name="5" x="5.08" y="0" visible="off" length="short" direction="pas" rot="R180"/>
+<pin name="2" x="-5.08" y="2.54" visible="off" length="short" direction="pas"/>
+<pin name="6" x="5.08" y="2.54" visible="off" length="short" direction="pas" rot="R180"/>
+<pin name="3" x="-5.08" y="5.08" visible="off" length="short" direction="pas"/>
+<pin name="4" x="-5.08" y="7.62" visible="off" length="short" direction="pas"/>
+<pin name="8" x="5.08" y="7.62" visible="off" length="short" direction="pas" rot="R180"/>
+<pin name="7" x="5.08" y="5.08" visible="off" length="short" direction="pas" rot="R180"/>
+<text x="1.016" y="-0.508" size="1.27" layer="95">5</text>
+<text x="1.016" y="1.778" size="1.27" layer="95">6</text>
+<circle x="-2.54" y="5.08" radius="0.635" width="0.254" layer="94"/>
+<circle x="-2.54" y="7.62" radius="0.635" width="0.254" layer="94"/>
+<circle x="2.54" y="5.08" radius="0.635" width="0.254" layer="94"/>
+<circle x="2.54" y="7.62" radius="0.635" width="0.254" layer="94"/>
+<text x="-1.524" y="4.572" size="1.27" layer="95">3</text>
+<text x="-1.524" y="6.858" size="1.27" layer="95">4</text>
+<text x="1.016" y="4.572" size="1.27" layer="95">7</text>
+<text x="1.016" y="6.858" size="1.27" layer="95">8</text>
+</symbol>
+<symbol name="P2">
+<wire x1="1.27" y1="-1.27" x2="-1.905" y2="-1.27" width="0.254" layer="94"/>
+<wire x1="-1.905" y1="3.81" x2="-1.905" y2="-1.27" width="0.254" layer="94"/>
+<wire x1="-1.905" y1="3.81" x2="1.27" y2="3.81" width="0.254" layer="94"/>
+<wire x1="1.27" y1="-1.27" x2="1.27" y2="3.81" width="0.254" layer="94"/>
+<circle x="0" y="0" radius="0.635" width="0.254" layer="94"/>
+<circle x="0" y="2.54" radius="0.635" width="0.254" layer="94"/>
+<text x="-2.54" y="-3.81" size="1.778" layer="95">&gt;NAME</text>
+<text x="-2.54" y="5.08" size="1.778" layer="96">&gt;VALUE</text>
+<text x="1.778" y="-0.508" size="1.27" layer="95">1</text>
+<pin name="1" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
+<pin name="2" x="-2.54" y="2.54" visible="off" length="short" direction="pas"/>
+</symbol>
+<symbol name="P4-2">
+<wire x1="3.81" y1="-1.27" x2="-4.445" y2="-1.27" width="0.254" layer="94"/>
+<wire x1="-4.445" y1="3.81" x2="-4.445" y2="-1.27" width="0.254" layer="94"/>
+<wire x1="-4.445" y1="3.81" x2="3.81" y2="3.81" width="0.254" layer="94"/>
+<wire x1="3.81" y1="-1.27" x2="3.81" y2="3.81" width="0.254" layer="94"/>
+<circle x="-2.54" y="0" radius="0.635" width="0.254" layer="94"/>
+<circle x="-2.54" y="2.54" radius="0.635" width="0.254" layer="94"/>
+<circle x="2.54" y="0" radius="0.635" width="0.254" layer="94"/>
+<circle x="2.54" y="2.54" radius="0.635" width="0.254" layer="94"/>
+<text x="-5.08" y="-3.81" size="1.778" layer="95">&gt;NAME</text>
+<text x="-5.08" y="5.08" size="1.778" layer="96">&gt;VALUE</text>
+<text x="-1.524" y="-0.508" size="1.27" layer="95">1</text>
+<text x="1.524" y="0.762" size="1.27" layer="95" rot="R180">2</text>
+<pin name="1" x="-5.08" y="0" visible="off" length="short" direction="pas"/>
+<pin name="2" x="5.08" y="0" visible="off" length="short" direction="pas" rot="R180"/>
+<pin name="3" x="-5.08" y="2.54" visible="off" length="short" direction="pas"/>
+<pin name="4" x="5.08" y="2.54" visible="off" length="short" direction="pas" rot="R180"/>
+</symbol>
+<symbol name="MV-1">
 <wire x1="1.27" y1="0" x2="0" y2="0" width="0.6096" layer="94"/>
 <text x="2.54" y="-0.762" size="1.524" layer="95">&gt;NAME</text>
 <text x="-0.762" y="1.397" size="1.778" layer="96">&gt;VALUE</text>
 <pin name="S" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
 </symbol>
-<symbol name="M">
+<symbol name="M-1">
 <wire x1="1.27" y1="0" x2="0" y2="0" width="0.6096" layer="94"/>
 <text x="2.54" y="-0.762" size="1.524" layer="95">&gt;NAME</text>
 <pin name="S" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
 </symbol>
 </symbols>
 <devicesets>
+<deviceset name="PDI_ATMEL" prefix="SV" uservalue="yes">
+<description>Ref Harting : 09 18 506 7323
+Atmel pdi connector</description>
+<gates>
+<gate name="1" symbol="PDI_ATMEL" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="ML6">
+<connects>
+<connect gate="1" pin="CLK" pad="5"/>
+<connect gate="1" pin="DATA" pad="1"/>
+<connect gate="1" pin="GND" pad="6"/>
+<connect gate="1" pin="NC" pad="3"/>
+<connect gate="1" pin="NC." pad="4"/>
+<connect gate="1" pin="VCC" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MOUSER" value="617-09185066323" constant="no"/>
+<attribute name="RS" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="L" package="ML6L">
+<connects>
+<connect gate="1" pin="CLK" pad="5"/>
+<connect gate="1" pin="DATA" pad="1"/>
+<connect gate="1" pin="GND" pad="6"/>
+<connect gate="1" pin="NC" pad="3"/>
+<connect gate="1" pin="NC." pad="4"/>
+<connect gate="1" pin="VCC" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MOUSER" value="617-09-18-506-7323 " constant="no"/>
+<attribute name="RS" value="693-5242 " constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="794618-8" prefix="J">
+<gates>
+<gate name="G$1" symbol="P8-2" x="0" y="-2.54"/>
+</gates>
+<devices>
+<device name="" package="794618-8">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+<connect gate="G$1" pin="3" pad="3"/>
+<connect gate="G$1" pin="4" pad="4"/>
+<connect gate="G$1" pin="5" pad="5"/>
+<connect gate="G$1" pin="6" pad="6"/>
+<connect gate="G$1" pin="7" pad="7"/>
+<connect gate="G$1" pin="8" pad="8"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MOUSER" value="571-3-794618-8" constant="no"/>
+<attribute name="RS" value="495-9451" constant="no"/>
+<attribute name="VALUE" value="794618-8" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="1445055-2" prefix="J">
+<description>&lt;b&gt;Micro MATE-N-LOK Connectors&lt;/b&gt; grid 1.5 mm&lt;p&gt;
+Source: ENG_CD_1445055_A.pdf</description>
+<gates>
+<gate name="G$1" symbol="P2" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="1445055-2">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MOUSER" value="571-2-1445055-2 " constant="no"/>
+<attribute name="RS" value=" 495-9580" constant="no"/>
+<attribute name="VALUE" value="1445055-2" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="794618-4" prefix="J">
+<gates>
+<gate name="G$1" symbol="P4-2" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="794618-4">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+<connect gate="G$1" pin="3" pad="3"/>
+<connect gate="G$1" pin="4" pad="4"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MOUSER" value="571-3-794618-4 " constant="no"/>
+<attribute name="RS" value="495-9439" constant="no"/>
+<attribute name="VALUE" value="794618-4" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="794681-4" prefix="J">
+<description>&lt;b&gt;Micro MATE-N-LOK Connectors&lt;/b&gt; grid 1.5mm&lt;p&gt;
+Dual Row Through Hole Vertical Metal Through Hole Holddowns&lt;br&gt;
+Source: ENG_CD_794681_E.pdf</description>
+<gates>
+<gate name="G$1" symbol="P4-2" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="794681-4">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+<connect gate="G$1" pin="3" pad="3"/>
+<connect gate="G$1" pin="4" pad="4"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MOUSER" value="571-3-794630-4 " constant="no"/>
+<attribute name="RS" value="495-9344" constant="no"/>
+<attribute name="VALUE" value="794630-4" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
 <deviceset name="22-?-02" prefix="J">
 <description>&lt;b&gt;CONNECTOR&lt;/b&gt;&lt;p&gt;
 wire to board 2.54 mm (.1 inch) pitch header</description>
 <gates>
-<gate name="-1" symbol="MV" x="0" y="0" addlevel="always" swaplevel="1"/>
-<gate name="-2" symbol="M" x="0" y="-5.08" addlevel="always" swaplevel="1"/>
+<gate name="-1" symbol="MV-1" x="0" y="0" addlevel="always" swaplevel="1"/>
+<gate name="-2" symbol="M-1" x="0" y="-5.08" addlevel="always" swaplevel="1"/>
 </gates>
 <devices>
 <device name="05-7028" package="7395-02">
@@ -4036,10 +4157,8 @@ wire to board 2.54 mm (.1 inch) pitch header</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
+<attribute name="MOUSER" value="538-22-27-2021 " constant="no"/>
+<attribute name="RS" value="483-8461 " constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -6794,6 +6913,7 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-SDR0805-270KL" constant="no"/>
 <attribute name="RS" value=" 736-1282" constant="no"/>
 </technology>
 </technologies>
@@ -6812,6 +6932,7 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-SRR7032-100M" constant="no"/>
 <attribute name="RS" value="727-2101" constant="no"/>
 <attribute name="VALUE" value="10µH" constant="no"/>
 </technology>
@@ -6831,83 +6952,10 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-BLM18BB221SN1D" constant="no"/>
 <attribute name="RS" value="724-1302" constant="no"/>
 <attribute name="VALUE" value="220 ohms" constant="no"/>
 </technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
-<library name="linear">
-<description>&lt;b&gt;Linear Devices&lt;/b&gt;&lt;p&gt;
-Operational amplifiers,  comparators, voltage regulators, ADCs, DACs, etc.&lt;p&gt;
-&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
-<packages>
-<package name="DPACK_3">
-<description>&lt;b&gt;DPAK&lt;/b&gt;&lt;p&gt;Style 3 (Motorola)</description>
-<wire x1="3.2766" y1="3.8354" x2="3.277" y2="-2.159" width="0.2032" layer="21"/>
-<wire x1="3.277" y1="-2.159" x2="-3.277" y2="-2.159" width="0.2032" layer="21"/>
-<wire x1="-3.277" y1="-2.159" x2="-3.2766" y2="3.8354" width="0.2032" layer="21"/>
-<wire x1="-3.277" y1="3.835" x2="3.2774" y2="3.8346" width="0.2032" layer="51"/>
-<wire x1="-2.5654" y1="3.937" x2="-2.5654" y2="4.6482" width="0.2032" layer="51"/>
-<wire x1="-2.5654" y1="4.6482" x2="-2.1082" y2="5.1054" width="0.2032" layer="51"/>
-<wire x1="-2.1082" y1="5.1054" x2="2.1082" y2="5.1054" width="0.2032" layer="51"/>
-<wire x1="2.1082" y1="5.1054" x2="2.5654" y2="4.6482" width="0.2032" layer="51"/>
-<wire x1="2.5654" y1="4.6482" x2="2.5654" y2="3.937" width="0.2032" layer="51"/>
-<wire x1="2.5654" y1="3.937" x2="-2.5654" y2="3.937" width="0.2032" layer="51"/>
-<smd name="4" x="0" y="2.5" dx="5.4" dy="6.2" layer="1"/>
-<smd name="1" x="-2.28" y="-4.8" dx="1" dy="1.6" layer="1"/>
-<smd name="3" x="2.28" y="-4.8" dx="1" dy="1.6" layer="1"/>
-<text x="-3.81" y="-2.54" size="1.27" layer="25" rot="R90">&gt;NAME</text>
-<text x="5.08" y="-2.54" size="1.27" layer="27" rot="R90">&gt;VALUE</text>
-<rectangle x1="-2.7178" y1="-5.1562" x2="-1.8542" y2="-2.2606" layer="51"/>
-<rectangle x1="1.8542" y1="-5.1562" x2="2.7178" y2="-2.2606" layer="51"/>
-<rectangle x1="-0.4318" y1="-3.0226" x2="0.4318" y2="-2.2606" layer="21"/>
-<polygon width="0.1998" layer="51">
-<vertex x="-2.5654" y="3.937"/>
-<vertex x="-2.5654" y="4.6482"/>
-<vertex x="-2.1082" y="5.1054"/>
-<vertex x="2.1082" y="5.1054"/>
-<vertex x="2.5654" y="4.6482"/>
-<vertex x="2.5654" y="3.937"/>
-</polygon>
-</package>
-</packages>
-<symbols>
-<symbol name="78XX">
-<wire x1="-7.62" y1="-5.08" x2="7.62" y2="-5.08" width="0.4064" layer="94"/>
-<wire x1="7.62" y1="-5.08" x2="7.62" y2="2.54" width="0.4064" layer="94"/>
-<wire x1="7.62" y1="2.54" x2="-7.62" y2="2.54" width="0.4064" layer="94"/>
-<wire x1="-7.62" y1="2.54" x2="-7.62" y2="-5.08" width="0.4064" layer="94"/>
-<text x="-7.62" y="5.715" size="1.778" layer="95">&gt;NAME</text>
-<text x="-7.62" y="3.175" size="1.778" layer="96">&gt;VALUE</text>
-<text x="-2.032" y="-4.318" size="1.524" layer="95">GND</text>
-<pin name="VI" x="-10.16" y="0" length="short" direction="in"/>
-<pin name="GND" x="0" y="-7.62" visible="pad" length="short" direction="pas" rot="R90"/>
-<pin name="VO" x="10.16" y="0" length="short" direction="pas" rot="R180"/>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="NCV78M" prefix="IC">
-<description>&lt;b&gt;500 mA Positive Voltage Regulators&lt;/b&gt;&lt;p&gt;
-Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;Data sheet&lt;/a&gt;</description>
-<gates>
-<gate name="G$1" symbol="78XX" x="0" y="2.54"/>
-</gates>
-<devices>
-<device name="" package="DPACK_3">
-<connects>
-<connect gate="G$1" pin="GND" pad="4"/>
-<connect gate="G$1" pin="VI" pad="1"/>
-<connect gate="G$1" pin="VO" pad="3"/>
-</connects>
-<technologies>
-<technology name="05BDTRKG"/>
-<technology name="08BDTRKG"/>
-<technology name="12BDTRKG"/>
-<technology name="15BDTG"/>
 </technologies>
 </device>
 </devices>
@@ -6983,7 +7031,7 @@ Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;
 <part name="COM" library="robotter_diode" deviceset="LED_" device="G"/>
 <part name="GND4" library="supply1" deviceset="GND" device=""/>
 <part name="H2" library="holes" deviceset="MOUNT-PAD-ROUND" device="5.5"/>
-<part name="MOT1" library="con-molex" deviceset="22-?-02" device="27-2021"/>
+<part name="MOT1" library="robotter_connector" deviceset="22-?-02" device="27-2021"/>
 <part name="D1" library="robotter_diode" deviceset="CGRM400*-G" device="" technology="4"/>
 <part name="FRAME2" library="frames" deviceset="A4L-LOC" device=""/>
 <part name="D3" library="robotter_diode" deviceset="BZV55-C3V3" device="SOD80C" value="bzv55-c3v3"/>
@@ -7044,7 +7092,7 @@ Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;
 <part name="R71" library="robotter_resistor" deviceset="3K09" device="-F"/>
 <part name="GND24" library="supply1" deviceset="GND" device=""/>
 <part name="GND25" library="supply1" deviceset="GND" device=""/>
-<part name="IC6" library="linear" deviceset="NCV78M" device="" technology="05BDTRKG"/>
+<part name="IC6" library="robotter_ic" deviceset="NCV78M" device="" technology="05BDTRKG"/>
 <part name="C32" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V"/>
 <part name="C37" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V"/>
 <part name="FRAME3" library="frames" deviceset="A4L-LOC" device=""/>
@@ -7148,7 +7196,7 @@ Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;
 <part name="IR_SENS0" library="robotter_connector" deviceset="794681-4" device="" value="794681-4"/>
 <part name="R22" library="robotter_resistor" deviceset="0" device="-F"/>
 <part name="R23" library="robotter_resistor" deviceset="0" device="-F"/>
-<part name="MOT0" library="con-molex" deviceset="22-?-02" device="27-2021"/>
+<part name="MOT0" library="robotter_connector" deviceset="22-?-02" device="27-2021"/>
 <part name="L1" library="robotter_inductor" deviceset="FERRITE_220OHMS" device="" value="220 ohms"/>
 <part name="R1" library="robotter_resistor" deviceset="0" device="-E"/>
 <part name="R2" library="robotter_resistor" deviceset="0" device="-E"/>

@@ -1068,6 +1068,35 @@ Source: http://www.maxstream.net/products/xbee/datasheet_XBee_OEM_RF-Modules.pdf
 <text x="-24.765" y="10.414" size="1.27" layer="25" ratio="10">&gt;NAME</text>
 <text x="-24.765" y="-6.731" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
 </package>
+<package name="DPACK_3">
+<description>&lt;b&gt;DPAK&lt;/b&gt;&lt;p&gt;Style 3 (Motorola)</description>
+<wire x1="3.2766" y1="3.8354" x2="3.277" y2="-2.159" width="0.2032" layer="21"/>
+<wire x1="3.277" y1="-2.159" x2="-3.277" y2="-2.159" width="0.2032" layer="21"/>
+<wire x1="-3.277" y1="-2.159" x2="-3.2766" y2="3.8354" width="0.2032" layer="21"/>
+<wire x1="-3.277" y1="3.835" x2="3.2774" y2="3.8346" width="0.2032" layer="51"/>
+<wire x1="-2.5654" y1="3.937" x2="-2.5654" y2="4.6482" width="0.2032" layer="51"/>
+<wire x1="-2.5654" y1="4.6482" x2="-2.1082" y2="5.1054" width="0.2032" layer="51"/>
+<wire x1="-2.1082" y1="5.1054" x2="2.1082" y2="5.1054" width="0.2032" layer="51"/>
+<wire x1="2.1082" y1="5.1054" x2="2.5654" y2="4.6482" width="0.2032" layer="51"/>
+<wire x1="2.5654" y1="4.6482" x2="2.5654" y2="3.937" width="0.2032" layer="51"/>
+<wire x1="2.5654" y1="3.937" x2="-2.5654" y2="3.937" width="0.2032" layer="51"/>
+<smd name="4" x="0" y="2.5" dx="5.4" dy="6.2" layer="1"/>
+<smd name="1" x="-2.28" y="-4.8" dx="1" dy="1.6" layer="1"/>
+<smd name="3" x="2.28" y="-4.8" dx="1" dy="1.6" layer="1"/>
+<text x="-3.81" y="-2.54" size="1.27" layer="25" rot="R90">&gt;NAME</text>
+<text x="5.08" y="-2.54" size="1.27" layer="27" rot="R90">&gt;VALUE</text>
+<rectangle x1="-2.7178" y1="-5.1562" x2="-1.8542" y2="-2.2606" layer="51"/>
+<rectangle x1="1.8542" y1="-5.1562" x2="2.7178" y2="-2.2606" layer="51"/>
+<rectangle x1="-0.4318" y1="-3.0226" x2="0.4318" y2="-2.2606" layer="21"/>
+<polygon width="0.1998" layer="51">
+<vertex x="-2.5654" y="3.937"/>
+<vertex x="-2.5654" y="4.6482"/>
+<vertex x="-2.1082" y="5.1054"/>
+<vertex x="2.1082" y="5.1054"/>
+<vertex x="2.5654" y="4.6482"/>
+<vertex x="2.5654" y="3.937"/>
+</polygon>
+</package>
 </packages>
 </library>
 <library name="robotter_resistor">
@@ -1674,10 +1703,6 @@ Source: ENG_CD_794681_E.pdf</description>
 <hole x="3.63" y="0" drill="2.4"/>
 <hole x="-3.67" y="0" drill="2.4"/>
 </package>
-</packages>
-</library>
-<library name="con-molex">
-<packages>
 <package name="6410-02">
 <description>&lt;b&gt;MOLEX 2.54mm KK  CONNECTOR&lt;/b&gt;</description>
 <wire x1="-1.27" y1="2.54" x2="-1.27" y2="2.921" width="0.127" layer="21"/>
@@ -1827,42 +1852,6 @@ Source: ENG_CD_794681_E.pdf</description>
 <rectangle x1="0.4318" y1="-0.4318" x2="0.8382" y2="0.4318" layer="51"/>
 <rectangle x1="-0.8382" y1="-0.4318" x2="-0.4318" y2="0.4318" layer="51"/>
 <rectangle x1="-0.1999" y1="-0.4001" x2="0.1999" y2="0.4001" layer="35"/>
-</package>
-</packages>
-</library>
-<library name="linear">
-<description>&lt;b&gt;Linear Devices&lt;/b&gt;&lt;p&gt;
-Operational amplifiers,  comparators, voltage regulators, ADCs, DACs, etc.&lt;p&gt;
-&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
-<packages>
-<package name="DPACK_3">
-<description>&lt;b&gt;DPAK&lt;/b&gt;&lt;p&gt;Style 3 (Motorola)</description>
-<wire x1="3.2766" y1="3.8354" x2="3.277" y2="-2.159" width="0.2032" layer="21"/>
-<wire x1="3.277" y1="-2.159" x2="-3.277" y2="-2.159" width="0.2032" layer="21"/>
-<wire x1="-3.277" y1="-2.159" x2="-3.2766" y2="3.8354" width="0.2032" layer="21"/>
-<wire x1="-3.277" y1="3.835" x2="3.2774" y2="3.8346" width="0.2032" layer="51"/>
-<wire x1="-2.5654" y1="3.937" x2="-2.5654" y2="4.6482" width="0.2032" layer="51"/>
-<wire x1="-2.5654" y1="4.6482" x2="-2.1082" y2="5.1054" width="0.2032" layer="51"/>
-<wire x1="-2.1082" y1="5.1054" x2="2.1082" y2="5.1054" width="0.2032" layer="51"/>
-<wire x1="2.1082" y1="5.1054" x2="2.5654" y2="4.6482" width="0.2032" layer="51"/>
-<wire x1="2.5654" y1="4.6482" x2="2.5654" y2="3.937" width="0.2032" layer="51"/>
-<wire x1="2.5654" y1="3.937" x2="-2.5654" y2="3.937" width="0.2032" layer="51"/>
-<smd name="4" x="0" y="2.5" dx="5.4" dy="6.2" layer="1"/>
-<smd name="1" x="-2.28" y="-4.8" dx="1" dy="1.6" layer="1"/>
-<smd name="3" x="2.28" y="-4.8" dx="1" dy="1.6" layer="1"/>
-<text x="-3.81" y="-2.54" size="1.27" layer="25" rot="R90">&gt;NAME</text>
-<text x="5.08" y="-2.54" size="1.27" layer="27" rot="R90">&gt;VALUE</text>
-<rectangle x1="-2.7178" y1="-5.1562" x2="-1.8542" y2="-2.2606" layer="51"/>
-<rectangle x1="1.8542" y1="-5.1562" x2="2.7178" y2="-2.2606" layer="51"/>
-<rectangle x1="-0.4318" y1="-3.0226" x2="0.4318" y2="-2.2606" layer="21"/>
-<polygon width="0.1998" layer="51">
-<vertex x="-2.5654" y="3.937"/>
-<vertex x="-2.5654" y="4.6482"/>
-<vertex x="-2.1082" y="5.1054"/>
-<vertex x="2.1082" y="5.1054"/>
-<vertex x="2.5654" y="4.6482"/>
-<vertex x="2.5654" y="3.937"/>
-</polygon>
 </package>
 </packages>
 </library>
@@ -2065,60 +2054,71 @@ design rules under a new name.</description>
 <attribute name="VALUE" value="16 MHz" x="52.07" y="39.116" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="51.054" y="29.718" size="1.27" layer="25" ratio="10"/>
 <attribute name="VALUE" x="56.261" y="33.401" size="1.27" layer="27" ratio="10" rot="R90"/>
+<attribute name="MOUSER" value="559-FOXSD160-20-LF" x="52.07" y="39.116" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="R48" library="robotter_resistor" package="R0603" value="270-F" x="98.679" y="46.228" smashed="yes" rot="MR270">
 <attribute name="RS" value=" 679-0071" x="98.679" y="46.228" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="98.044" y="46.863" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="100.584" y="46.863" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" x="98.679" y="46.228" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R53" library="robotter_resistor" package="R0603" value="270-F" x="98.679" y="50.546" smashed="yes" rot="MR270">
 <attribute name="RS" value=" 679-0071" x="98.679" y="50.546" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="98.044" y="51.181" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="100.584" y="51.181" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" x="98.679" y="50.546" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R57" library="robotter_resistor" package="R0603" value="270-F" x="96.52" y="62.992" smashed="yes">
 <attribute name="RS" value=" 679-0071" x="96.52" y="62.992" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="91.313" y="62.23" size="1.27" layer="25"/>
 <attribute name="VALUE" x="95.885" y="61.087" size="1.27" layer="27"/>
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" x="96.52" y="62.992" size="1.778" layer="27" display="off"/>
 </element>
 <element name="R59" library="robotter_resistor" package="R0603" value="270-F" x="3.429" y="15.875" smashed="yes" rot="R90">
 <attribute name="RS" value=" 679-0071" x="3.429" y="15.875" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="5.588" y="14.224" size="1.27" layer="25" rot="R90"/>
 <attribute name="VALUE" x="5.334" y="15.24" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" x="3.429" y="15.875" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="LK4" library="robotter_diode" package="CHIP-LED0805" value="LED_G" x="98.679" y="46.228" smashed="yes">
 <attribute name="VALUE" value="GREEN" x="98.679" y="46.228" size="1.778" layer="27" display="off"/>
 <attribute name="RS" value=" 692-0935 " x="98.679" y="46.228" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="96.139" y="47.752" size="1.27" layer="25" rot="SR270"/>
 <attribute name="VALUE" x="101.219" y="44.958" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="859-LTST-C171GKT" x="98.679" y="46.228" size="1.778" layer="27" display="off"/>
 </element>
 <element name="LK5" library="robotter_diode" package="CHIP-LED0805" value="LED_G" x="98.679" y="50.546" smashed="yes">
 <attribute name="VALUE" value="GREEN" x="98.679" y="50.546" size="1.778" layer="27" display="off"/>
 <attribute name="RS" value=" 692-0935 " x="98.679" y="50.546" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="96.012" y="52.07" size="1.27" layer="25" rot="SR270"/>
 <attribute name="VALUE" x="101.219" y="49.276" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="859-LTST-C171GKT" x="98.679" y="50.546" size="1.778" layer="27" display="off"/>
 </element>
 <element name="LIDX0" library="robotter_diode" package="CHIP-LED0805" value="LED_G" x="98.933" y="64.643" smashed="yes">
 <attribute name="VALUE" value="GREEN" x="98.933" y="64.643" size="1.778" layer="27" display="off"/>
 <attribute name="RS" value=" 692-0935 " x="98.933" y="64.643" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="96.647" y="69.088" size="1.27" layer="25" rot="SR270"/>
 <attribute name="VALUE" x="101.473" y="63.373" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="859-LTST-C171GKT" x="98.933" y="64.643" size="1.778" layer="27" display="off"/>
 </element>
 <element name="LIDX1" library="robotter_diode" package="CHIP-LED0805" value="LED_G" x="1.016" y="15.748" smashed="yes" rot="R180">
 <attribute name="VALUE" value="GREEN" x="1.016" y="15.748" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="RS" value=" 692-0935 " x="1.016" y="15.748" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="0.508" y="13.716" size="1.27" layer="25" rot="SR270"/>
 <attribute name="VALUE" x="-1.524" y="17.018" size="1.27" layer="27" rot="R270"/>
+<attribute name="MOUSER" value="859-LTST-C171GKT" x="1.016" y="15.748" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
 <element name="PDI_ATMEL" library="robotter_connector" package="ML6L" value="" x="47.752" y="11.049" smashed="yes" rot="R180">
 <attribute name="RS" value="693-5242 " x="47.752" y="11.049" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="54.5084" y="15.875" size="1.778" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="47.1424" y="-0.381" size="1.778" layer="27" ratio="10" rot="R180"/>
+<attribute name="MOUSER" value="617-09-18-506-7323 " x="47.752" y="11.049" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
 <element name="IC8" library="robotter_ic" package="SO16" value="MAX3232CSE" x="12.827" y="37.338" smashed="yes" rot="R270">
 <attribute name="RS" value="415-2105 " x="12.827" y="37.338" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="VALUE" x="12.192" y="41.402" size="1.27" layer="27" ratio="10" rot="R270"/>
 <attribute name="NAME" x="11.684" y="30.607" size="1.27" layer="25" ratio="10"/>
+<attribute name="MOUSER" value="511-ST3232CDR" x="12.827" y="37.338" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="H1" library="holes" package="5,5-PAD" value="MOUNT-PAD-ROUND5.5" x="95" y="74" smashed="yes"/>
 <element name="H3" library="holes" package="5,5-PAD" value="MOUNT-PAD-ROUND5.5" x="5" y="74" smashed="yes"/>
@@ -2127,17 +2127,20 @@ design rules under a new name.</description>
 <attribute name="VALUE" value="bzv55-c3v3" x="80.899" y="5.588" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="79.502" y="5.969" size="1.27" layer="25" rot="R180"/>
 <attribute name="VALUE" x="83.312" y="4.064" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="771-BZV55-C3V3T/R " x="80.899" y="5.588" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="R41" library="robotter_resistor" package="R0603" value="3K09-F" x="83.312" y="6.477" smashed="yes" rot="R270">
 <attribute name="NAME" x="83.312" y="11.684" size="1.27" layer="25" rot="R270"/>
 <attribute name="VALUE" x="81.407" y="7.112" size="1.27" layer="27" rot="R270"/>
 <attribute name="RS" value="708-7574" x="83.312" y="6.477" size="1.778" layer="27" rot="R270" display="off"/>
+<attribute name="MOUSER" value="667-ERA-3AEB3091V" x="83.312" y="6.477" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="IR_SENSOR1" library="robotter_connector" package="794618-4" value="794618-4" x="95.377" y="5.334" smashed="yes" rot="R90">
-<attribute name="RS" value="495-9439 " x="95.377" y="5.334" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="RS" value="495-9439" x="95.377" y="5.334" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="VALUE" value="794618-4" x="95.377" y="5.334" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="93.067" y="1.682" size="1.27" layer="25" rot="R180"/>
 <attribute name="VALUE" x="87.067" y="2.334" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="571-3-794618-4 " x="95.377" y="5.334" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="R21" library="rcl" package="R0603" value="nc" x="85.471" y="5.588" smashed="yes" rot="MR270">
 <attribute name="NAME" x="84.074" y="6.477" size="1.27" layer="26" rot="MR270"/>
@@ -2156,71 +2159,80 @@ design rules under a new name.</description>
 <attribute name="VALUE" value="mmbt2222" x="87.63" y="12.954" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="88.646" y="13.716" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="84.455" y="11.049" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="863-MMBT2222ALT1G" x="87.63" y="12.954" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="T4" library="robotter_ic" package="SOT23-BEC" value="MMBT2222LT1G" x="10.033" y="48.514" smashed="yes" rot="MR0">
 <attribute name="RS" value="544-9400" x="10.033" y="48.514" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="VALUE" value="mmbt2222" x="10.033" y="48.514" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="11.176" y="49.657" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="11.938" y="45.339" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="863-MMBT2222ALT1G" x="10.033" y="48.514" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="R25" library="robotter_resistor" package="R0603" value="270-F" x="48.133" y="3.683" smashed="yes" rot="MR180">
 <attribute name="RS" value=" 679-0071" x="48.133" y="3.683" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="47.498" y="3.048" size="1.27" layer="26" rot="MR180"/>
 <attribute name="VALUE" x="47.498" y="5.588" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" x="48.133" y="3.683" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="R31" library="robotter_resistor" package="R0603" value="270-F" x="41.402" y="4.191" smashed="yes" rot="MR270">
 <attribute name="RS" value=" 679-0071" x="41.402" y="4.191" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="42.037" y="9.398" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="43.307" y="4.826" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" x="41.402" y="4.191" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R35" library="robotter_resistor" package="R0603" value="270-F" x="52.07" y="4.572" smashed="yes" rot="MR270">
 <attribute name="RS" value=" 679-0071" x="52.07" y="4.572" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="52.705" y="9.906" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="53.975" y="5.207" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" x="52.07" y="4.572" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="RUN" library="robotter_diode" package="CHIP-LED0805" value="LED_G" x="48.006" y="1.397" smashed="yes" rot="MR270">
 <attribute name="VALUE" value="GREEN" x="48.006" y="1.397" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="RS" value=" 692-0935 " x="48.006" y="1.397" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="45.085" y="2.54" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="49.276" y="-1.143" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="859-LTST-C171GKT" x="48.006" y="1.397" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="ERROR" library="robotter_diode" package="CHIP-LED0805" value="LED_G" x="42.418" y="1.397" smashed="yes" rot="MR90">
 <attribute name="VALUE" value="GREEN" x="42.418" y="1.397" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="RS" value=" 692-0935 " x="42.418" y="1.397" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="38.989" y="0.508" size="1.27" layer="26" rot="SMR90"/>
 <attribute name="VALUE" x="41.148" y="3.937" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="859-LTST-C171GKT" x="42.418" y="1.397" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="COM" library="robotter_diode" package="CHIP-LED0805" value="LED_G" x="53.086" y="1.397" smashed="yes" rot="MR90">
 <attribute name="VALUE" value="GREEN" x="53.086" y="1.397" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="RS" value=" 692-0935 " x="53.086" y="1.397" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="53.213" y="3.556" size="1.27" layer="26" rot="SMR90"/>
 <attribute name="VALUE" x="51.816" y="3.937" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="859-LTST-C171GKT" x="53.086" y="1.397" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="H2" library="holes" package="5,5-PAD" value="MOUNT-PAD-ROUND5.5" x="5" y="5" smashed="yes"/>
-<element name="MOT1" library="con-molex" package="6410-02" value="22-27-2021-02" x="3.302" y="48.26" smashed="yes" rot="R90">
-<attribute name="OC_NEWARK" value="unknown" x="3.302" y="48.26" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="MPN" value="" x="3.302" y="48.26" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="MF" value="" x="3.302" y="48.26" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="OC_FARNELL" value="unknown" x="3.302" y="48.26" size="1.778" layer="27" rot="R90" display="off"/>
+<element name="MOT1" library="robotter_connector" package="6410-02" value="22-27-2021-02" x="3.302" y="48.26" smashed="yes" rot="R90">
 <attribute name="NAME" x="7.0851" y="50.6461" size="1.016" layer="25" ratio="10" rot="SR270"/>
 <attribute name="VALUE" x="7.9009" y="45.7469" size="0.8128" layer="27" ratio="10" rot="R90"/>
+<attribute name="RS" value="483-8461 " x="3.302" y="48.26" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="MOUSER" value="538-22-27-2021 " x="3.302" y="48.26" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="D1" library="robotter_diode" package="SOD-123_MINI-SMA" value="CGRM4004-G" x="6.35" y="48.133" smashed="yes" rot="MR90">
 <attribute name="RS" value=" 545-2456" x="6.35" y="48.133" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="VALUE" value="MRA4004T3G" x="6.35" y="48.133" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="5.715" y="50.927" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="3.937" y="45.085" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="863-MRA4004T3G" x="6.35" y="48.133" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="D3" library="robotter_diode" package="SOD80C" value="bzv55-c3v3" x="3.683" y="52.832" smashed="yes" rot="R180">
 <attribute name="RS" value="748-5029" x="3.683" y="52.832" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="VALUE" value="bzv55-c3v3" x="3.683" y="52.832" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="8.636" y="53.467" size="1.27" layer="25" rot="R180"/>
 <attribute name="VALUE" x="5.207" y="55.245" size="1.27" layer="27" rot="R180"/>
+<attribute name="MOUSER" value="771-BZV55-C3V3T/R " x="3.683" y="52.832" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
 <element name="R36" library="robotter_resistor" package="R0603" value="3K09-F" x="3.048" y="55.118" smashed="yes">
 <attribute name="NAME" x="1.651" y="54.102" size="1.27" layer="25" rot="R90"/>
 <attribute name="VALUE" x="2.413" y="53.213" size="1.27" layer="27"/>
 <attribute name="RS" value="708-7574" x="3.048" y="55.118" size="1.778" layer="27" display="off"/>
+<attribute name="MOUSER" value="667-ERA-3AEB3091V" x="3.048" y="55.118" size="1.778" layer="27" display="off"/>
 </element>
 <element name="R27" library="rcl" package="R0603" value="nc" x="7.747" y="57.277" smashed="yes" rot="MR90">
 <attribute name="NAME" x="5.588" y="55.372" size="1.27" layer="26" rot="MR90"/>
@@ -2231,62 +2243,73 @@ design rules under a new name.</description>
 <attribute name="VALUE" value="mmbt2222" x="13.589" y="59.69" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="16.637" y="60.96" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="15.494" y="56.515" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="863-MMBT2222ALT1G" x="13.589" y="59.69" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="T6" library="robotter_ic" package="SOT23-BEC" value="MMBT2222LT1G" x="87.63" y="16.764" smashed="yes" rot="MR90">
 <attribute name="RS" value="544-9400" x="87.63" y="16.764" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="VALUE" value="mmbt2222" x="87.63" y="16.764" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="86.868" y="18.415" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="84.455" y="14.859" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="863-MMBT2222ALT1G" x="87.63" y="16.764" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="D2" library="robotter_diode" package="SOD-123_MINI-SMA" value="CGRM4004-G" x="93.853" y="18.161" smashed="yes" rot="MR270">
 <attribute name="RS" value=" 545-2456" x="93.853" y="18.161" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="VALUE" value="MRA4004T3G" x="93.853" y="18.161" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="94.488" y="23.241" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="96.266" y="21.209" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="863-MRA4004T3G" x="93.853" y="18.161" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R47" library="robotter_resistor" package="R0603" value="270-F" x="98.679" y="28.829" smashed="yes" rot="MR270">
 <attribute name="RS" value=" 679-0071" x="98.679" y="28.829" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="97.79" y="29.718" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="100.584" y="29.464" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" x="98.679" y="28.829" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R52" library="robotter_resistor" package="R0603" value="270-F" x="98.679" y="33.147" smashed="yes" rot="MR270">
 <attribute name="RS" value=" 679-0071" x="98.679" y="33.147" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="98.044" y="33.782" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="100.584" y="33.782" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" x="98.679" y="33.147" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R56" library="robotter_resistor" package="R0603" value="270-F" x="98.679" y="37.592" smashed="yes" rot="MR270">
 <attribute name="RS" value=" 679-0071" x="98.679" y="37.592" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="98.044" y="38.227" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="100.584" y="38.227" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" x="98.679" y="37.592" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R58" library="robotter_resistor" package="R0603" value="270-F" x="98.679" y="41.91" smashed="yes" rot="MR270">
 <attribute name="RS" value=" 679-0071" x="98.679" y="41.91" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="98.044" y="42.545" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="100.584" y="42.545" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" x="98.679" y="41.91" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="LK0" library="robotter_diode" package="CHIP-LED0805" value="LED_G" x="98.679" y="28.829" smashed="yes">
 <attribute name="VALUE" value="GREEN" x="98.679" y="28.829" size="1.778" layer="27" display="off"/>
 <attribute name="RS" value=" 692-0935 " x="98.679" y="28.829" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="96.266" y="30.226" size="1.27" layer="25" rot="SR270"/>
 <attribute name="VALUE" x="101.219" y="27.559" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="859-LTST-C171GKT" x="98.679" y="28.829" size="1.778" layer="27" display="off"/>
 </element>
 <element name="LK1" library="robotter_diode" package="CHIP-LED0805" value="LED_G" x="98.679" y="33.147" smashed="yes">
 <attribute name="VALUE" value="GREEN" x="98.679" y="33.147" size="1.778" layer="27" display="off"/>
 <attribute name="RS" value=" 692-0935 " x="98.679" y="33.147" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="96.139" y="34.417" size="1.27" layer="25" rot="SR270"/>
 <attribute name="VALUE" x="101.219" y="31.877" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="859-LTST-C171GKT" x="98.679" y="33.147" size="1.778" layer="27" display="off"/>
 </element>
 <element name="LK2" library="robotter_diode" package="CHIP-LED0805" value="LED_G" x="98.679" y="37.592" smashed="yes">
 <attribute name="VALUE" value="GREEN" x="98.679" y="37.592" size="1.778" layer="27" display="off"/>
 <attribute name="RS" value=" 692-0935 " x="98.679" y="37.592" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="96.266" y="39.116" size="1.27" layer="25" rot="SR270"/>
 <attribute name="VALUE" x="101.219" y="36.322" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="859-LTST-C171GKT" x="98.679" y="37.592" size="1.778" layer="27" display="off"/>
 </element>
 <element name="LK3" library="robotter_diode" package="CHIP-LED0805" value="LED_G" x="98.679" y="41.91" smashed="yes">
 <attribute name="VALUE" value="GREEN" x="98.679" y="41.91" size="1.778" layer="27" display="off"/>
 <attribute name="RS" value=" 692-0935 " x="98.679" y="41.91" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="96.139" y="43.307" size="1.27" layer="25" rot="SR270"/>
 <attribute name="VALUE" x="101.219" y="40.64" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="859-LTST-C171GKT" x="98.679" y="41.91" size="1.778" layer="27" display="off"/>
 </element>
 <element name="XB1" library="robotter_ic" package="XBEE-PRO" value="XBEE-PRO" x="82.931" y="38.227" smashed="yes" rot="R180">
 <attribute name="OC_NEWARK" value="42M2667" x="82.931" y="38.227" size="1.778" layer="27" rot="R180" display="off"/>
@@ -2302,24 +2325,28 @@ design rules under a new name.</description>
 <attribute name="VALUE" value="794618-8" x="20" y="74.422" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="11.382" y="72.626" size="1.27" layer="25" rot="SR270"/>
 <attribute name="VALUE" x="9.5" y="78.922" size="1.27" layer="27" rot="R270"/>
+<attribute name="MOUSER" value="571-3-794618-8" x="20" y="74.422" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
 <element name="BAL2" library="robotter_connector" package="794618-8" value="794618-8" x="20" y="4.572" smashed="yes">
 <attribute name="RS" value="495-9451" x="20" y="4.572" size="1.778" layer="27" display="off"/>
 <attribute name="VALUE" value="794618-8" x="20" y="4.572" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="11.636" y="11.036" size="1.27" layer="25" rot="SR270"/>
 <attribute name="VALUE" x="30.5" y="0.072" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="571-3-794618-8" x="20" y="4.572" size="1.778" layer="27" display="off"/>
 </element>
 <element name="BATT" library="robotter_connector" package="1445055-2" value="1445055-2" x="45.974" y="73.787" smashed="yes" rot="R180">
 <attribute name="RS" value=" 495-9580" x="45.974" y="73.787" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="VALUE" value="1445055-2" x="45.974" y="73.787" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="41.1" y="72.39" size="1.27" layer="25" rot="SR270"/>
 <attribute name="VALUE" x="38.474" y="78.287" size="1.27" layer="27" rot="R270"/>
+<attribute name="MOUSER" value="571-2-1445055-2 " x="45.974" y="73.787" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
 <element name="D5" library="robotter_diode" package="TO252" value="" x="30.734" y="72.39" smashed="yes" rot="MR0">
 <attribute name="RS" value="302-167" x="30.734" y="72.39" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="VALUE" value="50WQ03" x="30.734" y="72.39" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="25.781" y="72.771" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="25.654" y="69.85" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="844-50WQ03FNPBF" x="30.734" y="72.39" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="SW_BATT" library="robotter_others" package="2MS1T2B4M6QNS" value="2MS1T2B4M6QNS" x="34.798" y="57.785" smashed="yes" rot="R180">
 <attribute name="RS" value="734-7220" x="34.798" y="57.785" size="1.778" layer="27" rot="R180" display="off"/>
@@ -2330,420 +2357,504 @@ design rules under a new name.</description>
 <attribute name="VALUE" value="mmbt2222" x="37.084" y="68.453" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="35.433" y="68.961" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="38.989" y="65.278" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="863-MMBT2222ALT1G" x="37.084" y="68.453" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="R51" library="robotter_resistor" package="R0603" value="1K-F" x="40.005" y="66.675" smashed="yes" rot="MR90">
 <attribute name="RS" value="213-2266" x="40.005" y="66.675" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="VALUE" value="1k" x="40.005" y="66.675" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="40.767" y="65.278" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="38.1" y="66.04" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="71-CRCW0603-1.0K-E3" x="40.005" y="66.675" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="R46" library="robotter_resistor" package="R0805" value="10K-E" x="36.957" y="65.405" smashed="yes" rot="MR180">
 <attribute name="RS" value=" 740-9072" x="36.957" y="65.405" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="35.306" y="64.135" size="1.27" layer="26" rot="MR180"/>
 <attribute name="VALUE" x="36.322" y="67.945" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="71-CRCW080510K0FKEB" x="36.957" y="65.405" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="RF" library="robotter_diode" package="CHIP-LED0805" value="YELLOW" x="73.152" y="1.143" smashed="yes" rot="R270">
 <attribute name="RS" value="692-0925" x="73.152" y="1.143" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="75.311" y="2.413" size="1.27" layer="25" rot="SR270"/>
 <attribute name="VALUE" x="71.882" y="-1.397" size="1.27" layer="27"/>
+<attribute name="MOUSER" value="859-LTST-C170YKT" x="73.152" y="1.143" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="R28" library="robotter_resistor" package="R0603" value="270-F" x="72.263" y="6.477" smashed="yes" rot="R270">
 <attribute name="RS" value=" 679-0071" x="72.263" y="6.477" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="73.152" y="7.62" size="1.27" layer="25" rot="R270"/>
 <attribute name="VALUE" x="70.358" y="7.112" size="1.27" layer="27" rot="R270"/>
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" x="72.263" y="6.477" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="SYNC2" library="robotter_diode" package="CHIP-LED0805" value="LED_B" x="19.939" y="1.143" smashed="yes" rot="MR270">
 <attribute name="RS" value="692-0953" x="19.939" y="1.143" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="VALUE" value="BLUE" x="19.939" y="1.143" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="14.097" y="0.635" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="21.209" y="-1.397" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="859-LTST-C171TBKT" x="19.939" y="1.143" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R38" library="robotter_resistor" package="R0603" value="270-F" x="23.749" y="1.397" smashed="yes" rot="MR180">
 <attribute name="RS" value=" 679-0071" x="23.749" y="1.397" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="25.527" y="0.762" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="23.114" y="3.302" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" x="23.749" y="1.397" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="R40" library="robotter_resistor" package="R0603" value="270-F" x="52.07" y="74.422" smashed="yes" rot="R90">
 <attribute name="RS" value=" 679-0071" x="52.07" y="74.422" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="51.435" y="72.771" size="1.27" layer="25" rot="R270"/>
 <attribute name="VALUE" x="53.975" y="73.787" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" x="52.07" y="74.422" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="LOW_BATT" library="robotter_diode" package="CHIP-LED0805" value="LED_R" x="51.689" y="77.724" smashed="yes" rot="R90">
 <attribute name="RS" value=" 692-0931" x="51.689" y="77.724" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="VALUE" value="RED" x="51.689" y="77.724" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="53.848" y="78.105" size="1.27" layer="25" rot="SR270"/>
 <attribute name="VALUE" x="52.959" y="80.264" size="1.27" layer="27" rot="R180"/>
+<attribute name="MOUSER" value="859-LTST-C171EKT" x="51.689" y="77.724" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="SYNC1" library="robotter_diode" package="CHIP-LED0805" value="LED_B" x="15.367" y="77.978" smashed="yes" rot="MR270">
 <attribute name="RS" value="692-0953" x="15.367" y="77.978" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="VALUE" value="BLUE" x="15.367" y="77.978" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="11.938" y="73.025" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="16.637" y="75.438" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="859-LTST-C171TBKT" x="15.367" y="77.978" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R32" library="robotter_resistor" package="R0603" value="270-F" x="19.558" y="77.597" smashed="yes" rot="MR180">
 <attribute name="RS" value=" 679-0071" x="19.558" y="77.597" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="21.336" y="78.232" size="1.27" layer="26" rot="MR180"/>
 <attribute name="VALUE" x="18.923" y="79.502" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" x="19.558" y="77.597" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="IC5" library="robotter_ic" package="MSOP10_THERMAL" value="LM25011MY" x="76.073" y="70.993" smashed="yes" rot="R270">
 <attribute name="RS" value="761-4883" x="76.073" y="70.993" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="VALUE" x="73.073" y="67.993" size="1.27" layer="27" ratio="10"/>
 <attribute name="NAME" x="73.454" y="72.993" size="1.27" layer="25" ratio="10"/>
+<attribute name="MOUSER" value="926-LM25011MY/NOPB " x="76.073" y="70.993" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="R6" library="robotter_resistor" package="R0603" value="1k" x="83.947" y="11.811" smashed="yes" rot="MR180">
 <attribute name="RS" value="213-2266" x="83.947" y="11.811" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="81.026" y="10.414" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="83.312" y="13.716" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="71-CRCW0603-1.0K-E3" x="83.947" y="11.811" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="R12" library="robotter_resistor" package="R0603" value="1k" x="11.176" y="44.831" smashed="yes" rot="MR90">
 <attribute name="RS" value="213-2266" x="11.176" y="44.831" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="12.192" y="43.561" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="9.271" y="44.196" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="71-CRCW0603-1.0K-E3" x="11.176" y="44.831" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="R8" library="robotter_resistor" package="R0603" value="1k" x="14.351" y="55.753" smashed="yes" rot="MR90">
 <attribute name="RS" value="213-2266" x="14.351" y="55.753" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="15.113" y="54.737" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="12.446" y="55.118" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="71-CRCW0603-1.0K-E3" x="14.351" y="55.753" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="R16" library="robotter_resistor" package="R0603" value="1k" x="83.947" y="16.002" smashed="yes" rot="MR180">
 <attribute name="RS" value="213-2266" x="83.947" y="16.002" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="78.867" y="16.637" size="1.27" layer="26" rot="MR180"/>
 <attribute name="VALUE" x="83.312" y="17.907" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="71-CRCW0603-1.0K-E3" x="83.947" y="16.002" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="C26" library="robotter_capacitor" package="C1206" value="1µF 25V" x="70.866" y="71.501" smashed="yes" rot="MR270">
 <attribute name="RS" value=" 740-7574 " x="70.866" y="71.501" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="69.596" y="72.771" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="73.406" y="72.771" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="810-C3216X7R1E105K-6" x="70.866" y="71.501" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="C29" library="robotter_capacitor" package="C1206" value="1µF 25V" x="70.866" y="71.501" smashed="yes" rot="R270">
 <attribute name="RS" value=" 740-7574 " x="70.866" y="71.501" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="68.326" y="73.152" size="1.27" layer="25" rot="R270"/>
 <attribute name="VALUE" x="68.326" y="72.771" size="1.27" layer="27" rot="R270"/>
+<attribute name="MOUSER" value="810-C3216X7R1E105K-6" x="70.866" y="71.501" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="C33" library="robotter_capacitor" package="C0603" value="10nF 50V" x="73.914" y="68.199" smashed="yes">
 <attribute name="RS" value="723-4982" x="73.914" y="68.199" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="71.247" y="66.294" size="1.27" layer="25"/>
 <attribute name="VALUE" x="73.279" y="66.294" size="1.27" layer="27"/>
+<attribute name="MOUSER" value="81-GCM188R71H103KA7D" x="73.914" y="68.199" size="1.778" layer="27" display="off"/>
 </element>
 <element name="C36" library="robotter_capacitor" package="C0603" value="100nF 50V" x="78.613" y="74.041" smashed="yes" rot="R90">
 <attribute name="RS" value=" 723-5534 " x="78.613" y="74.041" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="77.851" y="72.898" size="1.27" layer="25" rot="R90"/>
 <attribute name="VALUE" x="80.518" y="73.406" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="78.613" y="74.041" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="C43" library="robotter_capacitor" package="C1210" value="10µF 25V" x="87.503" y="67.945" smashed="yes" rot="R270">
 <attribute name="RS" value="766-1185 " x="87.503" y="67.945" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="89.281" y="69.342" size="1.27" layer="25" rot="R270"/>
 <attribute name="VALUE" x="84.328" y="69.85" size="1.27" layer="27" rot="R270"/>
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" x="87.503" y="67.945" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="D7" library="robotter_diode" package="SMA" value="B160-13F" x="82.677" y="68.58" smashed="yes">
 <attribute name="RS" value="738-4765" x="82.677" y="68.58" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="81.197" y="64.865" size="1.27" layer="25" ratio="10"/>
 <attribute name="VALUE" x="79.927" y="65.08" size="1.27" layer="27" ratio="10"/>
+<attribute name="MOUSER" value="621-B160-F" x="82.677" y="68.58" size="1.778" layer="27" display="off"/>
 </element>
 <element name="L3" library="robotter_inductor" package="SDR0805" value="SDR0805-270KL" x="84.328" y="74.549" smashed="yes" rot="R270">
 <attribute name="RS" value=" 736-1282" x="84.328" y="74.549" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="VALUE" x="88.4855" y="77.9985" size="1.27" layer="27" rot="R270"/>
 <attribute name="NAME" x="88.6255" y="76.8685" size="1.27" layer="25"/>
+<attribute name="MOUSER" value="652-SDR0805-270KL" x="84.328" y="74.549" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="R64" library="robotter_resistor" package="R0603" value="0.27-F" x="77.851" y="68.326" smashed="yes" rot="R180">
 <attribute name="RS" value="722-1046" x="77.851" y="68.326" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="79.248" y="67.437" size="1.27" layer="25" rot="R180"/>
 <attribute name="VALUE" x="78.486" y="70.231" size="1.27" layer="27" rot="R180"/>
+<attribute name="MOUSER" value="603-RL0603FR070R27L" x="77.851" y="68.326" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
 <element name="R63" library="robotter_resistor" package="R0603" value="75K-F" x="74.168" y="71.247" smashed="yes" rot="MR90">
 <attribute name="RS" value="679-0695" x="74.168" y="71.247" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="75.184" y="70.104" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="72.263" y="70.612" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="660-RK73H1JTTD7502F" x="74.168" y="71.247" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="R72" library="robotter_resistor" package="R0603" value="10K-F" x="77.978" y="66.548" smashed="yes" rot="MR0">
 <attribute name="RS" value="740-8899" x="77.978" y="66.548" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="78.359" y="67.31" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="78.613" y="64.643" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="77.978" y="66.548" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="R71" library="robotter_resistor" package="R0603" value="3K09-F" x="81.153" y="66.548" smashed="yes" rot="MR0">
 <attribute name="RS" value="708-7574" x="81.153" y="66.548" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="82.931" y="64.262" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="81.788" y="64.643" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="667-ERA-3AEB3091V" x="81.153" y="66.548" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
-<element name="IC6" library="linear" package="DPACK_3" value="NCV78M05BDTRKG" x="6.858" y="29.083" smashed="yes" rot="MR90">
+<element name="IC6" library="robotter_ic" package="DPACK_3" value="NCV78M05BDTRKG" x="6.858" y="29.083" smashed="yes" rot="MR90">
 <attribute name="NAME" x="1.524" y="27.559" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="4.318" y="34.163" size="1.27" layer="28" rot="MR180"/>
+<attribute name="RS" value="785-7443" x="6.858" y="29.083" size="1.778" layer="28" rot="MR90" display="off"/>
+<attribute name="MOUSER" value="863-NCV78M05BDTRKG" x="6.858" y="29.083" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="C32" library="robotter_capacitor" package="C1210" value="10µF 25V" x="2.286" y="26.543" smashed="yes" rot="R90">
 <attribute name="RS" value="766-1185 " x="2.286" y="26.543" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="4.318" y="28.194" size="1.27" layer="25" rot="R270"/>
 <attribute name="VALUE" x="5.461" y="24.638" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" x="2.286" y="26.543" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="C37" library="robotter_capacitor" package="C1210" value="10µF 25V" x="2.286" y="31.877" smashed="yes" rot="R270">
 <attribute name="RS" value="766-1185 " x="2.286" y="31.877" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="1.016" y="34.671" size="1.27" layer="25"/>
 <attribute name="VALUE" x="-0.889" y="33.782" size="1.27" layer="27" rot="R270"/>
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" x="2.286" y="31.877" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="R37" library="robotter_resistor" package="R0603" value="10K-F" x="9.017" y="38.481" smashed="yes" rot="MR90">
 <attribute name="RS" value="740-8899" x="9.017" y="38.481" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="6.858" y="36.957" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="7.112" y="37.846" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="9.017" y="38.481" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="R39" library="robotter_resistor" package="R0603" value="10K-F" x="11.049" y="38.481" smashed="yes" rot="MR90">
 <attribute name="RS" value="740-8899" x="11.049" y="38.481" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="10.414" y="33.655" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="9.144" y="37.846" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="11.049" y="38.481" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="R30" library="robotter_resistor" package="R0603" value="10K-F" x="15.113" y="38.481" smashed="yes" rot="MR270">
 <attribute name="RS" value="740-8899" x="15.113" y="38.481" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="17.145" y="40.259" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="17.018" y="39.116" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="15.113" y="38.481" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R33" library="robotter_resistor" package="R0603" value="10K-F" x="13.081" y="38.481" smashed="yes" rot="MR270">
 <attribute name="RS" value="740-8899" x="13.081" y="38.481" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="13.716" y="37.211" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="14.986" y="39.116" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="13.081" y="38.481" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R55" library="robotter_resistor" package="R0603" value="10K-F" x="40.005" y="70.231" smashed="yes" rot="MR90">
 <attribute name="RS" value="740-8899" x="40.005" y="70.231" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="40.894" y="68.834" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="38.1" y="69.596" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="40.005" y="70.231" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="R54" library="robotter_resistor" package="R0603" value="10K-F" x="37.211" y="71.501" smashed="yes" rot="MR0">
 <attribute name="RS" value="740-8899" x="37.211" y="71.501" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="34.417" y="69.85" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="37.846" y="69.596" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="37.211" y="71.501" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="R20" library="robotter_resistor" package="R0603" value="10K-F" x="85.09" y="2.921" smashed="yes">
 <attribute name="RS" value="740-8899" x="85.09" y="2.921" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="86.741" y="2.159" size="1.27" layer="25"/>
 <attribute name="VALUE" x="84.455" y="1.016" size="1.27" layer="27"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="85.09" y="2.921" size="1.778" layer="27" display="off"/>
 </element>
 <element name="R9" library="robotter_resistor" package="R0603" value="10K-F" x="94.869" y="12.446" smashed="yes" rot="MR270">
 <attribute name="RS" value="740-8899" x="94.869" y="12.446" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="97.028" y="13.716" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="96.774" y="13.081" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="94.869" y="12.446" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R10" library="robotter_resistor" package="R0603" value="10K-F" x="91.186" y="14.732" smashed="yes" rot="MR180">
 <attribute name="RS" value="740-8899" x="91.186" y="14.732" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="92.202" y="15.367" size="1.27" layer="26" rot="MR180"/>
 <attribute name="VALUE" x="90.551" y="16.637" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="91.186" y="14.732" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="R5" library="robotter_resistor" package="R0603" value="10K-F" x="83.947" y="13.97" smashed="yes" rot="MR0">
 <attribute name="RS" value="740-8899" x="83.947" y="13.97" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="82.169" y="15.24" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="84.582" y="12.065" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="83.947" y="13.97" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="R11" library="robotter_resistor" package="R0603" value="10K-F" x="9.017" y="44.831" smashed="yes" rot="MR270">
 <attribute name="RS" value="740-8899" x="9.017" y="44.831" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="10.414" y="41.91" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="10.922" y="45.466" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="9.017" y="44.831" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R7" library="robotter_resistor" package="R0603" value="10K-F" x="12.192" y="55.753" smashed="yes" rot="MR270">
 <attribute name="RS" value="740-8899" x="12.192" y="55.753" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="11.303" y="56.896" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="14.097" y="56.388" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="12.192" y="55.753" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="R13" library="robotter_resistor" package="R0603" value="10K-F" x="83.947" y="18.034" smashed="yes" rot="MR0">
 <attribute name="RS" value="740-8899" x="83.947" y="18.034" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="84.963" y="19.177" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="84.582" y="16.129" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="83.947" y="18.034" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="R26" library="robotter_resistor" package="R0603" value="10K-F" x="11.176" y="66.294" smashed="yes" rot="R90">
 <attribute name="RS" value="740-8899" x="11.176" y="66.294" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="13.462" y="64.77" size="1.27" layer="25" rot="R90"/>
 <attribute name="VALUE" x="13.081" y="65.659" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="11.176" y="66.294" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="R15" library="robotter_resistor" package="R0603" value="10K-F" x="13.335" y="63.119" smashed="yes" rot="MR90">
 <attribute name="RS" value="740-8899" x="13.335" y="63.119" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="14.224" y="61.722" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="11.43" y="62.484" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="13.335" y="63.119" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="R14" library="robotter_resistor" package="R0603" value="10K-F" x="10.541" y="63.627" smashed="yes" rot="MR0">
 <attribute name="RS" value="740-8899" x="10.541" y="63.627" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="7.112" y="62.611" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="11.176" y="61.722" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="10.541" y="63.627" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="C20" library="robotter_capacitor" package="C1210" value="10µF 25V" x="85.471" y="29.337" smashed="yes" rot="MR90">
 <attribute name="RS" value="766-1185 " x="85.471" y="29.337" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="86.741" y="25.527" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="82.296" y="27.432" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" x="85.471" y="29.337" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="C21" library="robotter_capacitor" package="C1210" value="10µF 25V" x="88.773" y="29.337" smashed="yes" rot="MR90">
 <attribute name="RS" value="766-1185 " x="88.773" y="29.337" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="90.551" y="25.527" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="85.598" y="27.432" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" x="88.773" y="29.337" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="C23" library="robotter_capacitor" package="C0603" value="100nF 50V" x="91.567" y="29.21" smashed="yes" rot="MR90">
 <attribute name="RS" value=" 723-5534 " x="91.567" y="29.21" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="91.186" y="24.511" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="89.662" y="28.575" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="91.567" y="29.21" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="C34" library="robotter_capacitor" package="C0603" value="100nF 50V" x="11.176" y="43.815" smashed="yes">
 <attribute name="RS" value=" 723-5534 " x="11.176" y="43.815" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="9.271" y="44.831" size="1.27" layer="25"/>
 <attribute name="VALUE" x="10.541" y="41.91" size="1.27" layer="27"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="11.176" y="43.815" size="1.778" layer="27" display="off"/>
 </element>
 <element name="C35" library="robotter_capacitor" package="C0603" value="100nF 50V" x="6.985" y="34.29" smashed="yes" rot="R270">
 <attribute name="RS" value=" 723-5534 " x="6.985" y="34.29" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="5.461" y="31.115" size="1.27" layer="25"/>
 <attribute name="VALUE" x="5.08" y="34.925" size="1.27" layer="27" rot="R270"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="6.985" y="34.29" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="C42" library="robotter_capacitor" package="C0603" value="100nF 50V" x="6.985" y="37.465" smashed="yes" rot="R270">
 <attribute name="RS" value=" 723-5534 " x="6.985" y="37.465" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="4.953" y="39.37" size="1.27" layer="25" rot="R270"/>
 <attribute name="VALUE" x="5.08" y="38.1" size="1.27" layer="27" rot="R270"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="6.985" y="37.465" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="C44" library="robotter_capacitor" package="C0603" value="100nF 50V" x="6.985" y="40.64" smashed="yes" rot="R270">
 <attribute name="RS" value=" 723-5534 " x="6.985" y="40.64" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="4.953" y="43.18" size="1.27" layer="25" rot="R270"/>
 <attribute name="VALUE" x="5.08" y="41.275" size="1.27" layer="27" rot="R270"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="6.985" y="40.64" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="C39" library="robotter_capacitor" package="C0603" value="100nF 50V" x="14.224" y="43.815" smashed="yes" rot="R180">
 <attribute name="RS" value=" 723-5534 " x="14.224" y="43.815" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="13.081" y="44.577" size="1.27" layer="25"/>
 <attribute name="VALUE" x="14.859" y="45.72" size="1.27" layer="27" rot="R180"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="14.224" y="43.815" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
 <element name="C8" library="robotter_capacitor" package="C0603" value="100nF 50V" x="35.433" y="45.085" smashed="yes" rot="MR180">
 <attribute name="RS" value=" 723-5534 " x="35.433" y="45.085" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="34.29" y="44.323" size="1.27" layer="26" rot="MR180"/>
 <attribute name="VALUE" x="34.798" y="46.99" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="35.433" y="45.085" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="C9" library="robotter_capacitor" package="C0603" value="100nF 50V" x="30.48" y="45.085" smashed="yes" rot="MR180">
 <attribute name="RS" value=" 723-5534 " x="30.48" y="45.085" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="29.464" y="44.196" size="1.27" layer="26" rot="MR180"/>
 <attribute name="VALUE" x="29.845" y="46.99" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="30.48" y="45.085" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="C11" library="robotter_capacitor" package="C0603" value="100nF 50V" x="27.813" y="39.497" smashed="yes" rot="MR90">
 <attribute name="RS" value=" 723-5534 " x="27.813" y="39.497" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="28.448" y="38.862" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="25.908" y="38.862" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="27.813" y="39.497" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="C12" library="robotter_capacitor" package="C0603" value="100nF 50V" x="27.813" y="34.417" smashed="yes" rot="MR90">
 <attribute name="RS" value=" 723-5534 " x="27.813" y="34.417" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="28.702" y="33.02" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="25.908" y="33.782" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="27.813" y="34.417" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="C14" library="robotter_capacitor" package="C0603" value="100nF 50V" x="30.988" y="29.337" smashed="yes" rot="MR0">
 <attribute name="RS" value=" 723-5534 " x="30.988" y="29.337" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="32.512" y="30.099" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="31.623" y="27.432" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="30.988" y="29.337" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="C16" library="robotter_capacitor" package="C0603" value="100nF 50V" x="35.941" y="29.337" smashed="yes" rot="MR0">
 <attribute name="RS" value=" 723-5534 " x="35.941" y="29.337" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="37.084" y="30.226" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="36.576" y="27.432" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="35.941" y="29.337" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="C17" library="robotter_capacitor" package="C0603" value="100nF 50V" x="40.894" y="29.337" smashed="yes" rot="MR0">
 <attribute name="RS" value=" 723-5534 " x="40.894" y="29.337" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="41.148" y="27.305" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="41.529" y="27.432" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="40.894" y="29.337" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="C19" library="robotter_capacitor" package="C0603" value="100nF 50V" x="43.561" y="34.798" smashed="yes" rot="MR90">
 <attribute name="RS" value=" 723-5534 " x="43.561" y="34.798" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="44.323" y="33.147" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="41.656" y="34.163" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="43.561" y="34.798" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="C10" library="robotter_capacitor" package="C0603" value="100nF 50V" x="43.307" y="39.751" smashed="yes" rot="MR270">
 <attribute name="RS" value=" 723-5534 " x="43.307" y="39.751" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="45.593" y="41.021" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="45.212" y="40.386" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="43.307" y="39.751" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="C15" library="robotter_capacitor" package="C1210" value="10µF 25V" x="40.767" y="40.767" smashed="yes" rot="MR270">
 <attribute name="RS" value="766-1185 " x="40.767" y="40.767" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="38.862" y="42.672" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="43.942" y="42.672" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" x="40.767" y="40.767" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="C1" library="robotter_capacitor" package="C0603" value="15pF_0603_100V" x="48.387" y="37.592" smashed="yes" rot="R90">
 <attribute name="RS" value=" 147-421 " x="48.387" y="37.592" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="47.371" y="34.544" size="1.27" layer="25"/>
 <attribute name="VALUE" x="50.292" y="36.957" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="581-06031A150K4T2A " x="48.387" y="37.592" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="C2" library="robotter_capacitor" package="C0603" value="15pF_0603_100V" x="48.387" y="40.767" smashed="yes" rot="R270">
 <attribute name="RS" value=" 147-421 " x="48.387" y="40.767" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="47.244" y="42.418" size="1.27" layer="25"/>
 <attribute name="VALUE" x="46.482" y="41.402" size="1.27" layer="27" rot="R270"/>
+<attribute name="MOUSER" value="581-06031A150K4T2A " x="48.387" y="40.767" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="C5" library="robotter_capacitor" package="C0603" value="100nF 50V" x="5.207" y="20.193" smashed="yes" rot="MR0">
 <attribute name="RS" value=" 723-5534 " x="5.207" y="20.193" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="5.715" y="17.272" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="5.842" y="18.288" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="5.207" y="20.193" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="C3" library="robotter_capacitor" package="C0603" value="100nF 50V" x="94.996" y="9.017" smashed="yes" rot="MR270">
 <attribute name="RS" value=" 723-5534 " x="94.996" y="9.017" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="97.155" y="10.414" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="96.901" y="9.652" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="94.996" y="9.017" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="C6" library="robotter_capacitor" package="C0603" value="100nF 50V" x="6.223" y="44.069" smashed="yes" rot="MR180">
 <attribute name="RS" value=" 723-5534 " x="6.223" y="44.069" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="6.985" y="41.91" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="5.588" y="45.974" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="6.223" y="44.069" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="C7" library="robotter_capacitor" package="C0603" value="100nF 50V" x="91.694" y="19.304" smashed="yes" rot="MR270">
 <attribute name="RS" value=" 723-5534 " x="91.694" y="19.304" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="90.932" y="20.066" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="93.599" y="19.939" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="91.694" y="19.304" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="C4" library="robotter_capacitor" package="C0603" value="100nF 50V" x="10.541" y="61.468" smashed="yes" rot="MR180">
 <attribute name="RS" value=" 723-5534 " x="10.541" y="61.468" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="6.604" y="62.23" size="1.27" layer="26" rot="MR180"/>
 <attribute name="VALUE" x="9.906" y="63.373" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="10.541" y="61.468" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="R3" library="robotter_resistor" package="R0603" value="10K-F" x="47.879" y="7.493" smashed="yes" rot="MR0">
 <attribute name="RS" value="740-8899" x="47.879" y="7.493" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="46.355" y="8.763" size="1.27" layer="26" rot="MR270"/>
 <attribute name="VALUE" x="48.514" y="5.588" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="47.879" y="7.493" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="R60" library="robotter_resistor" package="R0805" value="15k 1%" x="45.466" y="62.611" smashed="yes" rot="MR90">
 <attribute name="RS" value="740-8997" x="45.466" y="62.611" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="43.053" y="61.341" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="42.926" y="61.976" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="652-CR0805FX-1502ELF" x="45.466" y="62.611" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="R61" library="robotter_resistor" package="R0805" value="1k" x="45.212" y="59.309" smashed="yes" rot="MR0">
 <attribute name="RS" value=" 223-0427" x="45.212" y="59.309" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="43.307" y="58.674" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="45.847" y="56.769" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="71-CRCW0805-1.0K-E3" x="45.212" y="59.309" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="C24" library="robotter_capacitor" package="PANASONIC_G" value="330µF 35V" x="45.974" y="62.357" smashed="yes" rot="R90">
 <attribute name="RS" value="708-3475" x="45.974" y="62.357" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="MANUFACTURER" value="EEEFK1V331P" x="45.974" y="62.357" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="50.683" y="56.797" size="1.016" layer="25" rot="R180"/>
 <attribute name="VALUE" x="48.649" y="59.807" size="1.016" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="667-EEE-FK1V331P" x="45.974" y="62.357" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="T8" library="robotter_ic" package="TSOP-6" value="NTGS4111PT1G" x="37.211" y="75.692" smashed="yes" rot="MR0">
 <attribute name="RS" value="780-0567" x="37.211" y="75.692" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="39.116" y="71.628" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="33.401" y="73.152" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="863-NTGS4111PT1G" x="37.211" y="75.692" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="T5" library="robotter_ic" package="TSOP-6" value="NTGS4111PT1G" x="10.668" y="66.294" smashed="yes" rot="MR270">
 <attribute name="RS" value="780-0567" x="10.668" y="66.294" size="1.778" layer="28" rot="MR270" display="off"/>
 <attribute name="NAME" x="11.176" y="68.072" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="13.208" y="62.484" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="863-NTGS4111PT1G" x="10.668" y="66.294" size="1.778" layer="28" rot="MR270" display="off"/>
 </element>
 <element name="T2" library="robotter_ic" package="TSOP-6" value="NTGS4111PT1G" x="91.948" y="11.049" smashed="yes" rot="MR180">
 <attribute name="RS" value="780-0567" x="91.948" y="11.049" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="88.011" y="11.684" size="1.27" layer="26" rot="MR180"/>
 <attribute name="VALUE" x="95.758" y="13.589" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="863-NTGS4111PT1G" x="91.948" y="11.049" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="R34" library="robotter_resistor" package="R0805" value="8K2-E" x="85.598" y="6.477" smashed="yes" rot="R90">
 <attribute name="RS" value=" 679-1727" x="85.598" y="6.477" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="84.709" y="4.572" size="1.27" layer="25" rot="R90"/>
 <attribute name="VALUE" x="88.138" y="5.842" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="71-CRCW08058K20FKEB" x="85.598" y="6.477" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="R29" library="robotter_resistor" package="R0805" value="8K2-E" x="6.858" y="55.118" smashed="yes" rot="R180">
 <attribute name="RS" value=" 679-1727" x="6.858" y="55.118" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="12.319" y="55.88" size="1.27" layer="25" rot="R180"/>
 <attribute name="VALUE" x="7.493" y="57.658" size="1.27" layer="27" rot="R180"/>
+<attribute name="MOUSER" value="71-CRCW08058K20FKEB" x="6.858" y="55.118" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
 <element name="IC4" library="robotter_ic" package="TSSOP24" value="74LVC4245APW" x="21.59" y="22.987" smashed="yes" rot="MR0">
 <attribute name="RS" value="380-0500" x="21.59" y="22.987" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="25.84" y="19.987" size="1.27" layer="26" rot="MR90"/>
-<attribute name="VALUE" x="15.94" y="19.987" size="1.27" layer="28" rot="MR90"/>
+<attribute name="VALUE" value="74LVC4245APW" x="15.94" y="19.987" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="771-74LVC4245APW-T" x="21.59" y="22.987" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="C31" library="robotter_capacitor" package="C0603" value="100nF 50V" x="24.003" y="25.654" smashed="yes" rot="R180">
 <attribute name="RS" value=" 723-5534 " x="24.003" y="25.654" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="26.035" y="27.94" size="1.27" layer="25" rot="R180"/>
 <attribute name="VALUE" x="24.638" y="27.559" size="1.27" layer="27" rot="R180"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="24.003" y="25.654" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
 <element name="C38" library="robotter_capacitor" package="C0603" value="100nF 50V" x="25.019" y="20.701" smashed="yes" rot="R90">
 <attribute name="RS" value=" 723-5534 " x="25.019" y="20.701" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="23.876" y="18.161" size="1.27" layer="25" rot="R90"/>
 <attribute name="VALUE" x="26.924" y="20.066" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="25.019" y="20.701" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="R70" library="robotter_resistor" package="R0603" value="0-F" x="13.97" y="30.734" smashed="yes" rot="MR90">
 <attribute name="NAME" x="13.208" y="25.781" size="1.27" layer="26" rot="MR90"/>
@@ -2764,17 +2875,20 @@ design rules under a new name.</description>
 <element name="IC2" library="robotter_ic" package="TSSOP24" value="74LVC4245APW" x="23.114" y="55.753" smashed="yes" rot="MR180">
 <attribute name="RS" value="380-0500" x="23.114" y="55.753" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="28.643" y="57.356" size="1.27" layer="26" rot="MR270"/>
-<attribute name="VALUE" x="28.764" y="58.753" size="1.27" layer="28" rot="MR270"/>
+<attribute name="VALUE" value="74LVC4245APW" x="28.764" y="58.753" size="1.27" layer="28" rot="MR270"/>
+<attribute name="MOUSER" value="771-74LVC4245APW-T" x="23.114" y="55.753" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="C22" library="robotter_capacitor" package="C0603" value="100nF 50V" x="20.574" y="54.102" smashed="yes">
 <attribute name="RS" value=" 723-5534 " x="20.574" y="59.182" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="19.939" y="54.737" size="1.27" layer="25"/>
 <attribute name="VALUE" x="19.939" y="52.197" size="1.27" layer="27"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="20.574" y="54.102" size="1.778" layer="27" display="off"/>
 </element>
 <element name="C25" library="robotter_capacitor" package="C0603" value="100nF 50V" x="20.574" y="58.166" smashed="yes">
 <attribute name="RS" value=" 723-5534 " x="20.574" y="63.246" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="19.939" y="58.801" size="1.27" layer="25"/>
 <attribute name="VALUE" x="19.939" y="56.261" size="1.27" layer="27"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="20.574" y="58.166" size="1.778" layer="27" display="off"/>
 </element>
 <element name="R44" library="robotter_resistor" package="R0603" value="0-F" x="20.066" y="49.149" smashed="yes" rot="MR90">
 <attribute name="NAME" x="19.685" y="44.323" size="1.27" layer="26" rot="MR90"/>
@@ -2796,78 +2910,93 @@ design rules under a new name.</description>
 <attribute name="RS" value="667-5039" x="7" y="20.5" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="NAME" x="13.985" y="17.325" size="1.27" layer="25" rot="R180"/>
 <attribute name="VALUE" x="13.985" y="24.945" size="1.27" layer="27" rot="R180"/>
+<attribute name="MOUSER" value="852-GP1S58VJ000F" x="7" y="20.5" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
 <element name="C13" library="robotter_capacitor" package="C0603" value="100nF 50V" x="9.144" y="21.463" smashed="yes" rot="MR180">
 <attribute name="RS" value=" 723-5534 " x="9.144" y="21.463" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="7.493" y="23.495" size="1.27" layer="26" rot="MR180"/>
 <attribute name="VALUE" x="8.509" y="23.368" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="9.144" y="21.463" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="R24" library="robotter_resistor" package="R0805" value="270-E" x="9.144" y="19.177" smashed="yes" rot="MR0">
 <attribute name="RS" value="740-9019" x="9.144" y="19.177" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="10.922" y="17.018" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="9.779" y="17.272" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="652-CR0805-FX2700GLF" x="9.144" y="19.177" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="R17" library="robotter_resistor" package="R0805" value="100-E" x="5.207" y="22.225" smashed="yes" rot="MR180">
 <attribute name="RS" value="223-0297" x="5.207" y="22.225" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="6.604" y="23.114" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" value="100-E" x="4.572" y="24.13" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="603-AF0805FR-07100RL" x="5.207" y="22.225" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="C18" library="robotter_capacitor" package="C0603" value="100nF 50V" x="94.234" y="58.547" smashed="yes" rot="R270">
 <attribute name="RS" value=" 723-5534 " x="94.234" y="58.547" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="92.075" y="59.69" size="1.27" layer="25" rot="R270"/>
 <attribute name="VALUE" x="92.329" y="59.182" size="1.27" layer="27" rot="R270"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="94.234" y="58.547" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="IC3" library="robotter_ic" package="SOT23-5" value="LM2731XMF" x="74.168" y="14.097" smashed="yes" rot="R180">
 <attribute name="RS" value="533-5418" x="74.168" y="14.097" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="VALUE" x="75.565" y="16.969" size="1.016" layer="27" ratio="10" rot="R180"/>
 <attribute name="NAME" x="71.525" y="15.367" size="1.016" layer="25" ratio="10" rot="R270"/>
+<attribute name="MOUSER" value="926-LM2731XMF/NOPB" x="74.168" y="14.097" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
 <element name="L2" library="robotter_inductor" package="SRR7032" value="SRR7032-100M" x="79.375" y="12.954" smashed="yes" rot="R90">
 <attribute name="RS" value="727-2101" x="79.375" y="12.954" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="VALUE" value="10µH" x="79.375" y="12.954" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="83.439" y="14.859" size="1.27" layer="25"/>
 <attribute name="VALUE" x="75.565" y="9.144" size="1.27" layer="27" rot="R90"/>
+<attribute name="MOUSER" value="652-SRR7032-100M" x="79.375" y="12.954" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="R66" library="robotter_resistor" package="R0603" value="10K_1%-F" x="73.152" y="15.621" smashed="yes" rot="MR0">
 <attribute name="RS" value="740-8805" x="73.152" y="15.621" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="78.105" y="14.986" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="73.787" y="13.716" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="652-CR0603FX-1002ELF" x="73.152" y="15.621" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="R65" library="robotter_resistor" package="R0603" value="113K-F" x="73.152" y="18.034" smashed="yes" rot="MR0">
 <attribute name="RS" value="708-9035" x="73.152" y="18.034" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="VALUE" value="113k 0.1%" x="73.152" y="18.034" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="78.232" y="17.526" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="73.787" y="16.129" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="71-CRCW0603-113K-E3" x="73.152" y="18.034" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="C41" library="robotter_capacitor" package="C1210" value="10µF 25V" x="73.533" y="18.669" smashed="yes" rot="R270">
 <attribute name="RS" value="766-1185 " x="73.533" y="18.669" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="72.009" y="21.336" size="1.27" layer="25"/>
 <attribute name="VALUE" x="70.358" y="20.574" size="1.27" layer="27" rot="R270"/>
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" x="73.533" y="18.669" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="C28" library="robotter_capacitor" package="C1210" value="10µF 25V" x="74.168" y="12.065" smashed="yes" rot="MR90">
 <attribute name="RS" value="766-1185 " x="74.168" y="12.065" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="76.073" y="10.668" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="70.993" y="10.16" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" x="74.168" y="12.065" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="R62" library="robotter_resistor" package="R0603" value="10K_1%-F" x="74.168" y="10.795" smashed="yes">
 <attribute name="RS" value="740-8805" x="74.168" y="10.795" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="72.263" y="8.89" size="1.27" layer="25"/>
 <attribute name="VALUE" x="73.533" y="8.89" size="1.27" layer="27"/>
+<attribute name="MOUSER" value="652-CR0603FX-1002ELF" x="74.168" y="10.795" size="1.778" layer="27" display="off"/>
 </element>
 <element name="D6" library="robotter_diode" package="SMB" value="B120-13-F" x="79.629" y="19.558" smashed="yes">
 <attribute name="RS" value=" 751-3174" x="79.629" y="19.558" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="83.312" y="18.923" size="1.27" layer="25"/>
 <attribute name="VALUE" x="77.47" y="16.129" size="1.27" layer="27"/>
+<attribute name="MOUSER" value="621-B120-F" x="79.629" y="19.558" size="1.778" layer="27" display="off"/>
 </element>
 <element name="C40" library="robotter_capacitor" package="C0603" value="180pF 50V" x="73.152" y="20.193" smashed="yes" rot="MR0">
 <attribute name="RS" value="147-213" x="73.152" y="20.193" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="NAME" x="78.232" y="19.558" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="73.787" y="18.288" size="1.27" layer="28" rot="MR0"/>
+<attribute name="MOUSER" value="77-VJ0603A181GXACBC" x="73.152" y="20.193" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
 <element name="IR_SENS0" library="robotter_connector" package="794681-4" value="794681-4" x="4.191" y="61.722" smashed="yes" rot="R270">
 <attribute name="RS" value="495-9344" x="4.191" y="61.722" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="9.24" y="65.381" size="1.27" layer="25" rot="SR270"/>
 <attribute name="VALUE" x="8.691" y="64.722" size="1.27" layer="27" rot="R270"/>
+<attribute name="MOUSER" value="571-3-794630-4 " x="4.191" y="61.722" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="R22" library="robotter_resistor" package="R0603" value="0-F" x="8.255" y="66.167" smashed="yes">
 <attribute name="NAME" x="5.842" y="67.183" size="1.27" layer="25"/>
@@ -2877,18 +3006,17 @@ design rules under a new name.</description>
 <attribute name="NAME" x="11.811" y="57.277" size="1.27" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="11.176" y="57.277" size="1.27" layer="28" rot="MR0"/>
 </element>
-<element name="MOT0" library="con-molex" package="6410-02" value="22-27-2021-02" x="96.901" y="18.415" smashed="yes" rot="R270">
-<attribute name="OC_NEWARK" value="unknown" x="96.901" y="18.415" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="MPN" value="" x="96.901" y="18.415" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="MF" value="" x="96.901" y="18.415" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="OC_FARNELL" value="unknown" x="96.901" y="18.415" size="1.778" layer="27" rot="R270" display="off"/>
+<element name="MOT0" library="robotter_connector" package="6410-02" value="22-27-2021-02" x="96.901" y="18.415" smashed="yes" rot="R270">
 <attribute name="NAME" x="91.6671" y="20.0391" size="1.016" layer="25" ratio="10" rot="SR270"/>
 <attribute name="VALUE" x="92.3021" y="20.9281" size="0.8128" layer="27" ratio="10" rot="R270"/>
+<attribute name="RS" value="483-8461 " x="96.901" y="18.415" size="1.778" layer="27" rot="R270" display="off"/>
+<attribute name="MOUSER" value="538-22-27-2021 " x="96.901" y="18.415" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="L1" library="robotter_inductor" package="R0603" value="220 ohms" x="43.307" y="42.799" smashed="yes" rot="MR90">
 <attribute name="RS" value="724-1302" x="43.307" y="42.799" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="44.196" y="42.037" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="41.402" y="42.164" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="81-BLM18BB221SN1D" x="43.307" y="42.799" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="R1" library="robotter_resistor" package="R0805" value="0-E" x="30.861" y="2.794" smashed="yes" rot="R90">
 <attribute name="NAME" x="29.591" y="6.35" size="1.27" layer="25" rot="SR270"/>
@@ -2910,33 +3038,40 @@ design rules under a new name.</description>
 <attribute name="RS" value="766-1185 " x="92.964" y="50.419" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="92.456" y="52.959" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="89.789" y="48.514" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" x="92.964" y="50.419" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="C30" library="robotter_capacitor" package="C0603" value="100nF 50V" x="90.424" y="49.657" smashed="yes" rot="MR90">
 <attribute name="RS" value=" 723-5534 " x="90.424" y="49.657" size="1.778" layer="28" rot="MR90" display="off"/>
 <attribute name="NAME" x="89.789" y="51.435" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="88.519" y="49.022" size="1.27" layer="28" rot="MR90"/>
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" x="90.424" y="49.657" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="R67" library="robotter_resistor" package="R0603" value="10K-F" x="88.011" y="45.466" smashed="yes" rot="MR180">
 <attribute name="RS" value="740-8899" x="88.011" y="45.466" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="89.789" y="44.069" size="1.27" layer="26" rot="MR90"/>
 <attribute name="VALUE" x="87.376" y="47.371" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="88.011" y="45.466" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="R43" library="robotter_resistor" package="R0603" value="10K-F" x="89.789" y="33.528" smashed="yes" rot="MR180">
 <attribute name="RS" value="740-8899" x="89.789" y="33.528" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="84.709" y="34.036" size="1.27" layer="26" rot="MR180"/>
 <attribute name="VALUE" x="89.154" y="35.433" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="89.789" y="33.528" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="R42" library="robotter_resistor" package="R0603" value="10K-F" x="89.789" y="35.687" smashed="yes" rot="MR180">
 <attribute name="RS" value="740-8899" x="89.789" y="35.687" size="1.778" layer="28" rot="MR180" display="off"/>
 <attribute name="NAME" x="84.709" y="36.322" size="1.27" layer="26" rot="MR180"/>
 <attribute name="VALUE" x="89.154" y="37.592" size="1.27" layer="28" rot="MR180"/>
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" x="89.789" y="35.687" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="IDX0" library="robotter_others" package="PRISM_INDEX_EXTENSION_MALE" value="PRISM_INDEX_EXTENSION_MALE" x="97.446" y="58.5" smashed="yes"/>
 <element name="R74" library="robotter_resistor" package="R0805" value="270-E" x="12.7" y="51.054">
 <attribute name="RS" value="740-9019" x="12.7" y="51.054" size="1.778" layer="27" display="off"/>
+<attribute name="MOUSER" value="652-CR0805-FX2700GLF" x="12.7" y="51.054" size="1.778" layer="27" display="off"/>
 </element>
 <element name="R75" library="robotter_resistor" package="R0805" value="270-E" x="81.788" y="37.973">
 <attribute name="RS" value="740-9019" x="81.788" y="37.973" size="1.778" layer="27" display="off"/>
+<attribute name="MOUSER" value="652-CR0805-FX2700GLF" x="81.788" y="37.973" size="1.778" layer="27" display="off"/>
 </element>
 </elements>
 <signals>
