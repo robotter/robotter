@@ -288,6 +288,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="863-MBRA340T3G" constant="no"/>
 <attribute name="RS" value="688-0502" constant="no"/>
 <attribute name="VALUE" value="MBRA340T3" constant="no"/>
 </technology>
@@ -307,6 +308,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171GKT" constant="no"/>
 <attribute name="RS" value=" 692-0935 " constant="no"/>
 <attribute name="VALUE" value="GREEN"/>
 </technology>
@@ -319,6 +321,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C170YKT" constant="no"/>
 <attribute name="RS" value="692-0925" constant="no"/>
 <attribute name="VALUE" value="YELLOW" constant="no"/>
 </technology>
@@ -331,6 +334,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171EKT" constant="no"/>
 <attribute name="RS" value=" 692-0931" constant="no"/>
 <attribute name="VALUE" value="RED" constant="no"/>
 </technology>
@@ -343,6 +347,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171TBKT" constant="no"/>
 <attribute name="RS" value="692-0953" constant="no"/>
 <attribute name="VALUE" value="BLUE" constant="no"/>
 </technology>
@@ -512,7 +517,9 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="771-74LVC4245APW-T" constant="no"/>
 <attribute name="RS" value="380-0500" constant="no"/>
+<attribute name="VALUE" value="74LVC4245APW" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -565,6 +572,8 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="FARNELL" value="1469194" constant="no"/>
+<attribute name="MOUSER" value="926-LM2596SX-ADJNOPB" constant="no"/>
 <attribute name="RS" value="533-3715" constant="no"/>
 <attribute name="VALUE" value="LM2596S-ADJ" constant="no"/>
 </technology>
@@ -716,6 +725,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" constant="no"/>
 <attribute name="RS" value=" 723-5534 " constant="no"/>
 <attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
@@ -728,6 +738,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GRM40Y104Z50D" constant="no"/>
 <attribute name="RS" value="220-7966 " constant="no"/>
 <attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
@@ -747,6 +758,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="963-GMK325BJ106MN-T" constant="no"/>
 <attribute name="RS" value="758-3325 " constant="no"/>
 <attribute name="VALUE" value="10µF 35V" constant="no"/>
 </technology>
@@ -759,6 +771,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" constant="no"/>
 <attribute name="RS" value="766-1185 " constant="no"/>
 <attribute name="VALUE" value="10µF 25V" constant="no"/>
 </technology>
@@ -778,6 +791,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="667-EEE-FK1V101P" constant="no"/>
 <attribute name="RS" value="537-0613" constant="no"/>
 <attribute name="VALUE" value="100µF 35V" constant="no"/>
 </technology>
@@ -797,6 +811,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="667-EEE-FP1V221AP" constant="no"/>
 <attribute name="RS" value="568-828" constant="no"/>
 <attribute name="VALUE" value="220µF 35V" constant="no"/>
 </technology>
@@ -939,6 +954,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 <technologies>
 <technology name="">
 <attribute name="FARNELL" value="1109794" constant="no"/>
+<attribute name="MOUSER" value="855-M22-7140842" constant="no"/>
 <attribute name="RS" value="605-8847" constant="no"/>
 <attribute name="VALUE" value="" constant="no"/>
 </technology>
@@ -961,6 +977,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 <technologies>
 <technology name="">
 <attribute name="MF" value="" constant="no"/>
+<attribute name="MOUSER" value="" constant="no"/>
 <attribute name="MPN" value="" constant="no"/>
 <attribute name="OC_FARNELL" value="unknown" constant="no"/>
 <attribute name="OC_NEWARK" value="unknown" constant="no"/>
@@ -1277,6 +1294,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603-1.0K-E3" constant="no"/>
 <attribute name="RS" value="213-2266" constant="no"/>
 <attribute name="VALUE" value="1k" constant="no"/>
 </technology>
@@ -1289,6 +1307,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0805-1.0K-E3" constant="no"/>
 <attribute name="RS" value=" 223-0427" constant="no"/>
 <attribute name="VALUE" value="1k" constant="no"/>
 </technology>
@@ -1301,6 +1320,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="279-35201K0JT" constant="no"/>
 <attribute name="RS" value="224-0395" constant="no"/>
 <attribute name="VALUE" value="1k 1W" constant="no"/>
 </technology>
@@ -1320,6 +1340,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="667-ERA-3AEB3091V" constant="no"/>
 <attribute name="RS" value="708-7574" constant="no"/>
 </technology>
 </technologies>
@@ -1338,6 +1359,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="279-CRG0603F470R" constant="no"/>
 <attribute name="RS" value="213-2222" constant="no"/>
 </technology>
 </technologies>
@@ -1349,6 +1371,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0805-FX4700GLF" constant="no"/>
 <attribute name="RS" value="740-9038" constant="no"/>
 </technology>
 </technologies>
@@ -1394,6 +1417,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-SRR1280-330M" constant="no"/>
 <attribute name="RS" value="727-2274" constant="no"/>
 <attribute name="VALUE" value="33µH" constant="no"/>
 </technology>
