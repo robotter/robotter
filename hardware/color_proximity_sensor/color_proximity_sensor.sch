@@ -320,6 +320,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="963-GMK325BJ106MN-T" constant="no"/>
 <attribute name="RS" value="758-3325 " constant="no"/>
 <attribute name="VALUE" value="10µF 35V" constant="no"/>
 </technology>
@@ -332,6 +333,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" constant="no"/>
 <attribute name="RS" value="766-1185 " constant="no"/>
 <attribute name="VALUE" value="10µF 25V" constant="no"/>
 </technology>
@@ -351,6 +353,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" constant="no"/>
 <attribute name="RS" value=" 723-5534 " constant="no"/>
 <attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
@@ -363,6 +366,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GRM40Y104Z50D" constant="no"/>
 <attribute name="RS" value="220-7966 " constant="no"/>
 <attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
@@ -382,6 +386,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="810-C3216X7R1E105K-6" constant="no"/>
 <attribute name="RS" value=" 740-7574 " constant="no"/>
 <attribute name="VALUE" value="1µF 25V" constant="no"/>
 </technology>
@@ -401,6 +406,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GCM188R71H103KA7D" constant="no"/>
 <attribute name="RS" value="723-4982" constant="no"/>
 <attribute name="VALUE" value="10nF 50V" constant="no"/>
 </technology>
@@ -432,6 +438,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="581-1210ZG226Z" constant="no"/>
 <attribute name="RS" value="698-3844" constant="no"/>
 <attribute name="VALUE" value="22µF 10V" constant="no"/>
 </technology>
@@ -451,6 +458,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="581-06031A150K4T2A " constant="no"/>
 <attribute name="RS" value=" 147-421 " constant="no"/>
 <attribute name="VALUE" value="15pF_0603_100V" constant="no"/>
 </technology>
@@ -463,6 +471,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="" constant="no"/>
 <attribute name="VALUE" value="15pF_0603_100V" constant="no"/>
 </technology>
 </technologies>
@@ -481,6 +490,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="667-EEE-FP1V221AP" constant="no"/>
 <attribute name="RS" value="568-828" constant="no"/>
 <attribute name="VALUE" value="220µF 35V" constant="no"/>
 </technology>
@@ -621,6 +631,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="621-B160-F" constant="no"/>
 <attribute name="RS" value="738-4765" constant="no"/>
 <attribute name="VALUE" value="B160-13F" constant="no"/>
 </technology>
@@ -640,6 +651,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="720-SFH4253-Z " constant="no"/>
 <attribute name="RS" value="665-5495" constant="no"/>
 <attribute name="VALUE" value="SFH 4253" constant="no"/>
 </technology>
@@ -667,6 +679,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <technology name="">
 <attribute name="FARNELL" value="1863245" constant="no"/>
 <attribute name="MANUFACTURER" value="AVAGO TECHNOLOGIES" constant="no"/>
+<attribute name="MOUSER" value="630-ASMT-YTD2-0BB02" constant="no"/>
 <attribute name="RS" value="769-3520 " constant="no"/>
 <attribute name="VALUE" value="ASMT-YTD2-0BB02" constant="no"/>
 </technology>
@@ -686,6 +699,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171GKT" constant="no"/>
 <attribute name="RS" value=" 692-0935 " constant="no"/>
 <attribute name="VALUE" value="GREEN"/>
 </technology>
@@ -698,6 +712,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C170YKT" constant="no"/>
 <attribute name="RS" value="692-0925" constant="no"/>
 <attribute name="VALUE" value="YELLOW" constant="no"/>
 </technology>
@@ -710,6 +725,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171EKT" constant="no"/>
 <attribute name="RS" value=" 692-0931" constant="no"/>
 <attribute name="VALUE" value="RED" constant="no"/>
 </technology>
@@ -722,6 +738,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171TBKT" constant="no"/>
 <attribute name="RS" value="692-0953" constant="no"/>
 <attribute name="VALUE" value="BLUE" constant="no"/>
 </technology>
@@ -807,6 +824,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" constant="no"/>
 <attribute name="RS" value="740-8899" constant="no"/>
 </technology>
 </technologies>
@@ -818,6 +836,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW080510K0FKEB" constant="no"/>
 <attribute name="RS" value=" 740-9072" constant="no"/>
 </technology>
 </technologies>
@@ -836,6 +855,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603-1.0K-E3" constant="no"/>
 <attribute name="RS" value="213-2266" constant="no"/>
 <attribute name="VALUE" value="1k" constant="no"/>
 </technology>
@@ -848,6 +868,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0805-1.0K-E3" constant="no"/>
 <attribute name="RS" value=" 223-0427" constant="no"/>
 <attribute name="VALUE" value="1k" constant="no"/>
 </technology>
@@ -860,6 +881,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="279-35201K0JT" constant="no"/>
 <attribute name="RS" value="224-0395" constant="no"/>
 <attribute name="VALUE" value="1k 1W" constant="no"/>
 </technology>
@@ -879,6 +901,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="603-RL0603FR070R27L" constant="no"/>
 <attribute name="RS" value="722-1046" constant="no"/>
 </technology>
 </technologies>
@@ -897,6 +920,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="660-RK73H1JTTD7502F" constant="no"/>
 <attribute name="RS" value="679-0695" constant="no"/>
 </technology>
 </technologies>
@@ -926,6 +950,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="667-ERA-3AEB3091V" constant="no"/>
 <attribute name="RS" value="708-7574" constant="no"/>
 </technology>
 </technologies>
@@ -944,6 +969,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0805FX-1502ELF" constant="no"/>
 <attribute name="RS" value="740-8997" constant="no"/>
 <attribute name="VALUE" value="15k 1%" constant="no"/>
 </technology>
@@ -956,6 +982,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603-JW-153GLF" constant="no"/>
 <attribute name="RS" value="740-8912" constant="no"/>
 <attribute name="VALUE" value="15k 1%" constant="no"/>
 </technology>
@@ -975,6 +1002,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="279-CRG0603F22R" constant="no"/>
 <attribute name="RS" value="213-2042" constant="no"/>
 <attribute name="VALUE" value="22 ohms" constant="no"/>
 </technology>
@@ -994,6 +1022,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" constant="no"/>
 <attribute name="RS" value=" 679-0071" constant="no"/>
 </technology>
 </technologies>
@@ -1005,6 +1034,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0805-FX2700GLF" constant="no"/>
 <attribute name="RS" value="740-9019" constant="no"/>
 </technology>
 </technologies>
@@ -1412,6 +1442,7 @@ http://www.ti.com/product/lm25011</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="926-LM25011MY/NOPB " constant="no"/>
 <attribute name="RS" value="761-4883" constant="no"/>
 <attribute name="VALUE" value="LM25011MY" constant="no"/>
 </technology>
@@ -1436,7 +1467,8 @@ http://www.ti.com/product/lm25011</description>
 <technologies>
 <technology name="">
 <attribute name="I2C_ADDRESS" value="0x29" constant="no"/>
-<attribute name="RADIOSPARES" value="785-7749"/>
+<attribute name="MOUSER" value="985-TCS37725FN " constant="no"/>
+<attribute name="RS" value="785-7749"/>
 </technology>
 </technologies>
 </device>
@@ -1460,6 +1492,7 @@ http://www.ti.com/product/lm25011</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="630-APDS-9800-021" constant="no"/>
 <attribute name="RS" value="714-2707" constant="no"/>
 </technology>
 </technologies>
@@ -1520,6 +1553,7 @@ http://www.ti.com/product/lm25011</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="556-ATXMEGA64D4-AU " constant="no"/>
 <attribute name="RS" value="" constant="no"/>
 <attribute name="VALUE" value="ATXMEGA64DA-AU" constant="no"/>
 </technology>
@@ -1551,6 +1585,7 @@ http://www.ti.com/product/lm25011</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="559-FOXSD160-20-LF" constant="no"/>
 <attribute name="RS" value=" 547-6531" constant="no"/>
 <attribute name="VALUE" value="16 MHz" constant="no"/>
 </technology>
@@ -1575,6 +1610,7 @@ http://www.ti.com/product/lm25011</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="863-BC847CDXV6T1G" constant="no"/>
 <attribute name="RS" value="773-7627" constant="no"/>
 <attribute name="VALUE" value="BC847CDXV6T1G" constant="no"/>
 </technology>
@@ -1633,6 +1669,7 @@ http://www.ti.com/product/lm25011</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-SDR0805-270KL" constant="no"/>
 <attribute name="RS" value=" 736-1282" constant="no"/>
 </technology>
 </technologies>
@@ -1651,6 +1688,7 @@ http://www.ti.com/product/lm25011</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-BLM18BB221SN1D" constant="no"/>
 <attribute name="RS" value="724-1302" constant="no"/>
 <attribute name="VALUE" value="220 ohms" constant="no"/>
 </technology>
@@ -1764,6 +1802,8 @@ http://www.ti.com/product/lm25011</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="FARNELL" value="1865096" constant="no"/>
+<attribute name="MOUSER" value="571-7-188275-8 " constant="no"/>
 <attribute name="RS" value="739-1227 " constant="no"/>
 </technology>
 </technologies>
