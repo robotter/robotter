@@ -818,6 +818,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" constant="no"/>
 <attribute name="RS" value=" 723-5534 " constant="no"/>
 <attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
@@ -830,6 +831,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GRM40Y104Z50D" constant="no"/>
 <attribute name="RS" value="220-7966 " constant="no"/>
 <attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
@@ -849,6 +851,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="581-06031A150K4T2A " constant="no"/>
 <attribute name="RS" value=" 147-421 " constant="no"/>
 <attribute name="VALUE" value="15pF_0603_100V" constant="no"/>
 </technology>
@@ -861,6 +864,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="" constant="no"/>
 <attribute name="VALUE" value="15pF_0603_100V" constant="no"/>
 </technology>
 </technologies>
@@ -879,6 +883,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="963-GMK325BJ106MN-T" constant="no"/>
 <attribute name="RS" value="758-3325 " constant="no"/>
 <attribute name="VALUE" value="10µF 35V" constant="no"/>
 </technology>
@@ -891,6 +896,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" constant="no"/>
 <attribute name="RS" value="766-1185 " constant="no"/>
 <attribute name="VALUE" value="10µF 25V" constant="no"/>
 </technology>
@@ -910,6 +916,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GCM188R71H103KA7D" constant="no"/>
 <attribute name="RS" value="723-4982" constant="no"/>
 <attribute name="VALUE" value="10nF 50V" constant="no"/>
 </technology>
@@ -941,6 +948,7 @@ DIN A4, landscape with location and doc. field</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="667-EEE-FP1V221AP" constant="no"/>
 <attribute name="RS" value="568-828" constant="no"/>
 <attribute name="VALUE" value="220µF 35V" constant="no"/>
 </technology>
@@ -1108,6 +1116,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171GKT" constant="no"/>
 <attribute name="RS" value=" 692-0935 " constant="no"/>
 <attribute name="VALUE" value="GREEN"/>
 </technology>
@@ -1120,6 +1129,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C170YKT" constant="no"/>
 <attribute name="RS" value="692-0925" constant="no"/>
 <attribute name="VALUE" value="YELLOW" constant="no"/>
 </technology>
@@ -1132,6 +1142,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171EKT" constant="no"/>
 <attribute name="RS" value=" 692-0931" constant="no"/>
 <attribute name="VALUE" value="RED" constant="no"/>
 </technology>
@@ -1144,6 +1155,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="859-LTST-C171TBKT" constant="no"/>
 <attribute name="RS" value="692-0953" constant="no"/>
 <attribute name="VALUE" value="BLUE" constant="no"/>
 </technology>
@@ -1164,6 +1176,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="844-50WQ03FNPBF" constant="no"/>
 <attribute name="RS" value="302-167" constant="no"/>
 <attribute name="VALUE" value="50WQ03" constant="no"/>
 </technology>
@@ -1183,6 +1196,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="621-B160-F" constant="no"/>
 <attribute name="RS" value="738-4765" constant="no"/>
 <attribute name="VALUE" value="B160-13F" constant="no"/>
 </technology>
@@ -1204,6 +1218,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="863-MBRA340T3G" constant="no"/>
 <attribute name="RS" value="688-0502" constant="no"/>
 <attribute name="VALUE" value="MBRA340T3" constant="no"/>
 </technology>
@@ -1314,6 +1329,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" constant="no"/>
 <attribute name="RS" value=" 679-0071" constant="no"/>
 </technology>
 </technologies>
@@ -1325,6 +1341,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0805-FX2700GLF" constant="no"/>
 <attribute name="RS" value="740-9019" constant="no"/>
 </technology>
 </technologies>
@@ -1343,6 +1360,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="667-ERA-3AEB3091V" constant="no"/>
 <attribute name="RS" value="708-7574" constant="no"/>
 </technology>
 </technologies>
@@ -1361,6 +1379,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603-1.0K-E3" constant="no"/>
 <attribute name="RS" value="213-2266" constant="no"/>
 <attribute name="VALUE" value="1k" constant="no"/>
 </technology>
@@ -1373,6 +1392,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0805-1.0K-E3" constant="no"/>
 <attribute name="RS" value=" 223-0427" constant="no"/>
 <attribute name="VALUE" value="1k" constant="no"/>
 </technology>
@@ -1385,6 +1405,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="279-35201K0JT" constant="no"/>
 <attribute name="RS" value="224-0395" constant="no"/>
 <attribute name="VALUE" value="1k 1W" constant="no"/>
 </technology>
@@ -1404,6 +1425,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603-JW-472GLF" constant="no"/>
 <attribute name="RS" value="740-8959" constant="no"/>
 </technology>
 </technologies>
@@ -1415,6 +1437,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="279-CRG0805F4K7" constant="no"/>
 <attribute name="RS" value="223-0528" constant="no"/>
 </technology>
 </technologies>
@@ -1433,6 +1456,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603-JW-103ELF" constant="no"/>
 <attribute name="RS" value="740-8899" constant="no"/>
 </technology>
 </technologies>
@@ -1444,6 +1468,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW080510K0FKEB" constant="no"/>
 <attribute name="RS" value=" 740-9072" constant="no"/>
 </technology>
 </technologies>
@@ -1462,6 +1487,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603-JW-682GLF" constant="no"/>
 <attribute name="RS" value="740-8969" constant="no"/>
 <attribute name="VALUE" value="6k8" constant="no"/>
 </technology>
@@ -1474,6 +1500,7 @@ Source: http://www.onsemi.com/pub_link/Collateral/MBRA340T3-D.PDF</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0805-6.8K-E3" constant="no"/>
 <attribute name="RS" value="679-1651" constant="no"/>
 <attribute name="VALUE" value="6k8" constant="no"/>
 </technology>
@@ -1922,6 +1949,7 @@ Source: http://www.maxim-ic.com/package_drawings/21-0041B.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="559-FOXSD160-20-LF" constant="no"/>
 <attribute name="RS" value=" 547-6531" constant="no"/>
 <attribute name="VALUE" value="16 MHz" constant="no"/>
 </technology>
@@ -1943,6 +1971,7 @@ Source: http://www.maxim-ic.com/package_drawings/21-0041B.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="926-LM1086CS-3.3NOPB " constant="no"/>
 <attribute name="RS" value="533-9426" constant="no"/>
 <attribute name="VALUE" value="LM1086CS-3.3" constant="no"/>
 </technology>
@@ -1980,9 +2009,11 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 </connects>
 <technologies>
 <technology name="C">
+<attribute name="MOUSER" value="511-ST3232CDR" constant="no"/>
 <attribute name="RS" value="415-2105 " constant="no"/>
 </technology>
 <technology name="E">
+<attribute name="MOUSER" value="511-ST3232CDR" constant="no"/>
 <attribute name="RS" value="415-2105 " constant="no"/>
 </technology>
 </technologies>
@@ -2005,6 +2036,7 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="595-SN74LVC1T45DBVT" constant="no"/>
 <attribute name="RS" value=" 662-8825" constant="no"/>
 </technology>
 </technologies>
@@ -2025,6 +2057,7 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 <technologies>
 <technology name="">
 <attribute name="FN" value="1608911" constant="no"/>
+<attribute name="MOUSER" value="841-MPXV5100GC6U " constant="no"/>
 <attribute name="VALUE" value="MPXV5100GC6U" constant="no"/>
 </technology>
 </technologies>
@@ -2044,6 +2077,7 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="863-NTR4503NT1G" constant="no"/>
 <attribute name="RS" value=" 780-4751" constant="no"/>
 <attribute name="VALUE" value="NTR4503NT1G" constant="no"/>
 </technology>
@@ -2098,6 +2132,8 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="FARNELL" value="1469194" constant="no"/>
+<attribute name="MOUSER" value="926-LM2596SX-ADJNOPB" constant="no"/>
 <attribute name="RS" value="533-3715" constant="no"/>
 <attribute name="VALUE" value="LM2596S-ADJ" constant="no"/>
 </technology>
@@ -2155,7 +2191,9 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="771-74LVC4245APW-T" constant="no"/>
 <attribute name="RS" value="380-0500" constant="no"/>
+<attribute name="VALUE" value="74LVC4245APW" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -2530,6 +2568,177 @@ DDEController.pdf</description>
 <text x="-10.16" y="5.08" size="1.27" layer="25">&gt;NAME</text>
 <text x="-9.525" y="-6.35" size="1.27" layer="27">&gt;VALUE</text>
 </package>
+<package name="1445055-3">
+<description>&lt;b&gt;Micro MATE-N-LOK Connectors&lt;/b&gt; grid 3.0 mm&lt;p&gt;
+Source: ENG_CD_1445055_A.pdf</description>
+<wire x1="-4.9" y1="4.525" x2="-4.175" y2="4.525" width="0.2032" layer="21"/>
+<wire x1="-4.9" y1="4.525" x2="-4.9" y2="-4.5" width="0.2032" layer="21"/>
+<wire x1="-4.9" y1="-4.5" x2="4.9" y2="-4.5" width="0.2032" layer="21"/>
+<wire x1="4.9" y1="-4.5" x2="4.9" y2="4.525" width="0.2032" layer="21"/>
+<wire x1="4.9" y1="4.525" x2="4.1" y2="4.525" width="0.2032" layer="21"/>
+<wire x1="4.1" y1="4.525" x2="3.575" y2="4.525" width="0.2032" layer="51"/>
+<wire x1="3.575" y1="4.525" x2="3.575" y2="3.4" width="0.2032" layer="51"/>
+<wire x1="3.575" y1="3.4" x2="2.425" y2="3.4" width="0.2032" layer="51"/>
+<wire x1="2.425" y1="3.4" x2="2.425" y2="4.175" width="0.2032" layer="51"/>
+<wire x1="2.425" y1="4.175" x2="1.95" y2="4.175" width="0.2032" layer="51"/>
+<wire x1="-1.05" y1="4.175" x2="-1.925" y2="4.175" width="0.2032" layer="21"/>
+<wire x1="-1.925" y1="4.175" x2="-2.425" y2="4.175" width="0.2032" layer="51"/>
+<wire x1="-2.425" y1="4.175" x2="-2.425" y2="3.4" width="0.2032" layer="51"/>
+<wire x1="-2.425" y1="3.4" x2="-3.575" y2="3.4" width="0.2032" layer="51"/>
+<wire x1="-3.575" y1="3.4" x2="-3.575" y2="4.525" width="0.2032" layer="51"/>
+<wire x1="-3.575" y1="4.525" x2="-4.175" y2="4.525" width="0.2032" layer="51"/>
+<wire x1="-5" y1="1.45" x2="-5.75" y2="1.45" width="0.2032" layer="25"/>
+<wire x1="-5.75" y1="1.45" x2="-6.475" y2="1.025" width="0.2032" layer="25"/>
+<wire x1="-6.475" y1="1.025" x2="-6.475" y2="-0.425" width="0.2032" layer="25"/>
+<wire x1="-6.475" y1="-0.425" x2="-5.75" y2="-0.85" width="0.2032" layer="25"/>
+<wire x1="-5.75" y1="-0.85" x2="-5.525" y2="-0.85" width="0.2032" layer="25"/>
+<wire x1="-5.525" y1="-0.85" x2="-5.525" y2="-0.35" width="0.2032" layer="25"/>
+<wire x1="-5.525" y1="-0.35" x2="-5" y2="-0.35" width="0.2032" layer="25"/>
+<wire x1="-5.9" y1="-0.7" x2="-5.9" y2="1.3" width="0.2032" layer="25"/>
+<wire x1="5" y1="-1.45" x2="5.75" y2="-1.45" width="0.2032" layer="25"/>
+<wire x1="5.75" y1="-1.45" x2="6.475" y2="-1.025" width="0.2032" layer="25"/>
+<wire x1="6.475" y1="-1.025" x2="6.475" y2="0.425" width="0.2032" layer="25"/>
+<wire x1="6.475" y1="0.425" x2="5.75" y2="0.85" width="0.2032" layer="25"/>
+<wire x1="5.75" y1="0.85" x2="5.525" y2="0.85" width="0.2032" layer="25"/>
+<wire x1="5.525" y1="0.85" x2="5.525" y2="0.35" width="0.2032" layer="25"/>
+<wire x1="5.525" y1="0.35" x2="5" y2="0.35" width="0.2032" layer="25"/>
+<wire x1="5.9" y1="-1.3" x2="5.9" y2="0.7" width="0.2032" layer="25"/>
+<wire x1="-1.8" y1="-4.4" x2="-1.8" y2="-1.2" width="0.2032" layer="25"/>
+<wire x1="-1.8" y1="-1.2" x2="1.8" y2="-1.2" width="0.2032" layer="25"/>
+<wire x1="1.8" y1="-1.2" x2="1.8" y2="-4.4" width="0.2032" layer="25"/>
+<wire x1="-1.2" y1="-2.65" x2="1.2" y2="-2.65" width="0.2032" layer="25"/>
+<wire x1="1.2" y1="-2.65" x2="1.2" y2="-1.75" width="0.2032" layer="25"/>
+<wire x1="1.2" y1="-1.75" x2="-1.2" y2="-1.75" width="0.2032" layer="25"/>
+<wire x1="-1.2" y1="-1.75" x2="-1.2" y2="-2.65" width="0.2032" layer="25"/>
+<wire x1="-1.2" y1="-2.65" x2="-1.2" y2="-3.775" width="0.2032" layer="25"/>
+<wire x1="-1.2" y1="-3.775" x2="-1.425" y2="-4.45" width="0.2032" layer="25" curve="-36.869898"/>
+<wire x1="1.2" y1="-2.65" x2="1.2" y2="-3.775" width="0.2032" layer="25"/>
+<wire x1="1.2" y1="-3.775" x2="1.425" y2="-4.45" width="0.2032" layer="25" curve="36.869898"/>
+<wire x1="0.575" y1="3.4" x2="-0.575" y2="3.4" width="0.2032" layer="51"/>
+<wire x1="-0.575" y1="3.4" x2="-0.575" y2="4.175" width="0.2032" layer="51"/>
+<wire x1="0.575" y1="4.175" x2="0.575" y2="3.4" width="0.2032" layer="51"/>
+<wire x1="1.95" y1="4.175" x2="1.075" y2="4.175" width="0.2032" layer="21"/>
+<wire x1="1.075" y1="4.175" x2="0.575" y2="4.175" width="0.2032" layer="51"/>
+<wire x1="-0.575" y1="4.175" x2="-1.05" y2="4.175" width="0.2032" layer="51"/>
+<pad name="1" x="3" y="4.32" drill="1" diameter="1.6764"/>
+<pad name="2" x="0" y="4.32" drill="1" diameter="1.6764"/>
+<pad name="3" x="-3" y="4.32" drill="1" diameter="1.6764"/>
+<text x="1.5" y="5.54" size="1.27" layer="25">&gt;NAME</text>
+<text x="9" y="-4.5" size="1.27" layer="27" rot="R90">&gt;VALUE</text>
+<rectangle x1="2.6875" y1="3.5125" x2="3.325" y2="5" layer="51"/>
+<rectangle x1="-0.3125" y1="3.5125" x2="0.3249" y2="4.9999" layer="51"/>
+<rectangle x1="-3.3125" y1="3.5125" x2="-2.6875" y2="4.9999" layer="51"/>
+<hole x="0" y="0" drill="3"/>
+<polygon width="0.01" layer="25" spacing="0.254">
+<vertex x="-3.365" y="2.14"/>
+<vertex x="-3.21" y="2.14"/>
+<vertex x="-3.1875" y="2.225"/>
+<vertex x="-2.97" y="2.28"/>
+<vertex x="-3.01" y="2.14"/>
+<vertex x="-2.82" y="2.14"/>
+<vertex x="-2.85" y="2.04"/>
+<vertex x="-3.04" y="2.04"/>
+<vertex x="-3.11" y="1.81" curve="107.492325"/>
+<vertex x="-3.065" y="1.75" curve="-1.23212"/>
+<vertex x="-2.945" y="1.75"/>
+<vertex x="-2.975" y="1.64"/>
+<vertex x="-3.255" y="1.64" curve="-115.057615"/>
+<vertex x="-3.325" y="1.75"/>
+<vertex x="-3.24" y="2.04"/>
+<vertex x="-3.395" y="2.04"/>
+</polygon>
+<polygon width="0.01" layer="25" spacing="0.254">
+<vertex x="-2.73" y="2.14"/>
+<vertex x="-2.53" y="2.14"/>
+<vertex x="-2.62" y="1.845" curve="114.249552"/>
+<vertex x="-2.54" y="1.75"/>
+<vertex x="-2.46" y="1.75"/>
+<vertex x="-2.34" y="2.14"/>
+<vertex x="-2.145" y="2.14"/>
+<vertex x="-2.36" y="1.435"/>
+<vertex x="-2.555" y="1.435"/>
+<vertex x="-2.495" y="1.64"/>
+<vertex x="-2.785" y="1.64" curve="-114.113525"/>
+<vertex x="-2.85" y="1.74"/>
+</polygon>
+<polygon width="0.01" layer="25" spacing="0.254">
+<vertex x="-1.66" y="1.96"/>
+<vertex x="-1.44" y="1.96"/>
+<vertex x="-1.425" y="2.01" curve="105.642164"/>
+<vertex x="-1.52" y="2.14"/>
+<vertex x="-1.92" y="2.14" curve="70.280225"/>
+<vertex x="-2.055" y="2.045"/>
+<vertex x="-2.13" y="1.805" curve="106.773065"/>
+<vertex x="-2.01" y="1.64"/>
+<vertex x="-1.61" y="1.64" curve="71.682021"/>
+<vertex x="-1.52" y="1.705"/>
+<vertex x="-1.485" y="1.825"/>
+<vertex x="-1.7" y="1.825"/>
+<vertex x="-1.715" y="1.78" curve="-75.804848"/>
+<vertex x="-1.76" y="1.75"/>
+<vertex x="-1.855" y="1.75" curve="-106.260205"/>
+<vertex x="-1.9" y="1.81"/>
+<vertex x="-1.85" y="1.98" curve="-70.964895"/>
+<vertex x="-1.78" y="2.035"/>
+<vertex x="-1.695" y="2.035" curve="-112.619865"/>
+<vertex x="-1.655" y="1.975"/>
+</polygon>
+<polygon width="0.01" layer="25" spacing="0.254">
+<vertex x="-0.95" y="1.825"/>
+<vertex x="-0.73" y="1.825"/>
+<vertex x="-0.675" y="2.005" curve="105.642164"/>
+<vertex x="-0.77" y="2.135"/>
+<vertex x="-1.17" y="2.135" curve="70.280225"/>
+<vertex x="-1.305" y="2.04"/>
+<vertex x="-1.38" y="1.8" curve="106.773065"/>
+<vertex x="-1.26" y="1.635"/>
+<vertex x="-0.86" y="1.635" curve="71.682021"/>
+<vertex x="-0.77" y="1.7"/>
+<vertex x="-0.73" y="1.825"/>
+<vertex x="-0.95" y="1.82"/>
+<vertex x="-0.965" y="1.775" curve="-75.804848"/>
+<vertex x="-1.01" y="1.745"/>
+<vertex x="-1.105" y="1.745" curve="-106.260205"/>
+<vertex x="-1.15" y="1.805"/>
+<vertex x="-1.1" y="1.975" curve="-70.964895"/>
+<vertex x="-1.03" y="2.03"/>
+<vertex x="-0.945" y="2.03" curve="-112.619865"/>
+<vertex x="-0.905" y="1.97"/>
+</polygon>
+</package>
+<package name="22-23-2031">
+<description>.100" (2.54mm) Center Header - 3 Pin</description>
+<wire x1="-3.81" y1="3.175" x2="3.81" y2="3.175" width="0.254" layer="21"/>
+<wire x1="3.81" y1="3.175" x2="3.81" y2="1.27" width="0.254" layer="21"/>
+<wire x1="3.81" y1="1.27" x2="3.81" y2="-3.175" width="0.254" layer="21"/>
+<wire x1="3.81" y1="-3.175" x2="-3.81" y2="-3.175" width="0.254" layer="21"/>
+<wire x1="-3.81" y1="-3.175" x2="-3.81" y2="1.27" width="0.254" layer="21"/>
+<wire x1="-3.81" y1="1.27" x2="-3.81" y2="3.175" width="0.254" layer="21"/>
+<wire x1="-3.81" y1="1.27" x2="3.81" y2="1.27" width="0.254" layer="21"/>
+<pad name="1" x="-2.54" y="0" drill="1" shape="long" rot="R90"/>
+<pad name="2" x="0" y="0" drill="1" shape="long" rot="R90"/>
+<pad name="3" x="2.54" y="0" drill="1" shape="long" rot="R90"/>
+<text x="-3.81" y="3.81" size="1.016" layer="25" ratio="10">&gt;NAME</text>
+<text x="-3.81" y="-5.08" size="1.016" layer="27" ratio="10">&gt;VALUE</text>
+</package>
+<package name="22-23-2061">
+<description>.100" (2.54mm) Center Header - 6 Pin</description>
+<wire x1="-7.62" y1="3.175" x2="7.62" y2="3.175" width="0.254" layer="21"/>
+<wire x1="7.62" y1="3.175" x2="7.62" y2="1.27" width="0.254" layer="21"/>
+<wire x1="7.62" y1="1.27" x2="7.62" y2="-3.175" width="0.254" layer="21"/>
+<wire x1="7.62" y1="-3.175" x2="-7.62" y2="-3.175" width="0.254" layer="21"/>
+<wire x1="-7.62" y1="-3.175" x2="-7.62" y2="1.27" width="0.254" layer="21"/>
+<wire x1="-7.62" y1="1.27" x2="-7.62" y2="3.175" width="0.254" layer="21"/>
+<wire x1="-7.62" y1="1.27" x2="7.62" y2="1.27" width="0.254" layer="21"/>
+<pad name="1" x="-6.35" y="0" drill="1" shape="long" rot="R90"/>
+<pad name="2" x="-3.81" y="0" drill="1" shape="long" rot="R90"/>
+<pad name="3" x="-1.27" y="0" drill="1" shape="long" rot="R90"/>
+<pad name="4" x="1.27" y="0" drill="1" shape="long" rot="R90"/>
+<pad name="5" x="3.81" y="0" drill="1" shape="long" rot="R90"/>
+<pad name="6" x="6.35" y="0" drill="1" shape="long" rot="R90"/>
+<text x="-7.62" y="3.81" size="1.016" layer="25" ratio="10">&gt;NAME</text>
+<text x="-7.62" y="-5.08" size="1.016" layer="27" ratio="10">&gt;VALUE</text>
+</package>
 </packages>
 <symbols>
 <symbol name="PDI_ATMEL">
@@ -2572,6 +2781,33 @@ DDEController.pdf</description>
 <text x="-0.508" y="0.889" size="1.778" layer="95" rot="R180">&gt;NAME</text>
 <pin name="S" x="5.08" y="0" visible="off" length="short" direction="pas" swaplevel="1" rot="R180"/>
 </symbol>
+<symbol name="P3">
+<wire x1="1.27" y1="-1.27" x2="-1.905" y2="-1.27" width="0.254" layer="94"/>
+<wire x1="-1.905" y1="6.35" x2="-1.905" y2="-1.27" width="0.254" layer="94"/>
+<wire x1="-1.905" y1="6.35" x2="1.27" y2="6.35" width="0.254" layer="94"/>
+<wire x1="1.27" y1="-1.27" x2="1.27" y2="6.35" width="0.254" layer="94"/>
+<circle x="0" y="0" radius="0.635" width="0.254" layer="94"/>
+<circle x="0" y="2.54" radius="0.635" width="0.254" layer="94"/>
+<circle x="0" y="5.08" radius="0.635" width="0.254" layer="94"/>
+<text x="-2.54" y="-3.81" size="1.778" layer="95">&gt;NAME</text>
+<text x="-2.54" y="7.62" size="1.778" layer="96">&gt;VALUE</text>
+<text x="1.778" y="-0.508" size="1.27" layer="95">1</text>
+<text x="1.778" y="4.572" size="1.27" layer="95">3</text>
+<pin name="1" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
+<pin name="2" x="-2.54" y="2.54" visible="off" length="short" direction="pas"/>
+<pin name="3" x="-2.54" y="5.08" visible="off" length="short" direction="pas"/>
+</symbol>
+<symbol name="MV-1">
+<wire x1="1.27" y1="0" x2="0" y2="0" width="0.6096" layer="94"/>
+<text x="2.54" y="-0.762" size="1.524" layer="95">&gt;NAME</text>
+<text x="-0.762" y="1.397" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="S" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
+</symbol>
+<symbol name="M-1">
+<wire x1="1.27" y1="0" x2="0" y2="0" width="0.6096" layer="94"/>
+<text x="2.54" y="-0.762" size="1.524" layer="95">&gt;NAME</text>
+<pin name="S" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="PDI_ATMEL" prefix="SV" uservalue="yes">
@@ -2592,6 +2828,7 @@ Atmel pdi connector</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="617-09185066323" constant="no"/>
 <attribute name="RS" value="" constant="no"/>
 </technology>
 </technologies>
@@ -2607,6 +2844,7 @@ Atmel pdi connector</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="617-09-18-506-7323 " constant="no"/>
 <attribute name="RS" value="693-5242 " constant="no"/>
 </technology>
 </technologies>
@@ -2631,6 +2869,7 @@ Atmel pdi connector</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="571-7-188275-4" constant="no"/>
 <attribute name="RS" value=" 366-1721 " constant="no"/>
 </technology>
 </technologies>
@@ -2651,6 +2890,7 @@ Source: ENG_CD_1445055_A.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="571-2-1445055-2 " constant="no"/>
 <attribute name="RS" value=" 495-9580" constant="no"/>
 <attribute name="VALUE" value="1445055-2" constant="no"/>
 </technology>
@@ -2684,6 +2924,8 @@ Source: ENG_CD_1445055_A.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="FARNELL" value="1865096" constant="no"/>
+<attribute name="MOUSER" value="571-7-188275-8 " constant="no"/>
 <attribute name="RS" value="739-1227 " constant="no"/>
 </technology>
 </technologies>
@@ -2734,73 +2976,71 @@ DDEController.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="571-8-188275-6" constant="no"/>
 <attribute name="RS" value="739-1237 " constant="no"/>
 </technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
-</devicesets>
-</library>
-<library name="con-molex">
-<packages>
-<package name="22-23-2061">
-<description>.100" (2.54mm) Center Header - 6 Pin</description>
-<wire x1="-7.62" y1="3.175" x2="7.62" y2="3.175" width="0.254" layer="21"/>
-<wire x1="7.62" y1="3.175" x2="7.62" y2="1.27" width="0.254" layer="21"/>
-<wire x1="7.62" y1="1.27" x2="7.62" y2="-3.175" width="0.254" layer="21"/>
-<wire x1="7.62" y1="-3.175" x2="-7.62" y2="-3.175" width="0.254" layer="21"/>
-<wire x1="-7.62" y1="-3.175" x2="-7.62" y2="1.27" width="0.254" layer="21"/>
-<wire x1="-7.62" y1="1.27" x2="-7.62" y2="3.175" width="0.254" layer="21"/>
-<wire x1="-7.62" y1="1.27" x2="7.62" y2="1.27" width="0.254" layer="21"/>
-<pad name="1" x="-6.35" y="0" drill="1" shape="long" rot="R90"/>
-<pad name="2" x="-3.81" y="0" drill="1" shape="long" rot="R90"/>
-<pad name="3" x="-1.27" y="0" drill="1" shape="long" rot="R90"/>
-<pad name="4" x="1.27" y="0" drill="1" shape="long" rot="R90"/>
-<pad name="5" x="3.81" y="0" drill="1" shape="long" rot="R90"/>
-<pad name="6" x="6.35" y="0" drill="1" shape="long" rot="R90"/>
-<text x="-7.62" y="3.81" size="1.016" layer="25" ratio="10">&gt;NAME</text>
-<text x="-7.62" y="-5.08" size="1.016" layer="27" ratio="10">&gt;VALUE</text>
-</package>
-<package name="22-23-2031">
+<deviceset name="1445055-3" prefix="J">
+<description>&lt;b&gt;Micro MATE-N-LOK Connectors&lt;/b&gt; grid 1.5 mm&lt;p&gt;
+Source: ENG_CD_1445055_A.pdf</description>
+<gates>
+<gate name="G$1" symbol="P3" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="1445055-3">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+<connect gate="G$1" pin="3" pad="3"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="FARNELL" value="1111119" constant="no"/>
+<attribute name="MOUSER" value="571-2-1445055-3" constant="no"/>
+<attribute name="RS" value=" 495-9596" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="22-23-2031" prefix="X">
 <description>.100" (2.54mm) Center Header - 3 Pin</description>
-<wire x1="-3.81" y1="3.175" x2="3.81" y2="3.175" width="0.254" layer="21"/>
-<wire x1="3.81" y1="3.175" x2="3.81" y2="1.27" width="0.254" layer="21"/>
-<wire x1="3.81" y1="1.27" x2="3.81" y2="-3.175" width="0.254" layer="21"/>
-<wire x1="3.81" y1="-3.175" x2="-3.81" y2="-3.175" width="0.254" layer="21"/>
-<wire x1="-3.81" y1="-3.175" x2="-3.81" y2="1.27" width="0.254" layer="21"/>
-<wire x1="-3.81" y1="1.27" x2="-3.81" y2="3.175" width="0.254" layer="21"/>
-<wire x1="-3.81" y1="1.27" x2="3.81" y2="1.27" width="0.254" layer="21"/>
-<pad name="1" x="-2.54" y="0" drill="1" shape="long" rot="R90"/>
-<pad name="2" x="0" y="0" drill="1" shape="long" rot="R90"/>
-<pad name="3" x="2.54" y="0" drill="1" shape="long" rot="R90"/>
-<text x="-3.81" y="3.81" size="1.016" layer="25" ratio="10">&gt;NAME</text>
-<text x="-3.81" y="-5.08" size="1.016" layer="27" ratio="10">&gt;VALUE</text>
-</package>
-</packages>
-<symbols>
-<symbol name="MV">
-<wire x1="1.27" y1="0" x2="0" y2="0" width="0.6096" layer="94"/>
-<text x="2.54" y="-0.762" size="1.524" layer="95">&gt;NAME</text>
-<text x="-0.762" y="1.397" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="S" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
-</symbol>
-<symbol name="M">
-<wire x1="1.27" y1="0" x2="0" y2="0" width="0.6096" layer="94"/>
-<text x="2.54" y="-0.762" size="1.524" layer="95">&gt;NAME</text>
-<pin name="S" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
-</symbol>
-</symbols>
-<devicesets>
+<gates>
+<gate name="-1" symbol="MV-1" x="0" y="2.54" addlevel="always" swaplevel="1"/>
+<gate name="-2" symbol="M-1" x="0" y="0" addlevel="always" swaplevel="1"/>
+<gate name="-3" symbol="M-1" x="0" y="-2.54" addlevel="always" swaplevel="1"/>
+</gates>
+<devices>
+<device name="" package="22-23-2031">
+<connects>
+<connect gate="-1" pin="S" pad="1"/>
+<connect gate="-2" pin="S" pad="2"/>
+<connect gate="-3" pin="S" pad="3"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="FARNELL" value="1462950" constant="no"/>
+<attribute name="MF" value="MOLEX" constant="no"/>
+<attribute name="MOUSER" value="538-22-23-2031 " constant="no"/>
+<attribute name="MPN" value="22-23-2031" constant="no"/>
+<attribute name="RS" value="679-5587" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
 <deviceset name="22-23-2061" prefix="X" uservalue="yes">
 <description>.100" (2.54mm) Center Header - 6 Pin</description>
 <gates>
-<gate name="-1" symbol="MV" x="0" y="5.08" addlevel="always" swaplevel="1"/>
-<gate name="-2" symbol="M" x="0" y="2.54" addlevel="always" swaplevel="1"/>
-<gate name="-3" symbol="M" x="0" y="0" addlevel="always" swaplevel="1"/>
-<gate name="-4" symbol="M" x="0" y="-2.54" addlevel="always" swaplevel="1"/>
-<gate name="-5" symbol="M" x="0" y="-5.08" addlevel="always" swaplevel="1"/>
-<gate name="-6" symbol="M" x="0" y="-7.62" addlevel="always" swaplevel="1"/>
+<gate name="-1" symbol="MV-1" x="0" y="5.08" addlevel="always" swaplevel="1"/>
+<gate name="-2" symbol="M-1" x="0" y="2.54" addlevel="always" swaplevel="1"/>
+<gate name="-3" symbol="M-1" x="0" y="0" addlevel="always" swaplevel="1"/>
+<gate name="-4" symbol="M-1" x="0" y="-2.54" addlevel="always" swaplevel="1"/>
+<gate name="-5" symbol="M-1" x="0" y="-5.08" addlevel="always" swaplevel="1"/>
+<gate name="-6" symbol="M-1" x="0" y="-7.62" addlevel="always" swaplevel="1"/>
 </gates>
 <devices>
 <device name="" package="22-23-2061">
@@ -2814,35 +3054,11 @@ DDEController.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="FARNELL" value="1462922" constant="no"/>
 <attribute name="MF" value="MOLEX" constant="no"/>
+<attribute name="MOUSER" value="538-22-23-2061 " constant="no"/>
 <attribute name="MPN" value="22-23-2061" constant="no"/>
-<attribute name="OC_FARNELL" value="1462922" constant="no"/>
-<attribute name="OC_NEWARK" value="27C1933" constant="no"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="22-23-2031" prefix="X">
-<description>.100" (2.54mm) Center Header - 3 Pin</description>
-<gates>
-<gate name="-1" symbol="MV" x="0" y="2.54" addlevel="always" swaplevel="1"/>
-<gate name="-2" symbol="M" x="0" y="0" addlevel="always" swaplevel="1"/>
-<gate name="-3" symbol="M" x="0" y="-2.54" addlevel="always" swaplevel="1"/>
-</gates>
-<devices>
-<device name="" package="22-23-2031">
-<connects>
-<connect gate="-1" pin="S" pad="1"/>
-<connect gate="-2" pin="S" pad="2"/>
-<connect gate="-3" pin="S" pad="3"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="MF" value="MOLEX" constant="no"/>
-<attribute name="MPN" value="22-23-2031" constant="no"/>
-<attribute name="OC_FARNELL" value="1462950" constant="no"/>
-<attribute name="OC_NEWARK" value="30C0862" constant="no"/>
+<attribute name="RS" value="679-5593" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -3161,368 +3377,6 @@ W = angled&lt;p&gt;
 </deviceset>
 </devicesets>
 </library>
-<library name="con-amp">
-<description>&lt;b&gt;AMP Connectors&lt;/b&gt;&lt;p&gt;
-RJ45 Jack connectors&lt;br&gt;
- Based on the previous libraris:
- &lt;ul&gt;
- &lt;li&gt;amp.lbr
- &lt;li&gt;amp-j.lbr
- &lt;li&gt;amp-mta.lbr
- &lt;li&gt;amp-nlok.lbr
- &lt;li&gt;amp-sim.lbr
- &lt;li&gt;amp-micro-match.lbr
- &lt;/ul&gt;
- Sources :
- &lt;ul&gt;
- &lt;li&gt;Catalog 82066 Revised 11-95 
- &lt;li&gt;Product Guide 296785 Rev. 8-99
- &lt;li&gt;Product Guide CD-ROM 1999
- &lt;li&gt;www.amp.com
- &lt;/ul&gt;
- &lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
-<packages>
-<package name="1445055-3">
-<description>&lt;b&gt;Micro MATE-N-LOK Connectors&lt;/b&gt; grid 3.0 mm&lt;p&gt;
-Source: ENG_CD_1445055_A.pdf</description>
-<wire x1="-4.9" y1="4.525" x2="-4.175" y2="4.525" width="0.2032" layer="21"/>
-<wire x1="-4.9" y1="4.525" x2="-4.9" y2="-4.5" width="0.2032" layer="21"/>
-<wire x1="-4.9" y1="-4.5" x2="4.9" y2="-4.5" width="0.2032" layer="21"/>
-<wire x1="4.9" y1="-4.5" x2="4.9" y2="4.525" width="0.2032" layer="21"/>
-<wire x1="4.9" y1="4.525" x2="4.1" y2="4.525" width="0.2032" layer="21"/>
-<wire x1="4.1" y1="4.525" x2="3.575" y2="4.525" width="0.2032" layer="51"/>
-<wire x1="3.575" y1="4.525" x2="3.575" y2="3.4" width="0.2032" layer="51"/>
-<wire x1="3.575" y1="3.4" x2="2.425" y2="3.4" width="0.2032" layer="51"/>
-<wire x1="2.425" y1="3.4" x2="2.425" y2="4.175" width="0.2032" layer="51"/>
-<wire x1="2.425" y1="4.175" x2="1.95" y2="4.175" width="0.2032" layer="51"/>
-<wire x1="-1.05" y1="4.175" x2="-1.925" y2="4.175" width="0.2032" layer="21"/>
-<wire x1="-1.925" y1="4.175" x2="-2.425" y2="4.175" width="0.2032" layer="51"/>
-<wire x1="-2.425" y1="4.175" x2="-2.425" y2="3.4" width="0.2032" layer="51"/>
-<wire x1="-2.425" y1="3.4" x2="-3.575" y2="3.4" width="0.2032" layer="51"/>
-<wire x1="-3.575" y1="3.4" x2="-3.575" y2="4.525" width="0.2032" layer="51"/>
-<wire x1="-3.575" y1="4.525" x2="-4.175" y2="4.525" width="0.2032" layer="51"/>
-<wire x1="-5" y1="1.45" x2="-5.75" y2="1.45" width="0.2032" layer="25"/>
-<wire x1="-5.75" y1="1.45" x2="-6.475" y2="1.025" width="0.2032" layer="25"/>
-<wire x1="-6.475" y1="1.025" x2="-6.475" y2="-0.425" width="0.2032" layer="25"/>
-<wire x1="-6.475" y1="-0.425" x2="-5.75" y2="-0.85" width="0.2032" layer="25"/>
-<wire x1="-5.75" y1="-0.85" x2="-5.525" y2="-0.85" width="0.2032" layer="25"/>
-<wire x1="-5.525" y1="-0.85" x2="-5.525" y2="-0.35" width="0.2032" layer="25"/>
-<wire x1="-5.525" y1="-0.35" x2="-5" y2="-0.35" width="0.2032" layer="25"/>
-<wire x1="-5.9" y1="-0.7" x2="-5.9" y2="1.3" width="0.2032" layer="25"/>
-<wire x1="5" y1="-1.45" x2="5.75" y2="-1.45" width="0.2032" layer="25"/>
-<wire x1="5.75" y1="-1.45" x2="6.475" y2="-1.025" width="0.2032" layer="25"/>
-<wire x1="6.475" y1="-1.025" x2="6.475" y2="0.425" width="0.2032" layer="25"/>
-<wire x1="6.475" y1="0.425" x2="5.75" y2="0.85" width="0.2032" layer="25"/>
-<wire x1="5.75" y1="0.85" x2="5.525" y2="0.85" width="0.2032" layer="25"/>
-<wire x1="5.525" y1="0.85" x2="5.525" y2="0.35" width="0.2032" layer="25"/>
-<wire x1="5.525" y1="0.35" x2="5" y2="0.35" width="0.2032" layer="25"/>
-<wire x1="5.9" y1="-1.3" x2="5.9" y2="0.7" width="0.2032" layer="25"/>
-<wire x1="-1.8" y1="-4.4" x2="-1.8" y2="-1.2" width="0.2032" layer="25"/>
-<wire x1="-1.8" y1="-1.2" x2="1.8" y2="-1.2" width="0.2032" layer="25"/>
-<wire x1="1.8" y1="-1.2" x2="1.8" y2="-4.4" width="0.2032" layer="25"/>
-<wire x1="-1.2" y1="-2.65" x2="1.2" y2="-2.65" width="0.2032" layer="25"/>
-<wire x1="1.2" y1="-2.65" x2="1.2" y2="-1.75" width="0.2032" layer="25"/>
-<wire x1="1.2" y1="-1.75" x2="-1.2" y2="-1.75" width="0.2032" layer="25"/>
-<wire x1="-1.2" y1="-1.75" x2="-1.2" y2="-2.65" width="0.2032" layer="25"/>
-<wire x1="-1.2" y1="-2.65" x2="-1.2" y2="-3.775" width="0.2032" layer="25"/>
-<wire x1="-1.2" y1="-3.775" x2="-1.425" y2="-4.45" width="0.2032" layer="25" curve="-36.869898"/>
-<wire x1="1.2" y1="-2.65" x2="1.2" y2="-3.775" width="0.2032" layer="25"/>
-<wire x1="1.2" y1="-3.775" x2="1.425" y2="-4.45" width="0.2032" layer="25" curve="36.869898"/>
-<wire x1="0.575" y1="3.4" x2="-0.575" y2="3.4" width="0.2032" layer="51"/>
-<wire x1="-0.575" y1="3.4" x2="-0.575" y2="4.175" width="0.2032" layer="51"/>
-<wire x1="0.575" y1="4.175" x2="0.575" y2="3.4" width="0.2032" layer="51"/>
-<wire x1="1.95" y1="4.175" x2="1.075" y2="4.175" width="0.2032" layer="21"/>
-<wire x1="1.075" y1="4.175" x2="0.575" y2="4.175" width="0.2032" layer="51"/>
-<wire x1="-0.575" y1="4.175" x2="-1.05" y2="4.175" width="0.2032" layer="51"/>
-<pad name="1" x="3" y="4.32" drill="1" diameter="1.6764"/>
-<pad name="2" x="0" y="4.32" drill="1" diameter="1.6764"/>
-<pad name="3" x="-3" y="4.32" drill="1" diameter="1.6764"/>
-<text x="1.5" y="5.54" size="1.27" layer="25">&gt;NAME</text>
-<text x="9" y="-4.5" size="1.27" layer="27" rot="R90">&gt;VALUE</text>
-<rectangle x1="2.6875" y1="3.5125" x2="3.325" y2="5" layer="51"/>
-<rectangle x1="-0.3125" y1="3.5125" x2="0.3249" y2="4.9999" layer="51"/>
-<rectangle x1="-3.3125" y1="3.5125" x2="-2.6875" y2="4.9999" layer="51"/>
-<hole x="0" y="0" drill="3"/>
-<polygon width="0.01" layer="25" spacing="0.254">
-<vertex x="-3.365" y="2.14"/>
-<vertex x="-3.21" y="2.14"/>
-<vertex x="-3.1875" y="2.225"/>
-<vertex x="-2.97" y="2.28"/>
-<vertex x="-3.01" y="2.14"/>
-<vertex x="-2.82" y="2.14"/>
-<vertex x="-2.85" y="2.04"/>
-<vertex x="-3.04" y="2.04"/>
-<vertex x="-3.11" y="1.81" curve="107.492325"/>
-<vertex x="-3.065" y="1.75" curve="-1.23212"/>
-<vertex x="-2.945" y="1.75"/>
-<vertex x="-2.975" y="1.64"/>
-<vertex x="-3.255" y="1.64" curve="-115.057615"/>
-<vertex x="-3.325" y="1.75"/>
-<vertex x="-3.24" y="2.04"/>
-<vertex x="-3.395" y="2.04"/>
-</polygon>
-<polygon width="0.01" layer="25" spacing="0.254">
-<vertex x="-2.73" y="2.14"/>
-<vertex x="-2.53" y="2.14"/>
-<vertex x="-2.62" y="1.845" curve="114.249552"/>
-<vertex x="-2.54" y="1.75"/>
-<vertex x="-2.46" y="1.75"/>
-<vertex x="-2.34" y="2.14"/>
-<vertex x="-2.145" y="2.14"/>
-<vertex x="-2.36" y="1.435"/>
-<vertex x="-2.555" y="1.435"/>
-<vertex x="-2.495" y="1.64"/>
-<vertex x="-2.785" y="1.64" curve="-114.113525"/>
-<vertex x="-2.85" y="1.74"/>
-</polygon>
-<polygon width="0.01" layer="25" spacing="0.254">
-<vertex x="-1.66" y="1.96"/>
-<vertex x="-1.44" y="1.96"/>
-<vertex x="-1.425" y="2.01" curve="105.642164"/>
-<vertex x="-1.52" y="2.14"/>
-<vertex x="-1.92" y="2.14" curve="70.280225"/>
-<vertex x="-2.055" y="2.045"/>
-<vertex x="-2.13" y="1.805" curve="106.773065"/>
-<vertex x="-2.01" y="1.64"/>
-<vertex x="-1.61" y="1.64" curve="71.682021"/>
-<vertex x="-1.52" y="1.705"/>
-<vertex x="-1.485" y="1.825"/>
-<vertex x="-1.7" y="1.825"/>
-<vertex x="-1.715" y="1.78" curve="-75.804848"/>
-<vertex x="-1.76" y="1.75"/>
-<vertex x="-1.855" y="1.75" curve="-106.260205"/>
-<vertex x="-1.9" y="1.81"/>
-<vertex x="-1.85" y="1.98" curve="-70.964895"/>
-<vertex x="-1.78" y="2.035"/>
-<vertex x="-1.695" y="2.035" curve="-112.619865"/>
-<vertex x="-1.655" y="1.975"/>
-</polygon>
-<polygon width="0.01" layer="25" spacing="0.254">
-<vertex x="-0.95" y="1.825"/>
-<vertex x="-0.73" y="1.825"/>
-<vertex x="-0.675" y="2.005" curve="105.642164"/>
-<vertex x="-0.77" y="2.135"/>
-<vertex x="-1.17" y="2.135" curve="70.280225"/>
-<vertex x="-1.305" y="2.04"/>
-<vertex x="-1.38" y="1.8" curve="106.773065"/>
-<vertex x="-1.26" y="1.635"/>
-<vertex x="-0.86" y="1.635" curve="71.682021"/>
-<vertex x="-0.77" y="1.7"/>
-<vertex x="-0.73" y="1.825"/>
-<vertex x="-0.95" y="1.82"/>
-<vertex x="-0.965" y="1.775" curve="-75.804848"/>
-<vertex x="-1.01" y="1.745"/>
-<vertex x="-1.105" y="1.745" curve="-106.260205"/>
-<vertex x="-1.15" y="1.805"/>
-<vertex x="-1.1" y="1.975" curve="-70.964895"/>
-<vertex x="-1.03" y="2.03"/>
-<vertex x="-0.945" y="2.03" curve="-112.619865"/>
-<vertex x="-0.905" y="1.97"/>
-</polygon>
-</package>
-<package name="1445055-2">
-<description>&lt;b&gt;Micro MATE-N-LOK Connectors&lt;/b&gt; grid 3.0 mm&lt;p&gt;
-Source: ENG_CD_1445055_A.pdf</description>
-<wire x1="-3.4" y1="4.525" x2="-2.675" y2="4.525" width="0.2032" layer="21"/>
-<wire x1="-3.4" y1="4.525" x2="-3.4" y2="-4.5" width="0.2032" layer="21"/>
-<wire x1="-3.4" y1="-4.5" x2="3.4" y2="-4.5" width="0.2032" layer="21"/>
-<wire x1="3.4" y1="-4.5" x2="3.4" y2="4.525" width="0.2032" layer="21"/>
-<wire x1="3.4" y1="4.525" x2="2.6" y2="4.525" width="0.2032" layer="21"/>
-<wire x1="2.6" y1="4.525" x2="2.075" y2="4.525" width="0.2032" layer="51"/>
-<wire x1="2.075" y1="4.525" x2="2.075" y2="3.4" width="0.2032" layer="51"/>
-<wire x1="2.075" y1="3.4" x2="0.925" y2="3.4" width="0.2032" layer="51"/>
-<wire x1="0.925" y1="3.4" x2="0.925" y2="4.175" width="0.2032" layer="51"/>
-<wire x1="0.925" y1="4.175" x2="0.45" y2="4.175" width="0.2032" layer="51"/>
-<wire x1="0.45" y1="4.175" x2="-0.425" y2="4.175" width="0.2032" layer="21"/>
-<wire x1="-0.425" y1="4.175" x2="-0.95" y2="4.175" width="0.2032" layer="51"/>
-<wire x1="-0.95" y1="4.175" x2="-0.95" y2="3.4" width="0.2032" layer="51"/>
-<wire x1="-0.95" y1="3.4" x2="-2.075" y2="3.4" width="0.2032" layer="51"/>
-<wire x1="-2.075" y1="3.4" x2="-2.075" y2="4.525" width="0.2032" layer="51"/>
-<wire x1="-2.075" y1="4.525" x2="-2.675" y2="4.525" width="0.2032" layer="51"/>
-<wire x1="-3.5" y1="1.45" x2="-4.25" y2="1.45" width="0.2032" layer="25"/>
-<wire x1="-4.25" y1="1.45" x2="-4.975" y2="1.025" width="0.2032" layer="25"/>
-<wire x1="-4.975" y1="1.025" x2="-4.975" y2="-0.425" width="0.2032" layer="25"/>
-<wire x1="-4.975" y1="-0.425" x2="-4.25" y2="-0.85" width="0.2032" layer="25"/>
-<wire x1="-4.25" y1="-0.85" x2="-4.025" y2="-0.85" width="0.2032" layer="25"/>
-<wire x1="-4.025" y1="-0.85" x2="-4.025" y2="-0.35" width="0.2032" layer="25"/>
-<wire x1="-4.025" y1="-0.35" x2="-3.5" y2="-0.35" width="0.2032" layer="25"/>
-<wire x1="-4.4" y1="-0.7" x2="-4.4" y2="1.3" width="0.2032" layer="25"/>
-<wire x1="3.5" y1="-1.45" x2="4.25" y2="-1.45" width="0.2032" layer="25"/>
-<wire x1="4.25" y1="-1.45" x2="4.975" y2="-1.025" width="0.2032" layer="25"/>
-<wire x1="4.975" y1="-1.025" x2="4.975" y2="0.425" width="0.2032" layer="25"/>
-<wire x1="4.975" y1="0.425" x2="4.25" y2="0.85" width="0.2032" layer="25"/>
-<wire x1="4.25" y1="0.85" x2="4.025" y2="0.85" width="0.2032" layer="25"/>
-<wire x1="4.025" y1="0.85" x2="4.025" y2="0.35" width="0.2032" layer="25"/>
-<wire x1="4.025" y1="0.35" x2="3.5" y2="0.35" width="0.2032" layer="25"/>
-<wire x1="4.4" y1="-1.3" x2="4.4" y2="0.7" width="0.2032" layer="25"/>
-<wire x1="-1.8" y1="-4.4" x2="-1.8" y2="-1.2" width="0.2032" layer="25"/>
-<wire x1="-1.8" y1="-1.2" x2="1.8" y2="-1.2" width="0.2032" layer="25"/>
-<wire x1="1.8" y1="-1.2" x2="1.8" y2="-4.4" width="0.2032" layer="25"/>
-<wire x1="-1.2" y1="-2.65" x2="1.2" y2="-2.65" width="0.2032" layer="25"/>
-<wire x1="1.2" y1="-2.65" x2="1.2" y2="-1.75" width="0.2032" layer="25"/>
-<wire x1="1.2" y1="-1.75" x2="-1.2" y2="-1.75" width="0.2032" layer="25"/>
-<wire x1="-1.2" y1="-1.75" x2="-1.2" y2="-2.65" width="0.2032" layer="25"/>
-<wire x1="-1.2" y1="-2.65" x2="-1.2" y2="-3.775" width="0.2032" layer="25"/>
-<wire x1="-1.2" y1="-3.775" x2="-1.425" y2="-4.45" width="0.2032" layer="25" curve="-36.869898"/>
-<wire x1="1.2" y1="-2.65" x2="1.2" y2="-3.775" width="0.2032" layer="25"/>
-<wire x1="1.2" y1="-3.775" x2="1.425" y2="-4.45" width="0.2032" layer="25" curve="36.869898"/>
-<pad name="1" x="1.5" y="4.32" drill="1" diameter="1.6764"/>
-<pad name="2" x="-1.5" y="4.32" drill="1" diameter="1.6764"/>
-<text x="0" y="5.54" size="1.27" layer="25">&gt;NAME</text>
-<text x="7.5" y="-4.5" size="1.27" layer="27" rot="R90">&gt;VALUE</text>
-<rectangle x1="-1.8125" y1="3.5125" x2="-1.1875" y2="5" layer="51"/>
-<rectangle x1="1.1875" y1="3.5125" x2="1.825" y2="5" layer="51"/>
-<hole x="0" y="0" drill="3"/>
-<polygon width="0.01" layer="25" spacing="0.254">
-<vertex x="-1.865" y="2.14"/>
-<vertex x="-1.71" y="2.14"/>
-<vertex x="-1.6875" y="2.225"/>
-<vertex x="-1.47" y="2.28"/>
-<vertex x="-1.51" y="2.14"/>
-<vertex x="-1.32" y="2.14"/>
-<vertex x="-1.35" y="2.04"/>
-<vertex x="-1.54" y="2.04"/>
-<vertex x="-1.61" y="1.81" curve="107.492325"/>
-<vertex x="-1.565" y="1.75" curve="-1.23212"/>
-<vertex x="-1.445" y="1.75"/>
-<vertex x="-1.475" y="1.64"/>
-<vertex x="-1.755" y="1.64" curve="-115.057615"/>
-<vertex x="-1.825" y="1.75"/>
-<vertex x="-1.74" y="2.04"/>
-<vertex x="-1.895" y="2.04"/>
-</polygon>
-<polygon width="0.01" layer="25" spacing="0.254">
-<vertex x="-1.23" y="2.14"/>
-<vertex x="-1.03" y="2.14"/>
-<vertex x="-1.12" y="1.845" curve="114.079551"/>
-<vertex x="-1.04" y="1.75"/>
-<vertex x="-0.96" y="1.75"/>
-<vertex x="-0.84" y="2.14"/>
-<vertex x="-0.645" y="2.14"/>
-<vertex x="-0.86" y="1.435"/>
-<vertex x="-1.055" y="1.435"/>
-<vertex x="-0.995" y="1.64"/>
-<vertex x="-1.18" y="1.64"/>
-<vertex x="-1.285" y="1.64" curve="-113.952265"/>
-<vertex x="-1.35" y="1.74"/>
-</polygon>
-<polygon width="0.01" layer="25" spacing="0.254">
-<vertex x="-0.16" y="1.96"/>
-<vertex x="0.06" y="1.96"/>
-<vertex x="0.075" y="2.01" curve="105.754161"/>
-<vertex x="-0.02" y="2.14"/>
-<vertex x="-0.42" y="2.14" curve="70.280225"/>
-<vertex x="-0.555" y="2.045"/>
-<vertex x="-0.63" y="1.805" curve="106.773065"/>
-<vertex x="-0.51" y="1.64"/>
-<vertex x="-0.11" y="1.64" curve="71.682021"/>
-<vertex x="-0.02" y="1.705"/>
-<vertex x="0.015" y="1.825"/>
-<vertex x="-0.2" y="1.825"/>
-<vertex x="-0.215" y="1.78" curve="-75.804848"/>
-<vertex x="-0.26" y="1.75"/>
-<vertex x="-0.355" y="1.75" curve="-106.260205"/>
-<vertex x="-0.4" y="1.81"/>
-<vertex x="-0.35" y="1.98" curve="-70.964895"/>
-<vertex x="-0.28" y="2.035"/>
-<vertex x="-0.195" y="2.035" curve="-112.619865"/>
-<vertex x="-0.155" y="1.975"/>
-</polygon>
-<polygon width="0.01" layer="25" spacing="0.254">
-<vertex x="0.55" y="1.825"/>
-<vertex x="0.77" y="1.825"/>
-<vertex x="0.825" y="2.005" curve="105.642164"/>
-<vertex x="0.73" y="2.135"/>
-<vertex x="0.33" y="2.135" curve="70.280225"/>
-<vertex x="0.195" y="2.04"/>
-<vertex x="0.12" y="1.8" curve="106.773065"/>
-<vertex x="0.24" y="1.635"/>
-<vertex x="0.64" y="1.635" curve="71.682021"/>
-<vertex x="0.73" y="1.7"/>
-<vertex x="0.77" y="1.825"/>
-<vertex x="0.55" y="1.82"/>
-<vertex x="0.535" y="1.775" curve="-75.804848"/>
-<vertex x="0.49" y="1.745"/>
-<vertex x="0.395" y="1.745" curve="-106.260205"/>
-<vertex x="0.35" y="1.805"/>
-<vertex x="0.4" y="1.975" curve="-70.964895"/>
-<vertex x="0.47" y="2.03"/>
-<vertex x="0.555" y="2.03" curve="-112.619865"/>
-<vertex x="0.595" y="1.97"/>
-</polygon>
-</package>
-</packages>
-<symbols>
-<symbol name="P3">
-<wire x1="1.27" y1="-1.27" x2="-1.905" y2="-1.27" width="0.254" layer="94"/>
-<wire x1="-1.905" y1="6.35" x2="-1.905" y2="-1.27" width="0.254" layer="94"/>
-<wire x1="-1.905" y1="6.35" x2="1.27" y2="6.35" width="0.254" layer="94"/>
-<wire x1="1.27" y1="-1.27" x2="1.27" y2="6.35" width="0.254" layer="94"/>
-<circle x="0" y="0" radius="0.635" width="0.254" layer="94"/>
-<circle x="0" y="2.54" radius="0.635" width="0.254" layer="94"/>
-<circle x="0" y="5.08" radius="0.635" width="0.254" layer="94"/>
-<text x="-2.54" y="-3.81" size="1.778" layer="95">&gt;NAME</text>
-<text x="-2.54" y="7.62" size="1.778" layer="96">&gt;VALUE</text>
-<text x="1.778" y="-0.508" size="1.27" layer="95">1</text>
-<text x="1.778" y="4.572" size="1.27" layer="95">3</text>
-<pin name="1" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
-<pin name="2" x="-2.54" y="2.54" visible="off" length="short" direction="pas"/>
-<pin name="3" x="-2.54" y="5.08" visible="off" length="short" direction="pas"/>
-</symbol>
-<symbol name="P2">
-<wire x1="1.27" y1="-1.27" x2="-1.905" y2="-1.27" width="0.254" layer="94"/>
-<wire x1="-1.905" y1="3.81" x2="-1.905" y2="-1.27" width="0.254" layer="94"/>
-<wire x1="-1.905" y1="3.81" x2="1.27" y2="3.81" width="0.254" layer="94"/>
-<wire x1="1.27" y1="-1.27" x2="1.27" y2="3.81" width="0.254" layer="94"/>
-<circle x="0" y="0" radius="0.635" width="0.254" layer="94"/>
-<circle x="0" y="2.54" radius="0.635" width="0.254" layer="94"/>
-<text x="-2.54" y="-3.81" size="1.778" layer="95">&gt;NAME</text>
-<text x="-2.54" y="5.08" size="1.778" layer="96">&gt;VALUE</text>
-<text x="1.778" y="-0.508" size="1.27" layer="95">1</text>
-<pin name="1" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
-<pin name="2" x="-2.54" y="2.54" visible="off" length="short" direction="pas"/>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="1445055-3" prefix="J">
-<description>&lt;b&gt;Micro MATE-N-LOK Connectors&lt;/b&gt; grid 1.5 mm&lt;p&gt;
-Source: ENG_CD_1445055_A.pdf</description>
-<gates>
-<gate name="G$1" symbol="P3" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="1445055-3">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-<connect gate="G$1" pin="3" pad="3"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="1445055-2" prefix="J">
-<description>&lt;b&gt;Micro MATE-N-LOK Connectors&lt;/b&gt; grid 1.5 mm&lt;p&gt;
-Source: ENG_CD_1445055_A.pdf</description>
-<gates>
-<gate name="G$1" symbol="P2" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="1445055-2">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
 <library name="robotter_inductor">
 <packages>
 <package name="SRR1280">
@@ -3560,6 +3414,7 @@ Source: ENG_CD_1445055_A.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-SRR1280-330M" constant="no"/>
 <attribute name="RS" value="727-2274" constant="no"/>
 <attribute name="VALUE" value="33µH" constant="no"/>
 </technology>
@@ -3579,6 +3434,7 @@ Source: ENG_CD_1445055_A.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-SRR1280-150M" constant="no"/>
 <attribute name="RS" value=" 693-4643" constant="no"/>
 <attribute name="VALUE" value="15µH 5.2A" constant="no"/>
 </technology>
@@ -3722,14 +3578,14 @@ Source: ENG_CD_1445055_A.pdf</description>
 <part name="C36" library="robotter_capacitor" deviceset="100NF" device="-F"/>
 <part name="C37" library="robotter_capacitor" deviceset="100NF" device="-F"/>
 <part name="R20" library="robotter_resistor" deviceset="10K" device="-F" value="10k"/>
-<part name="AEAT_ENCOD" library="con-molex" deviceset="22-23-2061" device=""/>
+<part name="AEAT_ENCOD" library="robotter_connector" deviceset="22-23-2061" device=""/>
 <part name="C38" library="robotter_capacitor" deviceset="220UF" device="F_35V"/>
 <part name="C39" library="robotter_capacitor" deviceset="220UF" device="F_35V"/>
 <part name="C40" library="robotter_capacitor" deviceset="220UF" device="F_35V"/>
 <part name="C41" library="robotter_capacitor" deviceset="220UF" device="F_35V"/>
 <part name="C42" library="robotter_capacitor" deviceset="220UF" device="F_35V"/>
 <part name="C43" library="robotter_capacitor" deviceset="220UF" device="F_35V"/>
-<part name="UART_CAM" library="con-molex" deviceset="22-23-2031" device=""/>
+<part name="UART_CAM" library="robotter_connector" deviceset="22-23-2031" device=""/>
 <part name="ADCB0" library="con-lstb" deviceset="MA03-1" device="">
 <attribute name="MF" value=""/>
 <attribute name="MPN" value=""/>
@@ -3780,8 +3636,8 @@ Source: ENG_CD_1445055_A.pdf</description>
 </part>
 <part name="L1" library="robotter_inductor" deviceset="SRR1280" device="-150" value="15uH"/>
 <part name="L2" library="robotter_inductor" deviceset="33µH" device="-3.3A" value="33uH"/>
-<part name="AX12" library="con-amp" deviceset="1445055-3" device=""/>
-<part name="PW_BAT" library="con-amp" deviceset="1445055-2" device=""/>
+<part name="AX12" library="robotter_connector" deviceset="1445055-3" device=""/>
+<part name="PW_BAT" library="robotter_connector" deviceset="1445055-2" device=""/>
 <part name="GND5" library="supply1" deviceset="GND" device=""/>
 <part name="R27" library="robotter_resistor" deviceset="3K09" device="-F"/>
 <part name="R24" library="robotter_resistor" deviceset="1K" device="-F" value="1k"/>
