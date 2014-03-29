@@ -666,7 +666,7 @@ Source: www.farnell.com/datasheets/247.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MOUSER" value="" constant="no"/>
+<attribute name="MOUSER" value="77-VJ0603A181GXACBC" constant="no"/>
 <attribute name="RS" value="147-213" constant="no"/>
 <attribute name="VALUE" value="180pF 50V" constant="no"/>
 </technology>

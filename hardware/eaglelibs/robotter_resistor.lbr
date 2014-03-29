@@ -275,6 +275,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW08058K20FKEB" constant="no"/>
 <attribute name="RS" value=" 679-1727" constant="no"/>
 </technology>
 </technologies>
@@ -305,6 +306,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW080510K0FKEB" constant="no"/>
 <attribute name="RS" value=" 740-9072" constant="no"/>
 </technology>
 </technologies>
@@ -323,6 +325,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603-1.0K-E3" constant="no"/>
 <attribute name="RS" value="213-2266" constant="no"/>
 <attribute name="VALUE" value="1k" constant="no"/>
 </technology>
@@ -335,6 +338,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0805-1.0K-E3" constant="no"/>
 <attribute name="RS" value=" 223-0427" constant="no"/>
 <attribute name="VALUE" value="1k" constant="no"/>
 </technology>
@@ -547,6 +551,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="660-RK73H1JTTD7502F" constant="no"/>
 <attribute name="RS" value="679-0695" constant="no"/>
 </technology>
 </technologies>
@@ -576,6 +581,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="603-RL0603FR070R27L" constant="no"/>
 <attribute name="RS" value="722-1046" constant="no"/>
 </technology>
 </technologies>
@@ -684,6 +690,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603-113K-E3" constant="no"/>
 <attribute name="RS" value="708-9035" constant="no"/>
 <attribute name="VALUE" value="113k 0.1%" constant="no"/>
 </technology>
@@ -749,7 +756,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MOUSER" value="" constant="no"/>
+<attribute name="MOUSER" value="603-AF0805FR-07100RL" constant="no"/>
 <attribute name="RS" value="223-0297" constant="no"/>
 <attribute name="VALUE" value="100-E" constant="no"/>
 </technology>

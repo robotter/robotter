@@ -1007,6 +1007,7 @@ Source: Comchip CGRM4001-G.pdf</description>
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="771-BZV55-C3V3T/R " constant="no"/>
 <attribute name="RS" value="748-5029" constant="no"/>
 <attribute name="VALUE" value="bzv55-c3v3" constant="no"/>
 </technology>
