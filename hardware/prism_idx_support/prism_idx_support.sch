@@ -186,6 +186,7 @@
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GRM188F51H104ZA01" constant="no"/>
 <attribute name="RS" value=" 723-5534 " constant="no"/>
 <attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
@@ -198,6 +199,7 @@
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="81-GRM40Y104Z50D" constant="no"/>
 <attribute name="RS" value="220-7966 " constant="no"/>
 <attribute name="VALUE" value="100nF 50V" constant="no"/>
 </technology>
@@ -217,6 +219,7 @@
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="963-GMK325BJ106MN-T" constant="no"/>
 <attribute name="RS" value="758-3325 " constant="no"/>
 <attribute name="VALUE" value="10µF 35V" constant="no"/>
 </technology>
@@ -229,6 +232,7 @@
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="963-TMK316BJ106KL-T" constant="no"/>
 <attribute name="RS" value="766-1185 " constant="no"/>
 <attribute name="VALUE" value="10µF 25V" constant="no"/>
 </technology>
@@ -298,6 +302,7 @@
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="71-CRCW0603J-270-E3" constant="no"/>
 <attribute name="RS" value=" 679-0071" constant="no"/>
 </technology>
 </technologies>
@@ -309,6 +314,7 @@
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0805-FX2700GLF" constant="no"/>
 <attribute name="RS" value="740-9019" constant="no"/>
 </technology>
 </technologies>
@@ -327,6 +333,7 @@
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="652-CR0603-JW-101GLF" constant="no"/>
 <attribute name="RS" value="740-8886" constant="no"/>
 <attribute name="VALUE" value="100-F" constant="no"/>
 </technology>
@@ -339,6 +346,7 @@
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="603-AF0805FR-07100RL" constant="no"/>
 <attribute name="RS" value="223-0297" constant="no"/>
 <attribute name="VALUE" value="100-E" constant="no"/>
 </technology>
@@ -444,6 +452,7 @@
 </connects>
 <technologies>
 <technology name="">
+<attribute name="MOUSER" value="852-GP1S58VJ000F" constant="no"/>
 <attribute name="RS" value="667-5039" constant="no"/>
 <attribute name="VALUE" value="GP1S58VJ000F" constant="no"/>
 </technology>
