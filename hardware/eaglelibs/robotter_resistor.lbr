@@ -414,7 +414,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MOUSER" value="652-CR0603FX-1002ELF" constant="no"/>
+<attribute name="MOUSER" value="603-AF0603FR-0710KL" constant="no"/>
 <attribute name="RS" value="740-8805" constant="no"/>
 </technology>
 </technologies>
@@ -445,7 +445,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MOUSER" value="652-CR0805-FX2700GLF" constant="no"/>
+<attribute name="MOUSER" value="660-RK73H2ATTD2700F" constant="no"/>
 <attribute name="RS" value="740-9019" constant="no"/>
 </technology>
 </technologies>
@@ -477,7 +477,7 @@ type 0309, grid 12.5 mm</description>
 </device>
 </devices>
 </deviceset>
-<deviceset name="470" prefix="R" uservalue="yes">
+<deviceset name="470" prefix="R">
 <gates>
 <gate name="G$1" symbol="RES" x="0" y="0"/>
 </gates>
@@ -489,8 +489,9 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MOUSER" value="279-CRG0603F470R" constant="no"/>
+<attribute name="MOUSER" value="603-AF0603FR-07470RL" constant="no"/>
 <attribute name="RS" value="213-2222" constant="no"/>
+<attribute name="VALUE" value="470" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -520,7 +521,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MOUSER" value="652-CR0603-JW-472GLF" constant="no"/>
+<attribute name="MOUSER" value="71-CRCW0603-4.7K-E3" constant="no"/>
 <attribute name="RS" value="740-8959" constant="no"/>
 </technology>
 </technologies>
@@ -532,7 +533,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MOUSER" value="279-CRG0805F4K7" constant="no"/>
+<attribute name="MOUSER" value="71-CRCW0805-4.7K-E3" constant="no"/>
 <attribute name="RS" value="223-0528" constant="no"/>
 </technology>
 </technologies>
@@ -637,7 +638,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MOUSER" value="652-CR0805FX-1502ELF" constant="no"/>
+<attribute name="MOUSER" value="660-RK73H2ATTD1502F" constant="no"/>
 <attribute name="RS" value="740-8997" constant="no"/>
 <attribute name="VALUE" value="15k 1%" constant="no"/>
 </technology>
@@ -670,7 +671,7 @@ type 0309, grid 12.5 mm</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MOUSER" value="279-CRG0603F22R" constant="no"/>
+<attribute name="MOUSER" value="660-RK73H1JTTD22R0F" constant="no"/>
 <attribute name="RS" value="213-2042" constant="no"/>
 <attribute name="VALUE" value="22 ohms" constant="no"/>
 </technology>

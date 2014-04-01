@@ -4557,6 +4557,7 @@ Source: MaxStream, Inc. xbee_productmanual.pdf</description>
 <technologies>
 <technology name="">
 <attribute name="MOUSER" value="81-LXES2SBAA4-016" constant="no"/>
+<attribute name="RS" value="747-4925" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -4740,8 +4741,7 @@ Source: MaxStream, Inc. xbee_productmanual.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MOUSER" value="863-MMSD4148T1G
-" constant="no"/>
+<attribute name="MOUSER" value="863-MMSD4148T1G " constant="no"/>
 <attribute name="RS" value="464-198" constant="no"/>
 </technology>
 </technologies>
