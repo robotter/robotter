@@ -6966,6 +6966,8 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <attributes>
 </attributes>
 <variantdefs>
+<variantdef name="Master Xbee"/>
+<variantdef name="Slave"/>
 </variantdefs>
 <classes>
 <class number="0" name="default" width="0" drill="0">
@@ -7053,19 +7055,32 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="LK2" library="robotter_diode" deviceset="LED_" device="G"/>
 <part name="LK3" library="robotter_diode" deviceset="LED_" device="G"/>
 <part name="GND17" library="supply1" deviceset="GND" device=""/>
-<part name="XB1" library="robotter_ic" deviceset="XBEE" device="-PRO"/>
+<part name="XB1" library="robotter_ic" deviceset="XBEE" device="-PRO">
+<variant name="Slave" populate="no"/>
+</part>
 <part name="BAL1" library="robotter_connector" deviceset="794618-8" device=""/>
 <part name="BAL2" library="robotter_connector" deviceset="794618-8" device=""/>
 <part name="+3V4" library="supply1" deviceset="+3V3" device=""/>
 <part name="GND18" library="supply1" deviceset="GND" device=""/>
 <part name="GND21" library="supply1" deviceset="GND" device=""/>
-<part name="BATT" library="robotter_connector" deviceset="1445055-2" device=""/>
-<part name="D5" library="robotter_diode" deviceset="50WQ03" device=""/>
+<part name="BATT" library="robotter_connector" deviceset="1445055-2" device="">
+<variant name="Master Xbee" populate="no"/>
+<variant name="Slave" populate="no"/>
+</part>
+<part name="D5" library="robotter_diode" deviceset="50WQ03" device="">
+<variant name="Slave" populate="no"/>
+</part>
 <part name="GND23" library="supply1" deviceset="GND" device=""/>
-<part name="SW_BATT" library="robotter_others" deviceset="2MS1T2B4M6QNS" device=""/>
+<part name="SW_BATT" library="robotter_others" deviceset="2MS1T2B4M6QNS" device="">
+<variant name="Slave" populate="no"/>
+</part>
 <part name="T7" library="robotter_ic" deviceset="*-NPN-" device="SOT23-BEC" technology="MMBT2222ALT1" value="MMBT2222LT1G"/>
-<part name="R51" library="robotter_resistor" deviceset="1K" device="-F"/>
-<part name="R46" library="robotter_resistor" deviceset="10K" device="-E"/>
+<part name="R51" library="robotter_resistor" deviceset="1K" device="-F">
+<variant name="Slave" populate="no"/>
+</part>
+<part name="R46" library="robotter_resistor" deviceset="10K" device="-E">
+<variant name="Slave" populate="no"/>
+</part>
 <part name="RF" library="robotter_diode" deviceset="LED_" device="Y" value="YELLOW"/>
 <part name="R28" library="robotter_resistor" deviceset="270" device="-F"/>
 <part name="SYNC2" library="robotter_diode" deviceset="LED_" device="B"/>
@@ -7100,8 +7115,12 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="R39" library="robotter_resistor" deviceset="10K" device="-F"/>
 <part name="R30" library="robotter_resistor" deviceset="10K" device="-F"/>
 <part name="R33" library="robotter_resistor" deviceset="10K" device="-F"/>
-<part name="R55" library="robotter_resistor" deviceset="10K" device="-F"/>
-<part name="R54" library="robotter_resistor" deviceset="10K" device="-F"/>
+<part name="R55" library="robotter_resistor" deviceset="10K" device="-F">
+<variant name="Slave" populate="no"/>
+</part>
+<part name="R54" library="robotter_resistor" deviceset="10K" device="-F">
+<variant name="Slave" populate="no"/>
+</part>
 <part name="R20" library="robotter_resistor" deviceset="10K" device="-F"/>
 <part name="R9" library="robotter_resistor" deviceset="10K" device="-F"/>
 <part name="R10" library="robotter_resistor" deviceset="10K" device="-F"/>
@@ -7112,9 +7131,15 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="R26" library="robotter_resistor" deviceset="10K" device="-F"/>
 <part name="R15" library="robotter_resistor" deviceset="10K" device="-F"/>
 <part name="R14" library="robotter_resistor" deviceset="10K" device="-F"/>
-<part name="C20" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V"/>
-<part name="C21" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V"/>
-<part name="C23" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V"/>
+<part name="C20" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V">
+<variant name="Slave" populate="no"/>
+</part>
+<part name="C21" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V">
+<variant name="Slave" populate="no"/>
+</part>
+<part name="C23" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V">
+<variant name="Slave" populate="no"/>
+</part>
 <part name="C34" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V"/>
 <part name="C35" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V"/>
 <part name="C42" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V"/>
@@ -7141,7 +7166,9 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="R60" library="robotter_resistor" deviceset="15K" device="-E" value="15k 1%"/>
 <part name="R61" library="robotter_resistor" deviceset="1K" device="-E" value="1k"/>
 <part name="C24" library="robotter_capacitor" deviceset="330UF" device="" value="330µF 35V"/>
-<part name="T8" library="robotter_ic" deviceset="NTGS4111" device="PT1G" value="NTGS4111PT1G"/>
+<part name="T8" library="robotter_ic" deviceset="NTGS4111" device="PT1G" value="NTGS4111PT1G">
+<variant name="Slave" populate="no"/>
+</part>
 <part name="T5" library="robotter_ic" deviceset="NTGS4111" device="PT1G" value="NTGS4111PT1G"/>
 <part name="T2" library="robotter_ic" deviceset="NTGS4111" device="PT1G" value="NTGS4111PT1G"/>
 <part name="R34" library="robotter_resistor" deviceset="8K2" device="-E"/>
@@ -7202,15 +7229,31 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="R2" library="robotter_resistor" deviceset="0" device="-E"/>
 <part name="R4" library="robotter_resistor" deviceset="0" device="-E"/>
 <part name="GND6" library="supply1" deviceset="GND" device=""/>
-<part name="IC7" library="robotter_ic" deviceset="NRF24L01+" device=""/>
+<part name="IC7" library="robotter_ic" deviceset="NRF24L01+" device="">
+<variant name="Master Xbee" populate="no"/>
+<variant name="Slave" populate="no"/>
+</part>
 <part name="+3V10" library="supply1" deviceset="+3V3" device=""/>
 <part name="GND7" library="supply1" deviceset="GND" device=""/>
-<part name="C27" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V"/>
-<part name="C30" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V"/>
-<part name="R67" library="robotter_resistor" deviceset="10K" device="-F"/>
+<part name="C27" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V">
+<variant name="Master Xbee" populate="no"/>
+<variant name="Slave" populate="no"/>
+</part>
+<part name="C30" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V">
+<variant name="Master Xbee" populate="no"/>
+<variant name="Slave" populate="no"/>
+</part>
+<part name="R67" library="robotter_resistor" deviceset="10K" device="-F">
+<variant name="Master Xbee" populate="no"/>
+<variant name="Slave" populate="no"/>
+</part>
 <part name="GND8" library="supply1" deviceset="GND" device=""/>
-<part name="R43" library="robotter_resistor" deviceset="10K" device="-F"/>
-<part name="R42" library="robotter_resistor" deviceset="10K" device="-F"/>
+<part name="R43" library="robotter_resistor" deviceset="10K" device="-F">
+<variant name="Slave" populate="no"/>
+</part>
+<part name="R42" library="robotter_resistor" deviceset="10K" device="-F">
+<variant name="Slave" populate="no"/>
+</part>
 <part name="IDX0" library="robotter_others" deviceset="PRISM_INDEX_EXTENSION" device="_MALE"/>
 <part name="GND9" library="supply1" deviceset="GND" device=""/>
 <part name="R74" library="robotter_resistor" deviceset="270" device="-E"/>
@@ -7227,17 +7270,31 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <text x="276.86" y="162.56" size="1.778" layer="91">connect 2s lipo batterie ( 6.6-8.4V)</text>
 <text x="210.82" y="320.04" size="1.778" layer="91">use internal pullup of atxmega
 to read beacon id</text>
-<text x="292.1" y="96.52" size="1.778" layer="91">SW_BATT is a switch used to drive the mos that cut power</text>
+<text x="292.1" y="101.6" size="1.778" layer="91">SW_BATT is a switch used to drive the mos that cut power</text>
 <text x="279.4" y="-167.64" size="1.778" layer="91">led used to show idx activity</text>
 <text x="492.76" y="162.56" size="1.778" layer="91">3,3V 1A</text>
 <text x="86.36" y="81.28" size="1.778" layer="91">connector to IR sensor : 
 S15-PA-2-A00-PK
 or 
 S15-PA-2-A00-NK</text>
-<text x="86.36" y="-114.3" size="1.778" layer="91">connector to IR sensor : 
+<text x="86.36" y="-116.84" size="1.778" layer="91">connector to IR sensor : 
 S15-PA-2-A00-PK
 or 
 S15-PA-2-A00-NK</text>
+<wire x1="274.32" y1="66.04" x2="337.82" y2="66.04" width="1.27" layer="97" style="longdash"/>
+<wire x1="337.82" y1="66.04" x2="337.82" y2="170.18" width="1.27" layer="97" style="longdash"/>
+<wire x1="337.82" y1="170.18" x2="274.32" y2="170.18" width="1.27" layer="97" style="longdash"/>
+<wire x1="274.32" y1="170.18" x2="274.32" y2="66.04" width="1.27" layer="97" style="longdash"/>
+<wire x1="271.78" y1="-96.52" x2="271.78" y2="-12.7" width="1.27" layer="97" style="longdash"/>
+<wire x1="271.78" y1="-12.7" x2="381" y2="-12.7" width="1.27" layer="97" style="longdash"/>
+<wire x1="381" y1="-12.7" x2="513.08" y2="-12.7" width="1.27" layer="97" style="longdash"/>
+<wire x1="513.08" y1="-12.7" x2="513.08" y2="-96.52" width="1.27" layer="97" style="longdash"/>
+<wire x1="513.08" y1="-96.52" x2="381" y2="-96.52" width="1.27" layer="97" style="longdash"/>
+<text x="274.32" y="-93.98" size="2.54" layer="97">MASTER XBEE</text>
+<text x="386.08" y="-93.98" size="2.54" layer="97">MASTER NRF24L01</text>
+<wire x1="381" y1="-96.52" x2="271.78" y2="-96.52" width="1.27" layer="97" style="longdash"/>
+<wire x1="381" y1="-96.52" x2="381" y2="-12.7" width="1.27" layer="97" style="longdash"/>
+<text x="279.4" y="71.12" size="2.54" layer="97">MASTER XBEE / NRF24L01</text>
 </plain>
 <instances>
 <instance part="FRAME1" gate="G$1" x="0" y="185.42"/>
