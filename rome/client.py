@@ -7,6 +7,7 @@ ROME client connection
 import threading
 import Queue
 import time
+from . import frame
 from .frame import Frame
 
 __all__ = ['Client']
@@ -147,6 +148,8 @@ def main():
       help="serial baudrate, defaults to 38400")
   parser.add_argument('-i', '--interactive', action='store_true', default=False,
       help="start an interactive IPython shell")
+  parser.add_argument('--filter', default=None,
+      help="comma-separated list of message IDs or name to print")
 
   args = parser.parse_args()
 
@@ -168,18 +171,35 @@ def main():
   import datetime
 
   class ClientEcho(Client):
+    def __init__(self, fo, mids):
+      Client.__init__(self, fo)
+      self.filtered_mids = mids
+
     @classmethod
     def log_strtime(cls):
       t = datetime.datetime.now()
       return '%02d:%02d:%02d.%03d' % (t.hour, t.minute, t.second, t.microsecond/1000)
 
     def on_frame(self, frame):
-      print "%s <<< %r" % (self.log_strtime(), frame)
+      if self.filtered_mids is None or frame.mid in self.filtered_mids:
+        print "%s <<< %r" % (self.log_strtime(), frame)
 
     def on_sent_frame(self, frame):
-      print "%s >>> %r" % (self.log_strtime(), frame)
+      if self.filtered_mids is None or frame.mid in self.filtered_mids:
+        print "%s >>> %r" % (self.log_strtime(), frame)
 
-  client = ClientEcho(fo)
+  if args.filter is None:
+    filtered_mids = None
+  else:
+    filtered_mids = []
+    for x in args.filter.split(','):
+      try:
+        mid = int(x, 0)
+      except ValueError:
+        mid = frame.messages_by_name[x].mid
+    filtered_mids.append(mid)
+
+  client = ClientEcho(fo, filtered_mids)
 
   if not args.interactive:
     client.start(False)
