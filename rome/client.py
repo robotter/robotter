@@ -7,6 +7,7 @@ ROME client connection
 import threading
 import Queue
 import time
+import datetime
 from . import frame
 from .frame import Frame
 
@@ -138,6 +139,26 @@ class Client(object):
         cb_result(result)
 
 
+class ClientEcho(Client):
+
+  def __init__(self, fo, mids=None):
+    Client.__init__(self, fo)
+    self.filtered_mids = mids
+
+  @classmethod
+  def log_strtime(cls):
+    t = datetime.datetime.now()
+    return '%02d:%02d:%02d.%03d' % (t.hour, t.minute, t.second, t.microsecond/1000)
+
+  def on_frame(self, frame):
+    if self.filtered_mids is None or frame.mid in self.filtered_mids:
+      print "%s <<< %r" % (self.log_strtime(), frame)
+
+  def on_sent_frame(self, frame):
+    if self.filtered_mids is None or frame.mid in self.filtered_mids:
+      print "%s >>> %r" % (self.log_strtime(), frame)
+
+
 def main():
   import argparse
 
@@ -167,26 +188,6 @@ def main():
     fo.read = read
   else:
     fo = Serial(args.source, args.baudrate)
-
-  import datetime
-
-  class ClientEcho(Client):
-    def __init__(self, fo, mids):
-      Client.__init__(self, fo)
-      self.filtered_mids = mids
-
-    @classmethod
-    def log_strtime(cls):
-      t = datetime.datetime.now()
-      return '%02d:%02d:%02d.%03d' % (t.hour, t.minute, t.second, t.microsecond/1000)
-
-    def on_frame(self, frame):
-      if self.filtered_mids is None or frame.mid in self.filtered_mids:
-        print "%s <<< %r" % (self.log_strtime(), frame)
-
-    def on_sent_frame(self, frame):
-      if self.filtered_mids is None or frame.mid in self.filtered_mids:
-        print "%s >>> %r" % (self.log_strtime(), frame)
 
   if args.filter is None:
     filtered_mids = None
