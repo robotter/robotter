@@ -2308,7 +2308,7 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 </device>
 </devices>
 </deviceset>
-<deviceset name="470" prefix="R" uservalue="yes">
+<deviceset name="470" prefix="R">
 <gates>
 <gate name="G$1" symbol="RES" x="0" y="0"/>
 </gates>
@@ -2322,6 +2322,7 @@ Source: http://pdfserv.maxim-ic.com/en/ds/MAX3222-MAX3241.pdf</description>
 <technology name="">
 <attribute name="MOUSER" value="279-CRG0603F470R" constant="no"/>
 <attribute name="RS" value="213-2222" constant="no"/>
+<attribute name="VALUE" value="470" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -2660,6 +2661,9 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <plain>
 <text x="25.4" y="-134.62" size="1.778" layer="91">verifier pinout du gp2</text>
 <text x="60.96" y="-134.62" size="1.778" layer="91">que la nappe ait juste a etre splittée en 4</text>
+<text x="35.56" y="15.24" size="1.778" layer="91">ajouter resist de protection en serie : sur commandes moteurs </text>
+<text x="121.92" y="152.4" size="1.778" layer="91">ajouter resist de protection en serie : sur commandes moteurs </text>
+<text x="119.38" y="106.68" size="1.778" layer="91">ajouter resist de protection en serie : sur commandes moteurs </text>
 </plain>
 <instances>
 <instance part="FRAME1" gate="G$1" x="0" y="0"/>
