@@ -842,6 +842,7 @@ DIN A4, landscape with location and doc. field</description>
 <sheets>
 <sheet>
 <plain>
+<text x="93.98" y="106.68" size="1.778" layer="91">R2 must be 1k6</text>
 </plain>
 <instances>
 <instance part="GND64" gate="1" x="109.22" y="78.74"/>
