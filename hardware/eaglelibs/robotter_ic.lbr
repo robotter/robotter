@@ -4837,10 +4837,10 @@ Source: MaxStream, Inc. xbee_productmanual.pdf</description>
 <device name="5FN" package="FN6">
 <connects>
 <connect gate="G$1" pin="GND" pad="3"/>
-<connect gate="G$1" pin="INT" pad="4"/>
-<connect gate="G$1" pin="LDR" pad="6"/>
+<connect gate="G$1" pin="INT" pad="5"/>
+<connect gate="G$1" pin="LDR" pad="4"/>
 <connect gate="G$1" pin="SCL" pad="2"/>
-<connect gate="G$1" pin="SDA" pad="5"/>
+<connect gate="G$1" pin="SDA" pad="6"/>
 <connect gate="G$1" pin="VCC" pad="1"/>
 </connects>
 <technologies>

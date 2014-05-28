@@ -937,8 +937,8 @@ diameter 3 mm, horizontal, grid 12.7 mm</description>
 <devices>
 <device name="" package="SMA">
 <connects>
-<connect gate="G$1" pin="A" pad="C"/>
-<connect gate="G$1" pin="C" pad="A"/>
+<connect gate="G$1" pin="A" pad="A"/>
+<connect gate="G$1" pin="C" pad="C"/>
 </connects>
 <technologies>
 <technology name="">
