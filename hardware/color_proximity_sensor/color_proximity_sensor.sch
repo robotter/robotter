@@ -626,8 +626,8 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <devices>
 <device name="" package="SMA">
 <connects>
-<connect gate="G$1" pin="A" pad="C"/>
-<connect gate="G$1" pin="C" pad="A"/>
+<connect gate="G$1" pin="A" pad="A"/>
+<connect gate="G$1" pin="C" pad="C"/>
 </connects>
 <technologies>
 <technology name="">
@@ -969,7 +969,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MOUSER" value="652-CR0805FX-1502ELF" constant="no"/>
+<attribute name="MOUSER" value="660-RK73H2ATTD1502F" constant="no"/>
 <attribute name="RS" value="740-8997" constant="no"/>
 <attribute name="VALUE" value="15k 1%" constant="no"/>
 </technology>
@@ -1002,7 +1002,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MOUSER" value="279-CRG0603F22R" constant="no"/>
+<attribute name="MOUSER" value="660-RK73H1JTTD22R0F" constant="no"/>
 <attribute name="RS" value="213-2042" constant="no"/>
 <attribute name="VALUE" value="22 ohms" constant="no"/>
 </technology>
@@ -1034,7 +1034,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MOUSER" value="652-CR0805-FX2700GLF" constant="no"/>
+<attribute name="MOUSER" value="660-RK73H2ATTD2700F" constant="no"/>
 <attribute name="RS" value="740-9019" constant="no"/>
 </technology>
 </technologies>
@@ -1458,10 +1458,10 @@ http://www.ti.com/product/lm25011</description>
 <device name="5FN" package="FN6">
 <connects>
 <connect gate="G$1" pin="GND" pad="3"/>
-<connect gate="G$1" pin="INT" pad="4"/>
-<connect gate="G$1" pin="LDR" pad="6"/>
+<connect gate="G$1" pin="INT" pad="5"/>
+<connect gate="G$1" pin="LDR" pad="4"/>
 <connect gate="G$1" pin="SCL" pad="2"/>
-<connect gate="G$1" pin="SDA" pad="5"/>
+<connect gate="G$1" pin="SDA" pad="6"/>
 <connect gate="G$1" pin="VCC" pad="1"/>
 </connects>
 <technologies>
