@@ -4336,7 +4336,6 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </classes>
 <parts>
 <part name="FRAME1" library="frames" deviceset="A4L-LOC" device=""/>
-<part name="FRAME2" library="frames" deviceset="A4L-LOC" device=""/>
 <part name="ENCOD1" library="robotter_connector" deviceset="HEDL554X" device=""/>
 <part name="ENCOD2" library="robotter_connector" deviceset="HEDL554X" device=""/>
 <part name="ENCOD3" library="robotter_connector" deviceset="HEDL554X" device=""/>
@@ -4404,7 +4403,6 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 </plain>
 <instances>
 <instance part="FRAME1" gate="G$1" x="0" y="0"/>
-<instance part="FRAME2" gate="G$1" x="0" y="-185.42"/>
 <instance part="ENCOD1" gate="G$1" x="38.1" y="139.7" rot="MR0"/>
 <instance part="ENCOD2" gate="G$1" x="38.1" y="86.36" rot="MR0"/>
 <instance part="ENCOD3" gate="G$1" x="38.1" y="33.02" rot="MR0"/>
