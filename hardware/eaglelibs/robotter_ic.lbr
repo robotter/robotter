@@ -2792,6 +2792,40 @@ http://www.ee.siue.edu/~alozows/library/datasheets/BFR96.pdf</description>
 <vertex x="2.5654" y="3.937"/>
 </polygon>
 </package>
+<package name="SO16_CAV">
+<wire x1="4.699" y1="3.6558" x2="-4.699" y2="3.6558" width="0.1524" layer="21"/>
+<wire x1="4.699" y1="-3.6558" x2="5.08" y2="-3.1748" width="0.1524" layer="21" curve="90"/>
+<wire x1="-5.08" y1="3.1748" x2="-4.699" y2="3.6558" width="0.1524" layer="21" curve="-90"/>
+<wire x1="4.699" y1="3.6558" x2="5.08" y2="3.1748" width="0.1524" layer="21" curve="-90"/>
+<wire x1="-5.08" y1="-3.1748" x2="-4.699" y2="-3.6558" width="0.1524" layer="21" curve="90"/>
+<wire x1="-4.699" y1="-3.6558" x2="4.699" y2="-3.6558" width="0.1524" layer="21"/>
+<wire x1="5.08" y1="-3.1748" x2="5.08" y2="-3.1002" width="0.1524" layer="21"/>
+<wire x1="5.08" y1="-3.1002" x2="5.08" y2="3.1748" width="0.1524" layer="21"/>
+<wire x1="-5.08" y1="3.1748" x2="-5.08" y2="1.08" width="0.1524" layer="21"/>
+<wire x1="-5.08" y1="1.08" x2="-5.08" y2="-1.08" width="0.1524" layer="21"/>
+<wire x1="-5.08" y1="-1.08" x2="-5.08" y2="-3.1002" width="0.1524" layer="21"/>
+<wire x1="-5.08" y1="-3.1002" x2="-5.08" y2="-3.1748" width="0.1524" layer="21"/>
+<wire x1="-5.08" y1="1.08" x2="-5.08" y2="-1.08" width="0.1524" layer="21" curve="-180"/>
+<wire x1="-5.08" y1="-3.1002" x2="5.08" y2="-3.1002" width="0.0508" layer="21"/>
+<smd name="1" x="-4.445" y="-4.77" dx="0.6604" dy="2.032" layer="1"/>
+<smd name="16" x="-4.445" y="4.77" dx="0.6604" dy="2.032" layer="1"/>
+<smd name="2" x="-3.175" y="-4.77" dx="0.6604" dy="2.032" layer="1"/>
+<smd name="3" x="-1.905" y="-4.77" dx="0.6604" dy="2.032" layer="1"/>
+<smd name="15" x="-3.175" y="4.77" dx="0.6604" dy="2.032" layer="1"/>
+<smd name="14" x="-1.905" y="4.77" dx="0.6604" dy="2.032" layer="1"/>
+<smd name="4" x="-0.635" y="-4.77" dx="0.6604" dy="2.032" layer="1"/>
+<smd name="13" x="-0.635" y="4.77" dx="0.6604" dy="2.032" layer="1"/>
+<smd name="5" x="0.635" y="-4.77" dx="0.6604" dy="2.032" layer="1"/>
+<smd name="12" x="0.635" y="4.77" dx="0.6604" dy="2.032" layer="1"/>
+<smd name="6" x="1.905" y="-4.77" dx="0.6604" dy="2.032" layer="1"/>
+<smd name="7" x="3.175" y="-4.77" dx="0.6604" dy="2.032" layer="1"/>
+<smd name="11" x="1.905" y="4.77" dx="0.6604" dy="2.032" layer="1"/>
+<smd name="10" x="3.175" y="4.77" dx="0.6604" dy="2.032" layer="1"/>
+<smd name="8" x="4.445" y="-4.77" dx="0.6604" dy="2.032" layer="1"/>
+<smd name="9" x="4.445" y="4.77" dx="0.6604" dy="2.032" layer="1"/>
+<text x="-2.794" y="-0.635" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
+<text x="-5.461" y="-2.032" size="1.27" layer="25" ratio="10" rot="R90">&gt;NAME</text>
+</package>
 </packages>
 <symbols>
 <symbol name="LM2596">
@@ -4782,7 +4816,7 @@ Source: MaxStream, Inc. xbee_productmanual.pdf</description>
 <gate name="G$1" symbol="ADXRS453" x="-5.08" y="-5.08"/>
 </gates>
 <devices>
-<device name="BRGZ" package="SO16">
+<device name="BRGZ" package="SO16_CAV">
 <connects>
 <connect gate="G$1" pin="/CS" pad="4"/>
 <connect gate="G$1" pin="AVDD" pad="14"/>
