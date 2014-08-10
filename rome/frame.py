@@ -53,6 +53,13 @@ class Frame(object):
   Attributes:
     msg -- message class
     params -- message parameters, as a msg.ptuple instance
+    ack -- ACK value, only for orders
+
+  Class attributes:
+    next_ack -- generator of ACK values
+
+  To be able to send orders, set_ack_range() must be called with the ACK range
+  to use. Different (sub)classes can set different ranges.
 
   """
 
@@ -60,6 +67,7 @@ class Frame(object):
     """Create a frame for given message and parameters
 
     msg may be a Message instance, a message ID or a message name.
+    ACK value may be provided in _ack keyword argument.
     """
 
     if isinstance(msg, Message):
@@ -70,6 +78,10 @@ class Frame(object):
       self.msg = messages_by_name[msg]
     else:
       raise TypeError("invalid msg")
+    if isinstance(self.msg, Order):
+      self.ack = kw.pop('_ack', None)
+    elif '_ack' in kw:
+      del kw['_ack']
     self.params = self.msg.ptuple(*a, **kw)
 
   @classmethod
@@ -96,15 +108,21 @@ class Frame(object):
     if len(payload) != msg.plsize:
       raise ValueError("invalid payload size for message %s (expected %04X, got %04X)" % (msg.name, msg.plsize, len(payload)))
     args = []
+    if isinstance(msg, Order):
+      ack, payload = types.rome_uint8.unpack(payload)
+    else:
+      ack = None
     for _,t in msg.ptypes:
       v, payload = t.unpack(payload)
       args.append(v)
-    return cls(msg, *args)
+    return cls(msg, *args, _ack=ack)
 
   def data(self):
     """Return the formatted frame data"""
     data = chr(self.msg.mid)
     payload = ''
+    if isinstance(self.msg, Order):
+      payload += struct.pack('<B', self.ack if self.ack is not None else self.next_ack())
     for v,(k,t) in zip(self.params, self.msg.ptypes):
       payload += t.pack(v)
     data = struct.pack('<BB', len(payload), self.msg.mid) + payload
@@ -212,6 +230,13 @@ class Frame(object):
       except ValueError:
         pass  # invalid frame, skip
 
+  @classmethod
+  def set_ack_range(cls, start, stop):
+    """Update the next_ack iterator"""
+    cls.next_ack = itertools.cycle(range(start, stop)).next
+
+  next_ack = None
+
 
 class Message(object):
   """
@@ -247,11 +272,21 @@ class Message(object):
     messages_by_name[self.name] = self
 
 
+class Order(Message):
+  """
+  ROME message with ACK value
+  """
+
+  def __init__(self, mid, name, ptypes):
+    Message.__init__(self, mid, name, ptypes)
+    self.plsize += 1
+
+
 def register_messages(*groups):
   """Create and register groups of messages and return them
 
   groups is an iterable of (mid, messages) pairs
-  where messages is a list of (name, ptypes).
+  where messages is a list of (name, ptypes) or (Order|Message, name, ptypes).
 
   mids are affected automatically.
   Registered transactions are returned.
@@ -259,9 +294,14 @@ def register_messages(*groups):
   """
   ret = []
   for mid, messages in groups:
-    for name, ptypes in messages:
+    for args in messages:
+      if len(args) == 2:
+        cls = Message
+        name, ptypes = args
+      else:
+        cls, name, ptypes = args
       ptypes = [ (k, rome_types.types[t]) for k,t in ptypes ]
-      msg = Message(mid, name, ptypes)
+      msg = cls(mid, name, ptypes)
       mid += 1
       msg.register()
       ret.append(msg)
@@ -274,10 +314,20 @@ def unregister_all_messages():
   """
   messages.clear()
   messages_by_name.clear()
+  register_builtin_messages()
+
+def register_builtin_messages():
+  register_messages(
+    (0x01, [
+      (Message, 'ack', [('ack', 'uint8')])
+      ]),
+    )
 
 
+# register built-in messages
+register_builtin_messages()
 
-# register default messages if availabe
+# register default messages if available
 try:
   import rome_messages
   del rome_messages
