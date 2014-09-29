@@ -267,6 +267,15 @@ def register_messages(*groups):
       ret.append(msg)
   return ret
 
+def unregister_all_messages():
+  """Unregister all messages
+  This can be used for tests or other cases when we need to control which
+  messages are defined.
+  """
+  messages.clear()
+  messages_by_name.clear()
+
+
 
 # register default messages if availabe
 try:
