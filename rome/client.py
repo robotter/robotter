@@ -80,7 +80,8 @@ class Client(object):
     succeeded or not. It is called with frame as parameter.
 
     If not None, cb_result is called with True (success) or False (failure) as
-    parameter. If cb_ack send will succeed as soon as data has been written.
+    parameter. If cb_ack is not set, send will succeed as soon as data has been
+    written.
 
     """
     self.wqueue.put((frame, cb_result, cb_ack))
