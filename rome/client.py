@@ -27,8 +27,6 @@ class Client(object):
     wqueue -- write queue, see send() for values
     _stop_threads -- used internally to stop the client
 
-  The queue (frame, ack_callback, result_callback)
-
   """
 
   _stop_threads_period = 0.5
