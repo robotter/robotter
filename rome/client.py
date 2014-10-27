@@ -174,18 +174,7 @@ def main():
 
   from serial import Serial
   import os
-  if os.name == 'nt':
-    # hack to allow KeyboardInterrupt to interrupt
-    fo = Serial(args.source, args.baudrate, timeout=0.5)
-    def read(n):
-      while True:
-        c = fo._read(n)
-        if c != '':
-          return c
-    fo._read = fo.read
-    fo.read = read
-  else:
-    fo = Serial(args.source, args.baudrate)
+  fo = Serial(args.source, args.baudrate, timeout=0.5)
 
   if args.filter is None:
     filtered_mids = None

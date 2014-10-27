@@ -202,25 +202,36 @@ class Frame(object):
     Invalid frames are skipped.
     """
 
+    if hasattr(fo, 'eof'):
+      feof = fo.eof
+    else:
+      feof = lambda: False
+
     while True:
       # start byte
       data = fo.read(1)
-      if not data:
+      if not data and feof():
         return None
       if data != chr(START_BYTE):
         continue
 
       # plsize
-      data += fo.read(1)
-      if len(data) != 2:
-        return None
+      while True:
+        c = fo.read(1)
+        if c:
+          data += c
+          break
+        elif feof():
+          return None
       plsize = ord(data[-1])
       # read remaining frame data
       toread = plsize+MIN_FRAME_SIZE - len(data)
       while toread > 0:
         s = fo.read(toread)
         if not s:
-          return None
+          if feof():
+            return None
+          continue
         data += s
         toread -= len(s)
 
