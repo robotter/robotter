@@ -109,7 +109,7 @@ class Frame(object):
       raise ValueError("invalid payload size for message %s (expected %04X, got %04X)" % (msg.name, msg.plsize, len(payload)))
     args = []
     if isinstance(msg, Order):
-      ack, payload = types.rome_uint8.unpack(payload)
+      ack, payload = rome_types.rome_uint8.unpack(payload)
     else:
       ack = None
     for _,t in msg.ptypes:
