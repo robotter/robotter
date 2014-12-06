@@ -243,7 +243,7 @@ class ArrayType(FixedType):
 
   @classmethod
   def unpack(cls, data):
-    return [cls.base.unpack(data) for i in xrange(cls.array_size)]
+    return [cls.base.unpack(data) for i in xrange(cls.array_size)], data[cls.packsize:]
 
 
 def rome_array(base, size):
@@ -261,4 +261,42 @@ def rome_array(base, size):
       'packsize': size * base.packsize,
       }
   return type(name, (ArrayType,), fields)
+
+
+
+class VarArrayType(_BaseType):
+  """
+  Base class for variable-size array types
+
+  Should be created using rome_vararray().
+
+  Class attributes:
+    base -- base type
+
+  """
+
+  @classmethod
+  def pack(cls, v):
+    return ''.join(cls.base.pack(vv) for vv in v)
+
+  @classmethod
+  def unpack(cls, data):
+    n = len(data)//cls.base.packsize
+    return [cls.base.unpack(data) for i in xrange(n)], data[n*cls.base.packsize]
+
+
+def rome_vararray(base):
+  """Create a variable-size array type"""
+  name = "%s_vararray" % base.name
+  # reuse already created type if possible
+  if name in types:
+    return types[name]
+  if not issubclass(base, FixedType):
+    raise TypeError("rome_vararray() base type must be a fixed-size type, got %s" % base)
+  fields = {
+      'name': name,
+      'base': base,
+      }
+  return type(name, (VarArrayType,), fields)
+
 
