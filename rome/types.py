@@ -11,9 +11,21 @@ The pack/unpack methods may do conversions to rescale values (e.g. angles).
 """
 
 import struct
+import re
 
 __all__ = []  # protect against "import *" misuse
 types = {}  # map of defined types
+
+
+def from_decl(name):
+  """Return a type from its declare, create type if needed"""
+  if name in types:
+    return types[name]
+  m = re.match('^(\w+)\[(\d+)\]$', name)
+  if m:
+    return rome_array(types[m.group(1)], int(m.group(2)))
+  raise ValueError("invalid type")
+
 
 
 class _TypeMetaclass(type):

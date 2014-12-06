@@ -311,7 +311,7 @@ def register_messages(*groups):
         name, ptypes = args
       else:
         cls, name, ptypes = args
-      ptypes = [ (k, rome_types.types[t]) for k,t in ptypes ]
+      ptypes = [ (k, rome_types.from_decl(t)) for k,t in ptypes ]
       msg = cls(mid, name, ptypes)
       mid += 1
       msg.register()
