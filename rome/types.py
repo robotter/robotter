@@ -16,7 +16,7 @@ __all__ = []  # protect against "import *" misuse
 types = {}  # map of defined types
 
 
-class _Type(type):
+class _TypeMetaclass(type):
   """
   Type metaclass for ROME data
 
@@ -28,13 +28,6 @@ class _Type(type):
   def __new__(mcls, name, bases, fields):
     if 'name' in fields:
       name = fields['name']
-      if 'packfmt' in fields:
-        fmtsize = struct.calcsize(fields['packfmt'])
-        packsize = fields.get('packsize')
-        if packsize is None:
-          fields['packsize'] = fmtsize
-        elif packsize != fmtsize:
-          raise ValueError("packsize and packfmt mismatch")
       tcls = type.__new__(mcls, name, bases, fields)
       if name in types:
         raise ValueError("type '%s' already defined" % name)
@@ -51,18 +44,36 @@ class _Type(type):
       return type.__str__(tcls)
 
 
-class _BaseType:
+class _FixedTypeMetaclass(_TypeMetaclass):
   """
-  Base class for types
+  Type metaclass for fixed-size types
 
   Class attributes:
     packsize -- byte size of packed value
     packfmt -- packing format (optional)
 
-  If packfmt is used, packsize is deduced from it.
+    packsize is deduced from packfmt if needed.
 
   """
-  __metaclass__ = _Type
+
+  def __init__(cls, name, bases, fields):
+    _TypeMetaclass.__init__(cls, name, bases, fields)
+    if 'packfmt' in fields:
+      fmtsize = struct.calcsize(fields['packfmt'])
+      packsize = fields.get('packsize')
+      if packsize is None:
+        cls.packsize = fmtsize
+      elif packsize != fmtsize:
+        raise ValueError("packsize and packfmt mismatch")
+    else:
+      pass  # not a final type
+
+
+class _BaseType:
+  """
+  Base class for types
+  """
+  __metaclass__ = _TypeMetaclass
 
   @classmethod
   def pack(cls, v):
@@ -77,7 +88,14 @@ class _BaseType:
     raise NotImplementedError()
 
 
-class rome_int(_BaseType):
+class FixedType(_BaseType):
+  """
+  Base class for fixed-size types
+  """
+  __metaclass__ = _FixedTypeMetaclass
+
+
+class rome_int(FixedType):
   """
   Integer type
 
@@ -94,13 +112,13 @@ class rome_int(_BaseType):
 
   @classmethod
   def pack(cls, v):
-    if cls == rome_int:
+    if cls is rome_int:
       raise TypeError("base integer type cannot be packed")
     return struct.pack(cls.packfmt, cls.fpack(v))
 
   @classmethod
   def unpack(cls, data):
-    if cls == rome_int:
+    if cls is rome_int:
       raise TypeError("base integer type cannot be unpacked")
     n = cls.packsize
     if len(data) < n:
@@ -108,7 +126,7 @@ class rome_int(_BaseType):
     return cls.funpack(struct.unpack(cls.packfmt, data[:n])[0]), data[n:]
 
 
-class rome_float(_BaseType):
+class rome_float(FixedType):
   """
   Float type
   """
