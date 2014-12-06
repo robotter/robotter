@@ -300,3 +300,17 @@ def rome_vararray(base):
   return type(name, (VarArrayType,), fields)
 
 
+class rome_string(_BaseType):
+  """Variable-length binary string"""
+
+  name = 'string'
+
+  @classmethod
+  def pack(cls, v):
+    return v
+
+  @classmethod
+  def unpack(cls, data):
+    return data, ''
+
+
