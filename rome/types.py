@@ -210,3 +210,43 @@ class rome_uangle(rome_uint16):
   fpack = _scale1000_fpack
   funpack = _scale1000_funpack
 
+
+class ArrayType(FixedType):
+  """
+  Base class for fixed-size array types
+
+  Should be created using rome_array().
+
+  Class attributes:
+    base -- base type
+    array_size -- number of elements in the array
+
+  """
+
+  @classmethod
+  def pack(cls, v):
+    if len(v) != cls.array_size:
+      raise ValueError("invalid array size (expected %u, got %u)" % (cls.array_size, len(v)))
+    return ''.join(cls.base.pack(vv) for vv in v)
+
+  @classmethod
+  def unpack(cls, data):
+    return [cls.base.unpack(data) for i in xrange(cls.array_size)]
+
+
+def rome_array(base, size):
+  """Create a fixed-size array type"""
+  name = "%s_%d" % (base.name, size)
+  # reuse already created type if possible
+  if name in types:
+    return types[name]
+  if not issubclass(base, FixedType):
+    raise TypeError("rome_array() base type must be a fixed-size type, got %s" % base)
+  fields = {
+      'name': name,
+      'base': base,
+      'array_size': size,
+      'packsize': size * base.packsize,
+      }
+  return type(name, (ArrayType,), fields)
+
