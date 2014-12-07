@@ -105,8 +105,8 @@ class Frame(object):
     msg = messages.get(mid)
     if msg is None:
       raise KeyError("unknown message ID: %d" % mid)
-    if len(payload) != msg.plsize:
-      raise ValueError("invalid payload size for message %s (expected %04X, got %04X)" % (msg.name, msg.plsize, len(payload)))
+    if len(payload) < msg.plsize:
+      raise ValueError("payload too short for message %s (expected at least %04X, got %04X)" % (msg.name, msg.plsize, len(payload)))
     args = []
     if isinstance(msg, Order):
       ack, payload = rome_types.rome_uint8.unpack(payload)
@@ -115,6 +115,8 @@ class Frame(object):
     for _,t in msg.ptypes:
       v, payload = t.unpack(payload)
       args.append(v)
+    if len(payload):
+      raise ValueError("payload not completely consummed")
     return cls(msg, *args, _ack=ack)
 
   def data(self):
@@ -258,7 +260,8 @@ class Message(object):
     name -- message name (lowercase, with underscores)
     ptypes -- parameters types, as a list of (name, type) pairs
     ptuple -- namedtuple type for message parameters
-    plsize -- expected payload size
+    plsize -- minimum expected payload size
+    varsize -- True if frame size is not fixed
 
   """
 
@@ -269,7 +272,10 @@ class Message(object):
     self.name = name
     self.ptypes = ptypes
     self.ptuple = _namedtuple('%s_params' % name, [ k for k,t in ptypes ])
-    self.plsize = sum(t.packsize for v,t in ptypes)
+    if not all(issubclass(t, rome_types.FixedType) for v,t in ptypes[:-1]):
+      raise TypeError("unexpected non fixed-size type")
+    self.plsize = sum(t.packsize for v,t in ptypes if issubclass(t, rome_types.FixedType))
+    self.varsize = len(ptypes) and not issubclass(ptypes[-1][1], rome_types.FixedType)
 
   def register(self):
     """Register the message ID and name"""
