@@ -336,7 +336,10 @@ def unregister_all_messages():
 def register_builtin_messages():
   register_messages(
     (0x01, [
-      (Message, 'ack', [('ack', 'uint8')])
+      (Message, 'ack', [('ack', 'uint8')]),
+      (Message, 'log', [
+        ('sev', rome_types.rome_enum('log_severity', ('debug', 'info', 'notice', 'warning', 'error'))),
+        ('msg', 'string')]),
       ]),
     )
 
