@@ -17,11 +17,13 @@ __all__ = []  # protect against "import *" misuse
 types = {}  # map of defined types
 
 
-def from_decl(name):
+def from_decl(typ):
   """Return a type from its declare, create type if needed"""
-  if name in types:
-    return types[name]
-  m = re.match('^(\w+)\[(\d+)\]$', name)
+  if isinstance(typ, type) and issubclass(typ, _BaseType):
+    return typ
+  if typ in types:
+    return types[typ]
+  m = re.match('^(\w+)\[(\d+)\]$', typ)
   if m:
     return rome_array(types[m.group(1)], int(m.group(2)))
   raise ValueError("invalid type")
@@ -196,6 +198,59 @@ class rome_bool(rome_uint8):
   packfmt = '<?'
   fpack = bool
   funpack = bool
+
+
+class EnumType(rome_uint8):
+  """
+  Base class for enumeration types
+
+  Should be created using rome_enum().
+
+  Class attributes:
+    values -- map of enumeration values, string to integer
+    keys -- revert map of values, integer to strings
+
+  """
+
+  @classmethod
+  def pack(cls, v):
+    if not isinstance(v, int):
+      try:
+        v = cls.values[v]
+      except KeyError:
+        raise ValueError("unknown key for enum %s: %s" % (cls.__name__, v))
+    return rome_uint8.pack(v)
+
+  @classmethod
+  def unpack(cls, data):
+    v, tail = rome_uint8.unpack(data)
+    try:
+      v = cls.keys[v]
+    except KeyError:
+      raise ValueError("unknown value for enum %s: %s" % (cls.__name__, v))
+    return v, tail
+
+def rome_enum(name, mapping):
+  """Create an enum type
+
+  mapping can be a map of key/values or an iterable of keys.
+  """
+  if hasattr(mapping, 'items'):
+    values = { k: v for k,v in mapping.items() }
+  else:
+    values = { k: i for i,k in enumerate(mapping) }
+  # reuse already created type if possible
+  if name in types:
+    typ = types[name]
+    if typ.values != values:
+      raise ValueError("duplicate enum type with different values: %s" % name)
+    return types[name]
+  fields = {
+      'name': name,
+      'values': values,
+      'keys': { v: k for k,v in values.items() }
+      }
+  return type(name, (EnumType,), fields)
 
 
 # fonctions used to pack/unpack angle values
