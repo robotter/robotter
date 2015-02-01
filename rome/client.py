@@ -86,6 +86,10 @@ class Client(object):
     """
     self.wqueue.put((frame, cb_result, cb_ack))
 
+  def send_raw(self, data):
+    """Queue raw data to send"""
+    self.wqueue.put((data, None, None))
+
 
   def on_frame(self, frame):
     """Method called to handle incoming frames"""
@@ -116,6 +120,11 @@ class Client(object):
       try:
         frame, cb_result, cb_ack = self.wqueue.get(True, self._stop_threads_period)
       except Queue.Empty:
+        continue
+
+      if not isinstance(frame, Frame):
+        # raw data
+        self.fo.write(frame)
         continue
 
       self.on_sent_frame(frame)
