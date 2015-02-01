@@ -20,8 +20,8 @@ class Client(object):
 
   Attributes:
     fo -- file object for the remote device
-    try_count -- number of tries for sent messages
-    try_period -- period between tries (and checks) for sent messages
+    retry_count -- number of tries for sent messages
+    retry_period -- period between tries (and checks) for sent messages
     rthread -- thread used for reading while runing
     wthread -- thread used for writing while running
     wqueue -- write queue, see send() for values
@@ -133,10 +133,10 @@ class Client(object):
         self.fo.write(data)
         result = True
       else:
-        for i in range(self.try_count):
+        for i in range(self.retry_count):
           self.fo.write(data)
           #XXX also wake-up on on_message() calls to check for ACK
-          time.sleep(self.try_period)
+          time.sleep(self.retry_period)
           if cb_ack(frame):
             result = True
             break
