@@ -104,7 +104,7 @@ class Frame(object):
 
     msg = messages.get(mid)
     if msg is None:
-      raise KeyError("unknown message ID: %d" % mid)
+      raise ValueError("unknown message ID: %d" % mid)
     if len(payload) < msg.plsize:
       raise ValueError("payload too short for message %s (expected at least %04X, got %04X)" % (msg.name, msg.plsize, len(payload)))
     args = []
