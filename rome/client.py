@@ -14,6 +14,51 @@ from .frame import Frame
 __all__ = ['Client']
 
 
+class ClientResultHandler:
+  """
+  Handle Client.send() when client is started in background
+
+  To be used with send() to check for results when using a daemon client.
+
+  Attributes:
+    result -- send() call result: None (not set yet), True or False
+    check -- callback used to check periodically if message has succeeded
+    check_ev -- event used to signal that the ACK has been received
+    result_ev -- event used to signal that the result has been set
+
+  If check is not set, check() is expected to be called.
+  If check is False
+  """
+
+  def __init__(self, check=None):
+    self.result = None
+    self.check = None
+    self.check_ev = threading.Event()
+    self.result_ev = threading.Event()
+
+  def reset(self):
+    """Reset the result handler"""
+    self.result = None
+    self.check_ev.clear()
+    self.result_ev.clear()
+
+  def ack(self):
+    """Signal that the result has been received"""
+    self.check_ev.set()
+
+  def wait(self, timeout=None):
+    """Wait for the result to be received"""
+    self.result_ev.wait(timeout)
+
+  def _check(self, timeout):
+    """Check if response has been received"""
+    if self.check is None:
+      return self.check_ev.wait(timeout)
+    else:
+      time.sleep(timeout)
+      return self.check_ev.is_set()
+
+
 class Client(object):
   """
   ROME client connection
@@ -73,18 +118,15 @@ class Client(object):
       self.wthread = None
 
 
-  def send(self, frame, cb_result=None, cb_ack=None):
+  def send(self, frame, handler=None, cb_result=None):
     """Queue a frame to send
 
-    If not None, cb_ack is a method called to check whether the message has
-    succeeded or not. It is called with frame as parameter.
-
+    handler is expected to be a ClientResultHandler instance.
     If not None, cb_result is called with True (success) or False (failure) as
-    parameter. If cb_ack is not set, send will succeed as soon as data has been
-    written.
-
+    parameter. If handler is not set, send will succeed as soon as data has
+    been written.
     """
-    self.wqueue.put((frame, cb_result, cb_ack))
+    self.wqueue.put((frame, handler, cb_result))
 
   def send_raw(self, data):
     """Queue raw data to send"""
@@ -118,7 +160,7 @@ class Client(object):
 
     while not self._stop_threads:
       try:
-        frame, cb_result, cb_ack = self.wqueue.get(True, self._stop_threads_period)
+        frame, handler, cb_result = self.wqueue.get(True, self._stop_threads_period)
       except Queue.Empty:
         continue
 
@@ -129,22 +171,21 @@ class Client(object):
 
       self.on_sent_frame(frame)
       data = frame.data()
-      if cb_ack is None:
+      if handler is None:
         self.fo.write(data)
         result = True
       else:
         for i in range(self.retry_count):
           self.fo.write(data)
-          #XXX also wake-up on on_message() calls to check for ACK
-          time.sleep(self.retry_period)
-          if cb_ack(frame):
+          if handler._check(self.retry_period):
             result = True
             break
         else:
           result = False
-
       if cb_result is not None:
         cb_result(result)
+      if handler is not None:
+        handler.result_ev.set()
 
 
 class ClientEcho(Client):
