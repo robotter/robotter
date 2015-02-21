@@ -256,6 +256,27 @@ def rome_enum(name, mapping):
   return type(name, (EnumType,), fields)
 
 
+class rome_fourcc(_BaseType):
+  """Four-character code"""
+
+  name = 'fourcc'
+
+  @classmethod
+  def pack(cls, v):
+    if isinstance(v, int):
+      return rome_uint32.pack(v)
+    else:
+      if len(v) != 4:
+        raise ValueError("invalid FourCC value: %r" % v)
+      return v
+
+  @classmethod
+  def unpack(cls, data):
+    if len(data) < n:
+      raise ValueError("not enough data to unpack FourCC (expected 4, got %u)" % len(data))
+    return data[:4], data[4:]
+
+
 # fonctions used to pack/unpack angle values
 _scale1000_fpack = staticmethod(lambda v: int(v * 1000))
 _scale1000_funpack = staticmethod(lambda v: float(v) / 1000)
