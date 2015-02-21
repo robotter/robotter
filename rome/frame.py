@@ -344,6 +344,7 @@ def register_builtin_messages():
         ('sev', rome_types.rome_enum('log_severity', ('debug', 'info', 'notice', 'warning', 'error'))),
         ('msg', 'string')]),
       (Order, 'bootloader', [
+          ('device', 'fourcc'),
           ('cmd', rome_types.rome_enum('bootloader_cmd', (
               'none', 'boot',
               'info', 'r_info',
