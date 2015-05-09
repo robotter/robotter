@@ -312,7 +312,10 @@ def register_messages(*groups):
   ret = []
   for mid, messages in groups:
     for args in messages:
-      if len(args) == 2:
+      if isinstance(args, type):
+        # allow to define types between messages, for convenience
+        continue
+      elif len(args) == 2:
         cls = Message
         name, ptypes = args
       else:
