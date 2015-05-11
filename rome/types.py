@@ -23,9 +23,12 @@ def from_decl(typ):
     return typ
   if typ in types:
     return types[typ]
-  m = re.match('^(\w+)\[(\d+)\]$', typ)
+  m = re.match('^(\w+)\[(\d+)?\]$', typ)
   if m:
-    return rome_array(types[m.group(1)], int(m.group(2)))
+    if m.group(2):
+      return rome_array(types[m.group(1)], int(m.group(2)))
+    else:
+      return rome_vararray(types[m.group(1)])
   raise ValueError("invalid type")
 
 
