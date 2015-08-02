@@ -2152,7 +2152,7 @@ http://www.ti.com/product/lm25011</description>
 <part name="R16" library="robotter_resistor" deviceset="1K" device="-A" value="1k 1W"/>
 <part name="R17" library="robotter_resistor" deviceset="1K" device="-A" value="1k 1W"/>
 <part name="R18" library="robotter_resistor" deviceset="1K" device="-A" value="1k 1W"/>
-<part name="IC5" library="robotter_ic" deviceset="ATXMEGA64D4" device="-AU" value="ATXMEGA64DA-AU"/>
+<part name="IC5" library="robotter_ic" deviceset="ATXMEGA64D4" device="-AU" value="ATXMEGA64D4-AU"/>
 <part name="+3V3" library="supply1" deviceset="+3V3" device=""/>
 <part name="+3V4" library="supply1" deviceset="+3V3" device=""/>
 <part name="GND10" library="supply1" deviceset="GND" device=""/>
