@@ -38,7 +38,7 @@
 <layer number="42" name="bRestrict" color="1" fill="10" visible="no" active="yes"/>
 <layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="yes"/>
 <layer number="44" name="Drills" color="7" fill="1" visible="no" active="yes"/>
-<layer number="45" name="Holes" color="7" fill="1" visible="no" active="yes"/>
+<layer number="45" name="Holes" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="46" name="Milling" color="3" fill="1" visible="no" active="yes"/>
 <layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
 <layer number="48" name="Document" color="7" fill="1" visible="no" active="yes"/>
@@ -2868,6 +2868,28 @@ http://www.ee.siue.edu/~alozows/library/datasheets/BFR96.pdf</description>
 <wire x1="-2.144" y1="1.6" x2="-2.5" y2="1.344" width="0.1524" layer="21" curve="90"/>
 <wire x1="2.5" y1="1.344" x2="2.144" y2="1.6" width="0.1524" layer="21" curve="90"/>
 </package>
+<package name="EESX1106">
+<pad name="A" x="2.5" y="1.25" drill="0.8"/>
+<pad name="K" x="2.5" y="-1.25" drill="0.8"/>
+<pad name="C" x="-2.5" y="-1.25" drill="0.8"/>
+<pad name="E" x="-2.5" y="1.25" drill="0.8"/>
+<hole x="0" y="1.27" drill="1"/>
+<hole x="0" y="-1.27" drill="1.4"/>
+<wire x1="-3.2" y1="-2.1" x2="-1.5" y2="-2.1" width="0.127" layer="21"/>
+<wire x1="-1.5" y1="-2.1" x2="1.5" y2="-2.1" width="0.127" layer="21"/>
+<wire x1="1.5" y1="2.1" x2="-1.5" y2="2.1" width="0.127" layer="21"/>
+<wire x1="-1.5" y1="2.1" x2="-3.2" y2="2.1" width="0.127" layer="21"/>
+<wire x1="-3.2" y1="2.1" x2="-3.2" y2="-2.1" width="0.127" layer="21"/>
+<wire x1="-1.5" y1="-1.27" x2="-1.5" y2="-2.1" width="0.127" layer="21"/>
+<wire x1="-1.5" y1="-1.27" x2="-1.5" y2="2.1" width="0.127" layer="21"/>
+<wire x1="1.5" y1="2.1" x2="1.5" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="1.5" y1="-1.27" x2="1.5" y2="-2.1" width="0.127" layer="21"/>
+<wire x1="3.2" y1="2.1" x2="1.5" y2="2.1" width="0.127" layer="21"/>
+<wire x1="1.5" y1="-2.1" x2="3.2" y2="-2.1" width="0.127" layer="21"/>
+<wire x1="3.2" y1="-2.1" x2="3.2" y2="2.1" width="0.127" layer="21"/>
+<wire x1="-1.7" y1="-1.27" x2="-1.5" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="1.7" y1="-1.27" x2="1.5" y2="-1.27" width="0.127" layer="21"/>
+</package>
 </packages>
 <symbols>
 <symbol name="LM2596">
@@ -5163,7 +5185,7 @@ http://www.ti.com/product/lm25011</description>
 </device>
 </devices>
 </deviceset>
-<deviceset name="ATXMEGA64D4" prefix="IC">
+<deviceset name="ATXMEGA64D4" prefix="IC" uservalue="yes">
 <gates>
 <gate name="G$1" symbol="ATXMEGA_D4" x="0" y="0"/>
 </gates>
@@ -5504,6 +5526,24 @@ Source: &lt;a href="http://www.onsemi.com/pub_link/Collateral/MC78M00-D.PDF"&gt;
 <technology name="">
 <attribute name="FN" value="1843775" constant="no"/>
 </technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="EESX1106" prefix="PH">
+<gates>
+<gate name="G$1" symbol="PHOTOINTERRUPTER" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="EESX1106">
+<connects>
+<connect gate="G$1" pin="LED_A" pad="A"/>
+<connect gate="G$1" pin="LED_C" pad="K"/>
+<connect gate="G$1" pin="TRANSISTOR_C" pad="C"/>
+<connect gate="G$1" pin="TRANSISTOR_E" pad="E"/>
+</connects>
+<technologies>
+<technology name=""/>
 </technologies>
 </device>
 </devices>
