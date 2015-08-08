@@ -1068,10 +1068,10 @@ Source: http://www.maxim-ic.com/package_drawings/21-0041B.pdf</description>
 <package name="EESX1106">
 <pad name="A" x="2.5" y="1.25" drill="0.8"/>
 <pad name="K" x="2.5" y="-1.25" drill="0.8"/>
-<pad name="C" x="-2.5" y="-1.25" drill="0.8"/>
-<pad name="E" x="-2.5" y="1.25" drill="0.8"/>
-<hole x="0" y="1.27" drill="1"/>
-<hole x="0" y="-1.27" drill="1.4"/>
+<pad name="E" x="-2.5" y="-1.25" drill="0.8"/>
+<pad name="C" x="-2.5" y="1.25" drill="0.8"/>
+<hole x="0" y="1.27" drill="1.4"/>
+<hole x="0" y="-1.27" drill="1"/>
 <wire x1="-3.2" y1="-2.1" x2="-1.5" y2="-2.1" width="0.127" layer="21"/>
 <wire x1="-1.5" y1="-2.1" x2="1.5" y2="-2.1" width="0.127" layer="21"/>
 <wire x1="1.5" y1="2.1" x2="-1.5" y2="2.1" width="0.127" layer="21"/>
