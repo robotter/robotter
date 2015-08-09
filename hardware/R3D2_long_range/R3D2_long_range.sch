@@ -3457,9 +3457,9 @@ S15-PA-2-A00-NK</text>
 <label x="147.32" y="83.82" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="IC1" gate="G$1" pin="PC0/OC0A/SDA"/>
-<wire x1="76.2" y1="76.2" x2="53.34" y2="76.2" width="0.1524" layer="91"/>
-<label x="53.34" y="76.2" size="1.778" layer="95"/>
+<pinref part="IC1" gate="G$1" pin="\S\S/PD4"/>
+<wire x1="139.7" y1="109.22" x2="157.48" y2="109.22" width="0.1524" layer="91"/>
+<label x="142.24" y="109.22" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VBAT_0-2V" class="0">
