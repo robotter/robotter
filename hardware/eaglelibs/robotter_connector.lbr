@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="6.5.0">
+<eagle version="7.4.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -3339,6 +3339,7 @@ DDEController.pdf</description>
 </devices>
 </deviceset>
 <deviceset name="AEAT-601X" prefix="J" uservalue="yes">
+<description>AEAT601x connector (the same that is used in the magnetic encoder)</description>
 <gates>
 <gate name="G$1" symbol="AEAT-601X" x="0" y="0"/>
 </gates>
@@ -3354,7 +3355,10 @@ DDEController.pdf</description>
 <technologies>
 <technology name="">
 <attribute name="AEAT-601X" value="" constant="no"/>
+<attribute name="FN" value="9732861" constant="no"/>
+<attribute name="MOLEX" value="53047-0510" constant="no"/>
 <attribute name="MOUSER" value="" constant="no"/>
+<attribute name="RS" value="447-6596" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -3863,6 +3867,17 @@ wire to board 2.54 mm (.1 inch) pitch header</description>
 <technology name="">
 <attribute name="FARNELL" value="1393817" constant="no"/>
 </technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="53047-0510">
+<gates>
+</gates>
+<devices>
+<device name="">
+<technologies>
+<technology name=""/>
 </technologies>
 </device>
 </devices>
