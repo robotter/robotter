@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -1242,8 +1242,8 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="" constant="no"/>
-<attribute name="RS" value="" constant="no"/>
+<attribute name="FARNELL" value="143126" constant="no"/>
+<attribute name="RS" value="296-4934" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
 </technologies>
@@ -1276,7 +1276,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value=" 2293846" constant="no"/>
+<attribute name="FARNELL" value=" 2293846" constant="no"/>
 <attribute name="RS" value="670-6432" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1293,7 +1293,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="2063734" constant="no"/>
+<attribute name="FARNELL" value="2063734" constant="no"/>
 <attribute name="RS" value=" 172-9178" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1310,7 +1310,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="146256" constant="no"/>
+<attribute name="FARNELL" value="146256" constant="no"/>
 <attribute name="RS" value=" 296-4962" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1327,7 +1327,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="2473375" constant="no"/>
+<attribute name="FARNELL" value="2473375" constant="no"/>
 <attribute name="RS" value="680-5135" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1344,7 +1344,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="2473381" constant="no"/>
+<attribute name="FARNELL" value="2473381" constant="no"/>
 <attribute name="RS" value="847-5566" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1361,7 +1361,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="1111081" constant="no"/>
+<attribute name="FARNELL" value="1111081" constant="no"/>
 <attribute name="RS" value="495-9063" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1369,7 +1369,7 @@
 </device>
 </devices>
 </deviceset>
-<deviceset name="1-794610-1">
+<deviceset name="1-794610-1" prefix="CT">
 <description>Micro Mat N Lok crimp terminal - 20 -24 AWG - receptacle</description>
 <gates>
 <gate name="G$1" symbol="CONTACT-FEMELLE" x="0" y="0"/>
@@ -1378,7 +1378,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="1339224" constant="no"/>
+<attribute name="FARNELL" value="1339224" constant="no"/>
 <attribute name="RS" value="680-1433" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1395,7 +1395,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="1248309" constant="no"/>
+<attribute name="FARNELL" value="1248309" constant="no"/>
 <attribute name="RS" value="680-2120" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1412,7 +1412,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="1111096" constant="no"/>
+<attribute name="FARNELL" value="1111096" constant="no"/>
 <attribute name="RS" value="495-9271" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1445,7 +1445,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="1756744" constant="no"/>
+<attribute name="FARNELL" value="1756744" constant="no"/>
 <attribute name="RS" value=" 670-6414" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
