@@ -782,12 +782,12 @@
 <wire x1="7.62" y1="7.62" x2="7.62" y2="5.08" width="0.254" layer="94"/>
 <wire x1="7.62" y1="5.08" x2="7.62" y2="2.54" width="0.254" layer="94"/>
 <wire x1="7.62" y1="0" x2="7.62" y2="-2.54" width="0.254" layer="94"/>
-<wire x1="7.62" y1="-5.08" x2="7.62" y2="-7.62" width="0.254" layer="94"/>
-<wire x1="7.62" y1="-7.62" x2="0" y2="-7.62" width="0.254" layer="94"/>
-<wire x1="0" y1="-7.62" x2="0" y2="7.62" width="0.254" layer="94"/>
+<wire x1="7.62" y1="-5.08" x2="7.62" y2="-6.35" width="0.254" layer="94"/>
+<wire x1="7.62" y1="-6.35" x2="0" y2="-6.35" width="0.254" layer="94"/>
+<wire x1="0" y1="-6.35" x2="0" y2="7.62" width="0.254" layer="94"/>
 <wire x1="5.588" y1="5.08" x2="7.62" y2="5.08" width="0.508" layer="94"/>
 <wire x1="5.588" y1="2.54" x2="7.62" y2="2.54" width="0.508" layer="94"/>
-<text x="0" y="-10.16" size="1.778" layer="96">&gt;VALUE</text>
+<text x="0" y="-8.89" size="1.778" layer="96">&gt;VALUE</text>
 <text x="3.048" y="5.08" size="1.778" layer="94">1</text>
 <text x="3.048" y="2.54" size="1.778" layer="94">2</text>
 <text x="2.032" y="-3.81" size="1.778" layer="94" rot="R90">milligrid</text>
@@ -1044,7 +1044,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value=" 2293846" constant="no"/>
+<attribute name="FARNELL" value=" 2293846" constant="no"/>
 <attribute name="RS" value="670-6432" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1061,7 +1061,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="2063734" constant="no"/>
+<attribute name="FARNELL" value="2063734" constant="no"/>
 <attribute name="RS" value=" 172-9178" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1078,7 +1078,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="146256" constant="no"/>
+<attribute name="FARNELL" value="146256" constant="no"/>
 <attribute name="RS" value=" 296-4962" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1087,6 +1087,7 @@
 </devices>
 </deviceset>
 <deviceset name="215083-4">
+<description>micromatch male on wire connecter - 4 contacts</description>
 <gates>
 <gate name="G$1" symbol="215083-4" x="0" y="0"/>
 </gates>
@@ -1094,7 +1095,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="2473375" constant="no"/>
+<attribute name="FARNELL" value="2473375" constant="no"/>
 <attribute name="RS" value="680-5135" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1111,7 +1112,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="2473381" constant="no"/>
+<attribute name="FARNELL" value="2473381" constant="no"/>
 <attribute name="RS" value="847-5566" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1128,7 +1129,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="1111081" constant="no"/>
+<attribute name="FARNELL" value="1111081" constant="no"/>
 <attribute name="RS" value="495-9063" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1145,15 +1146,15 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="" constant="no"/>
-<attribute name="RS" value="" constant="no"/>
+<attribute name="FARNELL" value="143126" constant="no"/>
+<attribute name="RS" value="296-4934" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
 </technologies>
 </device>
 </devices>
 </deviceset>
-<deviceset name="1-794610-1">
+<deviceset name="1-794610-1" prefix="CT">
 <description>Micro Mat N Lok crimp terminal - 20 -24 AWG - receptacle</description>
 <gates>
 <gate name="G$1" symbol="CONTACT-FEMELLE" x="0" y="0"/>
@@ -1162,7 +1163,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="1339224" constant="no"/>
+<attribute name="FARNELL" value="1339224" constant="no"/>
 <attribute name="RS" value="680-1433" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
@@ -1195,7 +1196,7 @@
 <device name="">
 <technologies>
 <technology name="">
-<attribute name="FN" value="1248309" constant="no"/>
+<attribute name="FARNELL" value="1248309" constant="no"/>
 <attribute name="RS" value="680-2120" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
