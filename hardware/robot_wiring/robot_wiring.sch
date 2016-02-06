@@ -777,34 +777,6 @@
 <text x="-2.032" y="0" size="1.778" layer="94">2</text>
 <text x="-3.048" y="0" size="1.778" layer="94" rot="R90">KK</text>
 </symbol>
-<symbol name="MICRO_MAT_N_LOK_4W_RECEPTACLE_HOUSING">
-<wire x1="3.302" y1="7.62" x2="4.064" y2="7.62" width="0.254" layer="94"/>
-<wire x1="4.064" y1="7.62" x2="7.62" y2="7.62" width="0.254" layer="94"/>
-<wire x1="7.62" y1="7.62" x2="7.62" y2="5.08" width="0.254" layer="94"/>
-<wire x1="7.62" y1="5.08" x2="7.62" y2="-5.08" width="0.254" layer="94"/>
-<wire x1="7.62" y1="-5.08" x2="0" y2="-5.08" width="0.254" layer="94"/>
-<wire x1="0" y1="-5.08" x2="0" y2="7.62" width="0.254" layer="94"/>
-<wire x1="5.588" y1="5.08" x2="7.62" y2="5.08" width="0.508" layer="94"/>
-<wire x1="5.588" y1="2.54" x2="7.62" y2="2.54" width="0.508" layer="94"/>
-<text x="0" y="-7.62" size="1.778" layer="96">&gt;VALUE</text>
-<text x="3.048" y="5.08" size="1.778" layer="94">1</text>
-<text x="3.048" y="2.54" size="1.778" layer="94">2</text>
-<text x="2.032" y="-2.032" size="1.778" layer="94" rot="R90">µ MnL</text>
-<wire x1="0" y1="7.62" x2="3.302" y2="7.62" width="0.254" layer="94"/>
-<wire x1="3.302" y1="7.62" x2="3.302" y2="8.382" width="0.254" layer="94"/>
-<wire x1="3.302" y1="8.382" x2="2.54" y2="8.382" width="0.254" layer="94"/>
-<wire x1="2.54" y1="8.382" x2="2.54" y2="8.128" width="0.254" layer="94"/>
-<wire x1="2.54" y1="8.128" x2="2.032" y2="8.636" width="0.254" layer="94"/>
-<wire x1="2.032" y1="8.636" x2="2.032" y2="8.89" width="0.254" layer="94"/>
-<wire x1="2.032" y1="8.89" x2="7.62" y2="9.144" width="0.254" layer="94"/>
-<wire x1="7.62" y1="9.144" x2="7.62" y2="8.382" width="0.254" layer="94"/>
-<wire x1="7.62" y1="8.382" x2="4.064" y2="8.382" width="0.254" layer="94"/>
-<wire x1="4.064" y1="8.382" x2="4.064" y2="7.62" width="0.254" layer="94"/>
-<wire x1="5.588" y1="0" x2="7.62" y2="0" width="0.508" layer="94"/>
-<text x="3.048" y="0" size="1.778" layer="94">3</text>
-<wire x1="5.588" y1="-2.54" x2="7.62" y2="-2.54" width="0.508" layer="94"/>
-<text x="3.048" y="-2.54" size="1.778" layer="94">4</text>
-</symbol>
 <symbol name="MILLIGRID_5W">
 <wire x1="0" y1="7.62" x2="7.62" y2="7.62" width="0.254" layer="94"/>
 <wire x1="7.62" y1="7.62" x2="7.62" y2="5.08" width="0.254" layer="94"/>
@@ -827,6 +799,26 @@
 <text x="3.048" y="0" size="1.778" layer="94">3</text>
 <text x="3.048" y="-2.54" size="1.778" layer="94">4</text>
 <text x="3.048" y="-5.08" size="1.778" layer="94">5</text>
+</symbol>
+<symbol name="MICRO_MAT_N_LOK_4W_PLUG_HOUSING">
+<wire x1="-0.254" y1="5.08" x2="-7.62" y2="5.08" width="0.254" layer="94"/>
+<wire x1="-7.62" y1="5.08" x2="-7.62" y2="2.54" width="0.254" layer="94"/>
+<wire x1="-7.62" y1="2.54" x2="-7.62" y2="-7.62" width="0.254" layer="94"/>
+<wire x1="-7.62" y1="-7.62" x2="0" y2="-7.62" width="0.254" layer="94"/>
+<wire x1="0" y1="-7.62" x2="0" y2="5.08" width="0.254" layer="94"/>
+<wire x1="-5.588" y1="2.54" x2="-7.62" y2="2.54" width="0.508" layer="94"/>
+<wire x1="-5.588" y1="0" x2="-7.62" y2="0" width="0.508" layer="94"/>
+<text x="0" y="-10.16" size="1.778" layer="96" rot="MR0">&gt;VALUE</text>
+<text x="-3.048" y="2.54" size="1.778" layer="94" rot="MR0">1</text>
+<text x="-3.048" y="0" size="1.778" layer="94" rot="MR0">2</text>
+<text x="-2.54" y="-4.572" size="1.778" layer="94" rot="MR90">µ MnL</text>
+<wire x1="0" y1="5.08" x2="-0.254" y2="5.08" width="0.254" layer="94"/>
+<wire x1="-0.254" y1="5.08" x2="-1.016" y2="5.842" width="0.254" layer="94"/>
+<wire x1="-1.016" y1="5.842" x2="-1.016" y2="5.08" width="0.254" layer="94"/>
+<wire x1="-5.588" y1="-2.54" x2="-7.62" y2="-2.54" width="0.508" layer="94"/>
+<text x="-3.048" y="-2.54" size="1.778" layer="94" rot="MR0">3</text>
+<wire x1="-5.588" y1="-5.08" x2="-7.62" y2="-5.08" width="0.508" layer="94"/>
+<text x="-3.048" y="-5.08" size="1.778" layer="94" rot="MR0">4</text>
 </symbol>
 </symbols>
 <devicesets>
@@ -1178,19 +1170,6 @@
 </device>
 </devices>
 </deviceset>
-<deviceset name="794616-4">
-<description>Micro Mat'N Lok housing - use receptacle contact - 4 contacts - dual row</description>
-<gates>
-<gate name="G$1" symbol="MICRO_MAT_N_LOK_4W_RECEPTACLE_HOUSING" x="0" y="-2.54"/>
-</gates>
-<devices>
-<device name="">
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
 <deviceset name="51021-0500">
 <description>milligric housing - 5 contacts</description>
 <gates>
@@ -1201,6 +1180,23 @@
 <technologies>
 <technology name="">
 <attribute name="RS" value="447-6580" constant="no"/>
+<attribute name="_EXTERNAL_" value="1" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="794616-4">
+<description>Micro Mat'N Lok housing - use receptacle contact - 4 contacts - dual row</description>
+<gates>
+<gate name="G$2" symbol="MICRO_MAT_N_LOK_4W_PLUG_HOUSING" x="0" y="0"/>
+</gates>
+<devices>
+<device name="">
+<technologies>
+<technology name="">
+<attribute name="FN" value="1248309" constant="no"/>
+<attribute name="RS" value="680-2120" constant="no"/>
 <attribute name="_EXTERNAL_" value="1" constant="no"/>
 </technology>
 </technologies>
@@ -5002,7 +4998,6 @@ Source: www.kingbright.com</description>
 <part name="U$103" library="robotter_wiring" deviceset="1-794610-1" device=""/>
 <part name="U$104" library="robotter_wiring" deviceset="1-794610-1" device=""/>
 <part name="U$105" library="robotter_wiring" deviceset="1-794610-1" device=""/>
-<part name="U$106" library="robotter_wiring" deviceset="794616-4" device=""/>
 <part name="U$107" library="robotter_wiring" deviceset="51021-0500" device=""/>
 <part name="U$108" library="robotter_wiring" deviceset="51021-0500" device=""/>
 <part name="U$109" library="robotter_wiring" deviceset="50394-8051" device=""/>
@@ -5054,6 +5049,7 @@ Source: www.kingbright.com</description>
 <part name="U$26" library="robotter_wiring" deviceset="DC_MOTOR" device=""/>
 <part name="U$84" library="robotter_wiring" deviceset="1-2178712-6" device=""/>
 <part name="U$85" library="robotter_wiring" deviceset="1-2178712-6" device=""/>
+<part name="U$86" library="robotter_wiring" deviceset="794616-4" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -5238,7 +5234,6 @@ Source: www.kingbright.com</description>
 <instance part="U$103" gate="G$1" x="-304.8" y="-7.62" rot="R180"/>
 <instance part="U$104" gate="G$1" x="-304.8" y="-10.16" rot="R180"/>
 <instance part="U$105" gate="G$1" x="-304.8" y="-12.7" rot="R180"/>
-<instance part="U$106" gate="G$1" x="-297.18" y="-12.7" rot="MR0"/>
 <instance part="U$107" gate="G$1" x="27.94" y="73.66"/>
 <instance part="U$108" gate="G$1" x="78.74" y="78.74" rot="MR0"/>
 <instance part="U$109" gate="G$2" x="35.56" y="78.74"/>
@@ -5290,6 +5285,7 @@ Source: www.kingbright.com</description>
 <instance part="U$26" gate="G$1" x="76.2" y="-238.76"/>
 <instance part="U$84" gate="G$1" x="-63.5" y="-236.22"/>
 <instance part="U$85" gate="G$1" x="-38.1" y="-236.22" rot="MR0"/>
+<instance part="U$86" gate="G$2" x="-297.18" y="-10.16"/>
 </instances>
 <busses>
 <bus name="B$1">
