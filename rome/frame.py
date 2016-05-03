@@ -344,9 +344,8 @@ def register_builtin_messages():
         ('sev', rome_types.rome_enum('log_severity', ('debug', 'info', 'notice', 'warning', 'error'))),
         ('msg', 'string')]),
       (Order, 'bootloader', [
-          ('device', 'fourcc'),
           ('cmd', rome_types.rome_enum('bootloader_cmd', (
-              'none', 'boot',
+              'none', 'buffer', 'boot',
               'info', 'r_info',
               'prog_page', 'r_prog_page',
               'mem_crc', 'r_mem_crc',
@@ -357,7 +356,7 @@ def register_builtin_messages():
           ('data', 'string')]),
       (Message, 'bootloader_r', [
         ('ack', 'uint8'),
-        ('status', rome_types.rome_enum('bootloader_status', ('success', 'error', 'unknown_cmd', 'bad_value', 'crc_mismatch'))),
+        ('status', rome_types.rome_enum('bootloader_status', ('success', 'error', 'unknown_cmd', 'bad_value', 'crc_mismatch', 'unexpected_cmd'))),
         ('data', 'string')]),
       ]),
     )
