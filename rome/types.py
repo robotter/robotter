@@ -256,7 +256,7 @@ def rome_enum(name, mapping):
   return type(name, (EnumType,), fields)
 
 
-class rome_fourcc(_BaseType):
+class rome_fourcc(FixedType):
   """Four-character code"""
 
   name = 'fourcc'
