@@ -1,5 +1,0 @@
-** TODO 
-
-* Fri Dec 12 17:03:00 CET 2008
-  - Calibration function gp2pack_calibration() doesn't calibrate threshold.
-    A way to automate the threshold computation shall be integrated.
