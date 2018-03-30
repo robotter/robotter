@@ -4,8 +4,12 @@ ROME client connection
 
 """
 
+from __future__ import print_function
 import threading
-import Queue
+try:
+  import Queue as queue
+except ImportError:
+  import queue
 import time
 import datetime
 from . import frame
@@ -81,7 +85,7 @@ class Client(object):
     self.retry_count = 10
     self.retry_period = 0.05
     self.rthread = self.wthread = None
-    self.wqueue = Queue.Queue()
+    self.wqueue = queue.Queue()
     self._stop_threads = False
 
 
@@ -161,7 +165,7 @@ class Client(object):
     while not self._stop_threads:
       try:
         frame, handler, cb_result = self.wqueue.get(True, self._stop_threads_period)
-      except Queue.Empty:
+      except queue.Empty:
         continue
 
       if not isinstance(frame, Frame):
@@ -201,11 +205,11 @@ class ClientEcho(Client):
 
   def on_frame(self, frame):
     if self.filtered_mids is None or frame.mid in self.filtered_mids:
-      print "%s <<< %r" % (self.log_strtime(), frame)
+      print("%s <<< %r" % (self.log_strtime(), frame))
 
   def on_sent_frame(self, frame):
     if self.filtered_mids is None or frame.mid in self.filtered_mids:
-      print "%s >>> %r" % (self.log_strtime(), frame)
+      print("%s >>> %r" % (self.log_strtime(), frame))
 
 
 def main():

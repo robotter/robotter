@@ -22,6 +22,11 @@ import itertools
 from collections import namedtuple as _namedtuple
 from . import types as rome_types
 
+try:
+  basestring
+except NameError:
+  basestring = str
+
 
 START_BYTE = 0x52
 MIN_FRAME_SIZE = 5
@@ -29,7 +34,7 @@ MIN_FRAME_SIZE = 5
 
 def crc16(data):
   """Compute the CRC of a data string"""
-  crc = 0xffff;
+  crc = 0xffff
   for c in data:
     c = ord(c)
     c ^= crc
@@ -246,7 +251,10 @@ class Frame(object):
   @classmethod
   def set_ack_range(cls, start, stop):
     """Update the next_ack iterator"""
-    cls.next_ack = itertools.cycle(range(start, stop)).next
+    it = itertools.cycle(range(start, stop))
+    if hasattr(it, '__next__'):
+        return it.__next__
+    return it.next  # python2
 
   next_ack = None
 

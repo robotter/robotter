@@ -10,8 +10,19 @@ The pack/unpack methods may do conversions to rescale values (e.g. angles).
 
 """
 
+import sys
 import struct
 import re
+
+# Python2/3 compatibility
+def metaclassed(mcls):
+  def f(cls):
+    body = vars(cls).copy()
+    body.pop('__dict__', None)
+    body.pop('__weakref__', None)
+    return mcls(cls.__name__, cls.__bases__, body)
+  return f
+
 
 __all__ = []  # protect against "import *" misuse
 types = {}  # map of defined types
@@ -23,7 +34,7 @@ def from_decl(typ):
     return typ
   if typ in types:
     return types[typ]
-  m = re.match('^(\w+)\[(\d+)?\]$', typ)
+  m = re.match(r'^(\w+)\[(\d+)?\]$', typ)
   if m:
     if m.group(2):
       return rome_array(types[m.group(1)], int(m.group(2)))
@@ -43,7 +54,7 @@ class _TypeMetaclass(type):
   """
 
   def __new__(mcls, name, bases, fields):
-    if 'name' in fields:
+    if fields.get('name', None):
       name = fields['name']
       tcls = type.__new__(mcls, name, bases, fields)
       if name in types:
@@ -86,11 +97,11 @@ class _FixedTypeMetaclass(_TypeMetaclass):
       pass  # not a final type
 
 
-class _BaseType:
+@metaclassed(_TypeMetaclass)
+class _BaseType(object):
   """
   Base class for types
   """
-  __metaclass__ = _TypeMetaclass
 
   @classmethod
   def pack(cls, v):
@@ -105,11 +116,12 @@ class _BaseType:
     raise NotImplementedError()
 
 
+@metaclassed(_FixedTypeMetaclass)
 class FixedType(_BaseType):
   """
   Base class for fixed-size types
   """
-  __metaclass__ = _FixedTypeMetaclass
+  pass
 
 
 class rome_int(FixedType):
@@ -272,7 +284,7 @@ class rome_fourcc(FixedType):
 
   @classmethod
   def unpack(cls, data):
-    if len(data) < n:
+    if len(data) < 4:
       raise ValueError("not enough data to unpack FourCC (expected 4, got %u)" % len(data))
     return data[:4], data[4:]
 
@@ -322,7 +334,7 @@ class ArrayType(FixedType):
 
   @classmethod
   def unpack(cls, data):
-    return [cls.base.unpack(data) for i in xrange(cls.array_size)], data[cls.packsize:]
+    return [cls.base.unpack(data) for i in range(cls.array_size)], data[cls.packsize:]
 
 
 def rome_array(base, size):
@@ -360,8 +372,8 @@ class VarArrayType(_BaseType):
 
   @classmethod
   def unpack(cls, data):
-    n = len(data)//cls.base.packsize
-    return [cls.base.unpack(data) for i in xrange(n)], data[n*cls.base.packsize]
+    n = int(len(data)//cls.base.packsize)
+    return [cls.base.unpack(data) for i in range(n)], data[n*cls.base.packsize]
 
 
 def rome_vararray(base):
