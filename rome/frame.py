@@ -22,13 +22,9 @@ import itertools
 from collections import namedtuple as _namedtuple
 from . import types as rome_types
 
-try:
-  basestring
-except NameError:
-  basestring = str
-
 
 START_BYTE = 0x52
+START_BYTES = bytes([START_BYTE])
 MIN_FRAME_SIZE = 5
 
 
@@ -36,7 +32,6 @@ def crc16(data):
   """Compute the CRC of a data string"""
   crc = 0xffff
   for c in data:
-    c = ord(c)
     c ^= crc
     c ^= (c << 4)
     c &= 0xff
@@ -79,7 +74,7 @@ class Frame(object):
       self.msg = msg
     elif isinstance(msg, int):
       self.msg = messages[msg]
-    elif isinstance(msg, basestring):
+    elif isinstance(msg, str):
       self.msg = messages_by_name[msg]
     else:
       raise TypeError("invalid msg")
@@ -126,14 +121,13 @@ class Frame(object):
 
   def data(self):
     """Return the formatted frame data"""
-    data = chr(self.msg.mid)
-    payload = ''
+    payload = b''
     if isinstance(self.msg, Order):
       payload += struct.pack('<B', self.ack if self.ack is not None else self.next_ack())
     for v,(k,t) in zip(self.params, self.msg.ptypes):
       payload += t.pack(v)
     data = struct.pack('<BB', len(payload), self.msg.mid) + payload
-    return chr(START_BYTE) + data + struct.pack('<H', crc16(data))
+    return START_BYTES + data + struct.pack('<H', crc16(data))
 
   def __repr__(self):
     attrs = ''.join(' %s=%r' % kv for kv in zip(self.params._fields, self.params))
@@ -148,7 +142,7 @@ class Frame(object):
     """
     data = ''
     while True:
-      pos = data.find(chr(START_BYTE))
+      pos = data.find(START_BYTE)
       if pos == -1:
         # no start byte, no frame
         data = yield None
@@ -157,7 +151,7 @@ class Frame(object):
       while len(data) < MIN_FRAME_SIZE:
         # not enough data for a whole frame
         data += yield None
-      size = ord(data[1])
+      size = data[1]
       end = MIN_FRAME_SIZE + size
       while len(data) < end:
         data += yield None
@@ -183,14 +177,14 @@ class Frame(object):
       return None, data, ''
     pos = 0
     while True:
-      pos = data.find(chr(START_BYTE), pos)
+      pos = data.find(START_BYTE, pos)
       if pos == -1:
         # no start byte, no frame
         return None, data, ''
       if ndata-pos < MIN_FRAME_SIZE:
         # not enough data for a whole frame
         return None, data[:pos], data[pos:]
-      size = ord(data[1])
+      size = data[1]
       end = pos + MIN_FRAME_SIZE + size
       if end > ndata:
         # incomplete frame
@@ -219,7 +213,7 @@ class Frame(object):
       data = fo.read(1)
       if not data and feof():
         return None
-      if data != chr(START_BYTE):
+      if data != START_BYTES:
         continue
 
       # plsize
@@ -230,7 +224,7 @@ class Frame(object):
           break
         elif feof():
           return None
-      plsize = ord(data[-1])
+      plsize = data[-1]
       # read remaining frame data
       toread = plsize+MIN_FRAME_SIZE - len(data)
       while toread > 0:
@@ -251,10 +245,7 @@ class Frame(object):
   @classmethod
   def set_ack_range(cls, start, stop):
     """Update the next_ack iterator"""
-    it = itertools.cycle(range(start, stop))
-    if hasattr(it, '__next__'):
-        return it.__next__
-    return it.next  # python2
+    cls.next_ack = itertools.cycle(range(start, stop)).__next__
 
   next_ack = None
 

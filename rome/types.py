@@ -14,16 +14,6 @@ import sys
 import struct
 import re
 
-# Python2/3 compatibility
-def metaclassed(mcls):
-  def f(cls):
-    body = vars(cls).copy()
-    body.pop('__dict__', None)
-    body.pop('__weakref__', None)
-    return mcls(cls.__name__, cls.__bases__, body)
-  return f
-
-
 __all__ = []  # protect against "import *" misuse
 types = {}  # map of defined types
 
@@ -97,8 +87,7 @@ class _FixedTypeMetaclass(_TypeMetaclass):
       pass  # not a final type
 
 
-@metaclassed(_TypeMetaclass)
-class _BaseType(object):
+class _BaseType(object, metaclass=_TypeMetaclass):
   """
   Base class for types
   """
@@ -116,8 +105,7 @@ class _BaseType(object):
     raise NotImplementedError()
 
 
-@metaclassed(_FixedTypeMetaclass)
-class FixedType(_BaseType):
+class FixedType(_BaseType, metaclass=_FixedTypeMetaclass):
   """
   Base class for fixed-size types
   """

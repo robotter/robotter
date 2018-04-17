@@ -4,12 +4,8 @@ ROME client connection
 
 """
 
-from __future__ import print_function
 import threading
-try:
-  import Queue as queue
-except ImportError:
-  import queue
+import queue
 import time
 import datetime
 from . import frame
@@ -215,7 +211,7 @@ class ClientEcho(Client):
 def main():
   import argparse
 
-  parser = argparse.ArgumentParser()
+  parser = argparse.ArgumentParser("rome")
   parser.add_argument('source', default='/dev/ttyUSB0',
       help="serial device to listen from, defaults to /dev/ttyUSB0")
   parser.add_argument('--baudrate', type=int, default=38400,
@@ -256,7 +252,4 @@ def main():
     import IPython
     IPython.embed(user_ns=namespace, banner2="ROME interactive shell")
 
-
-if __name__ == '__main__':
-  main()
 
