@@ -318,7 +318,7 @@ class ArrayType(FixedType):
   def pack(cls, v):
     if len(v) != cls.array_size:
       raise ValueError("invalid array size (expected %u, got %u)" % (cls.array_size, len(v)))
-    return ''.join(cls.base.pack(vv) for vv in v)
+    return b''.join(cls.base.pack(vv) for vv in v)
 
   @classmethod
   def unpack(cls, data):
@@ -356,7 +356,7 @@ class VarArrayType(_BaseType):
 
   @classmethod
   def pack(cls, v):
-    return ''.join(cls.base.pack(vv) for vv in v)
+    return b''.join(cls.base.pack(vv) for vv in v)
 
   @classmethod
   def unpack(cls, data):
@@ -386,10 +386,10 @@ class rome_string(_BaseType):
 
   @classmethod
   def pack(cls, v):
-    return v
+    return v.encode('utf-8')
 
   @classmethod
   def unpack(cls, data):
-    return data, ''
+    return data.decode('utf-8'), b''
 
 
