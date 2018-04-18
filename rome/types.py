@@ -322,7 +322,11 @@ class ArrayType(FixedType):
 
   @classmethod
   def unpack(cls, data):
-    return [cls.base.unpack(data) for i in range(cls.array_size)], data[cls.packsize:]
+    values = []
+    for _ in range(cls.array_size):
+      v, data = cls.base.unpack(data)
+      values.append(v)
+    return values, data
 
 
 def rome_array(base, size):
@@ -361,7 +365,11 @@ class VarArrayType(_BaseType):
   @classmethod
   def unpack(cls, data):
     n = int(len(data)//cls.base.packsize)
-    return [cls.base.unpack(data) for i in range(n)], data[n*cls.base.packsize]
+    values = []
+    for _ in range(n):
+      v, data = cls.base.unpack(data)
+      values.append(v)
+    return values, data
 
 
 def rome_vararray(base):
