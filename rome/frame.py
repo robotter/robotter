@@ -124,10 +124,16 @@ class Frame(object):
     payload = b''
     if isinstance(self.msg, Order):
       payload += struct.pack('<B', self.ack if self.ack is not None else self.next_ack())
-    for v,(k,t) in zip(self.params, self.msg.ptypes):
-      payload += t.pack(v)
+    payload += self.params_data()
     data = struct.pack('<BB', len(payload), self.msg.mid) + payload
     return START_BYTES + data + struct.pack('<H', crc16(data))
+
+  def params_data(self):
+    """Return the formatted parameters data"""
+    data = b''
+    for v,(k,t) in zip(self.params, self.msg.ptypes):
+      data += t.pack(v)
+    return data
 
   def __repr__(self):
     attrs = ''.join(' %s=%r' % kv for kv in zip(self.params._fields, self.params))
