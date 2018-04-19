@@ -352,11 +352,11 @@ def register_builtin_messages():
               'read_user_sig', 'r_read_user_sig',
               'prog_user_sig', 'r_prog_user_sig',
               ))),
-          ('data', 'string')]),
+          ('data', 'bytes')]),
       (Message, 'bootloader_r', [
         ('ack', 'uint8'),
         ('status', rome_types.rome_enum('bootloader_status', ('success', 'error', 'unknown_cmd', 'bad_value', 'crc_mismatch', 'unexpected_cmd'))),
-        ('data', 'string')]),
+        ('data', 'bytes')]),
       ]),
     )
 

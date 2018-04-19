@@ -388,7 +388,7 @@ def rome_vararray(base):
 
 
 class rome_string(_BaseType):
-  """Variable-length binary string"""
+  """Variable-length text string"""
 
   name = 'string'
 
@@ -399,5 +399,19 @@ class rome_string(_BaseType):
   @classmethod
   def unpack(cls, data):
     return data.decode('utf-8'), b''
+
+
+class rome_bytes(_BaseType):
+  """Variable-length binary string"""
+
+  name = 'bytes'
+
+  @classmethod
+  def pack(cls, v):
+    return v
+
+  @classmethod
+  def unpack(cls, data):
+    return data, b''
 
 
