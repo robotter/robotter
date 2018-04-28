@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="6.5.0">
+<eagle version="7.4.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -2438,20 +2438,25 @@ wire to board 2.54 mm (.1 inch) pitch header</description>
 <wire x1="7.62" y1="-127" x2="96.52" y2="-127" width="1.27" layer="97" style="shortdash"/>
 <wire x1="96.52" y1="-127" x2="96.52" y2="-177.8" width="1.27" layer="97" style="shortdash"/>
 <text x="10.16" y="-132.08" size="1.778" layer="97">sensor head index</text>
-<text x="91.44" y="-22.86" size="1.778" layer="91">connector to IR sensor : 
+<text x="91.44" y="-25.4" size="1.778" layer="91">connector to dual IR sensor :
 S15-PA-2-A00-PK
 or 
 S15-PA-2-A00-NK</text>
-<wire x1="167.64" y1="-60.96" x2="205.74" y2="-60.96" width="1.27" layer="97" style="shortdash"/>
-<wire x1="205.74" y1="-60.96" x2="205.74" y2="-30.48" width="1.27" layer="97" style="shortdash"/>
-<wire x1="205.74" y1="-30.48" x2="167.64" y2="-30.48" width="1.27" layer="97" style="shortdash"/>
-<wire x1="167.64" y1="-30.48" x2="167.64" y2="-60.96" width="1.27" layer="97" style="shortdash"/>
-<text x="170.18" y="-58.42" size="1.778" layer="97">NC if S15-PA-2-A00-NK</text>
-<wire x1="167.64" y1="-121.92" x2="205.74" y2="-121.92" width="1.27" layer="97" style="shortdash"/>
-<wire x1="205.74" y1="-121.92" x2="205.74" y2="-91.44" width="1.27" layer="97" style="shortdash"/>
-<wire x1="205.74" y1="-91.44" x2="167.64" y2="-91.44" width="1.27" layer="97" style="shortdash"/>
-<wire x1="167.64" y1="-91.44" x2="167.64" y2="-121.92" width="1.27" layer="97" style="shortdash"/>
-<text x="170.18" y="-119.38" size="1.778" layer="97">NC if S15-PA-2-A00-NK</text>
+<wire x1="167.64" y1="-124.46" x2="205.74" y2="-124.46" width="1.27" layer="102" style="shortdash"/>
+<wire x1="205.74" y1="-124.46" x2="205.74" y2="-86.36" width="1.27" layer="102" style="shortdash"/>
+<wire x1="205.74" y1="-86.36" x2="254" y2="-86.36" width="1.27" layer="102" style="shortdash"/>
+<wire x1="254" y1="-86.36" x2="254" y2="-45.72" width="1.27" layer="102" style="shortdash"/>
+<wire x1="254" y1="-45.72" x2="205.74" y2="-45.72" width="1.27" layer="102" style="shortdash"/>
+<wire x1="205.74" y1="-45.72" x2="205.74" y2="-15.24" width="1.27" layer="102" style="shortdash"/>
+<wire x1="205.74" y1="-15.24" x2="167.64" y2="-15.24" width="1.27" layer="102" style="shortdash"/>
+<wire x1="167.64" y1="-15.24" x2="167.64" y2="-124.46" width="1.27" layer="102" style="shortdash"/>
+<text x="198.12" y="-73.66" size="1.778" layer="102">if sensor is S15-PA-2-A00-NK :
+    R13,R14 = 0,
+    D2,D3 = NC,
+    R19,R20 = NC.
+
+else if sensor is S15-PA-2-A00-PK :
+    R17,R18 = NC.</text>
 <wire x1="96.52" y1="-127" x2="200.66" y2="-127" width="1.27" layer="97" style="shortdash"/>
 <wire x1="200.66" y1="-127" x2="200.66" y2="-157.48" width="1.27" layer="97" style="shortdash"/>
 <text x="284.48" y="101.6" size="3.81" layer="97" ratio="15">BATTERY : 12-30V SUPPLY VOLTAGE</text>
@@ -2557,13 +2562,13 @@ S15-PA-2-A00-NK</text>
 <instance part="R2" gate="G$1" x="40.64" y="-63.5" rot="R90"/>
 <instance part="R11" gate="G$1" x="175.26" y="124.46" rot="R90"/>
 <instance part="R16" gate="G$1" x="185.42" y="124.46" rot="R90"/>
-<instance part="R9" gate="G$1" x="177.8" y="91.44" smashed="yes">
-<attribute name="NAME" x="170.18" y="91.44" size="1.778" layer="95"/>
-<attribute name="VALUE" x="180.34" y="91.44" size="1.778" layer="96"/>
+<instance part="R9" gate="G$1" x="182.88" y="91.44" smashed="yes">
+<attribute name="NAME" x="175.26" y="91.44" size="1.778" layer="95"/>
+<attribute name="VALUE" x="185.42" y="91.44" size="1.778" layer="96"/>
 </instance>
-<instance part="R10" gate="G$1" x="190.5" y="88.9" smashed="yes">
-<attribute name="NAME" x="182.88" y="88.9" size="1.778" layer="95"/>
-<attribute name="VALUE" x="193.04" y="88.9" size="1.778" layer="96"/>
+<instance part="R10" gate="G$1" x="195.58" y="88.9" smashed="yes">
+<attribute name="NAME" x="187.96" y="88.9" size="1.778" layer="95"/>
+<attribute name="VALUE" x="198.12" y="88.9" size="1.778" layer="96"/>
 </instance>
 <instance part="R12" gate="G$1" x="203.2" y="83.82" smashed="yes">
 <attribute name="NAME" x="195.58" y="83.82" size="1.778" layer="95"/>
@@ -2613,8 +2618,8 @@ S15-PA-2-A00-NK</text>
 <attribute name="NAME" x="198.12" y="-43.18" size="1.778" layer="95" rot="R90"/>
 <attribute name="VALUE" x="204.47" y="-48.26" size="1.778" layer="96" rot="R90"/>
 </instance>
-<instance part="R17" gate="G$1" x="195.58" y="-22.86" rot="R90"/>
-<instance part="+3V13" gate="G$1" x="195.58" y="-12.7"/>
+<instance part="R17" gate="G$1" x="195.58" y="-27.94" rot="R90"/>
+<instance part="+3V13" gate="G$1" x="195.58" y="-17.78"/>
 <instance part="R8" gate="G$1" x="132.08" y="-139.7"/>
 <instance part="R13" gate="G$1" x="177.8" y="-35.56"/>
 <instance part="D3" gate="G$1" x="187.96" y="-101.6" smashed="yes" rot="R90">
@@ -2622,8 +2627,8 @@ S15-PA-2-A00-NK</text>
 <attribute name="VALUE" x="191.389" y="-110.998" size="1.778" layer="96" rot="R90"/>
 </instance>
 <instance part="R20" gate="G$1" x="200.66" y="-101.6" rot="R90"/>
-<instance part="R18" gate="G$1" x="195.58" y="-83.82" rot="R90"/>
-<instance part="+3V6" gate="G$1" x="195.58" y="-73.66"/>
+<instance part="R18" gate="G$1" x="195.58" y="-88.9" rot="R90"/>
+<instance part="+3V6" gate="G$1" x="195.58" y="-78.74"/>
 <instance part="R14" gate="G$1" x="177.8" y="-96.52"/>
 <instance part="GND7" gate="1" x="193.04" y="-114.3"/>
 <instance part="UART" gate="G$1" x="284.48" y="147.32"/>
@@ -2946,12 +2951,12 @@ S15-PA-2-A00-NK</text>
 <segment>
 <pinref part="R17" gate="G$1" pin="2"/>
 <pinref part="+3V13" gate="G$1" pin="+3V3"/>
-<wire x1="195.58" y1="-17.78" x2="195.58" y2="-15.24" width="0.1524" layer="91"/>
+<wire x1="195.58" y1="-22.86" x2="195.58" y2="-20.32" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="R18" gate="G$1" pin="2"/>
 <pinref part="+3V6" gate="G$1" pin="+3V3"/>
-<wire x1="195.58" y1="-78.74" x2="195.58" y2="-76.2" width="0.1524" layer="91"/>
+<wire x1="195.58" y1="-83.82" x2="195.58" y2="-81.28" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="+3V14" gate="G$1" pin="+3V3"/>
@@ -3189,7 +3194,7 @@ S15-PA-2-A00-NK</text>
 <junction x="144.78" y="-149.86"/>
 </segment>
 </net>
-<net name="N$125" class="0">
+<net name="SENSOR_SUPPLY" class="0">
 <segment>
 <wire x1="78.74" y1="-35.56" x2="91.44" y2="-35.56" width="0.1524" layer="91"/>
 <wire x1="71.12" y1="-33.02" x2="71.12" y2="-35.56" width="0.1524" layer="91"/>
@@ -3208,6 +3213,7 @@ S15-PA-2-A00-NK</text>
 <pinref part="T2" gate="G$1" pin="D@2"/>
 <junction x="71.12" y="-27.94"/>
 <pinref part="T2" gate="G$1" pin="D@3"/>
+<label x="71.12" y="-35.56" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$128" class="0">
@@ -3234,14 +3240,14 @@ S15-PA-2-A00-NK</text>
 </net>
 <net name="N$2" class="0">
 <segment>
-<wire x1="182.88" y1="91.44" x2="210.82" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="187.96" y1="91.44" x2="210.82" y2="91.44" width="0.1524" layer="91"/>
 <pinref part="R9" gate="G$1" pin="2"/>
 <pinref part="RUN" gate="G$1" pin="A"/>
 </segment>
 </net>
 <net name="N$4" class="0">
 <segment>
-<wire x1="195.58" y1="88.9" x2="223.52" y2="88.9" width="0.1524" layer="91"/>
+<wire x1="200.66" y1="88.9" x2="223.52" y2="88.9" width="0.1524" layer="91"/>
 <pinref part="R10" gate="G$1" pin="2"/>
 <pinref part="ERROR" gate="G$1" pin="A"/>
 </segment>
@@ -3257,18 +3263,18 @@ S15-PA-2-A00-NK</text>
 <segment>
 <pinref part="R9" gate="G$1" pin="1"/>
 <pinref part="IC1" gate="G$1" pin="OC0C/PE2"/>
-<wire x1="167.64" y1="91.44" x2="172.72" y2="91.44" width="0.1524" layer="91"/>
-<wire x1="139.7" y1="88.9" x2="167.64" y2="88.9" width="0.1524" layer="91"/>
-<wire x1="167.64" y1="88.9" x2="167.64" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="175.26" y1="91.44" x2="177.8" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="139.7" y1="88.9" x2="175.26" y2="88.9" width="0.1524" layer="91"/>
+<wire x1="175.26" y1="88.9" x2="175.26" y2="91.44" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$10" class="0">
 <segment>
 <pinref part="R10" gate="G$1" pin="1"/>
 <pinref part="IC1" gate="G$1" pin="OC0D/PE3"/>
-<wire x1="170.18" y1="88.9" x2="185.42" y2="88.9" width="0.1524" layer="91"/>
-<wire x1="139.7" y1="86.36" x2="170.18" y2="86.36" width="0.1524" layer="91"/>
-<wire x1="170.18" y1="86.36" x2="170.18" y2="88.9" width="0.1524" layer="91"/>
+<wire x1="177.8" y1="88.9" x2="190.5" y2="88.9" width="0.1524" layer="91"/>
+<wire x1="139.7" y1="86.36" x2="177.8" y2="86.36" width="0.1524" layer="91"/>
+<wire x1="177.8" y1="86.36" x2="177.8" y2="88.9" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$8" class="0">
@@ -3289,7 +3295,7 @@ S15-PA-2-A00-NK</text>
 <segment>
 <wire x1="200.66" y1="-35.56" x2="243.84" y2="-35.56" width="0.1524" layer="91"/>
 <wire x1="182.88" y1="-35.56" x2="187.96" y2="-35.56" width="0.1524" layer="91"/>
-<wire x1="195.58" y1="-27.94" x2="195.58" y2="-35.56" width="0.1524" layer="91"/>
+<wire x1="195.58" y1="-33.02" x2="195.58" y2="-35.56" width="0.1524" layer="91"/>
 <wire x1="187.96" y1="-35.56" x2="195.58" y2="-35.56" width="0.1524" layer="91"/>
 <wire x1="195.58" y1="-35.56" x2="200.66" y2="-35.56" width="0.1524" layer="91"/>
 <wire x1="187.96" y1="-38.1" x2="187.96" y2="-35.56" width="0.1524" layer="91"/>
@@ -3342,7 +3348,7 @@ S15-PA-2-A00-NK</text>
 <segment>
 <wire x1="200.66" y1="-96.52" x2="218.44" y2="-96.52" width="0.1524" layer="91"/>
 <wire x1="182.88" y1="-96.52" x2="187.96" y2="-96.52" width="0.1524" layer="91"/>
-<wire x1="195.58" y1="-88.9" x2="195.58" y2="-96.52" width="0.1524" layer="91"/>
+<wire x1="195.58" y1="-93.98" x2="195.58" y2="-96.52" width="0.1524" layer="91"/>
 <wire x1="187.96" y1="-96.52" x2="195.58" y2="-96.52" width="0.1524" layer="91"/>
 <wire x1="195.58" y1="-96.52" x2="200.66" y2="-96.52" width="0.1524" layer="91"/>
 <wire x1="187.96" y1="-99.06" x2="187.96" y2="-96.52" width="0.1524" layer="91"/>
