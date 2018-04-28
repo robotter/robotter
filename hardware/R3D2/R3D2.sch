@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="6.5.0">
+<eagle version="7.4.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -5182,7 +5182,7 @@ Source: http://www.vishay.com .. dcrcw.pdf</description>
 <instance part="GND46" gate="1" x="335.28" y="111.76"/>
 <instance part="UART_I2C" gate="-1" x="302.26" y="96.52" smashed="yes" rot="MR180">
 <attribute name="NAME" x="301.752" y="95.631" size="1.778" layer="95" rot="MR0"/>
-<attribute name="VALUE" x="292.1" y="90.551" size="1.778" layer="96" rot="MR180"/>
+<attribute name="VALUE" x="284.48" y="93.091" size="1.778" layer="96" rot="MR180"/>
 </instance>
 <instance part="UART_I2C" gate="-2" x="302.26" y="99.06" rot="MR180"/>
 <instance part="UART_I2C" gate="-3" x="302.26" y="101.6" rot="MR180"/>
