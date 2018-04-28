@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="6.5.0">
+<eagle version="7.4.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -87,10 +87,10 @@
 <wire x1="215.265" y1="13.97" x2="215.265" y2="19.05" width="0.1016" layer="94"/>
 <wire x1="215.265" y1="19.05" x2="256.54" y2="19.05" width="0.1016" layer="94"/>
 <wire x1="215.265" y1="19.05" x2="215.265" y2="24.13" width="0.1016" layer="94"/>
-<text x="217.17" y="15.24" size="2.54" layer="94" font="vector">&gt;DRAWING_NAME</text>
-<text x="217.17" y="10.16" size="2.286" layer="94" font="vector">&gt;LAST_DATE_TIME</text>
-<text x="230.505" y="5.08" size="2.54" layer="94" font="vector">&gt;SHEET</text>
-<text x="216.916" y="4.953" size="2.54" layer="94" font="vector">Sheet:</text>
+<text x="217.17" y="15.24" size="2.54" layer="94">&gt;DRAWING_NAME</text>
+<text x="217.17" y="10.16" size="2.286" layer="94">&gt;LAST_DATE_TIME</text>
+<text x="230.505" y="5.08" size="2.54" layer="94">&gt;SHEET</text>
+<text x="216.916" y="4.953" size="2.54" layer="94">Sheet:</text>
 <frame x1="0" y1="0" x2="260.35" y2="179.07" columns="6" rows="4" layer="94"/>
 </symbol>
 </symbols>
@@ -1064,6 +1064,7 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <text x="3" y="-3" size="1.27" layer="27" ratio="10" rot="R90">&gt;VALUE</text>
 <text x="-2" y="-3" size="1.27" layer="25" ratio="10" rot="R90">&gt;NAME</text>
 <smd name="THERMAL" x="0" y="0" dx="3" dy="1.8" layer="1"/>
+<circle x="-1.778" y="-2.032" radius="0.127" width="0.3048" layer="21"/>
 </package>
 <package name="FN6">
 <wire x1="1.2" y1="1" x2="1.2" y2="-0.3" width="0.2032" layer="51"/>
@@ -1084,30 +1085,6 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <smd name="4" x="0.65" y="0.9" dx="0.35" dy="1.5" layer="1" roundness="100"/>
 <text x="-1.675" y="-1.905" size="1.27" layer="25" rot="R90">&gt;NAME</text>
 <text x="2.945" y="-1.905" size="1.27" layer="27" rot="R90">&gt;VALUE</text>
-</package>
-<package name="APDS-9800">
-<smd name="10" x="-1.96" y="-1.9" dx="0.5" dy="1.5" layer="1"/>
-<smd name="1" x="-1.96" y="1.9" dx="0.5" dy="1.5" layer="1"/>
-<smd name="9" x="-1.08" y="-1.9" dx="0.9" dy="1.5" layer="1"/>
-<smd name="8" x="0" y="-1.9" dx="0.9" dy="1.5" layer="1"/>
-<smd name="2" x="-1.08" y="1.9" dx="0.9" dy="1.5" layer="1"/>
-<smd name="3" x="0" y="1.9" dx="0.9" dy="1.5" layer="1"/>
-<smd name="7" x="1.08" y="-1.9" dx="0.9" dy="1.5" layer="1"/>
-<smd name="4" x="1.08" y="1.9" dx="0.9" dy="1.5" layer="1"/>
-<smd name="6" x="1.96" y="-1.9" dx="0.5" dy="1.5" layer="1"/>
-<smd name="5" x="1.96" y="1.9" dx="0.5" dy="1.5" layer="1"/>
-<text x="3.937" y="-2.54" size="1.27" layer="27" ratio="10" rot="R90">&gt;VALUE</text>
-<text x="-2.921" y="-2.54" size="1.27" layer="25" ratio="10" rot="R90">&gt;NAME</text>
-<wire x1="-2.3" y1="1.6" x2="-2.5" y2="1.6" width="0.127" layer="21"/>
-<wire x1="-2.5" y1="1.6" x2="-2.5" y2="-1.6" width="0.127" layer="21"/>
-<wire x1="-2.5" y1="-1.6" x2="-2.3" y2="-1.6" width="0.127" layer="21"/>
-<wire x1="2.3" y1="1.6" x2="2.5" y2="1.6" width="0.127" layer="21"/>
-<wire x1="2.5" y1="1.6" x2="2.5" y2="-1.6" width="0.127" layer="21"/>
-<wire x1="2.5" y1="-1.6" x2="2.3" y2="-1.6" width="0.127" layer="21"/>
-<rectangle x1="-0.54" y1="-1.115" x2="0.65" y2="0.075" layer="21"/>
-<rectangle x1="-2.025" y1="-0.8" x2="-1.465" y2="-0.24" layer="21"/>
-<rectangle x1="-0.23" y1="0.365" x2="0.2" y2="1.065" layer="21"/>
-<wire x1="-1.016" y1="1.016" x2="-1.016" y2="-1.016" width="0.1" layer="21"/>
 </package>
 <package name="TQFP44">
 <description>&lt;b&gt;44-lead Thin Quad Flat Package&lt;/b&gt;</description>
@@ -1278,6 +1255,48 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <text x="-1.397" y="-2.872" size="1.016" layer="27" ratio="10">&gt;VALUE</text>
 <text x="-1.397" y="1.802" size="1.016" layer="25" ratio="10">&gt;NAME</text>
 </package>
+<package name="LGA12">
+<smd name="1" x="1.6" y="-1.05" dx="1" dy="0.5" layer="1" rot="R90"/>
+<smd name="2" x="0.8" y="-1.05" dx="1" dy="0.5" layer="1" rot="R90"/>
+<smd name="3" x="0" y="-1.05" dx="1" dy="0.5" layer="1" rot="R90"/>
+<smd name="4" x="-0.8" y="-1.05" dx="1" dy="0.5" layer="1" rot="R270"/>
+<smd name="5" x="-1.6" y="-1.05" dx="1" dy="0.5" layer="1" rot="R270"/>
+<smd name="6" x="-2.1" y="0" dx="0.5" dy="1.5" layer="1" rot="R90"/>
+<smd name="7" x="-1.6" y="1.05" dx="0.5" dy="1" layer="1" rot="R180"/>
+<smd name="8" x="-0.8" y="1.05" dx="0.5" dy="1" layer="1" rot="R180"/>
+<smd name="9" x="0" y="1.05" dx="0.5" dy="1" layer="1" rot="R180"/>
+<smd name="10" x="0.8" y="1.05" dx="0.5" dy="1" layer="1" rot="R180"/>
+<smd name="11" x="1.6" y="1.05" dx="0.5" dy="1" layer="1" rot="R180"/>
+<smd name="12" x="2.1" y="0" dx="0.5" dy="1.5" layer="1" rot="R90"/>
+<circle x="-0.8" y="0" radius="0.1" width="0.1" layer="21"/>
+<circle x="0.8" y="0" radius="0.3" width="0.127" layer="21"/>
+<wire x1="-2.3" y1="1.3" x2="2.3" y2="1.3" width="0.1" layer="21"/>
+<wire x1="2.3" y1="1.3" x2="2.3" y2="-1.3" width="0.1" layer="21"/>
+<wire x1="2.3" y1="-1.3" x2="-2.3" y2="-1.3" width="0.1" layer="21"/>
+<wire x1="-2.3" y1="-1.3" x2="-2.3" y2="1.3" width="0.1" layer="21"/>
+</package>
+<package name="CRYSTAL_5032">
+<wire x1="2.144" y1="-1.6" x2="-2.144" y2="-1.6" width="0.1524" layer="21"/>
+<wire x1="2.144" y1="-1.6" x2="2.5" y2="-1.344" width="0.1524" layer="21" curve="90"/>
+<wire x1="-2.5" y1="-1.344" x2="-2.144" y2="-1.6" width="0.1524" layer="21" curve="90"/>
+<wire x1="-0.254" y1="0.635" x2="-0.254" y2="-0.635" width="0.1524" layer="21"/>
+<wire x1="-0.254" y1="-0.635" x2="0.254" y2="-0.635" width="0.1524" layer="21"/>
+<wire x1="0.254" y1="-0.635" x2="0.254" y2="0.635" width="0.1524" layer="21"/>
+<wire x1="0.254" y1="0.635" x2="-0.254" y2="0.635" width="0.1524" layer="21"/>
+<wire x1="-0.635" y1="0.635" x2="-0.635" y2="0" width="0.1524" layer="21"/>
+<wire x1="-0.635" y1="0" x2="-0.635" y2="-0.635" width="0.1524" layer="21"/>
+<wire x1="-0.635" y1="0" x2="-1.016" y2="0" width="0.0508" layer="21"/>
+<wire x1="0.635" y1="0.635" x2="0.635" y2="0" width="0.1524" layer="21"/>
+<wire x1="0.635" y1="0" x2="0.635" y2="-0.635" width="0.1524" layer="21"/>
+<wire x1="0.635" y1="0" x2="1.016" y2="0" width="0.0508" layer="21"/>
+<smd name="1" x="-2.05" y="0" dx="1.9" dy="2.4" layer="1" roundness="10"/>
+<smd name="2" x="2.05" y="0" dx="1.9" dy="2.4" layer="1" roundness="10"/>
+<text x="-5.715" y="2.794" size="1.27" layer="25" ratio="10">&gt;NAME</text>
+<text x="-5.715" y="-4.191" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
+<wire x1="-2.144" y1="1.6" x2="2.144" y2="1.6" width="0.1524" layer="21"/>
+<wire x1="-2.144" y1="1.6" x2="-2.5" y2="1.344" width="0.1524" layer="21" curve="90"/>
+<wire x1="2.5" y1="1.344" x2="2.144" y2="1.6" width="0.1524" layer="21" curve="90"/>
+</package>
 </packages>
 <symbols>
 <symbol name="LM25011">
@@ -1312,22 +1331,6 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <pin name="SDA" x="-15.24" y="-2.54" length="middle" direction="oc"/>
 <pin name="INT" x="-15.24" y="5.08" length="middle" direction="oc" swaplevel="1"/>
 <pin name="LDR" x="15.24" y="5.08" length="middle" direction="out" swaplevel="1" rot="R180"/>
-</symbol>
-<symbol name="APDS-9800">
-<wire x1="-10.16" y1="10.16" x2="10.16" y2="10.16" width="0.4064" layer="94"/>
-<wire x1="10.16" y1="-15.24" x2="10.16" y2="10.16" width="0.4064" layer="94"/>
-<wire x1="10.16" y1="-15.24" x2="-10.16" y2="-15.24" width="0.4064" layer="94"/>
-<wire x1="-10.16" y1="10.16" x2="-10.16" y2="-15.24" width="0.4064" layer="94"/>
-<text x="-10.16" y="10.795" size="1.778" layer="95">&gt;NAME</text>
-<text x="-10.16" y="-17.78" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="LEDON" x="-15.24" y="2.54" length="middle"/>
-<pin name="PS_DOUT" x="-15.24" y="7.62" length="middle"/>
-<pin name="VCC" x="5.08" y="15.24" length="middle" rot="R270"/>
-<pin name="PS_PFILT" x="-15.24" y="-2.54" length="middle"/>
-<pin name="ALS_IOUT" x="-15.24" y="-7.62" length="middle" direction="in" swaplevel="1"/>
-<pin name="GND" x="5.08" y="-20.32" length="middle" direction="in" swaplevel="1" rot="R90"/>
-<pin name="PS_ENB" x="-15.24" y="5.08" length="middle" direction="out" swaplevel="1"/>
-<pin name="LEDK" x="15.24" y="-5.08" length="middle" direction="in" swaplevel="1" rot="R180"/>
 </symbol>
 <symbol name="NPN">
 <wire x1="2.54" y1="2.54" x2="0.508" y2="1.524" width="0.1524" layer="94"/>
@@ -1415,6 +1418,25 @@ Source: http://www.osram.convergy.de/ ... lb_r99a.pdf</description>
 <pin name="2" x="2.54" y="0" visible="off" length="point" direction="pas" swaplevel="1" rot="R180"/>
 <pin name="1" x="-2.54" y="0" visible="off" length="point" direction="pas" swaplevel="1"/>
 </symbol>
+<symbol name="VL53L0X">
+<wire x1="-10.16" y1="17.78" x2="10.16" y2="17.78" width="0.254" layer="94"/>
+<wire x1="10.16" y1="17.78" x2="10.16" y2="-15.24" width="0.254" layer="94"/>
+<wire x1="10.16" y1="-15.24" x2="-10.16" y2="-15.24" width="0.254" layer="94"/>
+<wire x1="-10.16" y1="-15.24" x2="-10.16" y2="17.78" width="0.254" layer="94"/>
+<text x="-10.16" y="19.05" size="1.778" layer="95">&gt;NAME</text>
+<text x="7.62" y="-17.78" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="GPIO1" x="-12.7" y="2.54" length="short" direction="out"/>
+<pin name="AVDDVCSEL" x="5.08" y="20.32" length="short" direction="sup" rot="R270"/>
+<pin name="XSHUT" x="-12.7" y="-2.54" length="short"/>
+<pin name="SCL" x="-12.7" y="10.16" length="short" direction="in"/>
+<pin name="SDA" x="-12.7" y="15.24" length="short"/>
+<pin name="AVSSVCSEL" x="5.08" y="-17.78" length="short" direction="sup" rot="R90"/>
+<pin name="AVDD" x="0" y="20.32" length="short" rot="R270"/>
+<pin name="GND@1" x="-7.62" y="-17.78" length="short" rot="R90"/>
+<pin name="GND@2" x="-5.08" y="-17.78" length="short" rot="R90"/>
+<pin name="GND@3" x="-2.54" y="-17.78" length="short" rot="R90"/>
+<pin name="GND@4" x="0" y="-17.78" length="short" rot="R90"/>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="LM25011" prefix="IC" uservalue="yes">
@@ -1474,32 +1496,7 @@ http://www.ti.com/product/lm25011</description>
 </device>
 </devices>
 </deviceset>
-<deviceset name="APDS-9800" prefix="IC">
-<gates>
-<gate name="G$1" symbol="APDS-9800" x="0" y="2.54"/>
-</gates>
-<devices>
-<device name="-021" package="APDS-9800">
-<connects>
-<connect gate="G$1" pin="ALS_IOUT" pad="7"/>
-<connect gate="G$1" pin="GND" pad="8"/>
-<connect gate="G$1" pin="LEDK" pad="10"/>
-<connect gate="G$1" pin="LEDON" pad="2"/>
-<connect gate="G$1" pin="PS_DOUT" pad="3"/>
-<connect gate="G$1" pin="PS_ENB" pad="9"/>
-<connect gate="G$1" pin="PS_PFILT" pad="6"/>
-<connect gate="G$1" pin="VCC" pad="4"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="MOUSER" value="630-APDS-9800-021" constant="no"/>
-<attribute name="RS" value="714-2707" constant="no"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="ATXMEGA64D4" prefix="IC">
+<deviceset name="ATXMEGA64D4" prefix="IC" uservalue="yes">
 <gates>
 <gate name="G$1" symbol="ATXMEGA_D4" x="0" y="0"/>
 </gates>
@@ -1555,7 +1552,7 @@ http://www.ti.com/product/lm25011</description>
 <technology name="">
 <attribute name="MOUSER" value="556-ATXMEGA64D4-AU " constant="no"/>
 <attribute name="RS" value="" constant="no"/>
-<attribute name="VALUE" value="ATXMEGA64DA-AU" constant="no"/>
+<attribute name="VALUE" value="ATXMEGA64D4-AU" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -1591,6 +1588,17 @@ http://www.ti.com/product/lm25011</description>
 </technology>
 </technologies>
 </device>
+<device name="16MHZ_5032" package="CRYSTAL_5032">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="FARNELL" value="2467791" constant="no"/>
+</technology>
+</technologies>
+</device>
 </devices>
 </deviceset>
 <deviceset name="BC847CDXV6T" prefix="T">
@@ -1613,6 +1621,33 @@ http://www.ti.com/product/lm25011</description>
 <attribute name="MOUSER" value="863-BC847CDXV6T1G" constant="no"/>
 <attribute name="RS" value="773-7627" constant="no"/>
 <attribute name="VALUE" value="BC847CDXV6T1G" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="VL53L0X" prefix="IC" uservalue="yes">
+<gates>
+<gate name="G$1" symbol="VL53L0X" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="LGA12">
+<connects>
+<connect gate="G$1" pin="AVDD" pad="11"/>
+<connect gate="G$1" pin="AVDDVCSEL" pad="1"/>
+<connect gate="G$1" pin="AVSSVCSEL" pad="2"/>
+<connect gate="G$1" pin="GND@1" pad="3"/>
+<connect gate="G$1" pin="GND@2" pad="4"/>
+<connect gate="G$1" pin="GND@3" pad="6"/>
+<connect gate="G$1" pin="GND@4" pad="12"/>
+<connect gate="G$1" pin="GPIO1" pad="7"/>
+<connect gate="G$1" pin="SCL" pad="10"/>
+<connect gate="G$1" pin="SDA" pad="9"/>
+<connect gate="G$1" pin="XSHUT" pad="5"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="VALUE" value="VL53L0x" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -1847,19 +1882,6 @@ http://www.ti.com/product/lm25011</description>
 <circle x="0" y="0" radius="1.5" width="0.2032" layer="21"/>
 <pad name="B2,8" x="0" y="0" drill="2.8" diameter="5.334"/>
 </package>
-<package name="3,0-PAD">
-<description>&lt;b&gt;MOUNTING PAD&lt;/b&gt; 3.0 mm, round</description>
-<wire x1="-2.159" y1="0" x2="0" y2="-2.159" width="2.4892" layer="51" curve="90" cap="flat"/>
-<wire x1="0" y1="2.159" x2="2.159" y2="0" width="2.4892" layer="51" curve="-90" cap="flat"/>
-<circle x="0" y="0" radius="3.429" width="0.1524" layer="21"/>
-<circle x="0" y="0" radius="0.762" width="0.4572" layer="51"/>
-<circle x="0" y="0" radius="3.556" width="1.016" layer="39"/>
-<circle x="0" y="0" radius="3.556" width="1.016" layer="40"/>
-<circle x="0" y="0" radius="3.556" width="1.016" layer="43"/>
-<circle x="0" y="0" radius="1.6" width="0.2032" layer="21"/>
-<pad name="B3,0" x="0" y="0" drill="3" diameter="5.842"/>
-<text x="-1.27" y="-3.81" size="1.27" layer="48">3,0</text>
-</package>
 <package name="3,2-PAD">
 <description>&lt;b&gt;MOUNTING PAD&lt;/b&gt; 3.2 mm, round</description>
 <wire x1="-2.159" y1="0" x2="0" y2="-2.159" width="2.4892" layer="51" curve="90" cap="flat"/>
@@ -1967,6 +1989,19 @@ http://www.ti.com/product/lm25011</description>
 <circle x="0" y="0" radius="2" width="0.8128" layer="43"/>
 <circle x="0" y="0" radius="1.5" width="0.2032" layer="21"/>
 <pad name="B2,8" x="0" y="0" drill="2.1" diameter="4"/>
+</package>
+<package name="3,0-PAD">
+<description>&lt;b&gt;MOUNTING PAD&lt;/b&gt; 3.0 mm, round</description>
+<wire x1="-2.159" y1="0" x2="0" y2="-2.159" width="2.4892" layer="51" curve="90" cap="flat"/>
+<wire x1="0" y1="2.159" x2="2.159" y2="0" width="2.4892" layer="51" curve="-90" cap="flat"/>
+<circle x="0" y="0" radius="3" width="0.1524" layer="21"/>
+<circle x="0" y="0" radius="0.762" width="0.4572" layer="51"/>
+<circle x="0" y="0" radius="3" width="1.016" layer="39"/>
+<circle x="0" y="0" radius="3" width="1.016" layer="40"/>
+<circle x="0" y="0" radius="3" width="1.016" layer="43"/>
+<circle x="0" y="0" radius="1.6" width="0.2032" layer="21"/>
+<pad name="B3,0" x="0" y="0" drill="3" diameter="5"/>
+<text x="-1.27" y="-3.81" size="1.27" layer="48">3,0</text>
 </package>
 </packages>
 <symbols>
@@ -2124,19 +2159,6 @@ http://www.ti.com/product/lm25011</description>
 <part name="C5" library="robotter_capacitor" deviceset="22UF" device="-C_10V" value="22µF 10V"/>
 <part name="GND5" library="supply1" deviceset="GND" device=""/>
 <part name="R2" library="robotter_resistor" deviceset="22" device="-F" value="22 ohms"/>
-<part name="IC2" library="robotter_ic" deviceset="APDS-9800" device="-021"/>
-<part name="C6" library="robotter_capacitor" deviceset="22UF" device="-C_10V" value="22µF 10V"/>
-<part name="C7" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V"/>
-<part name="GND3" library="supply1" deviceset="GND" device=""/>
-<part name="GND4" library="supply1" deviceset="GND" device=""/>
-<part name="+3V2" library="supply1" deviceset="+3V3" device=""/>
-<part name="R3" library="robotter_resistor" deviceset="22" device="-F" value="22 ohms"/>
-<part name="R4" library="robotter_resistor" deviceset="22" device="-F" value="22 ohms"/>
-<part name="R5" library="robotter_resistor" deviceset="10K" device="-F"/>
-<part name="R6" library="robotter_resistor" deviceset="1K" device="-F" value="1k"/>
-<part name="R7" library="robotter_resistor" deviceset="15K" device="-F" value="15k 1%"/>
-<part name="C8" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V"/>
-<part name="C9" library="robotter_capacitor" deviceset="1UF" device="D_25V" value="1µF 25V"/>
 <part name="LED2" library="robotter_diode" deviceset="LED_MULTICOLOR" device="" value="ASMT-YTD2-0BB02"/>
 <part name="LED3" library="robotter_diode" deviceset="LED_MULTICOLOR" device="" value="ASMT-YTD2-0BB02"/>
 <part name="C10" library="robotter_capacitor" deviceset="10UF" device="-C_35V" value="10µF 35V"/>
@@ -2193,6 +2215,16 @@ http://www.ti.com/product/lm25011</description>
 <part name="R11" library="robotter_resistor" deviceset="270" device="-F"/>
 <part name="R12" library="robotter_resistor" deviceset="270" device="-F"/>
 <part name="GND17" library="supply1" deviceset="GND" device=""/>
+<part name="IC3" library="robotter_ic" deviceset="VL53L0X" device="" value="VL53L0x"/>
+<part name="C20" library="robotter_capacitor" deviceset="10UF" device="-C_25V" value="10µF 25V"/>
+<part name="C21" library="robotter_capacitor" deviceset="100NF" device="-F" value="100nF 50V"/>
+<part name="+3V7" library="supply1" deviceset="+3V3" device=""/>
+<part name="GND18" library="supply1" deviceset="GND" device=""/>
+<part name="R3" library="robotter_resistor" deviceset="10K" device="-F"/>
+<part name="R4" library="robotter_resistor" deviceset="10K" device="-F"/>
+<part name="+3V2" library="supply1" deviceset="+3V3" device=""/>
+<part name="R5" library="robotter_resistor" deviceset="3K09" device="-F"/>
+<part name="R6" library="robotter_resistor" deviceset="3K09" device="-F"/>
 </parts>
 <sheets>
 <sheet>
@@ -2249,19 +2281,6 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <instance part="C5" gate="G$1" x="487.68" y="340.36"/>
 <instance part="GND5" gate="1" x="487.68" y="332.74"/>
 <instance part="R2" gate="G$1" x="464.82" y="342.9"/>
-<instance part="IC2" gate="G$1" x="434.34" y="251.46"/>
-<instance part="C6" gate="G$1" x="462.28" y="274.32"/>
-<instance part="C7" gate="G$1" x="447.04" y="274.32"/>
-<instance part="GND3" gate="1" x="457.2" y="266.7"/>
-<instance part="GND4" gate="1" x="439.42" y="228.6"/>
-<instance part="+3V2" gate="G$1" x="462.28" y="279.4"/>
-<instance part="R3" gate="G$1" x="449.58" y="241.3" rot="R90"/>
-<instance part="R4" gate="G$1" x="459.74" y="241.3" rot="R90"/>
-<instance part="R5" gate="G$1" x="419.1" y="269.24" rot="R90"/>
-<instance part="R6" gate="G$1" x="419.1" y="236.22" rot="R90"/>
-<instance part="R7" gate="G$1" x="396.24" y="236.22" rot="R90"/>
-<instance part="C8" gate="G$1" x="388.62" y="236.22" rot="R180"/>
-<instance part="C9" gate="G$1" x="411.48" y="233.68" rot="R180"/>
 <instance part="LED2" gate="_B" x="73.66" y="91.44"/>
 <instance part="LED2" gate="_G" x="109.22" y="91.44"/>
 <instance part="LED2" gate="_R" x="144.78" y="91.44"/>
@@ -2334,6 +2353,18 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <instance part="R11" gate="G$1" x="60.96" y="256.54"/>
 <instance part="R12" gate="G$1" x="48.26" y="259.08"/>
 <instance part="GND17" gate="1" x="48.26" y="236.22"/>
+<instance part="IC3" gate="G$1" x="439.42" y="251.46"/>
+<instance part="C20" gate="G$1" x="474.98" y="256.54"/>
+<instance part="C21" gate="G$1" x="454.66" y="256.54"/>
+<instance part="+3V7" gate="G$1" x="474.98" y="281.94" smashed="yes">
+<attribute name="VALUE" x="472.44" y="281.94" size="1.778" layer="96"/>
+</instance>
+<instance part="GND18" gate="1" x="474.98" y="231.14"/>
+<instance part="R3" gate="G$1" x="353.06" y="259.08" rot="R90"/>
+<instance part="R4" gate="G$1" x="365.76" y="259.08" rot="R90"/>
+<instance part="+3V2" gate="G$1" x="360.68" y="271.78"/>
+<instance part="R5" gate="G$1" x="411.48" y="274.32" rot="R90"/>
+<instance part="R6" gate="G$1" x="421.64" y="274.32" rot="R90"/>
 </instances>
 <busses>
 </busses>
@@ -2402,38 +2433,6 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <segment>
 <pinref part="C5" gate="G$1" pin="2"/>
 <pinref part="GND5" gate="1" pin="GND"/>
-</segment>
-<segment>
-<pinref part="C6" gate="G$1" pin="2"/>
-<pinref part="GND3" gate="1" pin="GND"/>
-<wire x1="457.2" y1="269.24" x2="462.28" y2="269.24" width="0.1524" layer="91"/>
-<pinref part="C7" gate="G$1" pin="2"/>
-<wire x1="447.04" y1="269.24" x2="457.2" y2="269.24" width="0.1524" layer="91"/>
-<junction x="457.2" y="269.24"/>
-</segment>
-<segment>
-<pinref part="IC2" gate="G$1" pin="GND"/>
-<pinref part="GND4" gate="1" pin="GND"/>
-<pinref part="R4" gate="G$1" pin="1"/>
-<wire x1="459.74" y1="236.22" x2="459.74" y2="231.14" width="0.1524" layer="91"/>
-<wire x1="459.74" y1="231.14" x2="449.58" y2="231.14" width="0.1524" layer="91"/>
-<pinref part="R3" gate="G$1" pin="1"/>
-<wire x1="449.58" y1="231.14" x2="439.42" y2="231.14" width="0.1524" layer="91"/>
-<wire x1="449.58" y1="236.22" x2="449.58" y2="231.14" width="0.1524" layer="91"/>
-<junction x="449.58" y="231.14"/>
-<pinref part="C8" gate="G$1" pin="1"/>
-<wire x1="388.62" y1="233.68" x2="388.62" y2="231.14" width="0.1524" layer="91"/>
-<pinref part="R7" gate="G$1" pin="1"/>
-<wire x1="388.62" y1="231.14" x2="396.24" y2="231.14" width="0.1524" layer="91"/>
-<pinref part="C9" gate="G$1" pin="1"/>
-<wire x1="396.24" y1="231.14" x2="411.48" y2="231.14" width="0.1524" layer="91"/>
-<pinref part="R6" gate="G$1" pin="1"/>
-<wire x1="419.1" y1="231.14" x2="411.48" y2="231.14" width="0.1524" layer="91"/>
-<wire x1="419.1" y1="231.14" x2="439.42" y2="231.14" width="0.1524" layer="91"/>
-<junction x="439.42" y="231.14"/>
-<junction x="419.1" y="231.14"/>
-<junction x="411.48" y="231.14"/>
-<junction x="396.24" y="231.14"/>
 </segment>
 <segment>
 <pinref part="C10" gate="G$1" pin="2"/>
@@ -2539,6 +2538,30 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <wire x1="48.26" y1="238.76" x2="55.88" y2="238.76" width="0.1524" layer="91"/>
 <junction x="48.26" y="238.76"/>
 </segment>
+<segment>
+<pinref part="IC3" gate="G$1" pin="GND@1"/>
+<pinref part="C20" gate="G$1" pin="2"/>
+<wire x1="431.8" y1="233.68" x2="434.34" y2="233.68" width="0.1524" layer="91"/>
+<wire x1="434.34" y1="233.68" x2="436.88" y2="233.68" width="0.1524" layer="91"/>
+<wire x1="436.88" y1="233.68" x2="439.42" y2="233.68" width="0.1524" layer="91"/>
+<wire x1="439.42" y1="233.68" x2="444.5" y2="233.68" width="0.1524" layer="91"/>
+<wire x1="444.5" y1="233.68" x2="454.66" y2="233.68" width="0.1524" layer="91"/>
+<wire x1="454.66" y1="233.68" x2="474.98" y2="233.68" width="0.1524" layer="91"/>
+<wire x1="474.98" y1="233.68" x2="474.98" y2="251.46" width="0.1524" layer="91"/>
+<pinref part="C21" gate="G$1" pin="2"/>
+<wire x1="454.66" y1="251.46" x2="454.66" y2="233.68" width="0.1524" layer="91"/>
+<junction x="454.66" y="233.68"/>
+<pinref part="IC3" gate="G$1" pin="AVSSVCSEL"/>
+<junction x="444.5" y="233.68"/>
+<pinref part="IC3" gate="G$1" pin="GND@4"/>
+<junction x="439.42" y="233.68"/>
+<pinref part="IC3" gate="G$1" pin="GND@3"/>
+<junction x="436.88" y="233.68"/>
+<pinref part="IC3" gate="G$1" pin="GND@2"/>
+<junction x="434.34" y="233.68"/>
+<pinref part="GND18" gate="1" pin="GND"/>
+<junction x="474.98" y="233.68"/>
+</segment>
 </net>
 <net name="+3V3" class="0">
 <segment>
@@ -2567,21 +2590,6 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <wire x1="474.98" y1="322.58" x2="474.98" y2="342.9" width="0.1524" layer="91"/>
 <junction x="474.98" y="342.9"/>
 <junction x="474.98" y="322.58"/>
-</segment>
-<segment>
-<pinref part="IC2" gate="G$1" pin="VCC"/>
-<wire x1="439.42" y1="266.7" x2="439.42" y2="276.86" width="0.1524" layer="91"/>
-<pinref part="C6" gate="G$1" pin="1"/>
-<wire x1="439.42" y1="276.86" x2="447.04" y2="276.86" width="0.1524" layer="91"/>
-<pinref part="C7" gate="G$1" pin="1"/>
-<wire x1="447.04" y1="276.86" x2="462.28" y2="276.86" width="0.1524" layer="91"/>
-<junction x="447.04" y="276.86"/>
-<pinref part="+3V2" gate="G$1" pin="+3V3"/>
-<junction x="462.28" y="276.86"/>
-<pinref part="R5" gate="G$1" pin="2"/>
-<wire x1="439.42" y1="276.86" x2="419.1" y2="276.86" width="0.1524" layer="91"/>
-<wire x1="419.1" y1="276.86" x2="419.1" y2="274.32" width="0.1524" layer="91"/>
-<junction x="439.42" y="276.86"/>
 </segment>
 <segment>
 <pinref part="C16" gate="G$1" pin="1"/>
@@ -2631,6 +2639,37 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <wire x1="12.7" y1="279.4" x2="12.7" y2="281.94" width="0.1524" layer="91"/>
 <junction x="12.7" y="279.4"/>
 <pinref part="+3V6" gate="G$1" pin="+3V3"/>
+</segment>
+<segment>
+<pinref part="C20" gate="G$1" pin="1"/>
+<wire x1="474.98" y1="279.4" x2="474.98" y2="259.08" width="0.1524" layer="91"/>
+<pinref part="+3V7" gate="G$1" pin="+3V3"/>
+<pinref part="IC3" gate="G$1" pin="AVDD"/>
+<wire x1="439.42" y1="279.4" x2="439.42" y2="271.78" width="0.1524" layer="91"/>
+<pinref part="R5" gate="G$1" pin="2"/>
+<wire x1="411.48" y1="279.4" x2="421.64" y2="279.4" width="0.1524" layer="91"/>
+<wire x1="421.64" y1="279.4" x2="439.42" y2="279.4" width="0.1524" layer="91"/>
+<wire x1="474.98" y1="279.4" x2="454.66" y2="279.4" width="0.1524" layer="91"/>
+<pinref part="IC3" gate="G$1" pin="AVDDVCSEL"/>
+<wire x1="454.66" y1="279.4" x2="444.5" y2="279.4" width="0.1524" layer="91"/>
+<wire x1="439.42" y1="279.4" x2="444.5" y2="279.4" width="0.1524" layer="91"/>
+<wire x1="444.5" y1="279.4" x2="444.5" y2="271.78" width="0.1524" layer="91"/>
+<pinref part="C21" gate="G$1" pin="1"/>
+<wire x1="454.66" y1="259.08" x2="454.66" y2="279.4" width="0.1524" layer="91"/>
+<junction x="439.42" y="279.4"/>
+<pinref part="R6" gate="G$1" pin="2"/>
+<junction x="421.64" y="279.4"/>
+<junction x="444.5" y="279.4"/>
+<junction x="454.66" y="279.4"/>
+</segment>
+<segment>
+<pinref part="R4" gate="G$1" pin="2"/>
+<pinref part="R3" gate="G$1" pin="2"/>
+<wire x1="365.76" y1="264.16" x2="360.68" y2="264.16" width="0.1524" layer="91"/>
+<pinref part="+3V2" gate="G$1" pin="+3V3"/>
+<wire x1="360.68" y1="264.16" x2="353.06" y2="264.16" width="0.1524" layer="91"/>
+<wire x1="360.68" y1="264.16" x2="360.68" y2="269.24" width="0.1524" layer="91"/>
+<junction x="360.68" y="264.16"/>
 </segment>
 </net>
 <net name="BATTERY_MONITOR_0-1V" class="0">
@@ -2779,92 +2818,6 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <label x="429.26" y="342.9" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$2" class="0">
-<segment>
-<pinref part="IC2" gate="G$1" pin="LEDK"/>
-<pinref part="R3" gate="G$1" pin="2"/>
-<pinref part="R4" gate="G$1" pin="2"/>
-<wire x1="449.58" y1="246.38" x2="459.74" y2="246.38" width="0.1524" layer="91"/>
-<junction x="449.58" y="246.38"/>
-</segment>
-</net>
-<net name="APDS_OUTPUT_3V3" class="0">
-<segment>
-<pinref part="IC2" gate="G$1" pin="PS_DOUT"/>
-<pinref part="R5" gate="G$1" pin="1"/>
-<wire x1="419.1" y1="264.16" x2="419.1" y2="259.08" width="0.1524" layer="91"/>
-<wire x1="419.1" y1="259.08" x2="391.16" y2="259.08" width="0.1524" layer="91"/>
-<label x="391.16" y="259.08" size="1.778" layer="95"/>
-<junction x="419.1" y="259.08"/>
-</segment>
-<segment>
-<wire x1="132.08" y1="304.8" x2="149.86" y2="304.8" width="0.1524" layer="91"/>
-<label x="137.16" y="304.8" size="1.778" layer="95"/>
-<pinref part="IC5" gate="G$1" pin="MOSI/PD5"/>
-</segment>
-</net>
-<net name="APDS_ENABLE_3V3" class="0">
-<segment>
-<pinref part="IC2" gate="G$1" pin="PS_ENB"/>
-<wire x1="419.1" y1="256.54" x2="391.16" y2="256.54" width="0.1524" layer="91"/>
-<label x="391.16" y="256.54" size="1.778" layer="95"/>
-</segment>
-<segment>
-<wire x1="132.08" y1="307.34" x2="149.86" y2="307.34" width="0.1524" layer="91"/>
-<label x="137.16" y="307.34" size="1.778" layer="95"/>
-<pinref part="IC5" gate="G$1" pin="\S\S/PD4"/>
-</segment>
-</net>
-<net name="APDS_LED_PWM_3V3" class="0">
-<segment>
-<pinref part="IC2" gate="G$1" pin="LEDON"/>
-<wire x1="419.1" y1="254" x2="391.16" y2="254" width="0.1524" layer="91"/>
-<label x="391.16" y="254" size="1.778" layer="95"/>
-</segment>
-<segment>
-<wire x1="132.08" y1="309.88" x2="149.86" y2="309.88" width="0.1524" layer="91"/>
-<label x="137.16" y="309.88" size="1.778" layer="95"/>
-<pinref part="IC5" gate="G$1" pin="TXD0/OC0D/PD3"/>
-</segment>
-</net>
-<net name="APDS_PROXIMITY_ANA_0-0.65V" class="0">
-<segment>
-<pinref part="C8" gate="G$1" pin="2"/>
-<pinref part="R7" gate="G$1" pin="2"/>
-<wire x1="388.62" y1="241.3" x2="396.24" y2="241.3" width="0.1524" layer="91"/>
-<wire x1="396.24" y1="241.3" x2="396.24" y2="248.92" width="0.1524" layer="91"/>
-<pinref part="IC2" gate="G$1" pin="PS_PFILT"/>
-<wire x1="396.24" y1="248.92" x2="419.1" y2="248.92" width="0.1524" layer="91"/>
-<wire x1="396.24" y1="248.92" x2="363.22" y2="248.92" width="0.1524" layer="91"/>
-<label x="363.22" y="248.92" size="1.778" layer="95"/>
-<junction x="396.24" y="248.92"/>
-<junction x="396.24" y="241.3"/>
-</segment>
-<segment>
-<pinref part="IC5" gate="G$1" pin="PA1/ADCA1"/>
-<wire x1="68.58" y1="312.42" x2="25.4" y2="312.42" width="0.1524" layer="91"/>
-<label x="25.4" y="312.42" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="APDS_AMBIENT_0-300MV" class="0">
-<segment>
-<pinref part="IC2" gate="G$1" pin="ALS_IOUT"/>
-<pinref part="C9" gate="G$1" pin="2"/>
-<wire x1="419.1" y1="243.84" x2="411.48" y2="243.84" width="0.1524" layer="91"/>
-<wire x1="411.48" y1="243.84" x2="411.48" y2="238.76" width="0.1524" layer="91"/>
-<pinref part="R6" gate="G$1" pin="2"/>
-<wire x1="419.1" y1="241.3" x2="419.1" y2="243.84" width="0.1524" layer="91"/>
-<wire x1="411.48" y1="243.84" x2="363.22" y2="243.84" width="0.1524" layer="91"/>
-<label x="363.22" y="243.84" size="1.778" layer="95"/>
-<junction x="411.48" y="243.84"/>
-<junction x="419.1" y="243.84"/>
-</segment>
-<segment>
-<pinref part="IC5" gate="G$1" pin="PA0/ADCA0/AREF"/>
-<wire x1="68.58" y1="314.96" x2="25.4" y2="314.96" width="0.1524" layer="91"/>
-<label x="25.4" y="314.96" size="1.778" layer="95"/>
-</segment>
-</net>
 <net name="N$3" class="0">
 <segment>
 <pinref part="R9" gate="G$1" pin="2"/>
@@ -2891,9 +2844,9 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <label x="20.32" y="58.42" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="IC5" gate="G$1" pin="PC1/OC0B/XCK0/SCL"/>
-<wire x1="68.58" y1="271.78" x2="38.1" y2="271.78" width="0.1524" layer="91"/>
-<label x="38.1" y="271.78" size="1.778" layer="95"/>
+<pinref part="IC5" gate="G$1" pin="\S\S/PD4"/>
+<wire x1="132.08" y1="307.34" x2="149.86" y2="307.34" width="0.1524" layer="91"/>
+<label x="134.62" y="307.34" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="LED_BLUE_CMD_3V3" class="0">
@@ -2903,9 +2856,9 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <label x="20.32" y="78.74" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="IC5" gate="G$1" pin="PC0/OC0A/SDA"/>
-<wire x1="68.58" y1="274.32" x2="38.1" y2="274.32" width="0.1524" layer="91"/>
-<label x="38.1" y="274.32" size="1.778" layer="95"/>
+<pinref part="IC5" gate="G$1" pin="TXD0/OC0D/PD3"/>
+<wire x1="132.08" y1="309.88" x2="149.86" y2="309.88" width="0.1524" layer="91"/>
+<label x="134.62" y="309.88" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$10" class="0">
@@ -3193,6 +3146,65 @@ color_valid_3v3 is high when data on color_data*_3v3 is valid, else 0 when data 
 <pinref part="R12" gate="G$1" pin="1"/>
 <pinref part="PC6" gate="G$1" pin="A"/>
 <wire x1="43.18" y1="259.08" x2="43.18" y2="246.38" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="INT_VL53L0X_3V3" class="0">
+<segment>
+<pinref part="IC3" gate="G$1" pin="GPIO1"/>
+<wire x1="426.72" y1="254" x2="365.76" y2="254" width="0.1524" layer="91"/>
+<label x="393.7" y="254" size="1.778" layer="95"/>
+<pinref part="R4" gate="G$1" pin="1"/>
+</segment>
+<segment>
+<pinref part="IC5" gate="G$1" pin="MOSI/PD5"/>
+<wire x1="132.08" y1="304.8" x2="149.86" y2="304.8" width="0.1524" layer="91"/>
+<label x="134.62" y="304.8" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="CE_VL53L0X_3V3" class="0">
+<segment>
+<wire x1="426.72" y1="248.92" x2="353.06" y2="248.92" width="0.1524" layer="91"/>
+<wire x1="353.06" y1="248.92" x2="353.06" y2="254" width="0.1524" layer="91"/>
+<pinref part="IC3" gate="G$1" pin="XSHUT"/>
+<label x="393.7" y="248.92" size="1.778" layer="95"/>
+<pinref part="R3" gate="G$1" pin="1"/>
+</segment>
+<segment>
+<pinref part="IC5" gate="G$1" pin="MISO/PD6"/>
+<wire x1="132.08" y1="302.26" x2="149.86" y2="302.26" width="0.1524" layer="91"/>
+<label x="134.62" y="302.26" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="SDA_VL53V0X_3V3" class="0">
+<segment>
+<pinref part="IC5" gate="G$1" pin="PC0/OC0A/SDA"/>
+<wire x1="68.58" y1="274.32" x2="38.1" y2="274.32" width="0.1524" layer="91"/>
+<label x="38.1" y="274.32" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="IC3" gate="G$1" pin="SDA"/>
+<wire x1="426.72" y1="266.7" x2="411.48" y2="266.7" width="0.1524" layer="91"/>
+<label x="373.38" y="266.7" size="1.778" layer="95"/>
+<pinref part="R5" gate="G$1" pin="1"/>
+<wire x1="411.48" y1="266.7" x2="373.38" y2="266.7" width="0.1524" layer="91"/>
+<wire x1="411.48" y1="269.24" x2="411.48" y2="266.7" width="0.1524" layer="91"/>
+<junction x="411.48" y="266.7"/>
+</segment>
+</net>
+<net name="SCL_VL53V0X_3V3" class="0">
+<segment>
+<pinref part="IC5" gate="G$1" pin="PC1/OC0B/XCK0/SCL"/>
+<wire x1="38.1" y1="271.78" x2="68.58" y2="271.78" width="0.1524" layer="91"/>
+<label x="38.1" y="271.78" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="IC3" gate="G$1" pin="SCL"/>
+<wire x1="426.72" y1="261.62" x2="421.64" y2="261.62" width="0.1524" layer="91"/>
+<label x="373.38" y="261.62" size="1.778" layer="95"/>
+<pinref part="R6" gate="G$1" pin="1"/>
+<wire x1="421.64" y1="261.62" x2="373.38" y2="261.62" width="0.1524" layer="91"/>
+<wire x1="421.64" y1="261.62" x2="421.64" y2="269.24" width="0.1524" layer="91"/>
+<junction x="421.64" y="261.62"/>
 </segment>
 </net>
 </nets>
