@@ -18,6 +18,7 @@ Initial value: 0xffff
 """
 
 import struct
+import re
 import itertools
 from collections import namedtuple as _namedtuple
 from . import types as rome_types
@@ -26,6 +27,14 @@ from . import types as rome_types
 START_BYTE = 0x52
 START_BYTES = bytes([START_BYTE])
 MIN_FRAME_SIZE = 5
+
+
+# valid message or parameter name
+# leading '_' is reserved for internal use
+re_symbol_name = re.compile(r'^[A-Za-z0-9][A-Za-z0-9_]*$')
+
+def is_valid_symbol_name(s):
+  return re_symbol_name.match(s) is not None
 
 
 def crc16(data):
@@ -63,13 +72,17 @@ class Frame(object):
 
   """
 
-  def __init__(self, msg, *a, **kw):
+  def __init__(_self, _msg, *a, **kw):
     """Create a frame for given message and parameters
 
     msg may be a Message instance, a message ID or a message name.
     ACK value may be provided in _ack keyword argument.
     """
 
+    # Make sure to not use unserved names in function parameters.
+    # Otherwise, they could conflict with message parameters.
+    msg = _msg
+    self = _self
     if isinstance(msg, Message):
       self.msg = msg
     elif isinstance(msg, int):
@@ -273,6 +286,11 @@ class Message(object):
   def __init__(self, mid, name, ptypes):
     if mid <= 0 or mid > 255:
       raise ValueError("invalid message ID: %r" % mid)
+    if not is_valid_symbol_name(name):
+      raise ValueError("invalid message name: %r" % name)
+    for k,_ in ptypes:
+      if not is_valid_symbol_name(k):
+        raise ValueError("invalid message parameter name: %r" % k)
     self.mid = mid
     self.name = name
     self.ptypes = ptypes
