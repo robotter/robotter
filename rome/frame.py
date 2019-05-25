@@ -203,7 +203,7 @@ class Frame(object):
       if ndata-pos < MIN_FRAME_SIZE:
         # not enough data for a whole frame
         return None, data[:pos], data[pos:]
-      size = data[1]
+      size = data[pos+1]
       end = pos + MIN_FRAME_SIZE + size
       if end > ndata:
         # incomplete frame
