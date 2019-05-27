@@ -322,11 +322,20 @@ class Order(Message):
     self.plsize += 1
 
 
+def ptype_from_decl(value):
+  if isinstance(value, str):
+    typ, name = value.rsplit(' ', 1)
+  else:
+    name, typ = value
+  return (k, rome_types.from_decl(typ))
+
 def register_messages(*groups):
   """Create and register groups of messages and return them
 
   groups is an iterable of (mid, messages) pairs
   where messages is a list of (name, ptypes) or (Order|Message, name, ptypes).
+
+  ptypes values can be (name, type) pairs or "type name" strings.
 
   mids are affected automatically.
   Registered transactions are returned.
@@ -343,7 +352,7 @@ def register_messages(*groups):
         name, ptypes = args
       else:
         cls, name, ptypes = args
-      ptypes = [ (k, rome_types.from_decl(t)) for k,t in ptypes ]
+      ptypes = [ptype_from_decl(v) for v in ptypes]
       msg = cls(mid, name, ptypes)
       mid += 1
       msg.register()
