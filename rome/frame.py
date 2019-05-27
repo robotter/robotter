@@ -327,7 +327,7 @@ def ptype_from_decl(value):
     typ, name = value.rsplit(' ', 1)
   else:
     name, typ = value
-  return (k, rome_types.from_decl(typ))
+  return (name, rome_types.from_decl(typ))
 
 def register_messages(*groups):
   """Create and register groups of messages and return them
